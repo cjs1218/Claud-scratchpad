@@ -116,14 +116,12 @@ button { font: inherit; cursor: pointer; }
 .note { font-size: 0.85rem; color: var(--warn-fg); background: var(--warn-bg); padding: 6px 8px; border-radius: 6px; margin: 6px 0; }
 .tests { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 4px; }
 .test-chip { font-size: 0.78rem; border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; }
-.test-nocode { border-style: dashed; color: var(--muted); }
 details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 .warn { font-size: 0.85rem; color: var(--warn-fg); background: var(--warn-bg); padding: 8px 10px; border-radius: 6px; }
 #results h2 { margin: 20px 0 8px; }
 .test { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
 .test p { margin: 4px 0; font-size: 0.88rem; }
 .code { font: 700 0.85rem ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--accent); color: #fff; padding: 2px 6px; border-radius: 4px; margin-right: 4px; }
-.code-q { background: var(--muted); }
 
 .browse-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .browse-controls input { flex: 1; min-width: 200px; }

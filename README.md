@@ -32,9 +32,11 @@ Everything clinical lives in `js/data.js`:
   - `maxAge`: rule only applies at or below this age
 - `mods` multiply a condition's score when a marker is present
   (e.g. MLH1 loss explained by methylation ×0.2 for Lynch MLH1).
-- **TESTS** – Rare and Inherited Disease Test Directory v9.1 (Part XI) codes, PanelApp
-  panels and condensed criteria (`code: null` = test lives outside Part XI).
-- **EG / SOURCES** – East Genomics patient leaflets and UK guidance per condition.
+- **TESTS** – Rare and Inherited Disease Test Directory v9.1 codes, PanelApp panels and
+  condensed criteria (Part XI unless `part` names another chapter, e.g. `'IV'` Endocrinology).
+- **EG / GUIDES / SOURCES** – East Genomics leaflets (direct links) and UKCGG / NICE guidance per condition.
+- **REFS** – per-condition GeneReviews chapters (`GR_TITLES`) and OMIM phenotype entries
+  (`OMIM_TITLES`); gene entries come from `GENE_MIM`.
 - **NICPR** – the NICPR Appendix 1 gene list and its annotations.
 
 ## Scoring
