@@ -40,7 +40,7 @@ Everything clinical lives in `js/data.js`:
 - **REFS** – per-condition GeneReviews chapters (`GR_TITLES`) and OMIM phenotype entries
   (`OMIM_TITLES`); gene entries come from `GENE_MIM`.
 - **NICPR** – the NICPR Appendix 1 gene list and its annotations.
-- **DATA_CHECKED / SOURCE_DATES** – when each information source was last pulled and checked.
+- **DATA_CHECKED / SOURCE_DATES** – when each information source was last pulled and checked; listed on the Sources tab (`#sources`), linked by a button at the foot of each syndrome and gene page, and printed in full on printouts.
 - **LAST_REVIEWED** – date each syndrome was last reviewed (YYYY-MM-DD); shown on syndrome and gene pages, summaries and printouts, and flagged when over 12 months old.
 - **SURVEILLANCE** – suggested surveillance per condition: UK first (UKCGG gene guidelines, BSG 2019),
   then European (ERN GENTURIS, EHTG/ESCP, SIOPE), then international (AACR, consensus guidelines, GeneReviews
@@ -55,7 +55,7 @@ Three views: **By syndrome** (grouped into categories), **By gene** (one page pe
 every syndrome it causes) and **By cancer and histology**. Filter by text, Test Directory code or
 UKCGG guideline. Each syndrome / gene page shows genes, inheritance, NICPR notes, cancers and
 histology with strength and age thresholds, Test Directory tests with criteria, all guidance,
-leaflets and references, and the date each source was checked (`DATA_CHECKED`, `SOURCE_DATES`).
+leaflets and references, then suggested surveillance as the last section, and a button to the Sources tab.
 
 Printing: each page has Print; tick items in the list for **Print selected**, or **Print all
 shown** for a handbook with a contents page. Printouts show URLs after links and a footer with

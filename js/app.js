@@ -522,11 +522,21 @@
     return `<span class="reviewed${r.stale ? ' stale' : ''}">${esc(r.text)}${r.stale ? ' <span class="stale-flag">over 12 months ago – due for review</span>' : ''}</span>`;
   }
 
-  function datesHtml() {
-    return `<h3>Information sources and dates</h3>
+  /* On screen: a button to the Sources tab. In print: the full table plus the web address of the list. */
+  function datesHtml(forPrint) {
+    if (!forPrint) return `<p class="sources-link"><a class="btn-ghost" href="#sources">Information sources and dates →</a>
+      <span class="muted small">Information checked ${esc(DATA_CHECKED)}</span></p>`;
+    return `${sourcesTableHtml()}<p class="small">Full list of sources and dates: ${esc(SITE_URL)}#sources</p>`;
+  }
+  function sourcesTableHtml(heading = 'h3') {
+    return `<${heading}>Information sources and dates</${heading}>
       <p class="small">Information checked: <strong>${esc(DATA_CHECKED)}</strong>. Guideline years are shown in each title.</p>
       <div class="table-wrap"><table class="syn-table dates"><thead><tr><th>Source</th><th>Version</th><th>Checked</th></tr></thead>
       <tbody>${SOURCE_DATES.map(([src, ver, d]) => `<tr><td>${esc(src)}</td><td>${esc(ver)}</td><td>${esc(d)}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function renderSources() {
+    $('#sources-page').innerHTML = `${sourcesTableHtml('h2')}
+      <p class="muted small">Each syndrome also shows the date its own content was last reviewed.</p>`;
   }
 
   function pageActions(key) {
@@ -586,12 +596,12 @@
       ${cancersTable(c)}
       <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. Age limit: association only applies at or below this age.</p>
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
-      ${survHtml(c)}
       <h3>Test Directory tests</h3>
       ${testsDetail(c.tests)}
       <h3>Guidance, leaflets and references</h3>
       ${sourcesHtml(c)}
-      ${datesHtml()}`;
+      ${survHtml(c)}
+      ${datesHtml(forPrint)}`;
   }
 
   function genePage(g, forPrint) {
@@ -621,7 +631,6 @@
         <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${esc(mainCancers(c))}</td><td>${reviewedHtml(c)}</td></tr>`).join('')}</tbody>
       </table></div>
       ${cs.filter(c => c.note).map(c => `<p class="note">${esc(c.name)}: ${esc(c.note)}</p>`).join('')}
-      ${cs.map(c => `<div class="surv-block">${survHtml(c, 'h4').replace('Suggested surveillance</h4>', `Suggested surveillance – ${esc(c.name)}</h4>`)}</div>`).join('')}
       <h3>Test Directory tests</h3>
       ${testsDetail(uniq(cs.flatMap(c => c.tests)))}
       <h3>Guidance and leaflets</h3>
@@ -630,7 +639,9 @@
         <ul>${cs.map(c => { const ph = phenoLinks(c); return `<li><strong>${esc(c.name)}</strong> – GeneReviews: ${grLinks(c)}${ph ? `; OMIM: ${ph}` : ''}</li>`; }).join('')}
           <li>OMIM gene: ${geneMimLink(g)}</li></ul>
       </div>
-      ${datesHtml()}`;
+      <h3>Suggested surveillance</h3>
+      ${cs.map(c => `<div class="surv-block">${survHtml(c, 'h4').replace('Suggested surveillance</h4>', `${esc(c.name)}</h4>`)}</div>`).join('')}
+      ${datesHtml(forPrint)}`;
   }
 
   function currentKey() {
@@ -775,12 +786,14 @@
       setTab('browse');
       if ($('#syn-detail').getBoundingClientRect().top < 0) $('#syn-detail').scrollIntoView();
     } else {
-      setTab(location.hash === '#syndromes' ? 'browse' : 'assess');
+      setTab(location.hash === '#syndromes' ? 'browse' : location.hash === '#sources' ? 'sources' : 'assess');
     }
   }
 
   function goTab(tab) {
-    if (tab === 'browse') {
+    if (tab === 'sources') {
+      if (location.hash !== '#sources') location.hash = 'sources'; else route();
+    } else if (tab === 'browse') {
       const key = currentKey();
       if (!/^#(syndrome|gene)=/.test(location.hash)) location.hash = key ? `${key.startsWith('gene') ? 'gene' : 'syndrome'}=${key.split(':')[1]}` : 'syndromes';
       else route();
@@ -810,7 +823,9 @@
     document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     $('#tab-assess').hidden = tab !== 'assess';
     $('#tab-browse').hidden = tab !== 'browse';
+    $('#tab-sources').hidden = tab !== 'sources';
     if (tab === 'browse') renderBrowse();
+    if (tab === 'sources') renderSources();
   }
 
   function init() {

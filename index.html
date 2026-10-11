@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cancer Predisposition Differential</title>
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
-  <link rel="stylesheet" href="assets/style.css?v=20261011-13">
+  <link rel="stylesheet" href="assets/style.css?v=20261011-14">
 </head>
 <body>
   <header class="site-head">
@@ -23,6 +23,7 @@
     <nav class="tabs wrap" aria-label="Sections">
       <button type="button" data-tab="assess" class="active">Family assessment</button>
       <button type="button" data-tab="browse">Syndromes</button>
+      <button type="button" data-tab="sources">Sources</button>
     </nav>
   </div>
 
@@ -55,6 +56,10 @@
         </div>
         <div id="results"></div>
       </section>
+    </div>
+
+    <div id="tab-sources" hidden>
+      <section class="panel" id="sources-page"></section>
     </div>
 
     <div id="tab-browse" hidden>
@@ -93,7 +98,7 @@
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261011-13"></script>
-  <script src="js/app.js?v=20261011-13"></script>
+  <script src="js/data.js?v=20261011-14"></script>
+  <script src="js/app.js?v=20261011-14"></script>
 </body>
 </html>

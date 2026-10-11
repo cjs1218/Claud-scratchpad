@@ -214,3 +214,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 .reviewed { white-space: nowrap; }
 .reviewed.stale { color: var(--warn-fg); font-weight: 600; white-space: normal; }
 .stale-flag { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--warn-fg); background: var(--warn-bg); border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+
+/* Button to the Sources tab at the foot of syndrome and gene pages */
+.sources-link { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; }
+.sources-link a.btn-ghost { text-decoration: none; display: inline-block; }
