@@ -612,6 +612,11 @@
     $('#browse-search').addEventListener('input', renderBrowse);
     $('#syn-detail').addEventListener('click', onSynAction);
     window.addEventListener('hashchange', openFromHash);
+    // A link to the syndrome already in the URL fires no hashchange, so open it directly.
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href^="#syndrome="]');
+      if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); openFromHash(); }
+    });
     $('#gene-count').textContent = NICPR.genes.length;
     $('#cond-count').textContent = CONDITIONS.length;
     renderFamily();
