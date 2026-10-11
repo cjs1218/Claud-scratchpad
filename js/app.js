@@ -525,6 +525,33 @@
   }
   const printKicker = (kind) => `<p class="print-only print-kicker">Cancer Predisposition Differential – ${kind} summary · information checked ${esc(DATA_CHECKED)}</p>`;
 
+  /* ---- Suggested surveillance (UK first, then European, then international) ---- */
+  const SURV_LEVEL = {
+    uk: ['UK', 'UK guidance'],
+    eu: ['EU', 'European guidance – no UK gene-specific guideline'],
+    intl: ['INTL', 'International guidance – no UK or European gene-specific guideline']
+  };
+  function survSource(k) {
+    if (k.startsWith('gr:')) { const n = k.slice(3); return [`GeneReviews: ${GR_TITLES[n]} (summary of published guidelines)`, REF_LINKS.geneReviews(n)]; }
+    return GUIDES[k] || EU_GUIDES[k] || US_GUIDES[k];
+  }
+  const survLink = k => { const [l, u] = survSource(k); return link(l, u); };
+
+  function survHtml(c, heading = 'h3') {
+    const sv = SURVEILLANCE[c.id];
+    const h = `<${heading}>Suggested surveillance</${heading}>`;
+    if (!sv || sv.lvl === 'none') return `${h}<p class="muted small">${esc(sv ? sv.note : 'No surveillance guidance recorded.')}</p>`;
+    const [badge, label] = SURV_LEVEL[sv.lvl];
+    return `${h}
+      <p class="surv-src"><span class="surv-badge surv-${sv.lvl}">${badge}</span> ${esc(label)}. Based on: ${sv.src.map(survLink).join('; ')}</p>
+      <div class="table-wrap"><table class="syn-table surv-table"><tbody>
+        ${sv.items.map(([a, t]) => `<tr><th scope="row">${esc(a)}</th><td>${esc(t)}</td></tr>`).join('')}
+      </tbody></table></div>
+      ${sv.note ? `<p class="small">${esc(sv.note)}</p>` : ''}
+      ${sv.diff ? `<p class="small"><strong>Other guidance that differs:</strong></p><ul class="small surv-diff">${sv.diff.map(([k, t]) => `<li>${survLink(k)}: ${esc(t)}</li>`).join('')}</ul>` : ''}
+      <p class="muted small">Summarised from published guidance (checked ${esc(DATA_CHECKED)}). Confirm with the full guideline and local services (e.g. NHS screening programmes, NDRS Lynch portal) before use.</p>`;
+  }
+
   function synPage(c, forPrint) {
     const flags = c.genes.map(g => [g, geneFlags(g)]).filter(([, f]) => f.length);
     const mods = (c.mods || []).map(([site, pred, f]) => `${site === '*' ? 'Any site' : SITES[site].label}: ${PRED_LABEL[pred]} ×${f}`);
@@ -545,6 +572,7 @@
       ${cancersTable(c)}
       <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. Age limit: association only applies at or below this age.</p>
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
+      ${survHtml(c)}
       <h3>Test Directory tests</h3>
       ${testsDetail(c.tests)}
       <h3>Guidance, leaflets and references</h3>
@@ -579,6 +607,7 @@
         <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${esc(mainCancers(c))}</td></tr>`).join('')}</tbody>
       </table></div>
       ${cs.filter(c => c.note).map(c => `<p class="note">${esc(c.name)}: ${esc(c.note)}</p>`).join('')}
+      ${cs.map(c => `<div class="surv-block">${survHtml(c, 'h4').replace('Suggested surveillance</h4>', `Suggested surveillance – ${esc(c.name)}</h4>`)}</div>`).join('')}
       <h3>Test Directory tests</h3>
       ${testsDetail(uniq(cs.flatMap(c => c.tests)))}
       <h3>Guidance and leaflets</h3>
@@ -609,6 +638,15 @@
     if (c.note) L.push(c.note);
     L.push('', 'CANCERS AND HISTOLOGY');
     [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).forEach(r => { const t = ruleText(r); L.push(`- [${TIER_LABEL[t.tier]}] ${t.text}`); });
+    const sv = SURVEILLANCE[c.id];
+    if (sv) {
+      L.push('', 'SUGGESTED SURVEILLANCE' + (sv.lvl !== 'none' ? ` (${SURV_LEVEL[sv.lvl][1]})` : ''));
+      if (sv.lvl === 'none') L.push(`- ${sv.note}`);
+      sv.items.forEach(([a, t]) => L.push(`- ${a}: ${t}`));
+      if (sv.lvl !== 'none') L.push(`  Based on: ${sv.src.map(k => survSource(k)[0]).join('; ')}`);
+      if (sv.note && sv.lvl !== 'none') L.push(`  ${sv.note}`);
+      (sv.diff || []).forEach(([k, t]) => L.push(`  Differs – ${survSource(k)[0]}: ${t}`));
+    }
     L.push('', 'TEST DIRECTORY');
     c.tests.forEach(k => L.push(`- ${TESTS[k].code} ${TESTS[k].name}${TESTS[k].part ? ` (Part ${TESTS[k].part})` : ''}`));
     L.push('', 'REFERENCES');
