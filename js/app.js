@@ -779,7 +779,7 @@
   function evSource(k) {
     const [type, id] = k.includes(':') ? k.split(/:(.*)/) : ['', k];
     if (type === 'gr') return ['GeneReviews', `GeneReviews: ${GR_TITLES[id]}`, REF_LINKS.geneReviews(id)];
-    if (type === 'ukcgg') { const g = GUIDES[id]; return [EV_SHORT[id] || 'UKCGG', g[0], g[1]]; }
+    if (type === 'ukcgg') { const g = GUIDES[id]; return [EV_SHORT[id] || g[0].split(' ').slice(0, 2).join(' '), g[0], g[1]]; }
     if (type === 'eu') { const g = EU_GUIDES[id]; return [EV_SHORT[id] || shortTitle(g[0]), g[0], g[1]]; }
     if (type === 'us') { const g = US_GUIDES[id]; return [EV_SHORT[id] || shortTitle(g[0]), g[0], g[1]]; }
     if (type === 'clingen') return ['ClinGen', `ClinGen gene–disease validity: ${id}`, REF_LINKS.clingen(id)];
@@ -787,7 +787,12 @@
     const e = EVIDENCE[k];
     return [e[0], e[1], e[2]];
   }
-  const shortTitle = t => t.split(/[:(–]/)[0].trim().slice(0, 28);
+  // "ERN GENTURIS 2023", "AACR 2024" … from a guideline title.
+  const shortTitle = t => {
+    const y = (t.match(/\b(19|20)\d{2}\b(?!.*\b(19|20)\d{2}\b)/) || [''])[0];
+    const org = (t.match(/^(ERN GENTURIS|EHTG|SIOPE|AACR|IGCLC|ESMO|NCCN|ACMG|NICE|BSG)/) || [])[0];
+    return `${org || t.split(/[:(–]/)[0].trim().split(' ').slice(0, 3).join(' ')}${y ? ' ' + y : ''}`;
+  };
   const evLinks = keys => (keys || []).map(k => { const [sh, t, u] = evSource(k); return `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(t)}">${esc(sh)}</a>`; }).join(' · ');
   const evShort = keys => (keys || []).map(k => evSource(k)[0]).join(', ');
 

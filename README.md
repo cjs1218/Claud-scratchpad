@@ -41,6 +41,12 @@ Everything clinical lives in `js/data.js`:
   (`OMIM_TITLES`); gene entries come from `GENE_MIM`.
 - **NICPR** – the NICPR Appendix 1 gene list and its annotations.
 - **DATA_CHECKED / SOURCE_DATES** – when each information source was last pulled and checked; listed on the Sources tab (`#sources`), linked by a button at the foot of each syndrome and gene page, and printed in full on printouts.
+- **Rule evidence** – each rule is `[site, hist, tier, earlyAge, condition, maxAge, sources, risk]`. `sources` lists keys:
+  `gr:<NBK>` (GeneReviews), `ukcgg:<GUIDES key>`, `eu:` / `us:` guideline keys, `clingen:<GENE>`, `canvar:<GENE>`, or a key
+  in **EVIDENCE** (`[short label, citation, DOI/PubMed URL]`). `risk` is an optional short risk figure. Shown in the
+  "Risk and evidence" column on syndrome pages.
+- **VARIANT_NOTES** – genotype–phenotype notes per condition (`[text, sources]`), information only (not scored).
+- **ABBREVIATIONS** – abbreviations in cancer types / histologies / markers; click-to-expand wherever they appear.
 - **LAST_REVIEWED** – date each syndrome was last reviewed (YYYY-MM-DD); shown on syndrome and gene pages, summaries and printouts, and flagged when over 12 months old.
 - **SURVEILLANCE** – suggested surveillance per condition: UK first (UKCGG gene guidelines, BSG 2019),
   then European (ERN GENTURIS, EHTG/ESCP, SIOPE), then international (AACR, consensus guidelines, GeneReviews
