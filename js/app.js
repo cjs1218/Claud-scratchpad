@@ -929,7 +929,7 @@
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
       ${variantHtml(c)}
       <h3 id="jump-tests">Test Directory tests</h3>
-      ${testsDetail(c.tests)}
+      ${c.tests.length ? testsDetail(c.tests) : '<p class="muted small">No specific Test Directory test is listed for this condition; discuss testing with your Genomic Laboratory Hub.</p>'}
       <h3 id="jump-guidance">Guidance, leaflets and references</h3>
       ${sourcesHtml(c)}
       ${survHtml(c)}

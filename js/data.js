@@ -254,7 +254,6 @@ const CONDITIONS = [
       ['prostate', 'highrisk', 'S', 65, null, null, ['gr:NBK1247', 'ukcgg:brca2', 'li2022'], 'BRCA2 prostate cancer more often high grade/stage; annual PSA from 40 (UKCGG)'],
       ['ovary', 'endometrioid|clearcell|nos', 'M', null, null, null, ['ukcgg:brca2', 'gr:NBK1247'], 'Tubo-ovarian ~17% by 80, predominantly high-grade serous'],
       ['cns', 'medullo_shh|medullo_nos', 'W', null, null, null, ['waszak2018', 'clingen:BRCA2', 'us:aacr_brain'], 'BRCA2 a consensus medulloblastoma predisposition gene (rare); biallelic = Fanconi anaemia D1'],
-      ['skin', 'melanoma', 'W', null, null, null, ['gr:NBK1247'], '\'Elevated risk\' (GeneReviews); no association in Li 2022'],
       ['eye', 'uveal', 'W', null, null, null, ['gr:NBK1247'], 'Increased uveal melanoma risk in BRCA2 families (Moran 2012, via GeneReviews)'],
       ['stomach', '*', 'W', null, null, null, ['li2022'], 'Stomach RR 3.69 (female 6.89, male 2.76) (Li 2022); UKCGG: no consistent association']
     ],
@@ -294,7 +293,7 @@ const CONDITIONS = [
     tests: ['R208'],
     rules: [
       ['breast', '*', 'M', 60, 'tnbc', null, ['ukcgg:bard1', 'hu2021', 'dorling2021'], 'Stronger association with triple-negative than ER+ disease (UKCGG; CARRIERS)'],
-      ['breast', '*', 'W', 50, null, null, ['ukcgg:bard1', 'dorling2021', 'hu2021'], 'Female breast OR 2.09 for PTVs (non-PTV 1.00); ~17-30% by 80 (UKCGG)']
+      ['breast', '*', 'M', 50, null, null, ['ukcgg:bard1', 'dorling2021', 'hu2021'], 'Female breast OR 2.09 for PTVs (non-PTV 1.00); ~17-30% by 80 (UKCGG)']
     ] },
   { id: 'rad51d', name: 'RAD51D-related ovarian/breast cancer predisposition', genes: ['RAD51D'], inh: 'AD',
     tests: ['R207','R208'],
@@ -302,7 +301,7 @@ const CONDITIONS = [
       ['ovary', 'hgsc', 'S', null, null, null, ['ukcgg:rad51d', 'ukcgg:hanson', 'yang2020rad51'], 'Tubo-ovarian ~13% by 80, RR 7.6; up to 32-36% with 2 FDRs; risk mostly after 50 (Yang 2020; UKCGG)'],
       ['ovary', 'endometrioid|nos', 'M', null, null, null, ['ukcgg:rad51d', 'yang2020rad51'], 'Tubo-ovarian ~13% by 80 (histotype not separated)'],
       ['breast', '*', 'M', 60, 'tnbc', null, ['ukcgg:rad51d', 'ukcgg:hanson', 'hu2021', 'dorling2021'], 'Association strongest with ER-negative/triple-negative BC (CARRIERS ER-neg OR RAD51C 2.19, RAD51D 3.93, via Hanson)'],
-      ['breast', '*', 'W', null, null, null, ['ukcgg:rad51d', 'ukcgg:hanson', 'yang2020rad51', 'dorling2021'], 'Female breast ~20% by 80, RR 1.83 (Yang 2020); BCAC OR 1.8']
+      ['breast', '*', 'M', null, null, null, ['ukcgg:rad51d', 'ukcgg:hanson', 'yang2020rad51', 'dorling2021'], 'Female breast ~20% by 80, RR 1.83 (Yang 2020); BCAC OR 1.8']
     ] },
   { id: 'rad51c', name: 'RAD51C-related ovarian/breast cancer predisposition', genes: ['RAD51C'], inh: 'AD',
     notOnNicpr: true, tests: ['R207','R208'],
@@ -310,7 +309,7 @@ const CONDITIONS = [
       ['ovary', 'hgsc', 'S', null, null, null, ['ukcgg:rad51c', 'ukcgg:hanson', 'yang2020rad51'], 'Tubo-ovarian ~11% by 80, RR 7.55; up to 32-36% with 2 FDRs; risk mostly after 50 (Yang 2020; UKCGG)'],
       ['ovary', 'endometrioid|nos', 'M', null, null, null, ['ukcgg:rad51c', 'yang2020rad51'], 'Tubo-ovarian ~11% by 80 (histotype not separated)'],
       ['breast', '*', 'M', 60, 'tnbc', null, ['ukcgg:rad51c', 'ukcgg:hanson', 'hu2021', 'dorling2021'], 'Association strongest with ER-negative/triple-negative BC (CARRIERS ER-neg OR RAD51C 2.19, RAD51D 3.93, via Hanson)'],
-      ['breast', '*', 'W', null, null, null, ['ukcgg:rad51c', 'ukcgg:hanson', 'yang2020rad51', 'dorling2021'], 'Female breast ~21% by 80, RR 1.99 (Yang 2020); BCAC OR 1.93']
+      ['breast', '*', 'M', null, null, null, ['ukcgg:rad51c', 'ukcgg:hanson', 'yang2020rad51', 'dorling2021'], 'Female breast ~21% by 80, RR 1.99 (Yang 2020); BCAC OR 1.93']
     ] },
   { id: 'brip1', name: 'BRIP1-related ovarian cancer predisposition (heterozygous)', genes: ['BRIP1'], inh: 'AD',
     tests: ['R207','R208'],
@@ -1032,7 +1031,7 @@ const CONDITIONS = [
 
   /* ---------- DNA repair / chromosome instability ---------- */
   { id: 'fanconi', name: 'Fanconi anaemia (biallelic FANC genes)',
-    genes: ['FANCA', 'FANCB', 'FANCC', 'BRCA2', 'FANCD2', 'FANCE', 'FANCF', 'FANCG', 'FANCI', 'BRIP1', 'FANCL', 'FANCM', 'PALB2', 'SLX4'],
+    genes: ['FANCA', 'FANCB', 'FANCC', 'BRCA2', 'FANCD2', 'FANCE', 'FANCF', 'FANCG', 'FANCI', 'BRIP1', 'FANCL', 'PALB2', 'SLX4'],
     inh: 'AR (FANCB X-linked)', note: 'Biallelic BRCA2 (FA-D1) / PALB2 (FA-N): medulloblastoma, Wilms tumour and AML in early childhood.',
     tests: ['R260','R258','R229'],
     rules: [
@@ -1047,6 +1046,17 @@ const CONDITIONS = [
       ['nb', 'nb', 'W', 5, null, null, ['gr:NBK1401', 'us:aacr_gid']],
       ['cervix', 'scc', 'W', null, null, null, ['gr:NBK1401']],
       ['skin', 'bcc|scc', 'W', null, null, null, ['alter2018', 'gr:NBK1401'], '11/163 FA patients in NCI cohort had skin cancer']
+    ] },
+  { id: 'fancm', name: 'Recessive FANCM cancer syndrome (biallelic FANCM; Fanconi-like, not Fanconi anaemia)', genes: ['FANCM'], inh: 'AR',
+    note: 'Biallelic FANCM causes a separate Fanconi-like genomic instability disorder (ClinGen: Definitive); ClinGen has refuted FANCM as a cause of Fanconi anaemia. No bone marrow failure or Fanconi physical features; chromosome fragility, chemotherapy toxicity and gonadal failure (ovarian dysfunction) are reported.',
+    tests: [],
+    rules: [
+      ['breast', '*', 'M', null, null, null, ['nynas2025', 'clingen:FANCM'], 'Homozygous c.5101C>T: high breast cancer risk (FinnGen, 76 homozygotes); heterozygous OR 1.24'],
+      ['headneck', 'scc', 'M', null, null, null, ['nynas2025', 'clingen:FANCM'], 'High risk in homozygotes; heterozygous hypopharyngeal OR 3.98 (FinnGen)'],
+      ['heme', 'aml|mds|all|lymphoma|cll|other', 'W', null, null, null, ['nynas2025'], 'High risk of haematological cancer in homozygotes (FinnGen)'],
+      ['ovary', '*', 'W', null, null, null, ['nynas2025'], 'Gynaecological cancers increased in homozygotes (FinnGen)'],
+      ['lung', '*', 'W', null, null, null, ['nynas2025']],
+      ['skin', '*', 'W', null, null, null, ['nynas2025']]
     ] },
   { id: 'at', name: 'Ataxia–telangiectasia (biallelic ATM)', genes: ['ATM'], inh: 'AR', tests: ['R294','R295'],
     rules: [
@@ -1286,6 +1296,7 @@ const SURVEILLANCE = {
   pdgfrb: {"lvl": "none", "src": [], "items": [], "note": "No surveillance guideline found."},
   tbxt: {"lvl": "none", "src": [], "items": [], "note": "No surveillance recommendations (AACR 2024 CNS update); genetic counselling."},
   ollier: {"lvl": "none", "src": [], "items": [], "note": "No surveillance guideline found."},
+  fancm: {"lvl": "none", "src": [], "items": [], "note": "No published surveillance guideline. Avoid standard-dose DNA crosslinking chemotherapy without specialist advice (toxicity reported); manage breast screening on family history and specialist advice."},
   fanconi: {"lvl": "intl", "src": ["fa_guidelines", "gr:NBK1401"], "items": [["Blood / marrow", "Blood counts every 3–4 months; bone marrow at least annually from 2"], ["Head and neck", "Oral/ENT exam every 6 months from 9–10; annual nasolaryngoscopy from 10"], ["Gynaecological", "Annual assessment from 13; cervical cytology annually from 18"], ["Skin", "Dermatology every 6–12 months"], ["BRCA2/PALB2-type FA", "Annual abdominal ultrasound and brain MRI from diagnosis"]]},
   at: {"lvl": "intl", "src": ["gr:NBK26468", "aacr_gid"], "items": [["Haematological", "Annual clinical review and blood tests for leukaemia/lymphoma"], ["Breast", "Annual MRI from 25 in females"], ["Abdomen", "Annual ultrasound in adults"], ["Radiation", "Avoid ionising radiation"]]},
   nbs: {"lvl": "intl", "src": ["gr:NBK1176", "aacr_gid"], "items": [["Lymphoma", "Annual clinical assessment for malignancy, with imaging if symptoms"], ["Radiation", "Avoid ionising radiation"]]},
@@ -1309,6 +1320,7 @@ const SURVEILLANCE = {
  * as YYYY-MM-DD. Update the entry whenever a syndrome is re-checked; pages flag dates over 12 months old.
  */
 const LAST_REVIEWED = {
+  fancm: '2026-10-11',
   brca1: '2026-10-11', brca2: '2026-10-11', palb2: '2026-10-11', atm: '2026-10-11', chek2: '2026-10-11', bard1: '2026-10-11',
   rad51d: '2026-10-11', rad51c: '2026-10-11', brip1: '2026-10-11', lynch_mlh1: '2026-10-11', lynch_msh2: '2026-10-11', lynch_msh6: '2026-10-11',
   lynch_pms2: '2026-10-11', cmmrd: '2026-10-11', fap: '2026-10-11', map: '2026-10-11', nthl1: '2026-10-11', ppap: '2026-10-11',
@@ -1340,7 +1352,7 @@ const CATEGORIES = [
   ['Paediatric embryonal and overgrowth', ['dicer1', 'rb1', 'wt1', 'wilms_other', 'perlman', 'mulibrey', 'mva', 'bws', 'sgbs', 'sotos', 'weaver', 'alk', 'phox2b']],
   ['RASopathies', ['noonan', 'cbl', 'costello']],
   ['GIST and mesenchymal', ['kit', 'pdgfra', 'pdgfrb', 'tbxt', 'ollier']],
-  ['DNA repair and chromosome instability', ['fanconi', 'at', 'nbs', 'bloom', 'rts', 'werner']],
+  ['DNA repair and chromosome instability', ['fanconi', 'fancm', 'at', 'nbs', 'bloom', 'rts', 'werner']],
   ['Haematological', ['cebpa', 'runx1', 'gata2', 'ddx41', 'etv6', 'ankrd26', 'samd9l', 'pax5', 'kdm3b', 'tbd']]
 ];
 
@@ -1858,6 +1870,7 @@ const SOURCES = {
   samd9l: { us: ['aacr_heme'] },
   pax5: { us: ['aacr_heme'] },
   tbd: { us: ['aacr_heme'] },
+  fancm: {},
   fanconi: { us: ['fa_guidelines', 'aacr_gid', 'aacr_brain'] },
   at: { us: ['aacr_gid'] },
   nbs: { us: ['aacr_gid'] },
@@ -2197,6 +2210,7 @@ const REFS = {
   kit: { gr: ['NBK625142'], omim: [606764] },
   pdgfra: { gr: ['NBK625142'], omim: [175510] },
   pdgfrb: { gr: [], omim: [228550] },
+  fancm: { gr: [], omim: [] },
   fanconi: { gr: ['NBK1401'], omim: [227650, 300514, 227645, 605724, 227646, 600901, 603467, 614082, 609053, 609054, 614083, 610832, 613951] },
   at: { gr: ['NBK26468'], omim: [208900] },
   nbs: { gr: ['NBK1176'], omim: [251260] },
@@ -2227,6 +2241,7 @@ const REFS = {
  * EVIDENCE: key → [short label, full citation, DOI / PubMed URL]. Only sources read in full or as abstract.
  */
 const EVIDENCE = {
+  nynas2025: ['Nynäs 2025', 'Nynäs E et al. Recessive FANCM cancer syndrome with high cancer risks, chemotherapy toxicity, chromosome fragility, and gonadal failure. Genet Med 2025;27:101521', 'https://doi.org/10.1016/j.gim.2025.101521'],
   alter2018: ['Alter 2018', 'Alter BP et al. Cancer in the National Cancer Institute inherited bone marrow failure syndrome cohort after fifteen years of follow-up. Haematologica 2018', 'https://doi.org/10.3324/haematol.2017.178111'],
   amary2011: ['Amary 2011', 'Amary MF et al. Ollier disease and Maffucci syndrome are caused by somatic mosaic mutations of IDH1 and IDH2. Nat Genet 2011', 'https://doi.org/10.1038/ng.994'],
   andrews2018: ['Andrews 2018', 'Andrews KA et al. Tumour risks and genotype-phenotype correlations associated with germline variants in succinate dehydrogenase subunit genes SDHB, SDHC and SDHD. J Med Genet 2018;55:384-394', 'https://doi.org/10.1136/jmedgenet-2017-105127'],
@@ -2293,6 +2308,10 @@ const EV_SHORT = { bsg: 'BSG 2019', cg164: 'NICE CG164', hanson: 'Hanson 2023', 
 
 /* Variant-level (genotype–phenotype) notes per condition: [text, [source keys]]. Information only, not scored. */
 const VARIANT_NOTES = {
+  fancm: [
+    ['Finnish-enriched truncating variants c.5101C>T p.(Gln1701Ter) and c.5791C>T p.(Arg1931Ter); homozygous c.5101C>T carries high risks of breast, head and neck, gastrointestinal, gynaecological, haematological, skin and lung cancer, plus ovarian dysfunction and haematological toxicity after cancer treatment.', ['nynas2025']],
+    ['Heterozygous FANCM truncating variants confer only a modest breast cancer risk (c.5101C>T OR 1.24) and are not managed as this syndrome; ClinGen rates FANCM–hereditary breast cancer as Limited.', ['nynas2025', 'clingen:FANCM']]
+  ],
   brca1: [
     ['BRCA1 ovarian cancer cluster region (OCCR, c.1380-c.4062, ~exon 11) carries a relatively higher ovarian:breast risk ratio; breast cancer cluster regions (c.179-c.505, c.4328-c.4945, c.5261-c.5563) carry relatively higher breast risk. Breast risk was lower for variants within c.2282-c.4071 in a prospective cohort.', ['rebbeck2015', 'kuchenbaecker2017', 'gr:NBK1247']],
     ['Ashkenazi Jewish founder variants BRCA1 c.68_69delAG (185delAG) and c.5266dupC (5382insC), with BRCA2 c.5946delT, account for up to 99% of BRCA1/2 PVs in Ashkenazi Jewish individuals (carrier frequency ~1 in 40).', ['gr:NBK1247']],
