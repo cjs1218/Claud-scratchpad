@@ -141,6 +141,13 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 }
 
 /* Syndromes tab: list + detail */
+.print-bar { position: sticky; top: -6px; background: var(--card); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); z-index: 1; }
+.print-bar button:disabled { opacity: 0.5; cursor: default; }
+.syn-list li { display: flex; align-items: flex-start; gap: 4px; }
+.syn-list li input { margin-top: 6px; flex: none; }
+.syn-list li a { flex: 1; min-width: 0; }
+.print-only, #print-area { display: none; }
+.dates td:first-child, .dates td:last-child { white-space: nowrap; }
 .syn-layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 900px) { .syn-layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; } }
 .syn-list { max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
@@ -167,10 +174,24 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 .syn-open { display: inline-block; margin-top: 6px; }
 #browse-filters { display: contents; }
 @media print {
-  body.print-syndrome .site-head, body.print-syndrome #tab-assess, body.print-syndrome .browse-controls,
-  body.print-syndrome .syn-list, body.print-syndrome .site-foot, body.print-syndrome .syn-head .actions { display: none !important; }
-  body.print-syndrome .syn-layout { display: block; }
-  body.print-syndrome .panel { border: 0; padding: 0; }
+  @page { margin: 14mm 12mm; }
+  body.printing > *:not(#print-area) { display: none !important; }
+  body.printing #print-area { display: block; overflow-wrap: anywhere; }
+  body.printing .print-frame { width: 100%; border-collapse: collapse; }
+  body.printing .print-frame > tbody > tr > td, body.printing .print-frame > tfoot > tr > td { padding: 0; }
+  body.printing .print-foot { font-size: 0.68rem; color: #444; border-top: 1px solid #ccc; padding-top: 3px; margin-top: 8px; }
+  body.printing #print-area .code { background: none; color: #000; border: 1px solid #000; }
+  body.printing #print-area .gene { background: none; color: #000; border: 1px solid #888; }
+  body.printing .print-page + .print-page { break-before: page; }
+  body.printing .print-only { display: block; }
+  body.printing .print-kicker { font-size: 0.75rem; color: #555; margin: 0 0 4px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+  body.printing #print-area a { color: #000; text-decoration: none; }
+  body.printing #print-area a[href^="http"]::after { content: " – " attr(href); font-size: 0.72rem; color: #444; word-break: break-all; }
+  body.printing #print-area .test, body.printing #print-area tr { break-inside: avoid; }
+  body.printing #print-area h3 { break-after: avoid; }
+  body.printing #print-area .tier { background: none !important; }
+  body.printing .print-contents ol { font-size: 0.9rem; }
+  body.printing .print-contents.long ol { columns: 2; }
 }
 
 .sources h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin: 10px 0 2px; }

@@ -169,30 +169,35 @@
 
   const link = (label, url) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a>`;
 
-  function sourcesHtml(c) {
-    const src = SOURCES[c.id] || {};
-    const ref = REFS[c.id] || { gr: [], omim: [] };
-    const leaflet = k => `<li>${link(EG[k].label, EG[k].url)}</li>`;
-    const leaflets = (src.eg || []).map(leaflet);
-    const guides = (src.guide || []).map(k => `<li>${link(GUIDES[k][0], GUIDES[k][1])}</li>`);
-    const eu = (src.eu || []).map(k => `<li>${link(EU_GUIDES[k][0], EU_GUIDES[k][1])}</li>`);
-    const us = (src.us || []).map(k => `<li>${link(US_GUIDES[k][0], US_GUIDES[k][1])}</li>`);
-    const gr = ref.gr.length
-      ? ref.gr.map(n => `<li>GeneReviews: ${link(GR_TITLES[n], REF_LINKS.geneReviews(n))}</li>`).join('')
-      : `<li class="muted">No GeneReviews chapter – ${link('search GeneReviews', REF_LINKS.geneReviewsSearch(c.genes[0]))}</li>`;
-    const pheno = ref.omim.map(m => link(`#${m} ${OMIM_TITLES[m]}`, REF_LINKS.omim(m)));
-    const genes = c.genes.map(g => link(`${g} *${GENE_MIM[g]}`, REF_LINKS.omim(GENE_MIM[g])));
-    return `<div class="sources">
-      <h4>East Genomics patient information</h4>
-      <ul>${leaflets.join('') || `<li class="muted">No condition-specific leaflet – general leaflets below, or see the ${link('A-Z index', EG_AZ)}</li>${EG_GENERAL.map(leaflet).join('')}`}</ul>
+  const leafletLi = k => `<li>${link(EG[k].label, EG[k].url)}</li>`;
+
+  /* Leaflets and UK / European / US guidance for a source set {eg, guide, eu, us}. */
+  function guidanceHtml(src) {
+    const list = (keys, table) => (keys || []).map(k => `<li>${link(table[k][0], table[k][1])}</li>`).join('');
+    const eu = list(src.eu, EU_GUIDES), us = list(src.us, US_GUIDES);
+    return `<h4>East Genomics patient information</h4>
+      <ul>${(src.eg || []).map(leafletLi).join('') || `<li class="muted">No condition-specific leaflet – general leaflets below, or see the ${link('A-Z index', EG_AZ)}</li>${EG_GENERAL.map(leafletLi).join('')}`}</ul>
       <h4>UK guidance</h4>
-      <ul>${guides.join('') || `<li class="muted">No UKCGG gene-specific guideline – see ${link('UKCGG leaflets and guidelines', REF_LINKS.ukcgg)}</li>`}</ul>
-      ${eu.length ? `<h4>European guidance</h4><ul>${eu.join('')}</ul>` : ''}
-      ${us.length ? `<h4>US and international guidance</h4><ul>${us.join('')}</ul>` : ''}
+      <ul>${list(src.guide, GUIDES) || `<li class="muted">No UKCGG gene-specific guideline – see ${link('UKCGG leaflets and guidelines', REF_LINKS.ukcgg)}</li>`}</ul>
+      ${eu ? `<h4>European guidance</h4><ul>${eu}</ul>` : ''}
+      ${us ? `<h4>US and international guidance</h4><ul>${us}</ul>` : ''}`;
+  }
+
+  function grLinks(c) {
+    const ref = REFS[c.id];
+    return ref.gr.length ? ref.gr.map(n => link(GR_TITLES[n], REF_LINKS.geneReviews(n))).join('; ')
+      : `<span class="muted">no chapter – ${link('search GeneReviews', REF_LINKS.geneReviewsSearch(c.genes[0]))}</span>`;
+  }
+  const phenoLinks = c => REFS[c.id].omim.map(m => link(`#${m} ${OMIM_TITLES[m]}`, REF_LINKS.omim(m))).join('; ');
+  const geneMimLink = g => link(`${g} *${GENE_MIM[g]}`, REF_LINKS.omim(GENE_MIM[g]));
+
+  function sourcesHtml(c) {
+    const pheno = phenoLinks(c);
+    return `<div class="sources">${guidanceHtml(SOURCES[c.id] || {})}
       <h4>References</h4>
-      <ul>${gr}
-        ${pheno.length ? `<li>OMIM phenotype: ${pheno.join('; ')}</li>` : ''}
-        <li>OMIM gene: ${genes.join(', ')}</li></ul>
+      <ul><li>GeneReviews: ${grLinks(c)}</li>
+        ${pheno ? `<li>OMIM phenotype: ${pheno}</li>` : ''}
+        <li>OMIM gene: ${c.genes.map(geneMimLink).join(', ')}</li></ul>
     </div>`;
   }
 
@@ -407,24 +412,55 @@
 
   const COND = Object.fromEntries(CONDITIONS.map(c => [c.id, c]));
   const TIER_ORDER = { H: 0, S: 1, M: 2, W: 3 };
+  const GENES = [...new Set(CONDITIONS.flatMap(c => c.genes))].sort();
+  const condsForGene = g => CONDITIONS.filter(c => c.genes.includes(g));
+  const SITE_URL = location.href.split('#')[0];
+  const itemUrl = key => { const [t, id] = key.split(':'); return `${SITE_URL}#${t === 'syn' ? 'syndrome' : 'gene'}=${id}`; };
+  const itemName = key => { const [t, id] = key.split(':'); return t === 'syn' ? COND[id].name : `${id} (gene)`; };
+  state.sel = new Set();
 
-  function synMatches(c) {
+  /* Shared filters (search text, Test Directory code, UKCGG guideline). */
+  function filterPass(conds, texts) {
     const q = $('#browse-search').value.trim().toLowerCase();
     const test = $('#browse-test').value;
-    if (test && !c.tests.includes(test)) return false;
-    if ($('#browse-ukcgg').checked && !(SOURCES[c.id] && SOURCES[c.id].guide)) return false;
-    return !q || c.name.toLowerCase().includes(q) || c.genes.some(g => g.toLowerCase().includes(q)) ||
-      c.rules.some(r => ruleText(r).text.toLowerCase().includes(q));
+    if (test && !conds.some(c => c.tests.includes(test))) return false;
+    if ($('#browse-ukcgg').checked && !conds.some(c => SOURCES[c.id] && SOURCES[c.id].guide)) return false;
+    return !q || texts.some(t => t.toLowerCase().includes(q));
+  }
+  const synMatches = c => filterPass([c], [c.name, ...c.genes, ...c.rules.map(r => ruleText(r).text)]);
+  const geneMatches = g => { const cs = condsForGene(g); return filterPass(cs, [g, ...cs.map(c => c.name)]); };
+
+  function listGroups(mode) {
+    if (mode === 'gene') {
+      const genes = GENES.filter(geneMatches);
+      const letters = [...new Set(genes.map(g => g[0]))];
+      return letters.map(l => [l, genes.filter(g => g[0] === l).map(g => ({ key: `gene:${g}`, href: `#gene=${g}`, name: g, sub: condsForGene(g).length > 1 ? `${condsForGene(g).length} syndromes` : '' }))]);
+    }
+    return CATEGORIES.map(([label, ids]) => [label, ids.map(id => COND[id]).filter(synMatches)
+      .map(c => ({ key: `syn:${c.id}`, href: `#syndrome=${c.id}`, name: c.name }))]).filter(([, l]) => l.length);
   }
 
   function renderSynList() {
-    const groups = CATEGORIES.map(([label, ids]) => [label, ids.map(id => COND[id]).filter(synMatches)]).filter(([, l]) => l.length);
-    const visible = groups.flatMap(([, l]) => l.map(c => c.id));
-    if (!visible.includes(state.syn)) state.syn = visible[0] || null;
-    $('#syn-list').innerHTML = groups.map(([label, list]) => `<h4>${esc(label)}</h4><ul>${list.map(c =>
-      `<li><a href="#syndrome=${c.id}" data-syn="${c.id}"${c.id === state.syn ? ' aria-current="true"' : ''}>${esc(c.name)}</a></li>`).join('')}</ul>`).join('')
-      || '<div class="empty">No matches.</div>';
-    $('#syn-list').insertAdjacentHTML('afterbegin', `<p class="muted small">${visible.length} of ${CONDITIONS.length} syndromes</p>`);
+    const mode = $('#browse-mode').value;
+    const groups = listGroups(mode);
+    const items = groups.flatMap(([, l]) => l);
+    const curKey = mode === 'gene' ? `gene:${state.gene}` : `syn:${state.syn}`;
+    if (!items.some(i => i.key === curKey)) {
+      const first = items[0] ? items[0].key.split(':')[1] : null;
+      if (mode === 'gene') state.gene = first; else state.syn = first;
+    }
+    const cur = mode === 'gene' ? `gene:${state.gene}` : `syn:${state.syn}`;
+    const total = mode === 'gene' ? GENES.length : CONDITIONS.length;
+    const n = state.sel.size;
+    $('#syn-list').innerHTML = `<div class="print-bar">
+        <span class="muted small">${items.length} of ${total} ${mode === 'gene' ? 'genes' : 'syndromes'}</span>
+        <button type="button" class="btn-ghost" data-print="selected"${n ? '' : ' disabled'}>Print selected (${n})</button>
+        <button type="button" class="btn-ghost" data-print="shown"${items.length ? '' : ' disabled'}>Print all shown (${items.length})</button>
+        ${n ? '<button type="button" class="link-btn small" data-print="clear">Clear selection</button>' : ''}
+      </div>` + (groups.map(([label, list]) => `<h4>${esc(label)}</h4><ul>${list.map(i =>
+        `<li><input type="checkbox" data-sel="${i.key}" aria-label="Select ${esc(i.name)} for printing"${state.sel.has(i.key) ? ' checked' : ''}>
+          <a href="${i.href}"${i.key === cur ? ' aria-current="true"' : ''}>${esc(i.name)}${i.sub ? ` <span class="muted small">${i.sub}</span>` : ''}</a></li>`).join('')}</ul>`).join('')
+      || '<div class="empty">No matches.</div>');
     renderSynDetail();
   }
 
@@ -441,8 +477,8 @@
       <tbody>${rows}</tbody></table></div>`;
   }
 
-  function testsDetail(c) {
-    return c.tests.map(k => {
+  function testsDetail(keys) {
+    return keys.map(k => {
       const t = TESTS[k];
       return `<div class="test">
         <h4><span class="code">${esc(t.code)}</span> ${esc(t.name)}${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}</h4>
@@ -451,26 +487,35 @@
     }).join('');
   }
 
-  function renderSynDetail() {
-    const c = COND[state.syn];
-    const out = $('#syn-detail');
-    if (!c) { out.innerHTML = '<div class="empty">Choose a syndrome.</div>'; return; }
+  function datesHtml() {
+    return `<h3>Information sources and dates</h3>
+      <p class="small">Information checked: <strong>${esc(DATA_CHECKED)}</strong>. Guideline years are shown in each title.</p>
+      <div class="table-wrap"><table class="syn-table dates"><thead><tr><th>Source</th><th>Version</th><th>Checked</th></tr></thead>
+      <tbody>${SOURCE_DATES.map(([src, ver, d]) => `<tr><td>${esc(src)}</td><td>${esc(ver)}</td><td>${esc(d)}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+
+  function pageActions(key) {
+    return `<div class="actions">
+      ${key.startsWith('syn:') ? '<button type="button" class="btn-ghost" data-syn-act="copy">Copy summary</button>' : ''}
+      <button type="button" class="btn-ghost" data-syn-act="link">Copy link</button>
+      <button type="button" class="btn-ghost" data-syn-act="print">Print</button>
+    </div>`;
+  }
+  const printKicker = (kind) => `<p class="print-only print-kicker">Cancer Predisposition Differential – ${kind} summary · information checked ${esc(DATA_CHECKED)}</p>`;
+
+  function synPage(c, forPrint) {
     const flags = c.genes.map(g => [g, geneFlags(g)]).filter(([, f]) => f.length);
     const mods = (c.mods || []).map(([site, pred, f]) => `${site === '*' ? 'Any site' : SITES[site].label}: ${PRED_LABEL[pred]} ×${f}`);
     const notes = [c.note, c.notOnNicpr && 'Not on the NICPR gene list (June 2026) but included in Test Directory panels.'].filter(Boolean);
-    out.innerHTML = `
+    return `${printKicker('Syndrome')}
       <div class="syn-head">
         <div><h2>${esc(c.name)}</h2>
           <div class="genes">${geneChips(c.genes)} <span class="inh">${esc(c.inh)}</span></div></div>
-        <div class="actions">
-          <button type="button" class="btn-ghost" data-syn-act="copy">Copy summary</button>
-          <button type="button" class="btn-ghost" data-syn-act="link">Copy link</button>
-          <button type="button" class="btn-ghost" data-syn-act="print">Print</button>
-        </div>
+        ${forPrint ? '' : pageActions(`syn:${c.id}`)}
       </div>
       ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
       <dl class="syn-facts">
-        <dt>Genes</dt><dd>${c.genes.map(esc).join(', ')}</dd>
+        <dt>Genes</dt><dd>${c.genes.map(g => forPrint ? esc(g) : `<a href="#gene=${g}">${esc(g)}</a>`).join(', ')}</dd>
         <dt>Inheritance</dt><dd>${esc(c.inh)}</dd>
         ${flags.length ? `<dt>NICPR notes</dt><dd>${flags.map(([g, f]) => `${esc(g)}: ${esc(f.join('; '))}`).join('<br>')}</dd>` : ''}
       </dl>
@@ -479,9 +524,60 @@
       <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. Age limit: association only applies at or below this age.</p>
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
       <h3>Test Directory tests</h3>
-      ${testsDetail(c)}
+      ${testsDetail(c.tests)}
       <h3>Guidance, leaflets and references</h3>
-      ${sourcesHtml(c)}`;
+      ${sourcesHtml(c)}
+      ${datesHtml()}`;
+  }
+
+  function genePage(g, forPrint) {
+    const cs = condsForGene(g);
+    const flags = geneFlags(g);
+    const uniq = arr => [...new Set(arr)];
+    const src = {};
+    for (const k of ['eg', 'guide', 'eu', 'us']) src[k] = uniq(cs.flatMap(c => (SOURCES[c.id] || {})[k] || []));
+    const mainCancers = c => {
+      const top = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]);
+      const strong = top.filter(r => r[2] === 'H' || r[2] === 'S');
+      return (strong.length ? strong : top.slice(0, 3)).map(r => ruleText(r).text).join('; ');
+    };
+    return `${printKicker('Gene')}
+      <div class="syn-head">
+        <div><h2>${esc(g)}</h2>
+          <div class="genes">${geneChips([g])} <span class="inh">${cs.length} syndrome${cs.length > 1 ? 's' : ''}</span></div></div>
+        ${forPrint ? '' : pageActions(`gene:${g}`)}
+      </div>
+      <dl class="syn-facts">
+        <dt>OMIM gene</dt><dd>${geneMimLink(g)}</dd>
+        <dt>NICPR</dt><dd>${esc(flags.join('; ') || 'On the NICPR list (June 2026)')}</dd>
+      </dl>
+      <h3>Syndromes caused by ${esc(g)}</h3>
+      <div class="table-wrap"><table class="syn-table">
+        <thead><tr><th>Syndrome</th><th>Inheritance</th><th>Main cancers and features (hallmark / strong)</th></tr></thead>
+        <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${esc(mainCancers(c))}</td></tr>`).join('')}</tbody>
+      </table></div>
+      ${cs.filter(c => c.note).map(c => `<p class="note">${esc(c.name)}: ${esc(c.note)}</p>`).join('')}
+      <h3>Test Directory tests</h3>
+      ${testsDetail(uniq(cs.flatMap(c => c.tests)))}
+      <h3>Guidance and leaflets</h3>
+      <div class="sources">${guidanceHtml(src)}
+        <h4>References</h4>
+        <ul>${cs.map(c => { const ph = phenoLinks(c); return `<li><strong>${esc(c.name)}</strong> – GeneReviews: ${grLinks(c)}${ph ? `; OMIM: ${ph}` : ''}</li>`; }).join('')}
+          <li>OMIM gene: ${geneMimLink(g)}</li></ul>
+      </div>
+      ${datesHtml()}`;
+  }
+
+  function currentKey() {
+    return $('#browse-mode').value === 'gene' ? (state.gene && `gene:${state.gene}`) : (state.syn && `syn:${state.syn}`);
+  }
+
+  function renderSynDetail() {
+    const key = currentKey();
+    const out = $('#syn-detail');
+    if (!key) { out.innerHTML = '<div class="empty">Choose an item from the list.</div>'; return; }
+    const [t, id] = key.split(':');
+    out.innerHTML = t === 'syn' ? synPage(COND[id], false) : genePage(id, false);
   }
 
   function synSummary(c) {
@@ -502,7 +598,7 @@
     sec('EUROPEAN GUIDANCE', src.eu, EU_GUIDES);
     sec('US AND INTERNATIONAL GUIDANCE', src.us, US_GUIDES);
     if (src.eg) { L.push('', 'EAST GENOMICS LEAFLETS'); src.eg.forEach(k => L.push(`- ${EG[k].label} ${EG[k].url}`)); }
-    L.push('', `Source: Cancer Predisposition Differential – ${location.href.split('#')[0]}#syndrome=${c.id}`);
+    L.push('', `Information checked: ${DATA_CHECKED}`, `Source: Cancer Predisposition Differential – ${itemUrl(`syn:${c.id}`)}`);
     return L.join('\n');
   }
 
@@ -512,28 +608,59 @@
     setTimeout(() => { btn.textContent = label; }, 1500);
   }
 
+  /*
+   * Printing: the chosen pages are rendered into #print-area (one per printed page, with a
+   * contents page when there are several); body.printing hides everything else on paper.
+   */
+  function printItems(keys, title) {
+    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const foot = `<div class="print-foot">Clinical decision support only – not a substitute for clinical judgement; check the linked sources before use. ` +
+      `Cancer Predisposition Differential · ${esc(SITE_URL)} · information checked ${esc(DATA_CHECKED)} · printed ${esc(today)}</div>`;
+    // A table footer repeats at the bottom of every printed page in all major browsers.
+    const framed = html => `<section class="print-page"><table class="print-frame"><tfoot><tr><td>${foot}</td></tr></tfoot>` +
+      `<tbody><tr><td>${html}</td></tr></tbody></table></section>`;
+    const pages = keys.map(k => { const [t, id] = k.split(':'); return framed(t === 'syn' ? synPage(COND[id], true) : genePage(id, true)); });
+    const contents = keys.length > 1 ? framed(`<div class="print-contents${keys.length > 12 ? ' long' : ''}">
+        <h1>Cancer Predisposition Differential</h1><h2>${esc(title)}</h2>
+        <p>Information checked ${esc(DATA_CHECKED)} · printed ${esc(today)} · ${keys.length} items</p>
+        <ol>${keys.map(k => `<li>${esc(itemName(k))}</li>`).join('')}</ol></div>`) : '';
+    $('#print-area').innerHTML = contents + pages.join('');
+    document.body.classList.add('printing');
+    window.print();
+  }
+
   function onSynAction(e) {
     const btn = e.target.closest('[data-syn-act]');
     if (!btn) return;
-    const c = COND[state.syn];
-    const url = `${location.href.split('#')[0]}#syndrome=${c.id}`;
-    if (btn.dataset.synAct === 'copy') copyText(btn, synSummary(c), 'Copy summary');
-    if (btn.dataset.synAct === 'link') copyText(btn, url, 'Copy link');
-    if (btn.dataset.synAct === 'print') {
-      document.body.classList.add('print-syndrome');
-      window.print();
-      document.body.classList.remove('print-syndrome');
+    const key = currentKey();
+    if (btn.dataset.synAct === 'copy') copyText(btn, synSummary(COND[key.split(':')[1]]), 'Copy summary');
+    if (btn.dataset.synAct === 'link') copyText(btn, itemUrl(key), 'Copy link');
+    if (btn.dataset.synAct === 'print') printItems([key], itemName(key));
+  }
+
+  function onListAction(e) {
+    const sel = e.target.closest('[data-sel]');
+    if (sel) { if (sel.checked) state.sel.add(sel.dataset.sel); else state.sel.delete(sel.dataset.sel); renderSynList(); return; }
+    const btn = e.target.closest('[data-print]');
+    if (!btn) return;
+    const mode = $('#browse-mode').value;
+    if (btn.dataset.print === 'clear') { state.sel.clear(); renderSynList(); return; }
+    if (btn.dataset.print === 'selected') {
+      const order = [...CONDITIONS.map(c => `syn:${c.id}`), ...GENES.map(g => `gene:${g}`)];
+      printItems(order.filter(k => state.sel.has(k)), 'Selected syndromes and genes');
     }
+    if (btn.dataset.print === 'shown') printItems(listGroups(mode).flatMap(([, l]) => l.map(i => i.key)), mode === 'gene' ? 'Gene handbook' : 'Syndrome handbook');
   }
 
   function renderBrowse() {
     const mode = $('#browse-mode').value;
     const out = $('#browse-results');
-    $('#browse-cancer').hidden = mode !== 'cancer';
-    $('#browse-filters').hidden = mode !== 'syndrome';
-    $('#syn-layout').hidden = mode !== 'syndrome';
-    out.hidden = mode !== 'cancer';
-    if (mode === 'syndrome') { renderSynList(); return; }
+    const listMode = mode === 'syndrome' || mode === 'gene';
+    $('#browse-cancer').hidden = listMode;
+    $('#browse-filters').hidden = !listMode;
+    $('#syn-layout').hidden = !listMode;
+    out.hidden = listMode;
+    if (listMode) { renderSynList(); return; }
     const site = $('#browse-site').value;
     const histSel = $('#browse-hist');
     const prevHist = histSel.value;
@@ -558,14 +685,17 @@
 
   /*
    * The address holds the open tab: no hash = Family assessment, #syndromes = Syndromes tab,
-   * #syndrome=<id> = a syndrome page (shareable). Refresh, Back and Forward follow it.
+   * #syndrome=<id> = a syndrome page, #gene=<symbol> = a gene page (shareable). Refresh, Back
+   * and Forward follow it.
    */
   function route() {
-    const m = location.hash.match(/^#syndrome=(\w+)$/);
-    if (m && COND[m[1]]) {
-      state.syn = m[1];
-      $('#browse-mode').value = 'syndrome';
-      if (!synMatches(COND[m[1]])) { $('#browse-search').value = ''; $('#browse-test').value = ''; $('#browse-ukcgg').checked = false; }
+    const m = location.hash.match(/^#(syndrome|gene)=(\w+)$/);
+    const ok = m && (m[1] === 'syndrome' ? COND[m[2]] : GENES.includes(m[2]));
+    if (ok) {
+      const isSyn = m[1] === 'syndrome';
+      if (isSyn) state.syn = m[2]; else state.gene = m[2];
+      $('#browse-mode').value = isSyn ? 'syndrome' : 'gene';
+      if (!(isSyn ? synMatches(COND[m[2]]) : geneMatches(m[2]))) { $('#browse-search').value = ''; $('#browse-test').value = ''; $('#browse-ukcgg').checked = false; }
       setTab('browse');
       if ($('#syn-detail').getBoundingClientRect().top < 0) $('#syn-detail').scrollIntoView();
     } else {
@@ -575,7 +705,8 @@
 
   function goTab(tab) {
     if (tab === 'browse') {
-      if (!location.hash.startsWith('#syndrome')) location.hash = state.syn ? `syndrome=${state.syn}` : 'syndromes';
+      const key = currentKey();
+      if (!/^#(syndrome|gene)=/.test(location.hash)) location.hash = key ? `${key.startsWith('gene') ? 'gene' : 'syndrome'}=${key.split(':')[1]}` : 'syndromes';
       else route();
     } else if (location.hash) {
       history.pushState(null, '', location.pathname + location.search);
@@ -627,11 +758,13 @@
     ['browse-mode', 'browse-site', 'browse-hist', 'browse-test', 'browse-ukcgg'].forEach(id => $('#' + id).addEventListener('change', renderBrowse));
     $('#browse-search').addEventListener('input', renderBrowse);
     $('#syn-detail').addEventListener('click', onSynAction);
+    $('#syn-list').addEventListener('click', onListAction);
+    window.addEventListener('afterprint', () => { document.body.classList.remove('printing'); $('#print-area').innerHTML = ''; });
     window.addEventListener('hashchange', route);
     window.addEventListener('popstate', route);
     // A link to the syndrome already in the URL fires no hashchange, so open it directly.
     document.addEventListener('click', e => {
-      const a = e.target.closest('a[href^="#syndrome="]');
+      const a = e.target.closest('a[href^="#syndrome="], a[href^="#gene="]');
       if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); route(); }
     });
     $('#gene-count').textContent = NICPR.genes.length;

@@ -797,6 +797,24 @@ const NICPR = {
   addedSince2025: ['CTNNA1', 'ELP1', 'FANCM', 'GPC3', 'GPR161', 'KDM3B', 'MBD4', 'PAX5', 'PDGFRA', 'SAMD9L', 'SLX4']
 };
 
+/*
+ * When each information source was last pulled and checked (shown on every syndrome and gene page).
+ * Update the matching entry whenever a source is re-checked.
+ */
+const DATA_CHECKED = '11 October 2026';
+const SOURCE_DATES = [
+  ['NHS Genomic Test Directory eligibility criteria', 'v9.1, 20 May 2026', '11 Oct 2026'],
+  ['PanelApp panels', 'Panel IDs and gene membership', '11 Oct 2026'],
+  ['NICPR gene list', 'Appendix 1, June 2026', '11 Oct 2026'],
+  ['GeneReviews chapters', 'NCBI GeneReviews mapping files', '11 Oct 2026'],
+  ['OMIM entries', 'mim2gene.txt and NCBI Gene → OMIM gene map', '11 Oct 2026'],
+  ['UKCGG and NICE guidance', 'UKCGG leaflets and guidelines page', '11 Oct 2026'],
+  ['European guidelines', 'ERN GENTURIS lists, Crossref', '11 Oct 2026'],
+  ['US and international guidelines', 'NCCN, Crossref', '11 Oct 2026'],
+  ['East Genomics patient leaflets', 'East Genomics A-Z index', '11 Oct 2026'],
+  ['Associations, strengths and ages', 'Reviewed against GeneReviews and UKCGG', '11 Oct 2026']
+];
+
 /* Relationship to proband: degree of relatedness, side of family, default sex. */
 const RELATIONS = [
   ['proband', 'Proband', 0, 'core', ''],
