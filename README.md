@@ -40,6 +40,15 @@ Everything clinical lives in `js/data.js`:
 - **REFS** – per-condition GeneReviews chapters (`GR_TITLES`) and OMIM phenotype entries
   (`OMIM_TITLES`); gene entries come from `GENE_MIM`.
 - **NICPR** – the NICPR Appendix 1 gene list and its annotations.
+- **CATEGORIES** – groups conditions for the Syndromes tab (every condition in exactly one group).
+
+## Syndromes tab
+
+Searchable, grouped list of every syndrome (filter by text, Test Directory code or UKCGG guideline).
+Each syndrome page shows genes, inheritance, NICPR notes, a cancers/histology table with strength and
+age thresholds, Test Directory tests with criteria, and all guidance, leaflets and references, with
+Copy summary, Copy link (`#syndrome=<id>`) and Print. "By cancer and histology" lists the syndromes
+associated with a chosen site.
 
 ## Scoring
 

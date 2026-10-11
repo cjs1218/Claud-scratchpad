@@ -552,6 +552,22 @@ const CONDITIONS = [
     rules: [['feature', 'tbd', 'H'], ['feature', 'bmf', 'S'], ['heme', 'mds|aml', 'M'], ['headneck', 'scc', 'M', 50],
       ['liver', 'hcc', 'W'], ['skin', 'melanoma', 'W']] }
 ];
+/* Syndrome categories for the Syndromes tab (same order as CONDITIONS). */
+const CATEGORIES = [
+  ['Breast and ovarian', ['brca1', 'brca2', 'palb2', 'atm', 'chek2', 'bard1', 'rad51d', 'rad51c', 'brip1']],
+  ['Colorectal and gastrointestinal', ['lynch_mlh1', 'lynch_msh2', 'lynch_msh6', 'lynch_pms2', 'cmmrd', 'fap', 'map', 'nthl1', 'ppap', 'mbd4', 'jps_smad4', 'jps_bmpr1a', 'hmps', 'rnf43', 'pjs', 'phts', 'hdgc', 'ctnna1', 'tylosis']],
+  ['Multi-cancer (Li–Fraumeni)', ['lfs']],
+  ['Endocrine', ['men1', 'men4', 'men2', 'hptjt', 'fipa', 'carney', 'mas']],
+  ['Phaeochromocytoma / paraganglioma and renal', ['vhl', 'sdhb', 'sdhd', 'sdhc', 'sdha', 'sdhaf2', 'tmem127', 'max', 'hlrcc', 'bhd', 'hprc', 'tsc', 'bap1']],
+  ['Skin', ['cdkn2a', 'cdk4', 'pot1', 'gorlin', 'sufu', 'xp']],
+  ['CNS and nerve sheath', ['nf1', 'nf2', 'smarcb1', 'lztr1', 'smarca4', 'smarce1', 'elp1', 'gpr161']],
+  ['Paediatric embryonal and overgrowth', ['dicer1', 'rb1', 'wt1', 'wilms_other', 'perlman', 'mulibrey', 'mva', 'bws', 'sgbs', 'sotos', 'weaver', 'alk', 'phox2b']],
+  ['RASopathies', ['noonan', 'cbl', 'costello']],
+  ['GIST and mesenchymal', ['kit', 'pdgfra', 'pdgfrb']],
+  ['DNA repair and chromosome instability', ['fanconi', 'at', 'nbs', 'bloom', 'rts', 'werner']],
+  ['Haematological', ['cebpa', 'runx1', 'gata2', 'ddx41', 'etv6', 'ankrd26', 'samd9l', 'pax5', 'kdm3b', 'tbd']]
+];
+
 
 /*
  * NHS National Genomic Test Directory for Rare and Inherited Disease,

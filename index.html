@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cancer Predisposition Differential</title>
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
-  <link rel="stylesheet" href="assets/style.css?v=20261011-3">
+  <link rel="stylesheet" href="assets/style.css?v=20261011-4">
 </head>
 <body>
   <header class="site-head">
@@ -19,7 +19,7 @@
         browser or is stored.</p>
       <nav class="tabs">
         <button type="button" data-tab="assess" class="active">Family assessment</button>
-        <button type="button" data-tab="browse">Syndrome reference</button>
+        <button type="button" data-tab="browse">Syndromes</button>
       </nav>
     </div>
   </header>
@@ -59,16 +59,24 @@
       <section class="panel">
         <div class="browse-controls">
           <select id="browse-mode" aria-label="Browse by">
-            <option value="syndrome">By syndrome or gene</option>
+            <option value="syndrome">By syndrome</option>
             <option value="cancer">By cancer and histology</option>
           </select>
-          <input id="browse-search" type="search" placeholder="Search syndrome, gene or cancer…">
+          <span id="browse-filters">
+            <input id="browse-search" type="search" placeholder="Search syndrome, gene or cancer…" aria-label="Search syndromes">
+            <select id="browse-test" aria-label="Filter by test"></select>
+            <label class="mk chk"><input type="checkbox" id="browse-ukcgg">Has UKCGG guideline</label>
+          </span>
           <span id="browse-cancer" hidden>
             <select id="browse-site" aria-label="Site"></select>
             <select id="browse-hist" aria-label="Histology"></select>
           </span>
         </div>
-        <div id="browse-results"></div>
+        <div id="syn-layout" class="syn-layout">
+          <nav id="syn-list" class="syn-list" aria-label="Syndromes"></nav>
+          <article id="syn-detail" class="syn-detail"></article>
+        </div>
+        <div id="browse-results" hidden></div>
       </section>
     </div>
 
@@ -81,7 +89,7 @@
     </footer>
   </main>
 
-  <script src="js/data.js?v=20261011-3"></script>
-  <script src="js/app.js?v=20261011-3"></script>
+  <script src="js/data.js?v=20261011-4"></script>
+  <script src="js/app.js?v=20261011-4"></script>
 </body>
 </html>

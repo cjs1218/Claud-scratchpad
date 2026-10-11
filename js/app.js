@@ -321,6 +321,7 @@
       <div class="tests">${c.tests.map(testChip).join('')}</div>
       <details><summary>All associations</summary><ul class="assoc">${associationsHtml(c)}</ul></details>
       <details><summary>Leaflets &amp; sources</summary>${sourcesHtml(c)}</details>
+      <a class="small syn-open" href="#syndrome=${c.id}">Open syndrome page →</a>
     </article>`;
   }
 
@@ -404,46 +405,167 @@
 
   /* ---------------- Reference browser ---------------- */
 
+  const COND = Object.fromEntries(CONDITIONS.map(c => [c.id, c]));
+  const TIER_ORDER = { H: 0, S: 1, M: 2, W: 3 };
+
+  function synMatches(c) {
+    const q = $('#browse-search').value.trim().toLowerCase();
+    const test = $('#browse-test').value;
+    if (test && !c.tests.includes(test)) return false;
+    if ($('#browse-ukcgg').checked && !(SOURCES[c.id] && SOURCES[c.id].guide)) return false;
+    return !q || c.name.toLowerCase().includes(q) || c.genes.some(g => g.toLowerCase().includes(q)) ||
+      c.rules.some(r => ruleText(r).text.toLowerCase().includes(q));
+  }
+
+  function renderSynList() {
+    const groups = CATEGORIES.map(([label, ids]) => [label, ids.map(id => COND[id]).filter(synMatches)]).filter(([, l]) => l.length);
+    const visible = groups.flatMap(([, l]) => l.map(c => c.id));
+    if (!visible.includes(state.syn)) state.syn = visible[0] || null;
+    $('#syn-list').innerHTML = groups.map(([label, list]) => `<h4>${esc(label)}</h4><ul>${list.map(c =>
+      `<li><a href="#syndrome=${c.id}" data-syn="${c.id}"${c.id === state.syn ? ' aria-current="true"' : ''}>${esc(c.name)}</a></li>`).join('')}</ul>`).join('')
+      || '<div class="empty">No matches.</div>';
+    $('#syn-list').insertAdjacentHTML('afterbegin', `<p class="muted small">${visible.length} of ${CONDITIONS.length} syndromes</p>`);
+    renderSynDetail();
+  }
+
+  function cancersTable(c) {
+    const rows = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).map(([site, hist, tier, early, pred, maxAge]) => {
+      const h = hist === '*' ? 'Any type' : hist.split('|').map(x => histLabel(site, x)).join('; ');
+      return `<tr><td>${esc(SITES[site].label)}</td><td>${esc(h)}</td>
+        <td><span class="tier tier-${tier}">${TIER_LABEL[tier]}</span></td>
+        <td>${early != null ? '≤' + early : '–'}</td><td>${maxAge != null ? '≤' + maxAge : '–'}</td>
+        <td>${pred ? esc(PRED_LABEL[pred]) : '–'}</td></tr>`;
+    }).join('');
+    return `<div class="table-wrap"><table class="syn-table">
+      <thead><tr><th>Site</th><th>Histology / type</th><th>Strength</th><th>Early onset</th><th>Age limit</th><th>Condition</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+  }
+
+  function testsDetail(c) {
+    return c.tests.map(k => {
+      const t = TESTS[k];
+      return `<div class="test">
+        <h4><span class="code">${esc(t.code)}</span> ${esc(t.name)}${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}</h4>
+        <p class="muted">Genes: ${esc(t.genes)}${t.panel ? ` · ${link('PanelApp ' + t.panel, PANELAPP(t.panel))}` : ''}</p>
+        <ul>${t.criteria.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+    }).join('');
+  }
+
+  function renderSynDetail() {
+    const c = COND[state.syn];
+    const out = $('#syn-detail');
+    if (!c) { out.innerHTML = '<div class="empty">Choose a syndrome.</div>'; return; }
+    const flags = c.genes.map(g => [g, geneFlags(g)]).filter(([, f]) => f.length);
+    const mods = (c.mods || []).map(([site, pred, f]) => `${site === '*' ? 'Any site' : SITES[site].label}: ${PRED_LABEL[pred]} ×${f}`);
+    const notes = [c.note, c.notOnNicpr && 'Not on the NICPR gene list (June 2026) but included in Test Directory panels.'].filter(Boolean);
+    out.innerHTML = `
+      <div class="syn-head">
+        <div><h2>${esc(c.name)}</h2>
+          <div class="genes">${geneChips(c.genes)} <span class="inh">${esc(c.inh)}</span></div></div>
+        <div class="actions">
+          <button type="button" class="btn-ghost" data-syn-act="copy">Copy summary</button>
+          <button type="button" class="btn-ghost" data-syn-act="link">Copy link</button>
+          <button type="button" class="btn-ghost" data-syn-act="print">Print</button>
+        </div>
+      </div>
+      ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
+      <dl class="syn-facts">
+        <dt>Genes</dt><dd>${c.genes.map(esc).join(', ')}</dd>
+        <dt>Inheritance</dt><dd>${esc(c.inh)}</dd>
+        ${flags.length ? `<dt>NICPR notes</dt><dd>${flags.map(([g, f]) => `${esc(g)}: ${esc(f.join('; '))}`).join('<br>')}</dd>` : ''}
+      </dl>
+      <h3>Cancers and histology</h3>
+      ${cancersTable(c)}
+      <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. Age limit: association only applies at or below this age.</p>
+      ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
+      <h3>Test Directory tests</h3>
+      ${testsDetail(c)}
+      <h3>Guidance, leaflets and references</h3>
+      ${sourcesHtml(c)}`;
+  }
+
+  function synSummary(c) {
+    const src = SOURCES[c.id] || {};
+    const ref = REFS[c.id];
+    const L = [c.name.toUpperCase(), `Genes: ${c.genes.join(', ')} · Inheritance: ${c.inh}`];
+    if (c.note) L.push(c.note);
+    L.push('', 'CANCERS AND HISTOLOGY');
+    [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).forEach(r => { const t = ruleText(r); L.push(`- [${TIER_LABEL[t.tier]}] ${t.text}`); });
+    L.push('', 'TEST DIRECTORY');
+    c.tests.forEach(k => L.push(`- ${TESTS[k].code} ${TESTS[k].name}${TESTS[k].part ? ` (Part ${TESTS[k].part})` : ''}`));
+    L.push('', 'REFERENCES');
+    ref.gr.forEach(n => L.push(`- GeneReviews: ${GR_TITLES[n]} ${REF_LINKS.geneReviews(n)}`));
+    ref.omim.forEach(m => L.push(`- OMIM #${m} ${OMIM_TITLES[m]} ${REF_LINKS.omim(m)}`));
+    c.genes.forEach(g => L.push(`- OMIM ${g} *${GENE_MIM[g]} ${REF_LINKS.omim(GENE_MIM[g])}`));
+    const sec = (title, keys, table) => { if (keys && keys.length) { L.push('', title); keys.forEach(k => L.push(`- ${table[k][0]} ${table[k][1]}`)); } };
+    sec('UK GUIDANCE', src.guide, GUIDES);
+    sec('EUROPEAN GUIDANCE', src.eu, EU_GUIDES);
+    sec('US AND INTERNATIONAL GUIDANCE', src.us, US_GUIDES);
+    if (src.eg) { L.push('', 'EAST GENOMICS LEAFLETS'); src.eg.forEach(k => L.push(`- ${EG[k].label} ${EG[k].url}`)); }
+    L.push('', `Source: Cancer Predisposition Differential – ${location.href.split('#')[0]}#syndrome=${c.id}`);
+    return L.join('\n');
+  }
+
+  async function copyText(btn, text, label) {
+    try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; }
+    catch (_) { window.prompt('Copy:', text); }
+    setTimeout(() => { btn.textContent = label; }, 1500);
+  }
+
+  function onSynAction(e) {
+    const btn = e.target.closest('[data-syn-act]');
+    if (!btn) return;
+    const c = COND[state.syn];
+    const url = `${location.href.split('#')[0]}#syndrome=${c.id}`;
+    if (btn.dataset.synAct === 'copy') copyText(btn, synSummary(c), 'Copy summary');
+    if (btn.dataset.synAct === 'link') copyText(btn, url, 'Copy link');
+    if (btn.dataset.synAct === 'print') {
+      document.body.classList.add('print-syndrome');
+      window.print();
+      document.body.classList.remove('print-syndrome');
+    }
+  }
+
   function renderBrowse() {
     const mode = $('#browse-mode').value;
     const out = $('#browse-results');
     $('#browse-cancer').hidden = mode !== 'cancer';
-    $('#browse-search').hidden = mode !== 'syndrome';
-    if (mode === 'syndrome') {
-      const q = $('#browse-search').value.trim().toLowerCase();
-      const list = CONDITIONS.filter(c => !q || c.name.toLowerCase().includes(q) || c.genes.some(g => g.toLowerCase().includes(q)) ||
-        c.rules.some(r => ruleText(r).text.toLowerCase().includes(q)));
-      out.innerHTML = list.map(c => `<article class="result">
-        <h3>${esc(c.name)}</h3>
-        <div class="genes">${geneChips(c.genes)} <span class="inh">${esc(c.inh)}</span></div>
-        ${c.note ? `<p class="note">${esc(c.note)}</p>` : ''}
-        <ul class="assoc">${associationsHtml(c)}</ul>
-        <div class="tests">${c.tests.map(testChip).join('')}</div>
-        <details><summary>Leaflets &amp; sources</summary>${sourcesHtml(c)}</details>
-      </article>`).join('') || '<div class="empty">No matches.</div>';
-    } else {
-      const site = $('#browse-site').value;
-      const histSel = $('#browse-hist');
-      const prevHist = histSel.value;
-      histSel.innerHTML = site ? optionList(SITES[site].hist, prevHist, 'Any histology') : '<option value="">Any histology</option>';
-      histSel.disabled = !site;
-      if (!site) { out.innerHTML = '<div class="empty">Pick a cancer site to see which genes it suggests.</div>'; return; }
-      const hist = histSel.value;
-      const order = { H: 0, S: 1, M: 2, W: 3 };
-      const rows = [];
-      for (const c of CONDITIONS) {
-        const matching = c.rules.filter(r => r[0] === site && (!hist || r[1] === '*' || r[1].split('|').includes(hist)));
-        if (!matching.length) continue;
-        matching.sort((a, b) => order[a[2]] - order[b[2]]);
-        rows.push({ c, best: matching[0][2], rules: matching });
-      }
-      rows.sort((a, b) => order[a.best] - order[b.best]);
-      out.innerHTML = rows.map(({ c, rules }) => `<article class="result compact">
-        <h3>${esc(c.name)}</h3>
-        <div class="genes">${geneChips(c.genes)}</div>
-        <ul class="assoc">${rules.map(r => { const t = ruleText(r); return `<li><span class="tier tier-${t.tier}">${TIER_LABEL[t.tier]}</span> ${esc(t.text)}</li>`; }).join('')}</ul>
-      </article>`).join('') || '<div class="empty">No associations recorded.</div>';
+    $('#browse-filters').hidden = mode !== 'syndrome';
+    $('#syn-layout').hidden = mode !== 'syndrome';
+    out.hidden = mode !== 'cancer';
+    if (mode === 'syndrome') { renderSynList(); return; }
+    const site = $('#browse-site').value;
+    const histSel = $('#browse-hist');
+    const prevHist = histSel.value;
+    histSel.innerHTML = site ? optionList(SITES[site].hist, prevHist, 'Any histology') : '<option value="">Any histology</option>';
+    histSel.disabled = !site;
+    if (!site) { out.innerHTML = '<div class="empty">Pick a cancer site to see which genes it suggests.</div>'; return; }
+    const hist = histSel.value;
+    const rows = [];
+    for (const c of CONDITIONS) {
+      const matching = c.rules.filter(r => r[0] === site && (!hist || r[1] === '*' || r[1].split('|').includes(hist)));
+      if (!matching.length) continue;
+      matching.sort((a, b) => TIER_ORDER[a[2]] - TIER_ORDER[b[2]]);
+      rows.push({ c, best: matching[0][2], rules: matching });
     }
+    rows.sort((a, b) => TIER_ORDER[a.best] - TIER_ORDER[b.best]);
+    out.innerHTML = rows.map(({ c, rules }) => `<article class="result compact">
+      <h3><a href="#syndrome=${c.id}">${esc(c.name)}</a></h3>
+      <div class="genes">${geneChips(c.genes)}</div>
+      <ul class="assoc">${rules.map(r => { const t = ruleText(r); return `<li><span class="tier tier-${t.tier}">${TIER_LABEL[t.tier]}</span> ${esc(t.text)}</li>`; }).join('')}</ul>
+    </article>`).join('') || '<div class="empty">No associations recorded.</div>';
+  }
+
+  /* Open a syndrome from a #syndrome=<id> link (shareable, also used by list links). */
+  function openFromHash() {
+    const m = location.hash.match(/^#syndrome=(\w+)$/);
+    if (!m || !COND[m[1]]) return false;
+    state.syn = m[1];
+    $('#browse-mode').value = 'syndrome';
+    if (!synMatches(COND[m[1]])) { $('#browse-search').value = ''; $('#browse-test').value = ''; $('#browse-ukcgg').checked = false; }
+    setTab('browse');
+    $('#syn-detail').scrollIntoView({ block: 'nearest' });
+    return true;
   }
 
   /* ---------------- Example & setup ---------------- */
@@ -484,12 +606,17 @@
       if (t) setTab(t.dataset.tab);
     });
     $('#browse-site').innerHTML = optionList(Object.entries(SITES).map(([k, s]) => [k, s.label]), '', 'Choose site…');
-    ['browse-mode', 'browse-site', 'browse-hist'].forEach(id => $('#' + id).addEventListener('change', renderBrowse));
+    const usedTests = Object.keys(TESTS).filter(k => CONDITIONS.some(c => c.tests.includes(k))).sort((a, b) => a.slice(1) - b.slice(1));
+    $('#browse-test').innerHTML = optionList(usedTests.map(k => [k, `${k} ${TESTS[k].name}`]), '', 'Any test');
+    ['browse-mode', 'browse-site', 'browse-hist', 'browse-test', 'browse-ukcgg'].forEach(id => $('#' + id).addEventListener('change', renderBrowse));
     $('#browse-search').addEventListener('input', renderBrowse);
+    $('#syn-detail').addEventListener('click', onSynAction);
+    window.addEventListener('hashchange', openFromHash);
     $('#gene-count').textContent = NICPR.genes.length;
     $('#cond-count').textContent = CONDITIONS.length;
     renderFamily();
     renderResults();
+    openFromHash();
   }
 
   document.addEventListener('DOMContentLoaded', init);
