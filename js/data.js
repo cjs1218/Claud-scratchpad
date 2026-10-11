@@ -90,7 +90,8 @@ const SITES = {
     ['meningioma', 'Meningioma'], ['meningioma_cc', 'Clear cell meningioma'],
     ['vs', 'Vestibular schwannoma'], ['schwannoma', 'Non-vestibular schwannoma'],
     ['ependymoma', 'Ependymoma (spinal)'], ['hb', 'Haemangioblastoma (CNS / retinal)'],
-    ['sega', 'Subependymal giant cell astrocytoma'], ['pineoblastoma', 'Pineoblastoma']] },
+    ['sega', 'Subependymal giant cell astrocytoma'], ['pineoblastoma', 'Pineoblastoma'],
+    ['germ', 'Germ cell tumour (intracranial)'], ['cribriform', 'Cribriform neuroepithelial tumour']] },
   eye: { label: 'Eye', hist: [['rb', 'Retinoblastoma'], ['uveal', 'Uveal melanoma']] },
   skin: { label: 'Skin', markers: MMR_MARKERS, hist: [
     ['melanoma', 'Cutaneous melanoma'], ['bcc', 'Basal cell carcinoma'],
@@ -146,7 +147,7 @@ const SITES = {
     ['pilomatrixoma', 'Pilomatrixomas'], ['gapps', 'Gastric fundic gland polyposis (GAPPS)'],
     ['osteomas', 'Multiple osteomas / dental anomalies'], ['falx', 'Falx calcification'],
     ['cleft', 'Cleft lip / palate (self or FDR)'], ['lld', 'Lhermitte–Duclos disease'],
-    ['renal_cysts', 'Multiple renal / pancreatic cysts'],
+    ['renal_cysts', 'Multiple renal / pancreatic cysts'], ['enchondromas', 'Multiple enchondromas (Ollier / Maffucci)'],
     ['dicer1_rare', 'Childhood lung cysts / ciliary body medulloepithelioma / nasal chondromesenchymal hamartoma / gynandroblastoma']] }
 };
 
@@ -215,14 +216,14 @@ const CONDITIONS = [
   { id: 'brca2', name: 'Hereditary breast and ovarian cancer (BRCA2)', genes: ['BRCA2'], inh: 'AD',
     tests: ['R208','R207','R430','R444','R367'],
     rules: [['breast', '*', 'S', 45], ['breast', '*', 'H', null, 'male'], ['ovary', 'hgsc', 'H', 60],
-      ['ovary', 'endometrioid|clearcell|nos', 'M'], ['pancreas', 'pdac', 'S', 60], ['prostate', 'adeno|ductal', 'S', 60],
+      ['ovary', 'endometrioid|clearcell|nos', 'M'], ['pancreas', 'pdac', 'S', 60], ['prostate', 'adeno|ductal', 'S', 60], ['cns', 'medullo_shh|medullo_nos', 'W'],
       ['prostate', 'highrisk', 'S', 65], ['skin', 'melanoma', 'W'], ['eye', 'uveal', 'W'], ['biliary', '*', 'W'],
       ['stomach', '*', 'W']],
     mods: [['breast', 'her2pos', 0.6]] },
   { id: 'palb2', name: 'PALB2-related breast cancer predisposition', genes: ['PALB2'], inh: 'AD',
     tests: ['R208','R367'],
     rules: [['breast', '*', 'S', 50], ['breast', '*', 'S', 60, 'tnbc'], ['breast', '*', 'M', null, 'male'],
-      ['pancreas', 'pdac', 'M', 60], ['ovary', 'hgsc', 'M']] },
+      ['pancreas', 'pdac', 'M', 60], ['ovary', 'hgsc', 'M'], ['cns', 'medullo_shh|medullo_nos', 'W']] },
   { id: 'atm', name: 'ATM-related cancer predisposition (heterozygous)', genes: ['ATM'], inh: 'AD',
     tests: ['R208','R367'],
     rules: [['breast', '*', 'M', 50], ['pancreas', 'pdac', 'M', 60], ['prostate', '*', 'M', 60],
@@ -275,7 +276,7 @@ const CONDITIONS = [
     genes: ['MLH1', 'MSH2', 'MSH6', 'PMS2', 'EPCAM'], tests: ['R210','R211'],
     rules: [['cns', 'hgg', 'H', 25], ['colorectal', '*', 'H', 25, null, 35], ['smallbowel', '*', 'S', 25, null, 35],
       ['heme', 'all|lymphoma', 'S', 18], ['polyps', 'adenoma', 'S', 20, 'n10', 30], ['uterus', '*', 'M', 30, null, 35],
-      ['feature', 'cal', 'S'], ['cns', 'lgg|medullo_nos', 'M', 18]],
+      ['feature', 'cal', 'S'], ['cns', 'lgg|medullo_nos|medullo_shh', 'M', 18]],
     mods: [['*', 'mmr_def', 1.5], ['*', 'mmr_prof', 0.3]] },
   { id: 'fap', name: 'Familial adenomatous polyposis (APC)', genes: ['APC'], inh: 'AD', tests: ['R211','R414'],
     rules: [['polyps', 'adenoma', 'H', 30, 'n100'], ['polyps', 'adenoma', 'S', 30, 'n20'],
@@ -321,7 +322,7 @@ const CONDITIONS = [
       ['uterus', 'endometrioid|nos', 'S', 50], ['kidney', 'ccrcc|papillary1|chromophobe|nos', 'M'],
       ['colorectal', '*', 'M', 50], ['skin', 'melanoma', 'W'], ['feature', 'macrocephaly', 'H'],
       ['feature', 'trichilemmoma', 'H'], ['feature', 'lld', 'H'], ['polyps', 'ganglioneuroma', 'S'], ['polyps', 'mixed|juvenile', 'M'],
-      ['cns', 'lgg', 'W']] },
+      ['cns', 'lgg', 'W'], ['cns', 'meningioma', 'W']] },
   { id: 'hdgc', name: 'Hereditary diffuse gastric cancer (CDH1)', genes: ['CDH1'], inh: 'AD', tests: ['R215'],
     rules: [['stomach', 'diffuse', 'H', 50], ['breast', 'ilc', 'S', 50], ['feature', 'cleft', 'M'],
       ['colorectal', 'mucinous', 'W']] },
@@ -343,7 +344,7 @@ const CONDITIONS = [
   { id: 'men1', name: 'Multiple endocrine neoplasia type 1 (MEN1)', genes: ['MEN1'], inh: 'AD', tests: ['R217','R151'],
     rules: [['parathyroid', 'adenoma', 'S', 35], ['pituitary', 'gh|other', 'S', 30], ['pancreas', 'pnet', 'S', 50],
       ['net', 'gastrinoma', 'H'], ['net', 'thymic', 'H'], ['net', 'lung', 'M'], ['net', 'gastric', 'M'],
-      ['adrenal', 'acc', 'W'], ['parathyroid', 'carcinoma', 'W'], ['cns', 'meningioma', 'W']] },
+      ['adrenal', 'acc', 'W'], ['parathyroid', 'carcinoma', 'W'], ['cns', 'meningioma', 'W'], ['cns', 'ependymoma', 'W']] },
   { id: 'men4', name: 'MEN4 (CDKN1B)', genes: ['CDKN1B'], inh: 'AD', tests: ['R217','R151'],
     rules: [['parathyroid', 'adenoma', 'M', 40], ['pituitary', 'gh|other', 'M', 40], ['pancreas', 'pnet', 'W'],
       ['net', '*', 'W']] },
@@ -399,7 +400,8 @@ const CONDITIONS = [
     rules: [['kidney', 'papillary1', 'H', 45]] },
   { id: 'tsc', name: 'Tuberous sclerosis complex (TSC1 / TSC2)', genes: ['TSC1', 'TSC2'], inh: 'AD', tests: ['R228','R224'],
     rules: [['cns', 'sega', 'H'], ['kidney', 'aml', 'H'], ['feature', 'tsc_skin', 'H'], ['feature', 'cardiac_rhabdo', 'H'],
-      ['kidney', 'ccrcc|chromophobe|nos', 'M', 45], ['pancreas', 'pnet', 'M'], ['feature', 'lungcysts', 'M']] },
+      ['kidney', 'ccrcc|chromophobe|nos', 'M', 45], ['pancreas', 'pnet', 'M'], ['feature', 'lungcysts', 'M'],
+      ['sarcoma', 'chordoma', 'W']] },
   { id: 'bap1', name: 'BAP1 tumour predisposition syndrome', genes: ['BAP1'], inh: 'AD', tests: ['R422','R224','R254'],
     rules: [['eye', 'uveal', 'H', 40], ['meso', '*', 'S', 60], ['feature', 'bimt', 'H'], ['skin', 'melanoma', 'M'],
       ['kidney', 'ccrcc|nos', 'M', 45], ['biliary', 'cholangio', 'W'], ['cns', 'meningioma', 'W'], ['skin', 'bcc', 'W'],
@@ -409,7 +411,8 @@ const CONDITIONS = [
   { id: 'cdkn2a', name: 'Familial melanoma / melanoma–pancreatic cancer (CDKN2A)', genes: ['CDKN2A'], inh: 'AD',
     tests: ['R254','R367'],
     rules: [['skin', 'melanoma', 'S', 40], ['pancreas', 'pdac', 'S', 60], ['eye', 'uveal', 'W'], ['headneck', 'scc', 'W'],
-      ['cns', 'hgg|lgg', 'W'], ['lung', '*', 'W']] },
+      ['cns', 'hgg', 'M'], ['cns', 'lgg', 'W'], ['lung', '*', 'W']],
+    note: 'Whole-gene CDKN2A/CDKN2B deletion causes melanoma–astrocytoma syndrome (melanoma, malignant glioma, pancreatic cancer); some people with a clinical NF1 diagnosis have been reclassified to it.' },
   { id: 'cdk4', name: 'Familial melanoma (CDK4)', genes: ['CDK4'], inh: 'AD', tests: ['R254'],
     rules: [['skin', 'melanoma', 'S', 40], ['pancreas', 'pdac', 'W']] },
   { id: 'pot1', name: 'POT1 tumour predisposition', genes: ['POT1'], inh: 'AD', tests: ['R216','R254'],
@@ -436,18 +439,29 @@ const CONDITIONS = [
     rules: [['cns', 'vs', 'H', 30], ['cns', 'meningioma', 'S', 30], ['cns', 'ependymoma', 'S'], ['cns', 'schwannoma', 'M']] },
   { id: 'smarcb1', name: 'SMARCB1: rhabdoid tumour predisposition / schwannomatosis', genes: ['SMARCB1'], inh: 'AD',
     tests: ['R456','R221'],
-    rules: [['cns', 'atrt', 'H'], ['kidney', 'rhabdoid', 'H'], ['cns', 'schwannoma', 'S'], ['cns', 'meningioma', 'W']] },
+    rules: [['cns', 'atrt', 'H'], ['kidney', 'rhabdoid', 'H'], ['cns', 'schwannoma', 'S'], ['cns', 'meningioma', 'W'],
+      ['cns', 'cribriform', 'M'], ['sarcoma', 'mpnst', 'W']],
+    note: 'Includes distal 22q11.2 deletions spanning SMARCB1. Gonadal mosaicism occurs: test young at-risk siblings even if parents test negative.' },
   { id: 'lztr1', name: 'LZTR1-related schwannomatosis', genes: ['LZTR1'], inh: 'AD',
     note: 'Biallelic LZTR1 also causes autosomal recessive Noonan syndrome.', tests: ['R221'],
-    rules: [['cns', 'schwannoma', 'S'], ['cns', 'vs', 'W'], ['feature', 'rasopathy', 'W']] },
+    rules: [['cns', 'schwannoma', 'S'], ['cns', 'vs', 'W'], ['cns', 'meningioma', 'W'], ['feature', 'rasopathy', 'W']] },
   { id: 'smarca4', name: 'SMARCA4: rhabdoid tumour predisposition 2 / SCCOHT', genes: ['SMARCA4'], inh: 'AD',
-    tests: ['R456'], rules: [['ovary', 'sccoht', 'H'], ['cns', 'atrt', 'S']] },
+    tests: ['R456'], rules: [['ovary', 'sccoht', 'H'], ['cns', 'atrt', 'S'], ['kidney', 'rhabdoid', 'S'], ['nb', '*', 'W']] },
   { id: 'smarce1', name: 'SMARCE1: familial clear cell meningioma', genes: ['SMARCE1'], inh: 'AD', tests: ['R221'],
     rules: [['cns', 'meningioma_cc', 'H'], ['cns', 'meningioma', 'M', 30]] },
+  { id: 'dgcr8', name: 'DGCR8-related familial schwannomatosis with multinodular goitre', genes: ['DGCR8'], inh: 'AD',
+    notOnNicpr: true, note: 'Recently described microprocessor defect (AACR 2024 childhood CNS tumour update).', tests: ['R221'],
+    rules: [['cns', 'schwannoma', 'M'], ['thyroid', 'mng', 'M']] },
+  { id: 'jmjd1c', name: 'JMJD1C-associated intracranial germ cell tumour predisposition', genes: ['JMJD1C'], inh: 'AD (low penetrance)',
+    notOnNicpr: true, tests: ['R89'],
+    note: 'Emerging association, notably in Japanese and East Asian patients; germline Fanconi anaemia pathway variants were found in 16% of one Chinese series. No surveillance recommendations.',
+    rules: [['cns', 'germ', 'M']] },
   { id: 'elp1', name: 'ELP1-associated SHH medulloblastoma', genes: ['ELP1'], inh: 'AD', tests: ['R456'],
-    rules: [['cns', 'medullo_shh', 'S', 15]] },
+    rules: [['cns', 'medullo_shh', 'S', 15]],
+    note: '14–21% of SHH medulloblastoma in older children (median 6.3 years), with somatic 9q loss. Absolute medulloblastoma risk in carriers is low.' },
   { id: 'gpr161', name: 'GPR161-associated SHH medulloblastoma', genes: ['GPR161'], inh: 'AD', tests: ['R456'],
-    rules: [['cns', 'medullo_shh', 'S', 3]] },
+    rules: [['cns', 'medullo_shh', 'S', 3], ['skin', 'bcc', 'W'], ['cns', 'meningioma', 'W']],
+    note: 'Up to 5% of infant SHH medulloblastoma (median 1.5 years); families may show a Gorlin-like phenotype. Absolute medulloblastoma risk is low.' },
 
   /* ---------- Paediatric / overgrowth ---------- */
   { id: 'dicer1', name: 'DICER1 tumour predisposition', genes: ['DICER1'], inh: 'AD', tests: ['R364','R456','R457'],
@@ -504,6 +518,14 @@ const CONDITIONS = [
   { id: 'pdgfrb', name: 'Infantile myofibromatosis (PDGFRB)', genes: ['PDGFRB'], inh: 'AD', tests: ['R89'],
     rules: [['feature', 'myofibroma', 'H']] },
 
+  { id: 'tbxt', name: 'Familial chordoma (TBXT duplication)', genes: ['TBXT'], inh: 'AD', notOnNicpr: true,
+    note: 'Germline duplication of TBXT (brachyury), mainly intracranial chordoma; detected by copy-number analysis (R457 includes TBXT duplications).',
+    tests: ['R457'], rules: [['sarcoma', 'chordoma', 'S']] },
+  { id: 'ollier', name: 'Ollier disease / Maffucci syndrome (post-zygotic IDH1 / IDH2)', genes: ['IDH1', 'IDH2'],
+    inh: 'Post-zygotic mosaic (not inherited)', notOnNicpr: true,
+    note: 'Mosaic variants: test affected tissue (enchondroma or tumour), not blood. Gliomas occur in childhood and adulthood.',
+    tests: ['R89'], rules: [['feature', 'enchondromas', 'H'], ['cns', 'hgg|lgg', 'M']] },
+
   /* ---------- DNA repair / chromosome instability ---------- */
   { id: 'fanconi', name: 'Fanconi anaemia (biallelic FANC genes)',
     genes: ['FANCA', 'FANCB', 'FANCC', 'BRCA2', 'FANCD2', 'FANCE', 'FANCF', 'FANCG', 'FANCI', 'BRIP1', 'FANCL', 'FANCM', 'PALB2', 'SLX4'],
@@ -552,6 +574,44 @@ const CONDITIONS = [
     rules: [['feature', 'tbd', 'H'], ['feature', 'bmf', 'S'], ['heme', 'mds|aml', 'M'], ['headneck', 'scc', 'M', 50],
       ['liver', 'hcc', 'W'], ['skin', 'melanoma', 'W']] }
 ];
+/*
+ * Tumour-specific testing pointers, shown when a matching cancer is entered (and in the
+ * By-cancer view). `aacr` = AACR 2024 childhood CNS tumour update (US_GUIDES.aacr_brain);
+ * `nhs` = the NHS Test Directory route, noting where it differs (UK guidance takes priority).
+ */
+const TEST_POINTERS = [
+  { site: 'cns', hist: 'medullo_wnt', aacr: 'WNT medulloblastoma: test germline APC (FAP) if there is no somatic CTNNB1 mutation or somatic testing is unavailable – >70% of CTNNB1-wild-type WNT-MB carry a germline APC variant.',
+    nhs: 'R414 (APC) lists classic medulloblastoma in children/young adults before colonoscopy; it does not specify WNT subgroup or CTNNB1 status.' },
+  { site: 'cns', hist: 'medullo_shh', aacr: 'SHH medulloblastoma: up to 40% have a predisposition syndrome. Test PTCH1 and SUFU (Gorlin), GPR161 (infants), ELP1 (older children), TP53 (20% at age 5–16), MMR/POLE if the tumour is hypermutated, and consider BRCA2/PALB2 or Fanconi anaemia if there is an HRD signature or unexpected treatment toxicity. Include chromosomal microarray.',
+    nhs: 'R456 covers SHH medulloblastoma <25 (panel includes PTCH1, SUFU, GPR161, ELP1, TP53); R214 if Gorlin features; R210 if CMMRD is suspected.' },
+  { site: 'cns', hist: 'medullo_nos', aacr: 'Group 3/4 medulloblastoma: no clear syndrome association – reserve germline testing for a family history of BRCA-associated cancers or an HRD signature on tumour sequencing.',
+    nhs: 'No specific route; use R208 if the family meets HBOC criteria.' },
+  { site: 'cns', hist: 'atrt', aacr: 'AT/RT: test SMARCB1 (including copy number and distal 22q11.2 deletion) and SMARCA4. Gonadal mosaicism occurs, so test young at-risk siblings even if both parents test negative.',
+    nhs: 'R456 (AT/RT at any age).' },
+  { site: 'kidney', hist: 'rhabdoid', aacr: 'Malignant rhabdoid tumour: test SMARCB1 (including copy number) and SMARCA4; test young siblings even if parents are negative.',
+    nhs: 'R456.' },
+  { site: 'ovary', hist: 'sccoht', aacr: 'SCCOHT: test SMARCA4 (rhabdoid tumour predisposition syndrome 2); discuss risk-reducing salpingo-oophorectomy for carriers.',
+    nhs: 'R456 (SCCOHT at any age).' },
+  { site: 'cns', hist: 'cribriform', aacr: 'Cribriform neuroepithelial tumour: consider germline SMARCB1.', nhs: 'R456 / R221.' },
+  { site: 'cns', hist: 'meningioma|meningioma_cc|vs|schwannoma', maxAge: 25, aacr: 'Meningioma or schwannoma in a child or young adult: evaluate for a predisposition syndrome even without a family history – NF2, SMARCB1, LZTR1, SMARCE1 (clear cell meningioma), PTCH1/SUFU, PTEN, DGCR8, BAP1.',
+    nhs: 'R221 – schwannoma <30, meningioma <20, any clear cell meningioma, 2 meningiomas <50; AACR suggests evaluating all children and young adults, which is broader.' },
+  { site: 'cns', hist: 'pineoblastoma', aacr: 'Pineoblastoma: test DICER1 and RB1 (ask about Sertoli–Leydig tumour, pleuropulmonary blastoma or retinoblastoma in the family).',
+    nhs: 'R364 (DICER1) and R219 (RB1).' },
+  { site: 'pituitary', hist: 'blastoma', aacr: 'Pituitary blastoma: test DICER1.', nhs: 'R364.' },
+  { site: 'cns', hist: 'hgg', maxAge: 25, aacr: 'High-grade glioma in a child or young adult: consider TP53 (Li–Fraumeni), MMR/POLE (CMMRD – check tumour hypermutation/MSI), NF1, CDKN2A/B deletion (melanoma–astrocytoma), POT1, and mosaic IDH1/IDH2 with enchondromas (Ollier/Maffucci).',
+    nhs: 'R216 (TP53/POT1) and R210 (CMMRD, Wimmer score ≥3).' },
+  { site: 'cns', hist: 'optic|lgg', maxAge: 18, aacr: 'Low-grade or optic pathway glioma in a child: consider NF1 – bilateral optic pathway glioma is almost pathognomonic.',
+    nhs: 'R222 (clinical NF1 diagnosis).' },
+  { site: 'cns', hist: 'sega', aacr: 'SEGA: tuberous sclerosis (TSC1/TSC2).', nhs: 'R228.' },
+  { site: 'cns', hist: 'ependymoma', aacr: 'Spinal ependymoma: NF2-related schwannomatosis; rarely MEN1.', nhs: 'R221 (NF2).' },
+  { site: 'cns', hist: 'cpc', aacr: 'Choroid plexus carcinoma: Li–Fraumeni (TP53) at any age.', nhs: 'R216 (any age).' },
+  { site: 'cns', hist: 'hb', aacr: 'Haemangioblastoma: von Hippel–Lindau (VHL); surveillance MRI must use contrast every time.', nhs: 'R225.' },
+  { site: 'cns', hist: 'germ', aacr: 'Intracranial germ cell tumour: offer genetic counselling and consider testing, particularly in Japanese or East Asian patients (JMJD1C; Fanconi anaemia pathway genes). No surveillance recommendations yet.',
+    nhs: 'No specific test; WGS via R89 needs UKCGG/CanGene-CanVar national MDT approval.' },
+  { site: 'sarcoma', hist: 'chordoma', aacr: 'Chordoma: familial or intracranial – germline TBXT (brachyury) duplication; sacral – TSC1/TSC2.',
+    nhs: 'R457 (chordoma <25, multiple or familial; includes TBXT duplications); R228 if TSC features.' }
+];
+
 /* Syndrome categories for the Syndromes tab (same order as CONDITIONS). */
 const CATEGORIES = [
   ['Breast and ovarian', ['brca1', 'brca2', 'palb2', 'atm', 'chek2', 'bard1', 'rad51d', 'rad51c', 'brip1']],
@@ -560,10 +620,10 @@ const CATEGORIES = [
   ['Endocrine', ['men1', 'men4', 'men2', 'hptjt', 'fipa', 'carney', 'mas']],
   ['Phaeochromocytoma / paraganglioma and renal', ['vhl', 'sdhb', 'sdhd', 'sdhc', 'sdha', 'sdhaf2', 'tmem127', 'max', 'hlrcc', 'bhd', 'hprc', 'tsc', 'bap1']],
   ['Skin', ['cdkn2a', 'cdk4', 'pot1', 'gorlin', 'sufu', 'xp']],
-  ['CNS and nerve sheath', ['nf1', 'nf2', 'smarcb1', 'lztr1', 'smarca4', 'smarce1', 'elp1', 'gpr161']],
+  ['CNS and nerve sheath', ['nf1', 'nf2', 'smarcb1', 'lztr1', 'smarca4', 'smarce1', 'dgcr8', 'jmjd1c', 'elp1', 'gpr161']],
   ['Paediatric embryonal and overgrowth', ['dicer1', 'rb1', 'wt1', 'wilms_other', 'perlman', 'mulibrey', 'mva', 'bws', 'sgbs', 'sotos', 'weaver', 'alk', 'phox2b']],
   ['RASopathies', ['noonan', 'cbl', 'costello']],
-  ['GIST and mesenchymal', ['kit', 'pdgfra', 'pdgfrb']],
+  ['GIST and mesenchymal', ['kit', 'pdgfra', 'pdgfrb', 'tbxt', 'ollier']],
   ['DNA repair and chromosome instability', ['fanconi', 'at', 'nbs', 'bloom', 'rts', 'werner']],
   ['Haematological', ['cebpa', 'runx1', 'gata2', 'ddx41', 'etv6', 'ankrd26', 'samd9l', 'pax5', 'kdm3b', 'tbd']]
 ];
@@ -812,7 +872,8 @@ const SOURCE_DATES = [
   ['European guidelines', 'ERN GENTURIS lists, Crossref', '11 Oct 2026'],
   ['US and international guidelines', 'NCCN, Crossref', '11 Oct 2026'],
   ['East Genomics patient leaflets', 'East Genomics A-Z index', '11 Oct 2026'],
-  ['Associations, strengths and ages', 'Reviewed against GeneReviews and UKCGG', '11 Oct 2026']
+  ['Associations, strengths and ages', 'Reviewed against GeneReviews and UKCGG', '11 Oct 2026'],
+  ['AACR childhood CNS tumour update (Clin Cancer Res 2024;30:2342)', 'CNS associations and testing pointers', '11 Oct 2026']
 ];
 
 /* Relationship to proband: degree of relatedness, side of family, default sex. */
@@ -994,8 +1055,8 @@ const US_GUIDES = {
 /* Per-condition East Genomics leaflets (`eg`), UK (`guide`), European (`eu`) and US (`us`) guidance. */
 const SOURCES = {
   brca1: { eg: ['brca1', 'brca_r444', 'breast_ovarian', 'ovarian', 'pancreatic', 'prostate_brca'], guide: ['brca1', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
-  brca2: { eg: ['brca2', 'brca_r444', 'breast_ovarian', 'ovarian', 'pancreatic', 'prostate_r430', 'prostate_brca', 'prostate'], guide: ['brca2', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
-  palb2: { eg: ['palb2', 'brca_r444', 'breast_ovarian', 'pancreatic'], guide: ['palb2', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp', 'acmg_palb2'] },
+  brca2: { eg: ['brca2', 'brca_r444', 'breast_ovarian', 'ovarian', 'pancreatic', 'prostate_r430', 'prostate_brca', 'prostate'], guide: ['brca2', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp', 'aacr_brain'] },
+  palb2: { eg: ['palb2', 'brca_r444', 'breast_ovarian', 'pancreatic'], guide: ['palb2', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp', 'acmg_palb2', 'aacr_brain'] },
   atm: { eg: ['atm', 'breast_ovarian', 'pancreatic', 'prostate_r430'], guide: ['atm', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
   chek2: { eg: ['chek2', 'breast_ovarian'], guide: ['chek2', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
   bard1: { eg: ['breast_ovarian'], guide: ['bard1', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
@@ -1006,8 +1067,8 @@ const SOURCES = {
   lynch_msh2: { eg: ['lynch', 'lynch_aspirin', 'bowel'], guide: ['msh2', 'dg27', 'dg42'], eu: ['ehtg_lynch', 'esge_lynch', 'manchester_lynch'], us: ['nccn_ceeg', 'usmstf_lynch', 'acg_gi'] },
   lynch_msh6: { eg: ['lynch', 'lynch_aspirin', 'bowel'], guide: ['msh6', 'dg27', 'dg42'], eu: ['ehtg_lynch', 'esge_lynch', 'manchester_lynch'], us: ['nccn_ceeg', 'usmstf_lynch', 'acg_gi'] },
   lynch_pms2: { eg: ['lynch', 'lynch_aspirin', 'bowel'], guide: ['pms2', 'dg27', 'dg42'], eu: ['ehtg_lynch', 'esge_lynch', 'manchester_lynch'], us: ['nccn_ceeg', 'usmstf_lynch', 'acg_gi'] },
-  cmmrd: { eg: ['lynch', 'bowel'], guide: ['bsg'], eu: ['ern_cmmrd'], us: ['aacr_rrd', 'nccn_ceeg'] },
-  fap: { eg: ['bowel'], guide: ['apc', 'bsg'], eu: ['ehtg_fap', 'esge_polyposis'], us: ['nccn_ceeg', 'acg_gi', 'aacr_gi'] },
+  cmmrd: { eg: ['lynch', 'bowel'], guide: ['bsg'], eu: ['ern_cmmrd'], us: ['aacr_rrd', 'nccn_ceeg', 'aacr_brain'] },
+  fap: { eg: ['bowel'], guide: ['apc', 'bsg'], eu: ['ehtg_fap', 'esge_polyposis'], us: ['nccn_ceeg', 'acg_gi', 'aacr_gi', 'aacr_brain'] },
   map: { eg: ['map', 'bowel'], guide: ['bsg'], eu: ['ehtg_fap', 'esge_polyposis'], us: ['nccn_ceeg', 'acg_gi'] },
   nthl1: { eg: ['bowel'], guide: ['bsg'], eu: ['ehtg_fap'], us: ['nccn_ceeg'] },
   ppap: { eg: ['bowel'], guide: ['bsg'], eu: ['ehtg_fap'], us: ['nccn_ceeg', 'aacr_rrd'] },
@@ -1017,12 +1078,12 @@ const SOURCES = {
   hmps: { eg: ['bowel'], guide: ['bsg'], eu: ['esge_polyposis'], us: ['usmstf_hamartoma'] },
   rnf43: { eg: ['bowel'], guide: ['bsg'], eu: ['esge_polyposis'], us: ['nccn_ceeg'] },
   pjs: { eg: ['bowel', 'pancreatic'], guide: ['bsg'], eu: ['ehtg_pjs', 'esge_polyposis'], us: ['usmstf_hamartoma', 'nccn_ceeg', 'acg_gi', 'aacr_gi'] },
-  phts: { eg: ['pten'], guide: ['pten'], eu: ['ern_phts', 'esge_polyposis'], us: ['phts_consensus', 'nccn_bopp', 'usmstf_hamartoma', 'aacr_pten_dicer1_tsc'] },
+  phts: { eg: ['pten'], guide: ['pten'], eu: ['ern_phts', 'esge_polyposis'], us: ['phts_consensus', 'nccn_bopp', 'usmstf_hamartoma', 'aacr_pten_dicer1_tsc', 'aacr_brain'] },
   hdgc: { guide: ['cdh1'], eu: ['igclc_hdgc'], us: ['nccn_ceeg', 'nccn_bopp', 'acg_gi'] },
-  lfs: { eg: ['lfs'], guide: ['tp53'], eu: ['ern_lfs'], us: ['nccn_bopp', 'aacr_lfs'] },
+  lfs: { eg: ['lfs'], guide: ['tp53'], eu: ['ern_lfs'], us: ['nccn_bopp', 'aacr_lfs', 'aacr_brain'] },
   men2: { eg: ['ppgl'], us: ['ata_men2', 'aacr_endo'] },
   carney: { eg: ['carney'], us: ['carney_nih', 'aacr_endo'] },
-  vhl: { eg: ['ppgl'], eu: ['vhl_eu', 'ppgl_children'], us: ['vhl_consensus', 'aacr_vhl', 'endo_ppgl'] },
+  vhl: { eg: ['ppgl'], eu: ['vhl_eu', 'ppgl_children'], us: ['vhl_consensus', 'aacr_vhl', 'endo_ppgl', 'aacr_brain'] },
   sdhb: { eg: ['ppgl', 'gist'], guide: ['sdhb'], eu: ['sdhx_consensus', 'ese_ppgl', 'ppgl_children'], us: ['endo_ppgl', 'aacr_ppgl'] },
   sdhd: { eg: ['ppgl', 'gist'], guide: ['sdhd'], eu: ['sdhx_consensus', 'ese_ppgl', 'ppgl_children'], us: ['endo_ppgl', 'aacr_ppgl'] },
   sdhc: { eg: ['ppgl', 'gist'], guide: ['sdhc'], eu: ['sdhx_consensus', 'ese_ppgl', 'ppgl_children'], us: ['endo_ppgl', 'aacr_ppgl'] },
@@ -1033,12 +1094,12 @@ const SOURCES = {
   hlrcc: { eg: ['hlrcc'], guide: ['fh'], us: ['aacr_fh'] },
   bhd: { guide: ['flcn'], eu: ['ern_bhd'] },
   hprc: { eg: ['hprc'], guide: ['met'] },
-  bap1: { eg: ['bap1', 'melanoma'], guide: ['bap1'], eu: ['bap1_eu'] },
-  cdkn2a: { eg: ['melanoma', 'pancreatic'], us: ['nccn_bopp'] },
+  bap1: { eg: ['bap1', 'melanoma'], guide: ['bap1'], eu: ['bap1_eu'], us: ['aacr_brain'] },
+  cdkn2a: { eg: ['melanoma', 'pancreatic'], us: ['nccn_bopp', 'aacr_brain'] },
   cdk4: { eg: ['melanoma'] },
-  pot1: { eg: ['melanoma'], guide: ['pot1'] },
-  nf1: { eg: ['nf1'], eu: ['ern_nf1', 'nf1_criteria'], us: ['aacr_ras'] },
-  dicer1: { eg: ['dicer1'], guide: ['dicer1'], eu: ['siope_dicer1'], us: ['aacr_dicer1', 'aacr_pten_dicer1_tsc'] },
+  pot1: { eg: ['melanoma'], guide: ['pot1'], us: ['aacr_brain'] },
+  nf1: { eg: ['nf1'], eu: ['ern_nf1', 'nf1_criteria'], us: ['aacr_ras', 'aacr_brain'] },
+  dicer1: { eg: ['dicer1'], guide: ['dicer1'], eu: ['siope_dicer1'], us: ['aacr_dicer1', 'aacr_pten_dicer1_tsc', 'aacr_brain'] },
   kit: { eg: ['gist'], eu: ['esmo_gist'] },
   pdgfra: { eg: ['gist'], eu: ['esmo_gist'] },
   cebpa: { guide: ['cebpa'], us: ['aacr_heme'] },
@@ -1050,9 +1111,9 @@ const SOURCES = {
   ctnna1: { eu: ['igclc_hdgc'], us: ['nccn_ceeg'] },
   gorlin: { eu: ['bcns_eu', 'siope_gorlin'], us: ['aacr_brain'] },
   sufu: { eu: ['bcns_eu', 'siope_gorlin'], us: ['aacr_brain'] },
-  nf2: { eu: ['ern_schwann', 'nf2_criteria'], us: ['aacr_schwann'] },
+  nf2: { eu: ['ern_schwann', 'nf2_criteria'], us: ['aacr_schwann', 'aacr_brain'] },
   smarcb1: { eu: ['siope_rhabdoid', 'ern_schwann', 'nf2_criteria'], us: ['aacr_schwann', 'aacr_brain'] },
-  lztr1: { eu: ['ern_schwann', 'nf2_criteria'], us: ['aacr_schwann'] },
+  lztr1: { eu: ['ern_schwann', 'nf2_criteria'], us: ['aacr_schwann', 'aacr_brain'] },
   smarca4: { eu: ['siope_rhabdoid', 'sccoht'], us: ['aacr_brain'] },
   wt1: { eu: ['siope_wilms'], us: ['aacr_bws', 'aacr_wilms'] },
   wilms_other: { eu: ['siope_wilms'], us: ['aacr_wilms'] },
@@ -1061,11 +1122,11 @@ const SOURCES = {
   mva: { eu: ['siope_wilms'], us: ['aacr_wilms'] },
   sgbs: { eu: ['siope_wilms'], us: ['aacr_bws'] },
   bws: { eu: ['bws_consensus', 'siope_wilms'], us: ['aacr_bws'] },
-  men1: { us: ['endo_men1', 'aacr_endo'] },
+  men1: { us: ['endo_men1', 'aacr_endo', 'aacr_brain'] },
   men4: { us: ['aacr_endo'] },
   hptjt: { us: ['aacr_endo'] },
   fipa: { us: ['endo_men1'] },
-  tsc: { us: ['tsc_consensus', 'aacr_pten_dicer1_tsc'] },
+  tsc: { us: ['tsc_consensus', 'aacr_pten_dicer1_tsc', 'aacr_brain'] },
   noonan: { us: ['aacr_ras'] },
   cbl: { us: ['aacr_ras'] },
   costello: { us: ['aacr_ras'] },
@@ -1073,16 +1134,21 @@ const SOURCES = {
   gpr161: { us: ['aacr_brain'] },
   alk: { us: ['aacr_nb'] },
   phox2b: { us: ['aacr_nb'] },
-  rb1: { us: ['aacr_rb'] },
+  rb1: { us: ['aacr_rb', 'aacr_brain'] },
   samd9l: { us: ['aacr_heme'] },
   pax5: { us: ['aacr_heme'] },
   tbd: { us: ['aacr_heme'] },
-  fanconi: { us: ['fa_guidelines', 'aacr_gid'] },
+  fanconi: { us: ['fa_guidelines', 'aacr_gid', 'aacr_brain'] },
   at: { us: ['aacr_gid'] },
   nbs: { us: ['aacr_gid'] },
   bloom: { us: ['aacr_gid'] },
   rts: { us: ['aacr_gid'] },
-  werner: { us: ['aacr_gid'] }
+  werner: { us: ['aacr_gid', 'aacr_brain'] },
+  smarce1: { us: ['aacr_brain'] },
+  dgcr8: { us: ['aacr_brain'] },
+  jmjd1c: { us: ['aacr_brain'] },
+  tbxt: { us: ['aacr_brain'] },
+  ollier: { us: ['aacr_brain'] }
 };
 
 /*
@@ -1153,7 +1219,11 @@ const GR_TITLES = {
   NBK624097: 'MBD4-Related Tumor Predisposition Syndrome',
   NBK625142: 'Primary Familial Gastrointestinal Stromal Tumors'
 };
+const OMIM_PREFIX = { 166000: '%', 614569: '%' };  // entries without a known molecular basis
 const OMIM_TITLES = {
+  166000: 'Enchondromatosis, Multiple, Ollier Type',
+  215400: 'Chordoma, Susceptibility to',
+  614569: 'Multiple Enchondromatosis, Maffucci Type',
   101000: 'Schwannomatosis, Vestibular',
   102200: 'Pituitary Adenoma 1, Multiple Types',
   109400: 'Basal Cell Nevus Syndrome 1',
@@ -1305,6 +1375,7 @@ const OMIM_TITLES = {
   621687: 'Pheochromocytoma/Paraganglioma Syndrome 8'
 };
 const GENE_MIM = {
+  DGCR8: 609030, JMJD1C: 604503, TBXT: 601397, IDH1: 147700, IDH2: 147650,
   AIP: 605555, ALK: 105590, ANKRD26: 610855, APC: 611731, ATM: 607585, BAP1: 603089, BARD1: 601593, BLM: 604610,
   BMPR1A: 601299, BRCA1: 113705, BRCA2: 600185, BRIP1: 605882, BUB1B: 602860, CBL: 165360, CDC73: 607393, CDH1: 192090,
   CDK4: 123829, CDKN1B: 600778, CDKN1C: 600856, CDKN2A: 600160, CEBPA: 116897, CEP57: 607951, CHEK2: 604373, CTNNA1: 116805,
@@ -1421,6 +1492,10 @@ const REFS = {
   samd9l: { gr: ['NBK435692'], omim: [159550] },
   pax5: { gr: [], omim: [615545] },
   kdm3b: { gr: ['NBK1294'], omim: [618846] },
+  dgcr8: { gr: [], omim: [] },
+  jmjd1c: { gr: [], omim: [] },
+  tbxt: { gr: [], omim: [215400] },
+  ollier: { gr: [], omim: [166000, 614569] },
   tbd: { gr: ['NBK22301'], omim: [127550, 613989, 224230, 613987, 615190, 613988, 614742, 614743, 616373] }
 };
 

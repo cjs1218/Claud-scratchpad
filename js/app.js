@@ -188,7 +188,8 @@
     return ref.gr.length ? ref.gr.map(n => link(GR_TITLES[n], REF_LINKS.geneReviews(n))).join('; ')
       : `<span class="muted">no chapter – ${link('search GeneReviews', REF_LINKS.geneReviewsSearch(c.genes[0]))}</span>`;
   }
-  const phenoLinks = c => REFS[c.id].omim.map(m => link(`#${m} ${OMIM_TITLES[m]}`, REF_LINKS.omim(m))).join('; ');
+  const omimId = m => `${OMIM_PREFIX[m] || '#'}${m}`;
+  const phenoLinks = c => REFS[c.id].omim.map(m => link(`${omimId(m)} ${OMIM_TITLES[m]}`, REF_LINKS.omim(m))).join('; ');
   const geneMimLink = g => link(`${g} *${GENE_MIM[g]}`, REF_LINKS.omim(GENE_MIM[g]));
 
   function sourcesHtml(c) {
@@ -360,6 +361,21 @@
 
   let lastShown = [];
 
+  /* Testing pointers whose site/histology (and age limit, when an age is entered) match. */
+  function pointersFor(dxs) {
+    return TEST_POINTERS.filter(t => dxs.some(d => d.site === t.site && t.hist.split('|').includes(d.hist) &&
+      (t.maxAge == null || d.age === '' || +d.age <= t.maxAge)));
+  }
+  const familyDxs = () => state.people.flatMap(p => p.dx.filter(d => d.site && d.hist));
+
+  function pointersHtml(list, heading) {
+    if (!list.length) return '';
+    const g = US_GUIDES.aacr_brain;
+    return `<section class="pointers"><h2>${heading}</h2>
+      <p class="muted small">Tumour-specific advice from the ${link('AACR 2024 childhood CNS tumour update', g[1])}. NHS Test Directory eligibility takes priority; differences are noted.</p>
+      <ul>${list.map(t => `<li>${esc(t.aacr)}<br><span class="small"><strong>NHS route:</strong> ${esc(t.nhs)}</span></li>`).join('')}</ul></section>`;
+  }
+
   function renderResults() {
     const all = scoreFamily();
     const { shown, hidden, top } = filterByMode(all);
@@ -374,6 +390,7 @@
       <p class="muted small">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities.</p>
       ${shown.map((r, i) => resultCard(r, i, top)).join('')}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
+      ${pointersHtml(pointersFor(familyDxs()), 'Testing pointers for the cancers entered')}
       ${renderTests(shown)}`;
   }
 
@@ -388,6 +405,11 @@
     }
     lines.push('', `DIFFERENTIAL (${MODES[state.mode].label.toLowerCase()} search)`);
     lastShown.forEach((r, i) => lines.push(`${i + 1}. ${r.cond.name} [${r.cond.genes.join(', ')}] – score ${r.score.toFixed(1)}`));
+    const ptrs = pointersFor(familyDxs());
+    if (ptrs.length) {
+      lines.push('', 'TESTING POINTERS (AACR 2024 childhood CNS tumour update; NHS route takes priority)');
+      ptrs.forEach(t => lines.push(`- ${t.aacr}`, `  NHS route: ${t.nhs}`));
+    }
     const tests = testsSummary(lastShown);
     if (tests.length) {
       lines.push('', `TESTS TO CONSIDER (${TD_VERSION})`);
@@ -591,7 +613,7 @@
     c.tests.forEach(k => L.push(`- ${TESTS[k].code} ${TESTS[k].name}${TESTS[k].part ? ` (Part ${TESTS[k].part})` : ''}`));
     L.push('', 'REFERENCES');
     ref.gr.forEach(n => L.push(`- GeneReviews: ${GR_TITLES[n]} ${REF_LINKS.geneReviews(n)}`));
-    ref.omim.forEach(m => L.push(`- OMIM #${m} ${OMIM_TITLES[m]} ${REF_LINKS.omim(m)}`));
+    ref.omim.forEach(m => L.push(`- OMIM ${omimId(m)} ${OMIM_TITLES[m]} ${REF_LINKS.omim(m)}`));
     c.genes.forEach(g => L.push(`- OMIM ${g} *${GENE_MIM[g]} ${REF_LINKS.omim(GENE_MIM[g])}`));
     const sec = (title, keys, table) => { if (keys && keys.length) { L.push('', title); keys.forEach(k => L.push(`- ${table[k][0]} ${table[k][1]}`)); } };
     sec('UK GUIDANCE', src.guide, GUIDES);
@@ -676,7 +698,8 @@
       rows.push({ c, best: matching[0][2], rules: matching });
     }
     rows.sort((a, b) => TIER_ORDER[a.best] - TIER_ORDER[b.best]);
-    out.innerHTML = rows.map(({ c, rules }) => `<article class="result compact">
+    const ptrs = TEST_POINTERS.filter(t => t.site === site && (!hist || t.hist.split('|').includes(hist)));
+    out.innerHTML = pointersHtml(ptrs, 'Testing pointers') + rows.map(({ c, rules }) => `<article class="result compact">
       <h3><a href="#syndrome=${c.id}">${esc(c.name)}</a></h3>
       <div class="genes">${geneChips(c.genes)}</div>
       <ul class="assoc">${rules.map(r => { const t = ruleText(r); return `<li><span class="tier tier-${t.tier}">${TIER_LABEL[t.tier]}</span> ${esc(t.text)}</li>`; }).join('')}</ul>

@@ -140,6 +140,11 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
   details > *:not(summary) { display: block; }
 }
 
+.pointers { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 10px 12px; margin: 12px 0; }
+.pointers h2 { font-size: 1rem; margin-bottom: 4px; }
+.pointers ul { margin: 6px 0 0; padding-left: 18px; font-size: 0.9rem; }
+.pointers li + li { margin-top: 6px; }
+
 /* Syndromes tab: list + detail */
 .print-bar { position: sticky; top: -6px; background: var(--card); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); z-index: 1; }
 .print-bar button:disabled { opacity: 0.5; cursor: default; }

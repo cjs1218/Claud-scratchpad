@@ -41,6 +41,8 @@ Everything clinical lives in `js/data.js`:
   (`OMIM_TITLES`); gene entries come from `GENE_MIM`.
 - **NICPR** – the NICPR Appendix 1 gene list and its annotations.
 - **DATA_CHECKED / SOURCE_DATES** – when each information source was last pulled and checked.
+- **TEST_POINTERS** – tumour-specific testing advice (currently from the AACR 2024 childhood CNS tumour
+  update), each with the NHS Test Directory route; shown in results and the By-cancer view.
 - **CATEGORIES** – groups conditions for the Syndromes tab (every condition in exactly one group).
 
 ## Syndromes tab
