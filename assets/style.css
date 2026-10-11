@@ -274,3 +274,17 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 /* Button to the Sources tab at the foot of syndrome and gene pages */
 .sources-link { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; }
 .sources-link a.btn-ghost { text-decoration: none; display: inline-block; }
+
+/* Link to the source code on GitHub (header, top right, and footer) */
+.head-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.gh-link { display: inline-flex; align-items: center; gap: 6px; flex: none; margin-top: 4px; padding: 5px 10px; border: 2px solid currentColor; border-radius: 4px; color: var(--head-fg); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+.gh-link:hover { color: var(--head-fg); background: rgba(255, 255, 255, 0.15); }
+.gh-link:focus-visible { box-shadow: none; outline: 3px solid var(--focus); outline-offset: 2px; background: none; color: var(--head-fg); }
+.foot-code { margin: 8px 0 0; }
+.foot-code a { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+.gh-mark { flex: none; }
+@media (max-width: 600px) {
+  .gh-link { padding: 6px; margin-top: 0; }
+  .gh-link span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@media print { .gh-link { display: none; } }
