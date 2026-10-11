@@ -288,3 +288,37 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
   .gh-link span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 @media print { .gh-link { display: none; } }
+
+/* Family tree (pedigree) above the differential */
+.ped { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 4px; padding: 10px 12px; margin: 0 0 14px; }
+.ped > summary { font-size: 1rem; font-weight: 700; color: var(--fg); }
+.ped-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 8px 0; }
+.ped-tools select { max-width: 100%; }
+.ped-tools .mk { color: var(--fg); flex-wrap: wrap; min-width: 0; }
+.ped-dl { display: flex; gap: 6px; }
+.ped-wrap { overflow-x: auto; }
+.ped-svg { display: block; margin: 0 auto; max-width: none; }
+.ped-line { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.ped-dash { stroke-dasharray: 4 3; }
+.ped-sym { fill: var(--card); stroke: var(--fg); stroke-width: 2; }
+.ped-aff { fill: #768692; }
+.ped-hitfill { fill: var(--nhs-blue); stroke: var(--nhs-dark-blue); }
+.ped-imp { fill: var(--card); stroke: var(--border); stroke-dasharray: 3 2; }
+.ped-arrow { stroke: var(--fg); stroke-width: 2; }
+.ped-arrowhead { fill: var(--fg); }
+.ped-l { font: 11px Arial, Helvetica, sans-serif; fill: var(--fg); }
+.ped-rel { font-weight: 700; }
+.ped-l-imp { fill: var(--muted); font-style: italic; }
+.ped-hist { font-size: 10px; fill: var(--muted); }
+.ped-hit { fill: var(--accent); font-weight: 700; }
+.ped-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0; color: var(--fg); }
+.ped-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.result-head { cursor: pointer; }
+.result.in-tree { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent); }
+.tree-tag { margin: 4px 0 0; color: var(--accent); font-weight: 600; }
+@media print {
+  .ped-tools, .tree-tag { display: none !important; }
+  .ped { break-inside: avoid; border-left-width: 1px; }
+  .ped-wrap { overflow: visible; }
+  .ped-svg { width: auto !important; max-width: 100% !important; height: auto !important; }
+}

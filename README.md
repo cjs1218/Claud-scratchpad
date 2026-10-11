@@ -49,6 +49,15 @@ Everything clinical lives in `js/data.js`:
   update), each with the NHS Test Directory route; shown in results and the By-cancer view.
 - **CATEGORIES** – groups conditions for the Syndromes tab (every condition in exactly one group).
 
+## Family tree
+
+Above the differential, a pedigree is drawn from the relatives entered (standard symbols: square male,
+circle female, diamond sex not given, arrow for the proband). Relatives needed to connect the family but not
+entered (parents, grandparents, partners, an aunt for a cousin) are drawn faintly. People whose cancers score for
+the highlighted syndrome are filled blue, other cancers grey. The top result is highlighted by default; pick
+another from the dropdown or click a result's title. The tree can be collapsed, is always included when the
+assessment is printed, and can be downloaded as PNG or SVG (`pedigreeSvg` / `layoutPedigree` in app.js).
+
 ## Syndromes tab
 
 Three views: **By syndrome** (grouped into categories), **By gene** (one page per gene, combining

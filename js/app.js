@@ -15,7 +15,7 @@
   const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', mmr: '', meth: '', braf: '', count: '', bilat: false });
   const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, dx: [newDx()] });
 
-  const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess' };
+  const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null };
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -312,8 +312,9 @@
     const notes = [];
     if (c.note) notes.push(c.note);
     if (c.notOnNicpr) notes.push('Not on the NICPR gene list (June 2026) but included in Test Directory panels.');
-    return `<article class="result">
-      <div class="result-head">
+    const inTree = c.id === state.treeSyn;
+    return `<article class="result${inTree ? ' in-tree' : ''}" data-cond="${c.id}">
+      <div class="result-head" title="Highlight in the family tree">
         <span class="rank">${i + 1}</span>
         <div class="result-title">
           <h3>${esc(c.name)}</h3>
@@ -321,6 +322,7 @@
         </div>
         <span class="score" title="Relative score">${r.score.toFixed(1)}</span>
       </div>
+      ${inTree ? '<p class="tree-tag small">Highlighted in the family tree</p>' : ''}
       <div class="bar"><span style="width:${pct}%"></span></div>
       <ul class="evidence">${r.evidence.map(evidenceLine).join('')}</ul>
       ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
@@ -359,6 +361,256 @@
       <p class="muted small">Unaffected individuals with no living affected relative: ${esc(TESTS.R404.code)} ${esc(TESTS.R404.name)} – ${esc(TESTS.R404.criteria[0])}.</p>`;
   }
 
+  /* ---------------- Family tree (pedigree) ----------------
+   * Built from the relations entered. Relatives who were not entered but are needed to connect the
+   * family (parents, grandparents, a partner, an aunt for a cousin…) are drawn faintly as "implied".
+   * People with a cancer that scores for the highlighted syndrome are filled blue; other cancers grey.
+   */
+  const PED_SHORT = {
+    proband: 'Proband', mother: 'Mother', father: 'Father', sister: 'Sister', brother: 'Brother', daughter: 'Daughter', son: 'Son',
+    m_gm: 'Mat. grandmother', m_gf: 'Mat. grandfather', m_aunt: 'Mat. aunt', m_uncle: 'Mat. uncle',
+    p_gm: 'Pat. grandmother', p_gf: 'Pat. grandfather', p_aunt: 'Pat. aunt', p_uncle: 'Pat. uncle',
+    m_halfsib: 'Mat. half-sibling', p_halfsib: 'Pat. half-sibling', niece: 'Niece / nephew', grandchild: 'Grandchild',
+    m_cousin: 'Mat. cousin', p_cousin: 'Pat. cousin', m_great: 'Mat. great-aunt/uncle', p_great: 'Pat. great-aunt/uncle',
+    m_other: 'Other (maternal)', p_other: 'Other (paternal)', other: 'Other relative'
+  };
+  const PED = { SW: 124, S: 24, LINE: 13, TOP: 26, PAD: 16 };
+  const shortText = (s, n) => { s = s.split(/ \/ | \(|;/)[0].trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+
+  function buildPedigree(people) {
+    const by = rel => people.filter(p => p.rel === rel);
+    const node = (p, extra = {}) => ({ p, implied: !p, sex: p ? p.sex : '', label: p ? PED_SHORT[p.rel] : '', kids: [], partner: null, dashed: false, ...extra });
+    const implied = (label, sex = '') => node(null, { label, sex });
+    const withKids = (n, kids) => { n.kids = kids; if (kids.length) n.partner = implied('Partner', n.sex === 'F' ? 'M' : n.sex === 'M' ? 'F' : ''); return n; };
+    const proband = people.find(p => p.rel === 'proband');
+    const anyOf = rels => rels.some(r => by(r).length);
+
+    // Proband's descendants: grandchildren hang from the first child (implied if none).
+    const children = [...by('daughter'), ...by('son')].map(p => node(p));
+    if (by('grandchild').length && !children.length) children.push(implied('Child'));
+    if (children.length) withKids(children[0], by('grandchild').map(p => node(p)));
+    const probandNode = withKids(node(proband), children);
+    probandNode.proband = true;
+
+    const needParents = people.some(p => !['proband', 'son', 'daughter', 'grandchild'].includes(p.rel));
+    if (!needParents) return { core: probandNode };
+
+    // Siblings; nieces / nephews hang from the first sibling (implied if none). Half-siblings get dashed links.
+    const sibs = [...by('sister'), ...by('brother')].map(p => node(p));
+    if (by('niece').length && !sibs.length) sibs.push(implied('Sibling'));
+    if (sibs.length) withKids(sibs[0], by('niece').map(p => node(p)));
+    const coreKids = [...by('m_halfsib').map(p => node(p, { dashed: true })), ...sibs, probandNode, ...by('p_halfsib').map(p => node(p, { dashed: true }))];
+    const mother = by('mother')[0], father = by('father')[0];
+    const momNode = mother ? node(mother) : implied('Mother', 'F');
+    const dadNode = father ? node(father) : implied('Father', 'M');
+    momNode.kids = coreKids; momNode.partner = dadNode;
+    // Extra people entered as a second mother/father are shown with the "other" relatives.
+    const extra = [...by('mother').slice(1), ...by('father').slice(1)];
+
+    const side = (s) => {
+      const aunts = [...by(s + '_aunt'), ...by(s + '_uncle')].map(p => node(p));
+      if (by(s + '_cousin').length && !aunts.length) aunts.push(implied(s === 'm' ? 'Mat. aunt/uncle' : 'Pat. aunt/uncle'));
+      if (aunts.length) withKids(aunts[0], by(s + '_cousin').map(p => node(p)));
+      const need = anyOf([s + '_aunt', s + '_uncle', s + '_cousin', s + '_great', s + '_gm', s + '_gf']);
+      const gm = by(s + '_gm')[0], gf = by(s + '_gf')[0];
+      const pre = s === 'm' ? 'Mat.' : 'Pat.';
+      return {
+        aunts, need,
+        gf: gf ? node(gf) : implied(`${pre} grandfather`, 'M'),
+        gm: gm ? node(gm) : implied(`${pre} grandmother`, 'F'),
+        great: by(s + '_great').map(p => node(p, { dashed: true })),
+        extraGp: [...by(s + '_gm').slice(1), ...by(s + '_gf').slice(1)]
+      };
+    };
+    return { parents: momNode, mat: side('m'), pat: side('p'), extra };
+  }
+
+  // Width (in slots) of a person with their partner and descendants.
+  const unitWidth = n => Math.max(n.partner ? 2 : 1, n.kids.reduce((a, k) => a + unitWidth(k), 0));
+
+  // Place a unit with its left edge at l in generation g. Returns the person's centre.
+  function placeUnit(n, l, g, out) {
+    const w = unitWidth(n);
+    const mid = l + w / 2;
+    n.x = n.partner ? mid - 0.5 : mid; n.g = g; out.push(n);
+    if (n.partner) { n.partner.x = mid + 0.5; n.partner.g = g; out.push(n.partner); out.couples.push([n, n.partner]); }
+    let cur = l + (w - n.kids.reduce((a, k) => a + unitWidth(k), 0)) / 2;
+    for (const k of n.kids) { placeUnit(k, cur, g + 1, out); cur += unitWidth(k); }
+    if (n.kids.length) out.sibships.push({ from: mid, g, kids: n.kids });
+    return n.x;
+  }
+
+  function layoutPedigree(people) {
+    const t = buildPedigree(people);
+    const out = []; out.couples = []; out.sibships = []; out.dashedBars = [];
+    if (t.core) { placeUnit(t.core, 0, 2, out); }
+    else {
+      const W = unitWidth(t.parents);
+      placeUnit(t.parents, 0, 1, out);
+      const mom = t.parents, dad = t.parents.partner;
+      // Aunts and uncles: maternal to the left of everything below the parents, paternal to the right.
+      let r = 0;
+      for (const a of [...t.mat.aunts].reverse()) { const w = unitWidth(a); placeUnit(a, r - w, 1, out); r -= w; }
+      let l = W;
+      for (const a of t.pat.aunts) { placeUnit(a, l, 1, out); l += unitWidth(a); }
+      const sibsOf = (s, parent) => [...s.aunts, parent];
+      const gp = (s, parent, isMat) => {
+        if (!s.need) return null;
+        const xs = sibsOf(s, parent).map(n => n.x);
+        const mid = (Math.min(...xs) + Math.max(...xs)) / 2;
+        s.gf.x = mid - 0.5; s.gm.x = mid + 0.5; s.gf.g = s.gm.g = 0;
+        return { s, parent, mid, isMat };
+      };
+      const m = gp(t.mat, mom, true), p = gp(t.pat, dad, false);
+      if (m && p && m.s.gm.x + 1 > p.s.gf.x) {
+        const d = (m.s.gm.x + 1 - p.s.gf.x) / 2;
+        for (const n of [m.s.gf, m.s.gm]) n.x -= d;
+        for (const n of [p.s.gf, p.s.gm]) n.x += d;
+        m.mid -= d; p.mid += d;
+      }
+      for (const q of [m, p].filter(Boolean)) {
+        out.push(q.s.gf, q.s.gm); out.couples.push([q.s.gf, q.s.gm]);
+        out.sibships.push({ from: q.mid, g: 0, kids: sibsOf(q.s, q.parent) });
+        // Great-aunts / uncles sit beside the grandparents, linked by a dashed sibship line (which grandparent is not recorded).
+        const anchor = q.isMat ? q.s.gf : q.s.gm;
+        q.s.great.forEach((n, i) => { n.x = anchor.x + (q.isMat ? -(i + 1) : i + 1); n.g = 0; out.push(n); });
+        if (q.s.great.length) out.dashedBars.push([anchor, ...q.s.great]);
+      }
+      t.otherExtra = [...t.extra, ...t.mat.extraGp, ...t.pat.extraGp];
+    }
+    // Relatives without a fixed position go on a separate row.
+    const others = [...people.filter(p => ['m_other', 'p_other', 'other'].includes(p.rel)), ...(t.otherExtra || [])];
+    const minX = Math.min(...out.map(n => n.x));
+    others.forEach((p, i) => { const n = { p, implied: false, sex: p.sex, label: PED_SHORT[p.rel], kids: [], x: minX + i, g: 5, loose: true }; out.push(n); });
+    return out;
+  }
+
+  function pedigreeSvg(people, result) {
+    const nodes = layoutPedigree(people);
+    const hitDx = new Set(result ? result.evidence.map(e => e.dx.id) : []);
+    const { SW, S, LINE, TOP, PAD } = PED;
+    // Label lines for each person: relation, then up to three cancers ("Breast 38" + short histology).
+    for (const n of nodes) {
+      n.lines = [{ t: n.label, cls: n.implied ? 'ped-l ped-l-imp' : 'ped-l ped-rel' }];
+      if (n.implied) continue;
+      const dxs = n.p.dx.filter(d => d.site && d.hist);
+      n.affected = dxs.length > 0;
+      n.hit = dxs.some(d => hitDx.has(d.id));
+      dxs.slice(0, 3).forEach(d => {
+        const cls = hitDx.has(d.id) ? ' ped-hit' : '';
+        n.lines.push({ t: shortText(SITES[d.site].label, 16) + (d.age !== '' ? ' ' + d.age : ''), cls: 'ped-l ped-dx' + cls });
+        const h = histLabel(d.site, d.hist);
+        if (!/^(any|other)/i.test(h)) n.lines.push({ t: shortText(h, 20), cls: 'ped-l ped-hist' + cls });
+      });
+      if (dxs.length > 3) n.lines.push({ t: `+${dxs.length - 3} more`, cls: 'ped-l ped-hist' });
+      n.title = `${personLabel(n.p)}${dxs.length ? ': ' + dxs.map(d => dxText(d, n.p)).join('; ') : ' – no cancer entered'}`;
+    }
+    // Row heights from the tallest label in each generation.
+    const gens = [...new Set(nodes.map(n => n.g))].sort((a, b) => a - b);
+    const rowY = {}; let y = TOP;
+    for (const g of gens) {
+      rowY[g] = y + (g === 5 ? 18 : 0);
+      const lines = Math.max(...nodes.filter(n => n.g === g).map(n => n.lines.length));
+      y = rowY[g] + S + 6 + lines * LINE + 30;
+    }
+    const minX = Math.min(...nodes.map(n => n.x)), maxX = Math.max(...nodes.map(n => n.x));
+    const X = x => PAD + (x - minX + 0.5) * SW;
+    const cy = n => rowY[n.g] + S / 2;
+    const W = Math.round(X(maxX) + SW / 2 + PAD), H = Math.round(y - 14);
+    const parts = [];
+    // Lines first, so symbols sit on top.
+    for (const [a, b] of nodes.couples || []) parts.push(`<line class="ped-line" x1="${X(a.x)}" y1="${cy(a)}" x2="${X(b.x)}" y2="${cy(b)}"/>`);
+    const sibBar = (from, g, kids, dashedAll) => {
+      const barY = rowY[g + 1] - 14;
+      const xs = kids.map(k => X(k.x));
+      parts.push(`<line class="ped-line" x1="${X(from)}" y1="${rowY[g] + S / 2}" x2="${X(from)}" y2="${barY}"/>`);
+      parts.push(`<line class="ped-line" x1="${Math.min(X(from), ...xs)}" y1="${barY}" x2="${Math.max(X(from), ...xs)}" y2="${barY}"/>`);
+      kids.forEach(k => parts.push(`<line class="ped-line${k.dashed || dashedAll ? ' ped-dash' : ''}" x1="${X(k.x)}" y1="${barY}" x2="${X(k.x)}" y2="${rowY[k.g]}"/>`));
+    };
+    for (const s of nodes.sibships || []) sibBar(s.from, s.g, s.kids);
+    for (const grp of nodes.dashedBars || []) {
+      const barY = TOP - 14, xs = grp.map(n => X(n.x));
+      parts.push(`<line class="ped-line ped-dash" x1="${Math.min(...xs)}" y1="${barY}" x2="${Math.max(...xs)}" y2="${barY}"/>`);
+      grp.forEach(n => parts.push(`<line class="ped-line ped-dash" x1="${X(n.x)}" y1="${barY}" x2="${X(n.x)}" y2="${rowY[0]}"/>`));
+    }
+    if (gens.includes(5)) parts.push(`<text class="ped-l ped-hist" x="${PAD}" y="${rowY[5] - 8}">Other relatives (position in family not specified)</text>`);
+    for (const n of nodes) {
+      const x = X(n.x), top = rowY[n.g], c = cy(n);
+      const cls = `ped-sym${n.implied ? ' ped-imp' : n.hit ? ' ped-hitfill' : n.affected ? ' ped-aff' : ''}`;
+      const shape = n.sex === 'M' ? `<rect class="${cls}" x="${x - S / 2}" y="${top}" width="${S}" height="${S}"/>`
+        : n.sex === 'F' ? `<circle class="${cls}" cx="${x}" cy="${c}" r="${S / 2}"/>`
+        : `<path class="${cls}" d="M${x} ${top - 1}L${x + S / 2 + 1} ${c}L${x} ${top + S + 1}L${x - S / 2 - 1} ${c}Z"/>`;
+      const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${esc(l.t)}</text>`).join('');
+      const arrow = n.proband ? `<path class="ped-arrow" d="M${x - S / 2 - 22} ${top + S + 12}L${x - S / 2 - 4} ${top + S - 2}"/><path class="ped-arrowhead" d="M${x - S / 2 - 2} ${top + S}l-9 1 5-7z"/>` : '';
+      parts.push(`<g class="ped-person${n.p ? '' : ' implied'}"${n.p ? ` data-person="${n.p.id}"` : ''}>${n.title ? `<title>${esc(n.title)}</title>` : ''}${shape}${arrow}${text}</g>`);
+    }
+    return `<svg class="ped-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Family tree${result ? ', highlighting ' + esc(result.cond.name) : ''}">${parts.join('')}</svg>`;
+  }
+
+  // Fixed light colours for downloaded images (the page itself uses CSS so dark mode works).
+  const PED_EXPORT_CSS = `.ped-line{stroke:#4c6272;stroke-width:1.5;fill:none}.ped-dash{stroke-dasharray:4 3}
+    .ped-sym{fill:#fff;stroke:#212b32;stroke-width:2}.ped-aff{fill:#768692}.ped-hitfill{fill:#005eb8;stroke:#003087}
+    .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-arrowhead{fill:#212b32}
+    .ped-l{font:11px Arial,Helvetica,sans-serif;fill:#212b32}.ped-rel{font-weight:700}.ped-l-imp{fill:#768692;font-style:italic}
+    .ped-hist{font-size:10px;fill:#4c6272}.ped-hit{fill:#005eb8;font-weight:700}`;
+
+  function pedigreeExport(kind) {
+    const svg = $('#ped-wrap svg');
+    if (!svg) return;
+    const clone = svg.cloneNode(true);
+    const w = +svg.getAttribute('width'), h = +svg.getAttribute('height');
+    const caption = [state.treeSyn && COND[state.treeSyn] ? 'Highlighted: ' + COND[state.treeSyn].name : '',
+      `Cancer Predisposition Differential · ${new Date().toLocaleDateString('en-GB')} · clinical decision support only`].filter(Boolean);
+    const W = Math.max(w, Math.max(...caption.map(c => c.length)) * 5.6 + 2 * PED.PAD), H = h + 8 + caption.length * 14;
+    clone.setAttribute('width', W); clone.setAttribute('height', H); clone.setAttribute('viewBox', `${(w - W) / 2} 0 ${W} ${H}`);
+    clone.insertAdjacentHTML('afterbegin', `<style>${PED_EXPORT_CSS}</style><rect x="${(w - W) / 2}" width="${W}" height="${H}" fill="#fff"/>`);
+    clone.insertAdjacentHTML('beforeend', caption.map((c, i) => `<text class="ped-l ped-hist" x="${(w - W) / 2 + PED.PAD}" y="${h + 6 + i * 14}">${esc(c)}</text>`).join(''));
+    const src = new XMLSerializer().serializeToString(clone);
+    const save = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+    if (kind === 'svg') return save(new Blob([src], { type: 'image/svg+xml' }), 'family-tree.svg');
+    const img = new Image();
+    img.onload = () => {
+      const scale = 2, cv = document.createElement('canvas');
+      cv.width = W * scale; cv.height = H * scale;
+      const ctx = cv.getContext('2d'); ctx.scale(scale, scale); ctx.drawImage(img, 0, 0);
+      cv.toBlob(b => save(b, 'family-tree.png'), 'image/png');
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(src);
+  }
+
+  // Shrink a wide tree to fit its panel (down to 75%, so labels stay legible); beyond that the panel scrolls sideways.
+  function fitPedigree() {
+    const wrap = $('#ped-wrap'), svg = wrap && wrap.querySelector('svg');
+    if (!svg || !wrap.clientWidth) return;
+    const w = +svg.getAttribute('width'), h = +svg.getAttribute('height');
+    const k = Math.min(1, Math.max(0.75, wrap.clientWidth / w));
+    svg.style.width = `${w * k}px`; svg.style.height = `${h * k}px`;
+  }
+
+  function pedigreeHtml(shown) {
+    const people = state.people;
+    if (!shown.some(r => r.cond.id === state.treeSyn)) state.treeSyn = shown[0] ? shown[0].cond.id : null;
+    const sel = shown.find(r => r.cond.id === state.treeSyn);
+    return `<details class="ped" id="ped"${state.treeOpen ? ' open' : ''}>
+      <summary>Family tree</summary>
+      <div class="ped-tools">
+        <label class="mk">Highlight
+          <select id="ped-syn" aria-label="Syndrome to highlight in the family tree">${shown.map((r, i) =>
+            `<option value="${r.cond.id}"${r.cond.id === state.treeSyn ? ' selected' : ''}>${i + 1}. ${esc(r.cond.name)}</option>`).join('')}</select></label>
+        <span class="ped-dl"><button type="button" class="btn-ghost" data-ped-dl="png">Download PNG</button>
+          <button type="button" class="btn-ghost" data-ped-dl="svg">SVG</button></span>
+      </div>
+      <div class="ped-wrap" id="ped-wrap">${pedigreeSvg(people, sel)}</div>
+      <p class="ped-legend small">
+        <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-hitfill" x="1" y="1" width="12" height="12"/></svg> Cancer that fits ${sel ? esc(sel.cond.name) : 'the highlighted syndrome'}</span>
+        <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-aff" x="1" y="1" width="12" height="12"/></svg> Other cancer</span>
+        <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym" x="1" y="1" width="12" height="12"/></svg> No cancer entered</span>
+        <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-imp" x="1" y="1" width="12" height="12"/></svg> Not entered (implied)</span>
+        <span class="muted">□ male · ○ female · ◇ sex not given · ↗ proband · dashed line = half-sibling or uncertain link</span>
+      </p>
+    </details>`;
+  }
+
   let lastShown = [];
 
   /* Testing pointers whose site/histology (and age limit, when an age is entered) match. */
@@ -387,11 +639,13 @@
       return;
     }
     out.innerHTML = `
-      <p class="muted small">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities.</p>
+      ${pedigreeHtml(shown)}
+      <p class="muted small">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${shown.map((r, i) => resultCard(r, i, top)).join('')}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
       ${pointersHtml(pointersFor(familyDxs()), 'Testing pointers for the cancers entered')}
       ${renderTests(shown)}`;
+    fitPedigree();
   }
 
   /* ---------------- Summary ---------------- */
@@ -843,6 +1097,7 @@
     $('#tab-sources').hidden = tab !== 'sources';
     if (tab === 'browse') renderBrowse();
     if (tab === 'sources') renderSources();
+    if (tab === 'assess') fitPedigree();
   }
 
   function init() {
@@ -854,6 +1109,20 @@
     $('#clear').addEventListener('click', () => { state.people = [newPerson('proband')]; renderFamily(); renderResults(); });
     $('#copy').addEventListener('click', e => copySummary(e.target));
     $('#print').addEventListener('click', () => window.print());
+    // Family tree: open/closed state, highlighted syndrome, downloads.
+    $('#results').addEventListener('toggle', e => { if (e.target.id === 'ped') { state.treeOpen = e.target.open; fitPedigree(); } }, true);
+    window.addEventListener('resize', fitPedigree);
+    $('#results').addEventListener('change', e => { if (e.target.id === 'ped-syn') { state.treeSyn = e.target.value; renderResults(); } });
+    $('#results').addEventListener('click', e => {
+      const dl = e.target.closest('[data-ped-dl]');
+      if (dl) { pedigreeExport(dl.dataset.pedDl); return; }
+      const head = e.target.closest('.result-head');
+      if (head && !e.target.closest('a, button')) { state.treeSyn = head.closest('.result').dataset.cond; renderResults(); }
+    });
+    // Printing the assessment always includes the tree, even if it was collapsed.
+    let pedWasOpen = null;
+    window.addEventListener('beforeprint', () => { const d = $('#ped'); if (d && !document.body.classList.contains('printing')) { pedWasOpen = d.open; d.open = true; } });
+    window.addEventListener('afterprint', () => { const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; pedWasOpen = null; } });
     document.addEventListener('click', e => {
       const m = e.target.closest('[data-mode]');
       if (m) { state.mode = m.dataset.mode; renderResults(); }
