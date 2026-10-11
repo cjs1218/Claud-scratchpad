@@ -25,4 +25,4 @@ Use relative links (`../assets/style.css`, `../`) so pages work under the
 ## Enabling Pages
 
 Settings → Pages → Build and deployment → Source: **Deploy from a branch**,
-then pick the branch holding this site and the `/ (root)` folder.
+then pick the `main` branch and the `/ (root)` folder.
