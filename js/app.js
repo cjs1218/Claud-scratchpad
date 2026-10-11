@@ -509,6 +509,19 @@
     }).join('');
   }
 
+  /* ---- Last reviewed date per syndrome (flagged when over 12 months old) ---- */
+  function reviewInfo(c) {
+    const iso = LAST_REVIEWED[c.id];
+    if (!iso) return { text: 'Not recorded', stale: true };
+    const d = new Date(iso + 'T00:00:00');
+    const stale = (Date.now() - d.getTime()) / 864e5 > 365;
+    return { text: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }), stale };
+  }
+  function reviewedHtml(c) {
+    const r = reviewInfo(c);
+    return `<span class="reviewed${r.stale ? ' stale' : ''}">${esc(r.text)}${r.stale ? ' <span class="stale-flag">over 12 months ago – due for review</span>' : ''}</span>`;
+  }
+
   function datesHtml() {
     return `<h3>Information sources and dates</h3>
       <p class="small">Information checked: <strong>${esc(DATA_CHECKED)}</strong>. Guideline years are shown in each title.</p>
@@ -566,6 +579,7 @@
       <dl class="syn-facts">
         <dt>Genes</dt><dd>${c.genes.map(g => forPrint ? esc(g) : `<a href="#gene=${g}">${esc(g)}</a>`).join(', ')}</dd>
         <dt>Inheritance</dt><dd>${esc(c.inh)}</dd>
+        <dt>Last reviewed</dt><dd>${reviewedHtml(c)}</dd>
         ${flags.length ? `<dt>NICPR notes</dt><dd>${flags.map(([g, f]) => `${esc(g)}: ${esc(f.join('; '))}`).join('<br>')}</dd>` : ''}
       </dl>
       <h3>Cancers and histology</h3>
@@ -603,8 +617,8 @@
       </dl>
       <h3>Syndromes caused by ${esc(g)}</h3>
       <div class="table-wrap"><table class="syn-table">
-        <thead><tr><th>Syndrome</th><th>Inheritance</th><th>Main cancers and features (hallmark / strong)</th></tr></thead>
-        <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${esc(mainCancers(c))}</td></tr>`).join('')}</tbody>
+        <thead><tr><th>Syndrome</th><th>Inheritance</th><th>Main cancers and features (hallmark / strong)</th><th>Last reviewed</th></tr></thead>
+        <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${esc(mainCancers(c))}</td><td>${reviewedHtml(c)}</td></tr>`).join('')}</tbody>
       </table></div>
       ${cs.filter(c => c.note).map(c => `<p class="note">${esc(c.name)}: ${esc(c.note)}</p>`).join('')}
       ${cs.map(c => `<div class="surv-block">${survHtml(c, 'h4').replace('Suggested surveillance</h4>', `Suggested surveillance – ${esc(c.name)}</h4>`)}</div>`).join('')}
@@ -635,6 +649,7 @@
     const src = SOURCES[c.id] || {};
     const ref = REFS[c.id];
     const L = [c.name.toUpperCase(), `Genes: ${c.genes.join(', ')} · Inheritance: ${c.inh}`];
+    { const r = reviewInfo(c); L.push(`Last reviewed: ${r.text}${r.stale ? ' (over 12 months ago – due for review)' : ''}`); }
     if (c.note) L.push(c.note);
     L.push('', 'CANCERS AND HISTOLOGY');
     [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).forEach(r => { const t = ruleText(r); L.push(`- [${TIER_LABEL[t.tier]}] ${t.text}`); });

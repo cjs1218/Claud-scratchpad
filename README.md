@@ -41,6 +41,7 @@ Everything clinical lives in `js/data.js`:
   (`OMIM_TITLES`); gene entries come from `GENE_MIM`.
 - **NICPR** – the NICPR Appendix 1 gene list and its annotations.
 - **DATA_CHECKED / SOURCE_DATES** – when each information source was last pulled and checked.
+- **LAST_REVIEWED** – date each syndrome was last reviewed (YYYY-MM-DD); shown on syndrome and gene pages, summaries and printouts, and flagged when over 12 months old.
 - **SURVEILLANCE** – suggested surveillance per condition: UK first (UKCGG gene guidelines, BSG 2019),
   then European (ERN GENTURIS, EHTG/ESCP, SIOPE), then international (AACR, consensus guidelines, GeneReviews
   summaries); `diff` lists other guidance that differs. Shown on syndrome/gene pages, summaries and printouts.

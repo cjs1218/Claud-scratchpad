@@ -5,6 +5,7 @@ Run `node` checks against data.js after editing (every rule's site/histology/pre
 every NICPR gene must be covered by a condition).
 After changing data.js, app.js or style.css, bump the `?v=` version on their tags in index.html so browsers load the new files.
 When re-checking a source, update its date in `SOURCE_DATES` (and `DATA_CHECKED`) in data.js.
+When re-checking a syndrome, update its date in `LAST_REVIEWED` in data.js (pages flag dates over 12 months old).
 
 ## Git
 

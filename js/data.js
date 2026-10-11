@@ -724,6 +724,30 @@ const SURVEILLANCE = {
   tbd: {"lvl": "intl", "src": ["gr:NBK22301"], "items": [["Marrow", "Annual blood count and bone marrow"], ["Head and neck", "Monthly self-examination; annual ENT review; dental review every 6 months"], ["Other", "Annual gynaecological and dermatology review; annual lung function from 8"]]}
 };
 
+/*
+ * Date each syndrome's content (associations, tests, references, surveillance) was last reviewed,
+ * as YYYY-MM-DD. Update the entry whenever a syndrome is re-checked; pages flag dates over 12 months old.
+ */
+const LAST_REVIEWED = {
+  brca1: '2026-10-11', brca2: '2026-10-11', palb2: '2026-10-11', atm: '2026-10-11', chek2: '2026-10-11', bard1: '2026-10-11',
+  rad51d: '2026-10-11', rad51c: '2026-10-11', brip1: '2026-10-11', lynch_mlh1: '2026-10-11', lynch_msh2: '2026-10-11', lynch_msh6: '2026-10-11',
+  lynch_pms2: '2026-10-11', cmmrd: '2026-10-11', fap: '2026-10-11', map: '2026-10-11', nthl1: '2026-10-11', ppap: '2026-10-11',
+  mbd4: '2026-10-11', jps_smad4: '2026-10-11', jps_bmpr1a: '2026-10-11', hmps: '2026-10-11', rnf43: '2026-10-11', pjs: '2026-10-11',
+  phts: '2026-10-11', hdgc: '2026-10-11', ctnna1: '2026-10-11', tylosis: '2026-10-11', lfs: '2026-10-11', men1: '2026-10-11',
+  men4: '2026-10-11', men2: '2026-10-11', hptjt: '2026-10-11', fipa: '2026-10-11', carney: '2026-10-11', mas: '2026-10-11',
+  vhl: '2026-10-11', sdhb: '2026-10-11', sdhd: '2026-10-11', sdhc: '2026-10-11', sdha: '2026-10-11', sdhaf2: '2026-10-11',
+  tmem127: '2026-10-11', max: '2026-10-11', hlrcc: '2026-10-11', bhd: '2026-10-11', hprc: '2026-10-11', tsc: '2026-10-11',
+  bap1: '2026-10-11', cdkn2a: '2026-10-11', cdk4: '2026-10-11', pot1: '2026-10-11', gorlin: '2026-10-11', sufu: '2026-10-11',
+  xp: '2026-10-11', nf1: '2026-10-11', nf2: '2026-10-11', smarcb1: '2026-10-11', lztr1: '2026-10-11', smarca4: '2026-10-11',
+  smarce1: '2026-10-11', dgcr8: '2026-10-11', jmjd1c: '2026-10-11', elp1: '2026-10-11', gpr161: '2026-10-11', dicer1: '2026-10-11',
+  rb1: '2026-10-11', wt1: '2026-10-11', wilms_other: '2026-10-11', perlman: '2026-10-11', mulibrey: '2026-10-11', mva: '2026-10-11',
+  bws: '2026-10-11', sgbs: '2026-10-11', sotos: '2026-10-11', weaver: '2026-10-11', alk: '2026-10-11', phox2b: '2026-10-11',
+  noonan: '2026-10-11', cbl: '2026-10-11', costello: '2026-10-11', kit: '2026-10-11', pdgfra: '2026-10-11', pdgfrb: '2026-10-11',
+  tbxt: '2026-10-11', ollier: '2026-10-11', fanconi: '2026-10-11', at: '2026-10-11', nbs: '2026-10-11', bloom: '2026-10-11',
+  rts: '2026-10-11', werner: '2026-10-11', cebpa: '2026-10-11', runx1: '2026-10-11', gata2: '2026-10-11', ddx41: '2026-10-11',
+  etv6: '2026-10-11', ankrd26: '2026-10-11', samd9l: '2026-10-11', pax5: '2026-10-11', kdm3b: '2026-10-11', tbd: '2026-10-11'
+};
+
 /* Syndrome categories for the Syndromes tab (same order as CONDITIONS). */
 const CATEGORIES = [
   ['Breast and ovarian', ['brca1', 'brca2', 'palb2', 'atm', 'chek2', 'bard1', 'rad51d', 'rad51c', 'brip1']],
