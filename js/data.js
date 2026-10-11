@@ -254,7 +254,6 @@ const CONDITIONS = [
       ['prostate', 'highrisk', 'S', 65, null, null, ['gr:NBK1247', 'ukcgg:brca2', 'li2022'], 'BRCA2 prostate cancer more often high grade/stage; annual PSA from 40 (UKCGG)'],
       ['ovary', 'endometrioid|clearcell|nos', 'M', null, null, null, ['ukcgg:brca2', 'gr:NBK1247'], 'Tubo-ovarian ~17% by 80, predominantly high-grade serous'],
       ['cns', 'medullo_shh|medullo_nos', 'W', null, null, null, ['waszak2018', 'clingen:BRCA2', 'us:aacr_brain'], 'BRCA2 a consensus medulloblastoma predisposition gene (rare); biallelic = Fanconi anaemia D1'],
-      ['eye', 'uveal', 'W', null, null, null, ['gr:NBK1247'], 'Increased uveal melanoma risk in BRCA2 families (Moran 2012, via GeneReviews)'],
       ['stomach', '*', 'W', null, null, null, ['li2022'], 'Stomach RR 3.69 (female 6.89, male 2.76) (Li 2022); UKCGG: no consistent association']
     ],
     mods: [['breast', 'her2pos', 0.6]] },
