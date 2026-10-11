@@ -474,13 +474,19 @@
     const cur = mode === 'gene' ? `gene:${state.gene}` : `syn:${state.syn}`;
     const total = mode === 'gene' ? GENES.length : CONDITIONS.length;
     const n = state.sel.size;
+    const selecting = state.selecting || n > 0;
+    const noun = mode === 'gene' ? 'genes' : 'syndromes';
+    const listOpen = $('#syn-layout').classList.contains('list-open');
+    $('#syn-list-toggle').textContent = listOpen ? 'Hide list ▴' : `Browse ${items.length} ${noun} ▾`;
+    $('#syn-list-toggle').setAttribute('aria-expanded', listOpen);
     $('#syn-list').innerHTML = `<div class="print-bar">
-        <span class="muted small">${items.length} of ${total} ${mode === 'gene' ? 'genes' : 'syndromes'}</span>
-        <button type="button" class="btn-ghost" data-print="selected"${n ? '' : ' disabled'}>Print selected (${n})</button>
+        <span class="muted small">${items.length} of ${total} ${noun}</span>
         <button type="button" class="btn-ghost" data-print="shown"${items.length ? '' : ' disabled'}>Print all shown (${items.length})</button>
-        ${n ? '<button type="button" class="link-btn small" data-print="clear">Clear selection</button>' : ''}
+        ${selecting ? `<button type="button" class="btn-ghost" data-print="selected"${n ? '' : ' disabled'}>Print selected (${n})</button>
+          <button type="button" class="link-btn small" data-print="done">${n ? 'Clear selection' : 'Cancel'}</button>`
+        : '<button type="button" class="btn-ghost" data-print="select">Select to print</button>'}
       </div>` + (groups.map(([label, list]) => `<h4>${esc(label)}</h4><ul>${list.map(i =>
-        `<li><input type="checkbox" data-sel="${i.key}" aria-label="Select ${esc(i.name)} for printing"${state.sel.has(i.key) ? ' checked' : ''}>
+        `<li>${selecting ? `<input type="checkbox" data-sel="${i.key}" aria-label="Select ${esc(i.name)} for printing"${state.sel.has(i.key) ? ' checked' : ''}>` : ''}
           <a href="${i.href}"${i.key === cur ? ' aria-current="true"' : ''}>${esc(i.name)}${i.sub ? ` <span class="muted small">${i.sub}</span>` : ''}</a></li>`).join('')}</ul>`).join('')
       || '<div class="empty">No matches.</div>');
     renderSynDetail();
@@ -524,7 +530,7 @@
 
   /* On screen: a button to the Sources tab. In print: the full table plus the web address of the list. */
   function datesHtml(forPrint) {
-    if (!forPrint) return `<p class="sources-link"><a class="btn-ghost" href="#sources">Information sources and dates →</a>
+    if (!forPrint) return `<p class="sources-link" id="jump-sources"><a class="btn-ghost" href="#sources">Information sources and dates →</a>
       <span class="muted small">Information checked ${esc(DATA_CHECKED)}</span></p>`;
     return `${sourcesTableHtml()}<p class="small">Full list of sources and dates: ${esc(SITE_URL)}#sources</p>`;
   }
@@ -538,6 +544,10 @@
     $('#sources-page').innerHTML = `${sourcesTableHtml('h2')}
       <p class="muted small">Each syndrome also shows the date its own content was last reviewed.</p>`;
   }
+
+  // In-page section links (buttons, so the URL hash keeps naming the syndrome).
+  const jumpNav = items => `<nav class="jump" aria-label="On this page">${items.map(([id, label]) =>
+    `<button type="button" data-jump="${id}">${label}</button>`).join('')}</nav>`;
 
   function pageActions(key) {
     return `<div class="actions">
@@ -562,7 +572,7 @@
 
   function survHtml(c, heading = 'h3') {
     const sv = SURVEILLANCE[c.id];
-    const h = `<${heading}>Suggested surveillance</${heading}>`;
+    const h = `<${heading}${heading === 'h3' ? ' id="jump-surveillance"' : ''}>Suggested surveillance</${heading}>`;
     if (!sv || sv.lvl === 'none') return `${h}<p class="muted small">${esc(sv ? sv.note : 'No surveillance guidance recorded.')}</p>`;
     const [badge, label] = SURV_LEVEL[sv.lvl];
     return `${h}
@@ -585,6 +595,7 @@
           <div class="genes">${geneChips(c.genes)} <span class="inh">${esc(c.inh)}</span></div></div>
         ${forPrint ? '' : pageActions(`syn:${c.id}`)}
       </div>
+      ${forPrint ? '' : jumpNav([['cancers', 'Cancers'], ['tests', 'Tests'], ['guidance', 'Guidance'], ['surveillance', 'Surveillance'], ['sources', 'Sources']])}
       ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
       <dl class="syn-facts">
         <dt>Genes</dt><dd>${c.genes.map(g => forPrint ? esc(g) : `<a href="#gene=${g}">${esc(g)}</a>`).join(', ')}</dd>
@@ -592,13 +603,13 @@
         <dt>Last reviewed</dt><dd>${reviewedHtml(c)}</dd>
         ${flags.length ? `<dt>NICPR notes</dt><dd>${flags.map(([g, f]) => `${esc(g)}: ${esc(f.join('; '))}`).join('<br>')}</dd>` : ''}
       </dl>
-      <h3>Cancers and histology</h3>
+      <h3 id="jump-cancers">Cancers and histology</h3>
       ${cancersTable(c)}
       <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. Age limit: association only applies at or below this age.</p>
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
-      <h3>Test Directory tests</h3>
+      <h3 id="jump-tests">Test Directory tests</h3>
       ${testsDetail(c.tests)}
-      <h3>Guidance, leaflets and references</h3>
+      <h3 id="jump-guidance">Guidance, leaflets and references</h3>
       ${sourcesHtml(c)}
       ${survHtml(c)}
       ${datesHtml(forPrint)}`;
@@ -621,25 +632,26 @@
           <div class="genes">${geneChips([g])} <span class="inh">${cs.length} syndrome${cs.length > 1 ? 's' : ''}</span></div></div>
         ${forPrint ? '' : pageActions(`gene:${g}`)}
       </div>
+      ${forPrint ? '' : jumpNav([['syndromes', 'Syndromes'], ['tests', 'Tests'], ['guidance', 'Guidance'], ['surveillance', 'Surveillance'], ['sources', 'Sources']])}
       <dl class="syn-facts">
         <dt>OMIM gene</dt><dd>${geneMimLink(g)}</dd>
         <dt>NICPR</dt><dd>${esc(flags.join('; ') || 'On the NICPR list (June 2026)')}</dd>
       </dl>
-      <h3>Syndromes caused by ${esc(g)}</h3>
+      <h3 id="jump-syndromes">Syndromes caused by ${esc(g)}</h3>
       <div class="table-wrap"><table class="syn-table">
         <thead><tr><th>Syndrome</th><th>Inheritance</th><th>Main cancers and features (hallmark / strong)</th><th>Last reviewed</th></tr></thead>
         <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${esc(mainCancers(c))}</td><td>${reviewedHtml(c)}</td></tr>`).join('')}</tbody>
       </table></div>
       ${cs.filter(c => c.note).map(c => `<p class="note">${esc(c.name)}: ${esc(c.note)}</p>`).join('')}
-      <h3>Test Directory tests</h3>
+      <h3 id="jump-tests">Test Directory tests</h3>
       ${testsDetail(uniq(cs.flatMap(c => c.tests)))}
-      <h3>Guidance and leaflets</h3>
+      <h3 id="jump-guidance">Guidance and leaflets</h3>
       <div class="sources">${guidanceHtml(src)}
         <h4>References</h4>
         <ul>${cs.map(c => { const ph = phenoLinks(c); return `<li><strong>${esc(c.name)}</strong> – GeneReviews: ${grLinks(c)}${ph ? `; OMIM: ${ph}` : ''}</li>`; }).join('')}
           <li>OMIM gene: ${geneMimLink(g)}</li></ul>
       </div>
-      <h3>Suggested surveillance</h3>
+      <h3 id="jump-surveillance">Suggested surveillance</h3>
       ${cs.map(c => `<div class="surv-block">${survHtml(c, 'h4').replace('Suggested surveillance</h4>', `${esc(c.name)}</h4>`)}</div>`).join('')}
       ${datesHtml(forPrint)}`;
   }
@@ -716,6 +728,8 @@
   }
 
   function onSynAction(e) {
+    const j = e.target.closest('[data-jump]');
+    if (j) { const t = document.getElementById('jump-' + j.dataset.jump); if (t) t.scrollIntoView({ behavior: 'smooth' }); return; }
     const btn = e.target.closest('[data-syn-act]');
     if (!btn) return;
     const key = currentKey();
@@ -725,12 +739,15 @@
   }
 
   function onListAction(e) {
+    // On phones the list collapses once an item is chosen.
+    if (e.target.closest('a[href^="#"]')) { $('#syn-layout').classList.remove('list-open'); }
     const sel = e.target.closest('[data-sel]');
     if (sel) { if (sel.checked) state.sel.add(sel.dataset.sel); else state.sel.delete(sel.dataset.sel); renderSynList(); return; }
     const btn = e.target.closest('[data-print]');
     if (!btn) return;
     const mode = $('#browse-mode').value;
-    if (btn.dataset.print === 'clear') { state.sel.clear(); renderSynList(); return; }
+    if (btn.dataset.print === 'select') { state.selecting = true; renderSynList(); return; }
+    if (btn.dataset.print === 'done') { state.sel.clear(); state.selecting = false; renderSynList(); return; }
     if (btn.dataset.print === 'selected') {
       const order = [...CONDITIONS.map(c => `syn:${c.id}`), ...GENES.map(g => `gene:${g}`)];
       printItems(order.filter(k => state.sel.has(k)), 'Selected syndromes and genes');
@@ -784,7 +801,7 @@
       $('#browse-mode').value = isSyn ? 'syndrome' : 'gene';
       if (!(isSyn ? synMatches(COND[m[2]]) : geneMatches(m[2]))) { $('#browse-search').value = ''; $('#browse-test').value = ''; $('#browse-ukcgg').checked = false; }
       setTab('browse');
-      if ($('#syn-detail').getBoundingClientRect().top < 0) $('#syn-detail').scrollIntoView();
+      if ($('#syn-detail').getBoundingClientRect().top < $('.tabbar').offsetHeight) $('#syn-detail').scrollIntoView();
     } else {
       setTab(location.hash === '#syndromes' ? 'browse' : location.hash === '#sources' ? 'sources' : 'assess');
     }
@@ -850,6 +867,7 @@
     $('#browse-search').addEventListener('input', renderBrowse);
     $('#syn-detail').addEventListener('click', onSynAction);
     $('#syn-list').addEventListener('click', onListAction);
+    $('#syn-list-toggle').addEventListener('click', () => { $('#syn-layout').classList.toggle('list-open'); renderSynList(); });
     window.addEventListener('afterprint', () => { document.body.classList.remove('printing'); $('#print-area').innerHTML = ''; });
     window.addEventListener('hashchange', route);
     window.addEventListener('popstate', route);

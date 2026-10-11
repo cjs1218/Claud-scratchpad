@@ -57,7 +57,7 @@ UK guideline. Each syndrome / gene page shows genes, inheritance, NICPR notes, c
 histology with strength and age thresholds, Test Directory tests with criteria, all guidance,
 leaflets and references, then suggested surveillance as the last section, and a button to the Sources tab.
 
-Printing: each page has Print; tick items in the list for **Print selected**, or **Print all
+Printing: each page has Print; press **Select to print** and tick items in the list for **Print selected**, or **Print all
 shown** for a handbook with a contents page. Printouts show URLs after links and a footer with
 the disclaimer, site address, information-checked date and print date. Links: `#syndrome=<id>`,
 `#gene=<symbol>`, `#syndromes`.
