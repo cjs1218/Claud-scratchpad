@@ -322,3 +322,19 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
   .ped-wrap { overflow: visible; }
   .ped-svg { width: auto !important; max-width: 100% !important; height: auto !important; }
 }
+
+/* Evidence column and variant notes */
+.syn-table.cancers td.ev { min-width: 180px; font-size: 0.8rem; }
+.ev-risk { display: block; color: var(--fg); }
+.ev-src, .ev-src a { color: var(--muted); font-size: 0.78rem; }
+.ev-src a { color: var(--accent); }
+.variant-notes { margin: 4px 0 8px; padding-left: 18px; font-size: 0.88rem; }
+.variant-notes li + li { margin-top: 4px; }
+.evidence-refs { padding-left: 18px; }
+
+/* Click-to-expand abbreviations */
+abbr.abbr { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; border-radius: 2px; }
+abbr.abbr:hover { color: var(--accent); }
+abbr.abbr.open::after { content: " (" attr(data-full) ")"; font-style: italic; color: var(--muted); }
+.abbr-hint { margin: 4px 0 0; font-size: 0.8rem; color: var(--muted); }
+@media print { abbr.abbr { text-decoration: none; } abbr.abbr::after { content: " (" attr(data-full) ")"; font-style: italic; } }

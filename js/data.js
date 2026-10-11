@@ -162,6 +162,24 @@ const MARKER_OPTIONS = {
   braf: { label: 'BRAF V600E', opts: [['', 'Not done'], ['yes', 'Present'], ['no', 'Absent']] }
 };
 
+/*
+ * Abbreviations used in cancer sites, histologies, markers and conditions. Wherever they appear on screen
+ * they can be clicked (or tapped / Enter) to show the full term.
+ */
+const ABBREVIATIONS = {
+  DCIS: 'ductal carcinoma in situ', SCTAT: 'sex cord tumour with annular tubules', RCC: 'renal cell carcinoma',
+  HLRCC: 'hereditary leiomyomatosis and renal cell cancer', FH: 'fumarate hydratase', SDH: 'succinate dehydrogenase',
+  GH: 'growth hormone', NET: 'neuroendocrine tumour', CNS: 'central nervous system',
+  SHH: 'sonic hedgehog (molecular subgroup)', WNT: 'wingless / WNT pathway (molecular subgroup)',
+  GIST: 'gastrointestinal stromal tumour', ALL: 'acute lymphoblastic leukaemia', GI: 'gastrointestinal',
+  CHRPE: 'congenital hypertrophy of the retinal pigment epithelium', BAP1: 'BRCA1-associated protein 1',
+  PPNAD: 'primary pigmented nodular adrenocortical disease', ACTH: 'adrenocorticotropic hormone',
+  HHT: 'hereditary haemorrhagic telangiectasia', AVMs: 'arteriovenous malformations',
+  GAPPS: 'gastric adenocarcinoma and proximal polyposis of the stomach', FDR: 'first-degree relative',
+  ER: 'oestrogen receptor', PR: 'progesterone receptor', HER2: 'human epidermal growth factor receptor 2',
+  MMR: 'mismatch repair', MSI: 'microsatellite instability', MSS: 'microsatellite stable', IHC: 'immunohistochemistry'
+};
+
 /* Predicates used by rules and modifiers. */
 const PRED = {
   tnbc: d => d.er === 'neg' && d.pr === 'neg' && d.her2 === 'neg',
@@ -1638,7 +1656,65 @@ const REFS = {
   tbd: { gr: ['NBK22301'], omim: [127550, 613989, 224230, 613987, 615190, 613988, 614742, 614743, 616373] }
 };
 
+/*
+ * Evidence for tumour associations. Each rule may carry two extra elements:
+ *   [..., src, risk] – src lists source keys, risk is an optional short risk figure.
+ * Source keys: gr:<NBK> (GeneReviews), ukcgg:<GUIDES key>, eu:<EU_GUIDES key>, us:<US_GUIDES key>,
+ * clingen:<GENE> (ClinGen gene–disease validity), canvar:<GENE> (CanVar-UK), or a key in EVIDENCE.
+ * EVIDENCE: key → [short label, full citation, DOI / PubMed URL]. Only sources read in full or as abstract.
+ */
+const EVIDENCE = {};
+
+/* Short labels for guideline keys shown in the evidence column. */
+const EV_SHORT = { bsg: 'BSG 2019', cg164: 'NICE CG164', hanson: 'Hanson 2023', haemconsensus: 'UK haem consensus', tp53: 'UKCGG TP53', mangen_nf1: 'Manchester NF1' };
+
+/* Variant-level (genotype–phenotype) notes per condition: [text, [source keys]]. Information only, not scored. */
+const VARIANT_NOTES = {};
+
+/* HGNC IDs for ClinGen gene pages. */
+const CLINGEN_HGNC = {
+  ANKRD26: 'HGNC:29186', APC: 'HGNC:583', ATM: 'HGNC:795', BAP1: 'HGNC:950', BARD1: 'HGNC:952', BLM: 'HGNC:1058',
+  BMPR1A: 'HGNC:1076', BRCA1: 'HGNC:1100', BRCA2: 'HGNC:1101', BRIP1: 'HGNC:20473', BUB1B: 'HGNC:1149',
+  CBL: 'HGNC:1541', CDC73: 'HGNC:16783', CDK4: 'HGNC:1773', CDKN1B: 'HGNC:1785', CDKN2A: 'HGNC:1787',
+  CEBPA: 'HGNC:1833', CEP57: 'HGNC:30794', CHEK2: 'HGNC:16627', CTNNA1: 'HGNC:2509', DDB2: 'HGNC:2718',
+  DDX41: 'HGNC:18674', DICER1: 'HGNC:17098', DIS3L2: 'HGNC:28648', EPCAM: 'HGNC:11529', ERCC2: 'HGNC:3434',
+  ERCC3: 'HGNC:3435', ERCC4: 'HGNC:3436', ERCC5: 'HGNC:3437', ETV6: 'HGNC:3495', EZH2: 'HGNC:3527',
+  FANCA: 'HGNC:3582', FANCB: 'HGNC:3583', FANCC: 'HGNC:3584', FANCD2: 'HGNC:3585', FANCE: 'HGNC:3586',
+  FANCF: 'HGNC:3587', FANCG: 'HGNC:3588', FANCI: 'HGNC:25568', FANCL: 'HGNC:20748', FLCN: 'HGNC:27310',
+  GREM1: 'HGNC:2001', IDH2: 'HGNC:5383', KIT: 'HGNC:6342', MAX: 'HGNC:6913', MEN1: 'HGNC:7010', MET: 'HGNC:7029',
+  MLH1: 'HGNC:7127', MSH2: 'HGNC:7325', MSH6: 'HGNC:7329', MUTYH: 'HGNC:7527', NBN: 'HGNC:7652', NTHL1: 'HGNC:8028',
+  PALB2: 'HGNC:26144', PAX5: 'HGNC:8619', PDGFRA: 'HGNC:8803', PHOX2B: 'HGNC:9143', PMS2: 'HGNC:9122',
+  POLE: 'HGNC:9177', POLH: 'HGNC:9181', PRKAR1A: 'HGNC:9388', PTCH1: 'HGNC:9585', RAD51C: 'HGNC:9820',
+  RAD51D: 'HGNC:9823', RB1: 'HGNC:9884', RECQL4: 'HGNC:9949', RET: 'HGNC:9967', RHBDF2: 'HGNC:20788',
+  RNF43: 'HGNC:18505', RUNX1: 'HGNC:10471', SDHA: 'HGNC:10680', SDHAF2: 'HGNC:26034', SDHB: 'HGNC:10681',
+  SDHC: 'HGNC:10682', SDHD: 'HGNC:10683', SLX4: 'HGNC:23845', SMAD4: 'HGNC:6770', SMARCA4: 'HGNC:11100',
+  SMARCB1: 'HGNC:11103', SMARCE1: 'HGNC:11109', STK11: 'HGNC:11389', SUFU: 'HGNC:16466', TERC: 'HGNC:11727',
+  TERT: 'HGNC:11730', TMEM127: 'HGNC:26038', TRIM37: 'HGNC:7523', VHL: 'HGNC:12687', WRN: 'HGNC:12791',
+  WT1: 'HGNC:12796', XPA: 'HGNC:12814', XPC: 'HGNC:12816', CDH1: 'HGNC:1748', NF1: 'HGNC:7765', KDM3B: 'HGNC:1337',
+  FANCM: 'HGNC:23168', ALK: 'HGNC:427', FH: 'HGNC:3700', GATA2: 'HGNC:4171', HRAS: 'HGNC:5173', KRAS: 'HGNC:6407',
+  LZTR1: 'HGNC:6742', NRAS: 'HGNC:7989', PTPN11: 'HGNC:9644', RAF1: 'HGNC:9829', SHOC2: 'HGNC:15454',
+  SOS1: 'HGNC:11187', TP53: 'HGNC:11998', POLD1: 'HGNC:9175', CTR9: 'HGNC:16850', SAMD9L: 'HGNC:1349',
+  NHP2: 'HGNC:14377', GPC3: 'HGNC:4451', MBD4: 'HGNC:6919', NSD1: 'HGNC:14234', PTEN: 'HGNC:9588',
+  RTEL1: 'HGNC:15888', POT1: 'HGNC:17284', WRAP53: 'HGNC:25522', NF2: 'HGNC:7773', CDKN1C: 'HGNC:1786',
+  ELP1: 'HGNC:5959', GPR161: 'HGNC:23694'
+};
+
+/* Genes with CanVar-UK gene-specific variant interpretation pages. */
+const CANVAR_GENES = [
+  'BRCA1', 'BRCA2', 'MLH1', 'MSH2', 'MSH6', 'PMS2', 'AIP', 'ALK', 'ANKRD26', 'APC', 'ATM', 'BAP1', 'BARD1', 'BLM',
+  'BMPR1A', 'BRIP1', 'BUB1B', 'CBL', 'CDC73', 'CDH1', 'CDK4', 'CDKN1C', 'CDKN2A', 'CEBPA', 'CEP57', 'CHEK2', 'DDB2',
+  'DDX41', 'DICER1', 'DIS3L2', 'EPCAM', 'ERCC2', 'ERCC3', 'ERCC4', 'ERCC5', 'ETV6', 'EZH2', 'FANCA', 'FANCB',
+  'FANCC', 'FANCD2', 'FANCE', 'FANCF', 'FANCG', 'FANCI', 'FANCL', 'FANCM', 'FH', 'FLCN', 'GATA2', 'GPC3', 'GREM1',
+  'HRAS', 'KIT', 'KRAS', 'LZTR1', 'MAX', 'MEN1', 'MET', 'MUTYH', 'NBN', 'NF1', 'NF2', 'NSD1', 'NTHL1', 'PALB2',
+  'PAX5', 'PDGFRA', 'PHOX2B', 'POLD1', 'POLE', 'POT1', 'PRKAR1A', 'PTCH1', 'PTEN', 'RAD51C', 'RAD51D', 'RB1',
+  'RECQL4', 'RET', 'RHBDF2', 'RNF43', 'RUNX1', 'SDHA', 'SDHAF2', 'SDHB', 'SDHC', 'SDHD', 'SLX4', 'SMAD4', 'SMARCA4',
+  'SMARCB1', 'SMARCE1', 'STK11', 'SUFU', 'TERT', 'TMEM127', 'TP53', 'TSC1', 'TSC2', 'VHL', 'WRN', 'WT1', 'XPA',
+  'XPC'
+];
+
 const REF_LINKS = {
+  clingen: g => `https://search.clinicalgenome.org/kb/genes/${CLINGEN_HGNC[g]}`,
+  canvar: g => `https://canvaruk.org/${g}/genespecview`,
   geneReviews: nbk => `https://www.ncbi.nlm.nih.gov/books/${nbk}/`,
   geneReviewsSearch: q => `https://www.ncbi.nlm.nih.gov/books/NBK1116/?term=${encodeURIComponent(q)}`,
   omim: mim => `https://www.omim.org/entry/${mim}`,

@@ -19,6 +19,11 @@
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // Escape text and mark known abbreviations as click-to-expand.
+  const ABBR_RE = new RegExp(`(^|[^A-Za-z0-9])(${Object.keys(ABBREVIATIONS).sort((a, b) => b.length - a.length).join('|')})(?![A-Za-z0-9])`, 'g');
+  const abbrHtml = s => esc(s).replace(ABBR_RE, (m, pre, k) =>
+    `${pre}<abbr class="abbr" tabindex="0" role="button" aria-expanded="false" title="${esc(ABBREVIATIONS[k])}" data-full="${esc(ABBREVIATIONS[k])}">${k}</abbr>`);
+  const abbrList = texts => [...new Set(texts.flatMap(t => [...String(t).matchAll(ABBR_RE)].map(m => m[2])))];
   const histLabel = (site, hist) => (SITES[site].hist.find(h => h[0] === hist) || [, hist])[1];
 
   /* ---------------- Scoring ---------------- */
@@ -209,6 +214,14 @@
       opts.map(([v, l]) => `<option value="${esc(v)}"${v === selected ? ' selected' : ''}>${esc(l)}</option>`).join('');
   }
 
+  // Under each cancer, spell out any abbreviation in the chosen site or histology.
+  function abbrHint(dx) {
+    const site = SITES[dx.site];
+    if (!site) return '';
+    const ks = abbrList([site.label, dx.hist ? histLabel(dx.site, dx.hist) : '']);
+    return ks.length ? `<p class="abbr-hint">${ks.map(k => `<strong>${k}</strong> = ${esc(ABBREVIATIONS[k])}`).join(' · ')}</p>` : '';
+  }
+
   function renderDx(p, dx) {
     const siteOpts = Object.entries(SITES).map(([k, s]) => [k, s.label]);
     const site = SITES[dx.site];
@@ -219,7 +232,7 @@
           markers += `<label class="mk">Number<input type="number" min="0" inputmode="numeric" data-f="count" value="${esc(dx.count)}" placeholder="n"></label>`;
         } else {
           const mo = MARKER_OPTIONS[m];
-          markers += `<label class="mk">${esc(mo.label)}<select data-f="${m}">${optionList(mo.opts, dx[m])}</select></label>`;
+          markers += `<label class="mk">${abbrHtml(mo.label)}<select data-f="${m}">${optionList(mo.opts, dx[m])}</select></label>`;
         }
       }
     }
@@ -230,6 +243,7 @@
         <input type="number" min="0" max="120" inputmode="numeric" data-f="age" value="${esc(dx.age)}" placeholder="Age" aria-label="Age at diagnosis">
         <button type="button" class="icon-btn" data-act="rm-dx" title="Remove">×</button>
       </div>
+      ${abbrHint(dx)}
       ${site ? `<div class="dx-markers">${markers}<label class="mk chk"><input type="checkbox" data-f="bilat"${dx.bilat ? ' checked' : ''}>Bilateral / multifocal / multiple primaries</label></div>` : ''}
     </div>`;
   }
@@ -270,6 +284,11 @@
     if (dx) {
       dx[f] = val;
       if (f === 'site') { Object.assign(dx, { ...newDx(), id: dx.id, site: val, age: dx.age }); renderFamily(); }
+      if (f === 'hist') {
+        const box = el.closest('.dx'), old = box.querySelector('.abbr-hint');
+        if (old) old.remove();
+        box.querySelector('.dx-main').insertAdjacentHTML('afterend', abbrHint(dx));
+      }
     } else {
       p[f] = val;
       if (f === 'rel' && REL[val].sex) { p.sex = REL[val].sex; renderFamily(); }
@@ -297,13 +316,13 @@
     const { person, dx, s } = ev;
     const bits = [`<span class="tier tier-${s.tier}">${TIER_LABEL[s.tier]}</span>`];
     const notes = [...s.notes, ...s.modNotes];
-    return `<li>${bits.join('')} <strong>${esc(personLabel(person))}</strong> — ${esc(dxText(dx, person))}${notes.length ? ` <span class="muted">· ${esc(notes.join('; '))}</span>` : ''}</li>`;
+    return `<li>${bits.join('')} <strong>${esc(personLabel(person))}</strong> — ${abbrHtml(dxText(dx, person))}${notes.length ? ` <span class="muted">· ${esc(notes.join('; '))}</span>` : ''}</li>`;
   }
 
   function associationsHtml(cond) {
     const order = { H: 0, S: 1, M: 2, W: 3 };
     return cond.rules.map(ruleText).sort((a, b) => order[a.tier] - order[b.tier])
-      .map(r => `<li><span class="tier tier-${r.tier}">${TIER_LABEL[r.tier]}</span> ${esc(r.text)}</li>`).join('');
+      .map(r => `<li><span class="tier tier-${r.tier}">${TIER_LABEL[r.tier]}</span> ${abbrHtml(r.text)}</li>`).join('');
   }
 
   function resultCard(r, i, top) {
@@ -485,6 +504,15 @@
     return out;
   }
 
+  // Proband arrow from (x1, y1) to the tip (x2, y2); the head is built along the shaft so it points at the symbol.
+  function pedArrow(x1, y1, x2, y2) {
+    const len = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / len, uy = (y2 - y1) / len, L = 9, W = 4.5;
+    const bx = x2 - ux * L, by = y2 - uy * L;
+    const f = v => v.toFixed(1);
+    return `<path class="ped-arrow" d="M${f(x1)} ${f(y1)}L${f(bx)} ${f(by)}"/>` +
+      `<path class="ped-arrowhead" d="M${f(x2)} ${f(y2)}L${f(bx - uy * W)} ${f(by + ux * W)}L${f(bx + uy * W)} ${f(by - ux * W)}Z"/>`;
+  }
+
   function pedigreeSvg(people, result) {
     const nodes = layoutPedigree(people);
     const hitDx = new Set(result ? result.evidence.map(e => e.dx.id) : []);
@@ -541,7 +569,7 @@
         : n.sex === 'F' ? `<circle class="${cls}" cx="${x}" cy="${c}" r="${S / 2}"/>`
         : `<path class="${cls}" d="M${x} ${top - 1}L${x + S / 2 + 1} ${c}L${x} ${top + S + 1}L${x - S / 2 - 1} ${c}Z"/>`;
       const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${esc(l.t)}</text>`).join('');
-      const arrow = n.proband ? `<path class="ped-arrow" d="M${x - S / 2 - 22} ${top + S + 12}L${x - S / 2 - 4} ${top + S - 2}"/><path class="ped-arrowhead" d="M${x - S / 2 - 2} ${top + S}l-9 1 5-7z"/>` : '';
+      const arrow = n.proband ? pedArrow(x - S / 2 - 24, top - 8, x - S / 2 - 1, top + 9) : '';
       parts.push(`<g class="ped-person${n.p ? '' : ' implied'}"${n.p ? ` data-person="${n.p.id}"` : ''}>${n.title ? `<title>${esc(n.title)}</title>` : ''}${shape}${arrow}${text}</g>`);
     }
     return `<svg class="ped-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Family tree${result ? ', highlighting ' + esc(result.cond.name) : ''}">${parts.join('')}</svg>`;
@@ -606,7 +634,7 @@
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-aff" x="1" y="1" width="12" height="12"/></svg> Other cancer</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym" x="1" y="1" width="12" height="12"/></svg> No cancer entered</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-imp" x="1" y="1" width="12" height="12"/></svg> Not entered (implied)</span>
-        <span class="muted">□ male · ○ female · ◇ sex not given · ↗ proband · dashed line = half-sibling or uncertain link</span>
+        <span class="muted">□ male · ○ female · ◇ sex not given · ↘ proband · dashed line = half-sibling or uncertain link</span>
       </p>
     </details>`;
   }
@@ -746,17 +774,44 @@
     renderSynDetail();
   }
 
+  /* ---- Evidence for associations: rule[6] = source keys, rule[7] = risk figure ---- */
+  // Returns [short label, full title, url] for a source key.
+  function evSource(k) {
+    const [type, id] = k.includes(':') ? k.split(/:(.*)/) : ['', k];
+    if (type === 'gr') return ['GeneReviews', `GeneReviews: ${GR_TITLES[id]}`, REF_LINKS.geneReviews(id)];
+    if (type === 'ukcgg') { const g = GUIDES[id]; return [EV_SHORT[id] || 'UKCGG', g[0], g[1]]; }
+    if (type === 'eu') { const g = EU_GUIDES[id]; return [EV_SHORT[id] || shortTitle(g[0]), g[0], g[1]]; }
+    if (type === 'us') { const g = US_GUIDES[id]; return [EV_SHORT[id] || shortTitle(g[0]), g[0], g[1]]; }
+    if (type === 'clingen') return ['ClinGen', `ClinGen gene–disease validity: ${id}`, REF_LINKS.clingen(id)];
+    if (type === 'canvar') return ['CanVar-UK', `CanVar-UK gene-specific variant interpretation: ${id}`, REF_LINKS.canvar(id)];
+    const e = EVIDENCE[k];
+    return [e[0], e[1], e[2]];
+  }
+  const shortTitle = t => t.split(/[:(–]/)[0].trim().slice(0, 28);
+  const evLinks = keys => (keys || []).map(k => { const [sh, t, u] = evSource(k); return `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(t)}">${esc(sh)}</a>`; }).join(' · ');
+  const evShort = keys => (keys || []).map(k => evSource(k)[0]).join(', ');
+
   function cancersTable(c) {
-    const rows = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).map(([site, hist, tier, early, pred, maxAge]) => {
+    const hasEv = c.rules.some(r => r[6] || r[7]);
+    const rows = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).map(([site, hist, tier, early, pred, maxAge, src, risk]) => {
       const h = hist === '*' ? 'Any type' : hist.split('|').map(x => histLabel(site, x)).join('; ');
-      return `<tr><td>${esc(SITES[site].label)}</td><td>${esc(h)}</td>
+      return `<tr><td>${abbrHtml(SITES[site].label)}</td><td>${abbrHtml(h)}</td>
         <td><span class="tier tier-${tier}">${TIER_LABEL[tier]}</span></td>
         <td>${early != null ? '≤' + early : '–'}</td><td>${maxAge != null ? '≤' + maxAge : '–'}</td>
-        <td>${pred ? esc(PRED_LABEL[pred]) : '–'}</td></tr>`;
+        <td>${pred ? abbrHtml(PRED_LABEL[pred]) : '–'}</td>
+        ${hasEv ? `<td class="ev">${risk ? `<span class="ev-risk">${esc(risk)}</span>` : ''}<span class="ev-src">${evLinks(src)}</span></td>` : ''}</tr>`;
     }).join('');
-    return `<div class="table-wrap"><table class="syn-table">
-      <thead><tr><th>Site</th><th>Histology / type</th><th>Strength</th><th>Early onset</th><th>Age limit</th><th>Condition</th></tr></thead>
+    return `<div class="table-wrap"><table class="syn-table cancers">
+      <thead><tr><th>Site</th><th>Histology / type</th><th>Strength</th><th>Early onset</th><th>Age limit</th><th>Condition</th>${hasEv ? '<th>Risk and evidence</th>' : ''}</tr></thead>
       <tbody>${rows}</tbody></table></div>`;
+  }
+
+  function variantHtml(c, heading = 'h3') {
+    const notes = VARIANT_NOTES[c.id];
+    if (!notes || !notes.length) return '';
+    return `<${heading}${heading === 'h3' ? ' id="jump-variants"' : ''}>Variant-level notes</${heading}>
+      <p class="muted small">Genotype–phenotype information only; it does not change the ranking.</p>
+      <ul class="variant-notes">${notes.map(([t, src]) => `<li>${esc(t)} <span class="ev-src">${evLinks(src)}</span></li>`).join('')}</ul>`;
   }
 
   function testsDetail(keys) {
@@ -795,8 +850,14 @@
       <tbody>${SOURCE_DATES.map(([src, ver, d]) => `<tr><td>${esc(src)}</td><td>${esc(ver)}</td><td>${esc(d)}</td></tr>`).join('')}</tbody></table></div>`;
   }
   function renderSources() {
+    const ev = Object.entries(EVIDENCE).sort((a, b) => a[1][1].localeCompare(b[1][1]));
     $('#sources-page').innerHTML = `${sourcesTableHtml('h2')}
-      <p class="muted small">Each syndrome also shows the date its own content was last reviewed.</p>`;
+      <p class="muted small">Each syndrome also shows the date its own content was last reviewed.</p>
+      <h3>Evidence for tumour associations</h3>
+      <p class="small">Each association on a syndrome page names its sources: UK guidance (UKCGG, BSG, NICE), European guidance,
+        GeneReviews, ${link('ClinGen gene–disease validity', 'https://search.clinicalgenome.org/kb/gene-validity')}, and the
+        peer-reviewed studies below. Variant interpretation data: ${link('CanVar-UK', 'https://canvaruk.org/')}.</p>
+      <ul class="small evidence-refs">${ev.map(([, [, t, u]]) => `<li>${link(t, u)}</li>`).join('')}</ul>`;
   }
 
   // In-page section links (buttons, so the URL hash keeps naming the syndrome).
@@ -849,7 +910,7 @@
           <div class="genes">${geneChips(c.genes)} <span class="inh">${esc(c.inh)}</span></div></div>
         ${forPrint ? '' : pageActions(`syn:${c.id}`)}
       </div>
-      ${forPrint ? '' : jumpNav([['cancers', 'Cancers'], ['tests', 'Tests'], ['guidance', 'Guidance'], ['surveillance', 'Surveillance'], ['sources', 'Sources']])}
+      ${forPrint ? '' : jumpNav([['cancers', 'Cancers'], ...(VARIANT_NOTES[c.id] ? [['variants', 'Variants']] : []), ['tests', 'Tests'], ['guidance', 'Guidance'], ['surveillance', 'Surveillance'], ['sources', 'Sources']])}
       ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
       <dl class="syn-facts">
         <dt>Genes</dt><dd>${c.genes.map(g => forPrint ? esc(g) : `<a href="#gene=${g}">${esc(g)}</a>`).join(', ')}</dd>
@@ -861,6 +922,7 @@
       ${cancersTable(c)}
       <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. Age limit: association only applies at or below this age.</p>
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
+      ${variantHtml(c)}
       <h3 id="jump-tests">Test Directory tests</h3>
       ${testsDetail(c.tests)}
       <h3 id="jump-guidance">Guidance, leaflets and references</h3>
@@ -889,14 +951,17 @@
       ${forPrint ? '' : jumpNav([['syndromes', 'Syndromes'], ['tests', 'Tests'], ['guidance', 'Guidance'], ['surveillance', 'Surveillance'], ['sources', 'Sources']])}
       <dl class="syn-facts">
         <dt>OMIM gene</dt><dd>${geneMimLink(g)}</dd>
+        ${CANVAR_GENES.includes(g) ? `<dt>Variant data</dt><dd>${link(`CanVar-UK ${g} gene-specific variant interpretation`, REF_LINKS.canvar(g))}</dd>` : ''}
+        ${CLINGEN_HGNC[g] ? `<dt>Gene–disease validity</dt><dd>${link(`ClinGen ${g}`, REF_LINKS.clingen(g))}</dd>` : ''}
         <dt>NICPR</dt><dd>${esc(flags.join('; ') || 'On the NICPR list (June 2026)')}</dd>
       </dl>
       <h3 id="jump-syndromes">Syndromes caused by ${esc(g)}</h3>
       <div class="table-wrap"><table class="syn-table">
         <thead><tr><th>Syndrome</th><th>Inheritance</th><th>Main cancers and features (hallmark / strong)</th><th>Last reviewed</th></tr></thead>
-        <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${esc(mainCancers(c))}</td><td>${reviewedHtml(c)}</td></tr>`).join('')}</tbody>
+        <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${abbrHtml(mainCancers(c))}</td><td>${reviewedHtml(c)}</td></tr>`).join('')}</tbody>
       </table></div>
       ${cs.filter(c => c.note).map(c => `<p class="note">${esc(c.name)}: ${esc(c.note)}</p>`).join('')}
+      ${cs.map(c => variantHtml(c, 'h4').replace('Variant-level notes</h4>', `Variant-level notes – ${esc(c.name)}</h4>`)).join('')}
       <h3 id="jump-tests">Test Directory tests</h3>
       ${testsDetail(uniq(cs.flatMap(c => c.tests)))}
       <h3 id="jump-guidance">Guidance and leaflets</h3>
@@ -929,7 +994,11 @@
     { const r = reviewInfo(c); L.push(`Last reviewed: ${r.text}${r.stale ? ' (over 12 months ago – due for review)' : ''}`); }
     if (c.note) L.push(c.note);
     L.push('', 'CANCERS AND HISTOLOGY');
-    [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).forEach(r => { const t = ruleText(r); L.push(`- [${TIER_LABEL[t.tier]}] ${t.text}`); });
+    [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).forEach(r => {
+      const t = ruleText(r);
+      L.push(`- [${TIER_LABEL[t.tier]}] ${t.text}${r[7] ? ` – ${r[7]}` : ''}${r[6] ? ` (${evShort(r[6])})` : ''}`);
+    });
+    if (VARIANT_NOTES[c.id]) { L.push('', 'VARIANT-LEVEL NOTES (information only)'); VARIANT_NOTES[c.id].forEach(([t, src]) => L.push(`- ${t} (${evShort(src)})`)); }
     const sv = SURVEILLANCE[c.id];
     if (sv) {
       L.push('', 'SUGGESTED SURVEILLANCE' + (sv.lvl !== 'none' ? ` (${SURV_LEVEL[sv.lvl][1]})` : ''));
@@ -1037,7 +1106,7 @@
     out.innerHTML = pointersHtml(ptrs, 'Testing pointers') + rows.map(({ c, rules }) => `<article class="result compact">
       <h3><a href="#syndrome=${c.id}">${esc(c.name)}</a></h3>
       <div class="genes">${geneChips(c.genes)}</div>
-      <ul class="assoc">${rules.map(r => { const t = ruleText(r); return `<li><span class="tier tier-${t.tier}">${TIER_LABEL[t.tier]}</span> ${esc(t.text)}</li>`; }).join('')}</ul>
+      <ul class="assoc">${rules.map(r => { const t = ruleText(r); return `<li><span class="tier tier-${t.tier}">${TIER_LABEL[t.tier]}</span> ${abbrHtml(t.text)}</li>`; }).join('')}</ul>
     </article>`).join('') || '<div class="empty">No associations recorded.</div>';
   }
 
@@ -1123,6 +1192,10 @@
     let pedWasOpen = null;
     window.addEventListener('beforeprint', () => { const d = $('#ped'); if (d && !document.body.classList.contains('printing')) { pedWasOpen = d.open; d.open = true; } });
     window.addEventListener('afterprint', () => { const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; pedWasOpen = null; } });
+    // Abbreviations: click, tap or Enter / Space shows the full term after it.
+    const toggleAbbr = el => { const open = el.classList.toggle('open'); el.setAttribute('aria-expanded', open); };
+    document.addEventListener('click', e => { const a = e.target.closest('abbr.abbr'); if (a) { e.preventDefault(); e.stopPropagation(); toggleAbbr(a); } }, true);
+    document.addEventListener('keydown', e => { const a = e.target.closest && e.target.closest('abbr.abbr'); if (a && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleAbbr(a); } });
     document.addEventListener('click', e => {
       const m = e.target.closest('[data-mode]');
       if (m) { state.mode = m.dataset.mode; renderResults(); }
