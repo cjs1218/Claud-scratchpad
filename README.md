@@ -53,7 +53,7 @@ Everything clinical lives in `js/data.js`:
 
 Three views: **By syndrome** (grouped into categories), **By gene** (one page per gene, combining
 every syndrome it causes) and **By cancer and histology**. Filter by text, Test Directory code or
-UKCGG guideline. Each syndrome / gene page shows genes, inheritance, NICPR notes, cancers and
+UK guideline. Each syndrome / gene page shows genes, inheritance, NICPR notes, cancers and
 histology with strength and age thresholds, Test Directory tests with criteria, all guidance,
 leaflets and references, then suggested surveillance as the last section, and a button to the Sources tab.
 
