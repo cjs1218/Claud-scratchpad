@@ -556,16 +556,32 @@
     </article>`).join('') || '<div class="empty">No associations recorded.</div>';
   }
 
-  /* Open a syndrome from a #syndrome=<id> link (shareable, also used by list links). */
-  function openFromHash() {
+  /*
+   * The address holds the open tab: no hash = Family assessment, #syndromes = Syndromes tab,
+   * #syndrome=<id> = a syndrome page (shareable). Refresh, Back and Forward follow it.
+   */
+  function route() {
     const m = location.hash.match(/^#syndrome=(\w+)$/);
-    if (!m || !COND[m[1]]) return false;
-    state.syn = m[1];
-    $('#browse-mode').value = 'syndrome';
-    if (!synMatches(COND[m[1]])) { $('#browse-search').value = ''; $('#browse-test').value = ''; $('#browse-ukcgg').checked = false; }
-    setTab('browse');
-    $('#syn-detail').scrollIntoView({ block: 'nearest' });
-    return true;
+    if (m && COND[m[1]]) {
+      state.syn = m[1];
+      $('#browse-mode').value = 'syndrome';
+      if (!synMatches(COND[m[1]])) { $('#browse-search').value = ''; $('#browse-test').value = ''; $('#browse-ukcgg').checked = false; }
+      setTab('browse');
+      if ($('#syn-detail').getBoundingClientRect().top < 0) $('#syn-detail').scrollIntoView();
+    } else {
+      setTab(location.hash === '#syndromes' ? 'browse' : 'assess');
+    }
+  }
+
+  function goTab(tab) {
+    if (tab === 'browse') {
+      if (!location.hash.startsWith('#syndrome')) location.hash = state.syn ? `syndrome=${state.syn}` : 'syndromes';
+      else route();
+    } else if (location.hash) {
+      history.pushState(null, '', location.pathname + location.search);
+      route();
+    }
+    window.scrollTo(0, 0);
   }
 
   /* ---------------- Example & setup ---------------- */
@@ -603,7 +619,7 @@
       const m = e.target.closest('[data-mode]');
       if (m) { state.mode = m.dataset.mode; renderResults(); }
       const t = e.target.closest('[data-tab]');
-      if (t) setTab(t.dataset.tab);
+      if (t) goTab(t.dataset.tab);
     });
     $('#browse-site').innerHTML = optionList(Object.entries(SITES).map(([k, s]) => [k, s.label]), '', 'Choose site…');
     const usedTests = Object.keys(TESTS).filter(k => CONDITIONS.some(c => c.tests.includes(k))).sort((a, b) => a.slice(1) - b.slice(1));
@@ -611,17 +627,18 @@
     ['browse-mode', 'browse-site', 'browse-hist', 'browse-test', 'browse-ukcgg'].forEach(id => $('#' + id).addEventListener('change', renderBrowse));
     $('#browse-search').addEventListener('input', renderBrowse);
     $('#syn-detail').addEventListener('click', onSynAction);
-    window.addEventListener('hashchange', openFromHash);
+    window.addEventListener('hashchange', route);
+    window.addEventListener('popstate', route);
     // A link to the syndrome already in the URL fires no hashchange, so open it directly.
     document.addEventListener('click', e => {
       const a = e.target.closest('a[href^="#syndrome="]');
-      if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); openFromHash(); }
+      if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); route(); }
     });
     $('#gene-count').textContent = NICPR.genes.length;
     $('#cond-count').textContent = CONDITIONS.length;
     renderFamily();
     renderResults();
-    openFromHash();
+    route();
   }
 
   document.addEventListener('DOMContentLoaded', init);
