@@ -32,8 +32,9 @@ Everything clinical lives in `js/data.js`:
   - `maxAge`: rule only applies at or below this age
 - `mods` multiply a condition's score when a marker is present
   (e.g. MLH1 loss explained by methylation ×0.2 for Lynch MLH1).
-- **TESTS** – Test Directory codes, gene content and criteria (paraphrased;
-  entries with `code: null` need the code adding).
+- **TESTS** – Rare and Inherited Disease Test Directory v9.1 (Part XI) codes, PanelApp
+  panels and condensed criteria (`code: null` = test lives outside Part XI).
+- **EG / SOURCES** – East Genomics patient leaflets and UK guidance per condition.
 - **NICPR** – the NICPR Appendix 1 gene list and its annotations.
 
 ## Scoring

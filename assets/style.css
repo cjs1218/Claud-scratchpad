@@ -138,3 +138,6 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
   .layout { grid-template-columns: 1fr; }
   details > *:not(summary) { display: block; }
 }
+
+.sources h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin: 10px 0 2px; }
+.sources ul { margin: 0; padding-left: 18px; font-size: 0.88rem; }
