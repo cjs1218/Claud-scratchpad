@@ -175,6 +175,7 @@
     const leaflet = k => `<li>${link(EG[k].label, EG[k].url)}</li>`;
     const leaflets = (src.eg || []).map(leaflet);
     const guides = (src.guide || []).map(k => `<li>${link(GUIDES[k][0], GUIDES[k][1])}</li>`);
+    const eu = (src.eu || []).map(k => `<li>${link(EU_GUIDES[k][0], EU_GUIDES[k][1])}</li>`);
     const gr = ref.gr.length
       ? ref.gr.map(n => `<li>GeneReviews: ${link(GR_TITLES[n], REF_LINKS.geneReviews(n))}</li>`).join('')
       : `<li class="muted">No GeneReviews chapter – ${link('search GeneReviews', REF_LINKS.geneReviewsSearch(c.genes[0]))}</li>`;
@@ -185,6 +186,7 @@
       <ul>${leaflets.join('') || `<li class="muted">No condition-specific leaflet – general leaflets below, or see the ${link('A-Z index', EG_AZ)}</li>${EG_GENERAL.map(leaflet).join('')}`}</ul>
       <h4>UK guidance</h4>
       <ul>${guides.join('') || `<li class="muted">No UKCGG gene-specific guideline – see ${link('UKCGG leaflets and guidelines', REF_LINKS.ukcgg)}</li>`}</ul>
+      ${eu.length ? `<h4>European guidance</h4><ul>${eu.join('')}</ul>` : ''}
       <h4>References</h4>
       <ul>${gr}
         ${pheno.length ? `<li>OMIM phenotype: ${pheno.join('; ')}</li>` : ''}
