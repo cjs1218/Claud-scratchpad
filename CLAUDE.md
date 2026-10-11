@@ -1,6 +1,8 @@
-# Claude Scratchpad
+# Cancer Predisposition Differential
 
-GitHub Pages site (static, no build) serving subsites from folders. See README.md.
+Static GitHub Pages app (no build). Clinical content lives in `js/data.js`; see README.md.
+Run `node` checks against data.js after editing (every rule's site/histology/predicate/test must exist,
+every NICPR gene must be covered by a condition).
 
 ## Git
 
