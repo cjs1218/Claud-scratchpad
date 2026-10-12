@@ -30,6 +30,7 @@
   --tb-M: #6b5300;
   --tb-W: #425563;
   --ok: #007f3b;
+  --ok-text: #00602c;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -58,6 +59,7 @@
     --tb-M: #e8d27a;
     --tb-W: #b9c6d0;
     --ok: #6cc993;
+    --ok-text: #6cc993;
   }
 }
 * { box-sizing: border-box; }
@@ -526,7 +528,7 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .person-mss { font-size: 0.8rem; margin: -2px 0 6px; }
 .person-mss:empty { display: none; }
 .mss-total { font-size: 1.05rem; margin: 10px 0 4px; }
-.elig-tag.mss-ok { border-color: var(--ok); color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--card)); }
+.elig-tag.mss-ok { border-color: var(--ok); color: var(--ok-text); background: color-mix(in srgb, var(--ok) 10%, var(--card)); }
 .mss-table td.num, .mss-table th.num, .mss-ref td.num, .mss-ref th.num { text-align: right; white-space: nowrap; }
 .mss-table tfoot th { border-top: 2px solid var(--border); }
 .mss-adj td { font-style: italic; }

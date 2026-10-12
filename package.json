@@ -3,14 +3,16 @@
   "private": true,
   "description": "Static site; these scripts only run the checks and data updates.",
   "scripts": {
-    "test": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js && node tests/browser.test.js && node tests/genes.test.js",
+    "test": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js && node tests/browser.test.js && node tests/a11y.test.js && node tests/genes.test.js",
     "test:fast": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js",
     "test:live": "node tests/browser.test.js https://cjs1218.github.io/Claud-scratchpad/",
     "update:panels": "python3 tools/update-panels.py",
     "update:criteria": "tools/update-criteria.sh",
-    "bump": "tools/bump-version.sh"
+    "bump": "tools/bump-version.sh",
+    "test:a11y": "node tests/a11y.test.js"
   },
   "devDependencies": {
-    "playwright": "1.56.1"
+    "playwright": "1.56.1",
+    "axe-core": "4.10.2"
   }
 }

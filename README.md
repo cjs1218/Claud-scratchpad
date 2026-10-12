@@ -148,6 +148,7 @@ npm run test:live           # browser tests against the published site
 - `tests/eligibility.test.js` – Test Directory criteria, Manchester score, modified Amsterdam, relationships.
 - `tests/criteria.test.js` – every eligibility reason links to a line of the verbatim criteria (random families).
 - `tests/browser.test.js` – the app in Chromium (forms, results, pop-ups, printout, phone layout).
+- `tests/a11y.test.js` – axe accessibility check of the main views in light and dark mode (serious problems and heading order).
 - `tests/genes.test.js` – every gene page renders and its links are well formed.
 
 GitHub runs the same checks on every push (`.github/workflows/test.yml`).
