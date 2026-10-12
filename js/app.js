@@ -13,7 +13,7 @@
   let uid = 0;
   const nextId = () => ++uid;
   const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', grade: '', ovgrade: '', mmr: '', meth: '', braf: '', count: '', side: '', age2: '' });
-  const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', adopted: false, dx: [newDx()] });
+  const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', adopted: false, parentId: null, dx: [newDx()] });
 
   const state = { openPeople: new Set(), people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null, ancestry: '', expanded: new Set(), compareView: null };
 
@@ -146,6 +146,9 @@
     return r.label + (n ? ` ${n}` : '') + (p.sex && !r.sex ? ` (${p.sex})` : '');
   }
   window.personLabel = personLabel;
+  // "Child of": which entered relatives could be this person's parent, and the one named (if still valid).
+  const parentCandidates = p => PARENT_OF[p.rel] ? state.people.filter(x => x !== p && PARENT_OF[p.rel].includes(x.rel)) : [];
+  const namedParent = p => { const c = parentCandidates(p); return c.find(x => x.id === p.parentId) || null; };
 
   function dxText(dx, person) {
     const site = SITES[dx.site];
@@ -330,7 +333,7 @@
     return `<section class="person collapsed" data-pid="${p.id}">
       <div class="person-card">
         <button type="button" class="person-open" data-act="edit-person" aria-expanded="false" title="Edit ${esc(personLabel(p))}">
-          <span class="pc-who"><strong>${esc(personLabel(p))}</strong>${status ? ` <span class="pc-status">${esc(status)}</span>` : ''}</span>
+          <span class="pc-who"><strong>${esc(personLabel(p))}</strong>${namedParent(p) ? ` <span class="pc-status">child of ${esc(personLabel(namedParent(p)))}</span>` : ''}${status ? ` <span class="pc-status">${esc(status)}</span>` : ''}</span>
           <span class="pc-dx">${dxs.map(d => `<span>${abbrHtml(dxText(d, p))}</span>`).join('')}</span>
           <span class="pc-edit" aria-hidden="true">✎ Edit</span>
         </button>
@@ -361,6 +364,7 @@
           ? `<label class="mk">Age at death<input type="number" min="0" max="120" inputmode="numeric" data-f="ageDeath" value="${esc(p.ageDeath ?? '')}" placeholder="Age"></label>`
           : `<label class="mk">Age now<input type="number" min="0" max="120" inputmode="numeric" data-f="ageNow" value="${esc(p.ageNow ?? '')}" placeholder="Age"></label>`}
         <label class="mk chk"><input type="checkbox" data-f="deceased"${p.deceased ? ' checked' : ''}>Deceased</label>
+        ${PARENT_OF[p.rel] ? (() => { const c = parentCandidates(p); return `<label class="mk">Child of<select data-f="parentId">${optionList([['', c.length ? 'Not specified' : 'Not specified (no possible parent entered)'], ...c.map(x => [String(x.id), personLabel(x)])], namedParent(p) ? String(p.parentId) : '')}</select></label>`; })() : ''}
         ${isProband ? `<label class="mk chk" title="Manchester score +2 BRCA1, +2 BRCA2 when there is no known cancer history in blood relatives"><input type="checkbox" data-f="adopted"${p.adopted ? ' checked' : ''}>Adopted (no known family history)</label>` : ''}
       </div>
       ${p.dx.map(d => renderDx(p, d)).join('')}
@@ -423,7 +427,8 @@
       }
     } else {
       p[f] = val;
-      if (f === 'rel' && REL[val].sex) { p.sex = REL[val].sex; renderFamily(); }
+      if (f === 'parentId') p.parentId = val === '' ? null : +val;
+      if (f === 'rel') { if (REL[val].sex) p.sex = REL[val].sex; if (!namedParent(p)) p.parentId = null; renderFamily(); }
       if (f === 'deceased') renderFamily();
     }
     renderResults();
@@ -472,8 +477,9 @@
   const familyData = () => ({ app: 'cancer-predisposition-differential', version: 1, ancestry: state.ancestry, people: state.people });
   function loadFamily(data) {
     if (!data || !Array.isArray(data.people)) throw new Error('not a family file');
-    const people = data.people.filter(p => REL[p.rel]).map(p => ({
-      ...newPerson(p.rel), sex: ['F', 'M'].includes(p.sex) ? p.sex : '',
+    const src = data.people.filter(p => REL[p.rel]);
+    const people = src.map(p => ({
+      ...newPerson(p.rel), sex: ['F', 'M'].includes(p.sex) ? p.sex : '', oldParent: p.parentId ?? null,
       ageNow: p.ageNow ?? '', deceased: !!p.deceased, ageDeath: p.ageDeath ?? '', adopted: !!p.adopted && p.rel === 'proband',
       dx: (p.dx || []).map(d => {
         const site = SITES[d.site] ? d.site : '';
@@ -488,6 +494,9 @@
         return nd;
       })
     }));
+    // Saved ids are renumbered on loading; carry each "Child of" link across.
+    const idMap = new Map(src.map((p, i) => [p.id, people[i].id]));
+    people.forEach(p => { p.parentId = p.oldParent != null && idMap.has(p.oldParent) ? idMap.get(p.oldParent) : null; delete p.oldParent; });
     if (!people.some(p => p.rel === 'proband')) people.unshift(newPerson('proband'));
     people.forEach(p => { if (!p.dx.length) p.dx.push(newDx()); });
     state.people = people;
@@ -630,11 +639,20 @@
     const withKids = (n, kids) => { n.kids = kids; if (kids.length) n.partner = implied('Partner', n.sex === 'F' ? 'M' : n.sex === 'M' ? 'F' : ''); return n; };
     const proband = people.find(p => p.rel === 'proband');
     const anyOf = rels => rels.some(r => by(r).length);
+    // Hang children under the parent named in "Child of"; children with no named parent go under one implied parent
+    // (labelled "not specified") so no entered relative is shown as their parent.
+    const hang = (parents, kids, impliedLabel) => {
+      if (!kids.length) return parents;
+      const byParent = new Map(parents.map(n => [n.p ? n.p.id : null, []]));
+      const loose = [];
+      for (const k of kids) { const pid = k.p && k.p.parentId; if (pid != null && byParent.has(pid) && pid !== null) byParent.get(pid).push(k); else loose.push(k); }
+      for (const n of parents) { const ks = byParent.get(n.p ? n.p.id : null) || []; if (ks.length) withKids(n, [...n.kids, ...ks]); }
+      if (loose.length) parents.push(withKids(implied(impliedLabel), loose));
+      return parents;
+    };
 
-    // Proband's descendants: grandchildren hang from the first child (implied if none).
-    const children = [...by('daughter'), ...by('son')].map(p => node(p));
-    if (by('grandchild').length && !children.length) children.push(implied('Child'));
-    if (children.length) withKids(children[0], by('grandchild').map(p => node(p)));
+    // Proband's descendants: grandchildren hang from their named parent.
+    const children = hang([...by('daughter'), ...by('son')].map(p => node(p)), by('grandchild').map(p => node(p)), 'Child (not specified)');
     const probandNode = withKids(node(proband), children);
     probandNode.proband = true;
 
@@ -642,13 +660,14 @@
     if (!needParents) return { core: probandNode };
 
     // Siblings; nieces / nephews hang from the first sibling (implied if none). Half-siblings get dashed links.
-    const sibs = [...by('sister'), ...by('brother')].map(p => node(p));
-    const nieces = by('niece').map(p => node(p));
-    if (by('gniece').length && !nieces.length) nieces.push(implied('Niece/nephew'));
-    if (nieces.length) withKids(nieces[0], by('gniece').map(p => node(p)));
-    if (nieces.length && !sibs.length) sibs.push(implied('Sibling'));
-    if (sibs.length) withKids(sibs[0], nieces);
-    const coreKids = [...by('m_halfsib').map(p => node(p, { dashed: true })), ...sibs, probandNode, ...by('p_halfsib').map(p => node(p, { dashed: true }))];
+    const nieces = hang(by('niece').map(p => node(p)), by('gniece').map(p => node(p)), 'Niece/nephew (not specified)');
+    const halfM = by('m_halfsib').map(p => node(p, { dashed: true })), halfP = by('p_halfsib').map(p => node(p, { dashed: true }));
+    const sibs = hang([...by('sister'), ...by('brother')].map(p => node(p)), [], '');
+    // Nieces / nephews under their named sibling (full or half); otherwise under an implied sibling.
+    const sibPool = [...halfM, ...sibs, ...halfP];
+    hang(sibPool, nieces, 'Sibling (not specified)');
+    const extraSib = sibPool.slice(halfM.length + sibs.length + halfP.length);
+    const coreKids = [...halfM, ...sibs, ...extraSib, probandNode, ...halfP];
     const mother = by('mother')[0], father = by('father')[0];
     const momNode = mother ? node(mother) : implied('Mother', 'F');
     const dadNode = father ? node(father) : implied('Father', 'M');
@@ -657,12 +676,9 @@
     const extra = [...by('mother').slice(1), ...by('father').slice(1)];
 
     const side = (s) => {
-      const aunts = [...by(s + '_aunt'), ...by(s + '_uncle')].map(p => node(p));
-      const cousins = by(s + '_cousin').map(p => node(p));
-      if (by(s + '_cousin_child').length && !cousins.length) cousins.push(implied(s === 'm' ? 'Mat. cousin' : 'Pat. cousin'));
-      if (cousins.length) withKids(cousins[0], by(s + '_cousin_child').map(p => node(p)));
-      if (cousins.length && !aunts.length) aunts.push(implied(s === 'm' ? 'Mat. aunt/uncle' : 'Pat. aunt/uncle'));
-      if (aunts.length) withKids(aunts[0], cousins);
+      const pre0 = s === 'm' ? 'Mat.' : 'Pat.';
+      const cousins = hang(by(s + '_cousin').map(p => node(p)), by(s + '_cousin_child').map(p => node(p)), `${pre0} cousin (not specified)`);
+      const aunts = hang([...by(s + '_aunt'), ...by(s + '_uncle')].map(p => node(p)), cousins, `${pre0} aunt/uncle (not specified)`);
       const need = anyOf([s + '_aunt', s + '_uncle', s + '_cousin', s + '_cousin_child', s + '_great', s + '_gm', s + '_gf', s + '_ggp']);
       const gm = by(s + '_gm')[0], gf = by(s + '_gf')[0];
       const pre = s === 'm' ? 'Mat.' : 'Pat.';
@@ -995,6 +1011,7 @@
     const n = v => (v === '' || v == null ? null : +v);
     const status = p.deceased ? n(p.ageDeath) : n(p.ageNow);
     if (p.rel === 'unset') w.push('Choose the relationship – until then this relative is not counted in family-history criteria and only weakly in the ranking.');
+    if (PARENT_OF[p.rel] && !namedParent(p) && parentCandidates(p).length && isComplete(p)) w.push(`Not specified whose child this is ("Child of") – links to ${parentCandidates(p).map(personLabel).join(', ')} are not counted.`);
     if (ONE_ONLY.includes(p.rel) && state.people.filter(x => x.rel === p.rel).length > 1) w.push(`More than one ${REL[p.rel].label.toLowerCase()} entered – check the relationship.`);
     for (const d of p.dx) {
       if (!d.site) continue;
@@ -1224,7 +1241,7 @@
   function familyTableHtml() {
     const rows = state.people.map(p => {
       const dxs = p.dx.filter(d => d.site && d.hist);
-      return `<tr><td>${esc(personLabel(p))}</td><td>${p.sex === 'F' ? 'Female' : p.sex === 'M' ? 'Male' : '–'}</td>
+      return `<tr><td>${esc(personLabel(p))}${namedParent(p) ? `<br><span class="small muted">child of ${esc(personLabel(namedParent(p)))}</span>` : ''}</td><td>${p.sex === 'F' ? 'Female' : p.sex === 'M' ? 'Male' : '–'}</td>
         <td>${esc(personStatus(p) || '–')}</td>
         <td>${dxs.length ? dxs.map(d => abbrHtml(dxText(d, p))).join('<br>') : 'No cancer entered'}</td></tr>`;
     }).join('');
@@ -1271,7 +1288,7 @@
       const dxs = p.dx.filter(d => d.site && d.hist);
       const status = personStatus(p);
       if (!dxs.length && !status) continue;
-      lines.push(`- ${personLabel(p)}${status ? ` (${status})` : ''}: ${dxs.length ? dxs.map(d => dxText(d, p)).join('; ') : 'no cancer'}`);
+      lines.push(`- ${personLabel(p)}${namedParent(p) ? ` [child of ${personLabel(namedParent(p))}]` : ''}${status ? ` (${status})` : ''}: ${dxs.length ? dxs.map(d => dxText(d, p)).join('; ') : 'no cancer'}`);
     }
     const el = eligibilityList();
     const am = amsterdamCriteria(state.people);

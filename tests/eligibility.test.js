@@ -7,9 +7,29 @@ let pass = 0, fail = 0;
 const ok = (cond, msg) => { if (cond) pass++; else { fail++; console.log('FAIL', msg); } };
 
 /* Relationship degrees */
-for (const [a, b, e] of [['proband','mother',1],['proband','sister',1],['proband','m_aunt',2],['proband','m_cousin',3],['proband','m_gm',2],['mother','m_aunt',1],['mother','m_gm',1],['m_aunt','m_cousin',1],['sister','niece',1],['proband','niece',2],['proband','m_halfsib',2],['sister','m_halfsib',2],['mother','father',null],['m_aunt','father',null],['proband','daughter',1],['proband','grandchild',2],['mother','daughter',2],['m_aunt','p_aunt',null],['m_gm','m_great',1],['proband','m_great',3],['m_aunt','m_aunt',1]]) ok(w.relDegree({ rel: a }, { rel: b }) === e, `degree ${a}–${b} expected ${e}`);
+for (const [a, b, e] of [['proband','mother',1],['proband','sister',1],['proband','m_aunt',2],['proband','m_cousin',3],['proband','m_gm',2],['mother','m_aunt',1],['mother','m_gm',1],['m_aunt','m_cousin',null],['sister','niece',null],['proband','niece',2],['proband','m_halfsib',2],['sister','m_halfsib',2],['mother','father',null],['m_aunt','father',null],['proband','daughter',1],['proband','grandchild',2],['mother','daughter',2],['m_aunt','p_aunt',null],['m_gm','m_great',1],['proband','m_great',3],['m_aunt','m_aunt',1]]) ok(w.relDegree({ rel: a }, { rel: b }) === e, `degree ${a}–${b} expected ${e}`);
 
-for (const [a, b, e] of [['proband','m_ggp',3],['mother','m_ggp',2],['m_gm','m_ggp',1],['proband','gniece',3],['niece','gniece',1],['proband','m_cousin_child',4],['m_cousin','m_cousin_child',1]]) ok(w.relDegree({ rel: a }, { rel: b }) === e, `degree ${a}–${b} expected ${e}`);
+for (const [a, b, e] of [['proband','m_ggp',3],['mother','m_ggp',2],['m_gm','m_ggp',1],['proband','gniece',3],['niece','gniece',null],['proband','m_cousin_child',4],['m_cousin','m_cousin_child',null]]) ok(w.relDegree({ rel: a }, { rel: b }) === e, `degree ${a}–${b} expected ${e}`);
+
+/* Named parents ("Child of") */
+{
+  const aunt1 = { id: 101, rel: 'm_aunt' }, aunt2 = { id: 102, rel: 'm_aunt' }, mum = { id: 103, rel: 'mother' }, pro = { id: 104, rel: 'proband' };
+  const c1 = { id: 105, rel: 'm_cousin', parentId: 101 }, c2 = { id: 106, rel: 'm_cousin', parentId: 101 }, c3 = { id: 107, rel: 'm_cousin', parentId: 102 }, c4 = { id: 108, rel: 'm_cousin' };
+  const cc = { id: 109, rel: 'm_cousin_child', parentId: 105 }, sis = { id: 110, rel: 'sister' }, nie = { id: 111, rel: 'niece', parentId: 110 }, gn = { id: 112, rel: 'gniece', parentId: 111 };
+  const fam = [aunt1, aunt2, mum, pro, c1, c2, c3, c4, cc, sis, nie, gn];
+  const D = (a, b) => w.relDegree(a, b, fam);
+  ok(D(c1, aunt1) === 1 && D(c1, aunt2) === 2 && D(c1, mum) === 2 && D(c1, pro) === 3, 'cousin with a named parent: 1st to that aunt, 2nd to the other aunt and to mother, 3rd to proband');
+  ok(D(c1, c2) === 1 && D(c1, c3) === 3, 'cousins: siblings if same parent, first cousins otherwise');
+  ok(D(c4, aunt1) === null && D(c4, pro) === 3 && D(c4, c1) === null, 'cousin without a named parent: link to aunts and other cousins unknown, still 3rd to proband');
+  ok(D(cc, c1) === 1 && D(cc, aunt1) === 2 && D(cc, pro) === 4, "cousin's child through the named cousin");
+  ok(D(nie, sis) === 1 && D(gn, nie) === 1 && D(gn, sis) === 2 && D(gn, pro) === 3, 'niece and great-niece through named parents');
+  // Amsterdam: aunt's own child links; another aunt's child does not
+  const A = (rel, site, age, extra = {}) => P(rel, 'F', [{ site, hist: site === 'uterus' ? 'endometrioid' : 'adeno', age: String(age) }], extra);
+  const au = A('m_aunt', 'colorectal', 55), gmum = A('m_gm', 'uterus', 70), cz = A('m_cousin', 'colorectal', 45, { parentId: au.id });
+  ok(w.amsterdamCriteria([P('proband', 'F'), gmum, au, cz]).met, 'Amsterdam: grandmother, aunt and her own child (named) meet');
+  const au2 = A('m_aunt', 'colorectal', 55), other = P('m_aunt', 'F'), cz2 = A('m_cousin', 'colorectal', 45, { parentId: other.id });
+  ok(!w.amsterdamCriteria([P('proband', 'F'), A('m_gm', 'uterus', 70), au2, other, cz2]).met, "Amsterdam: the affected aunt is not FDR of another aunt's child");
+}
 
 /* Modified Amsterdam */
 {

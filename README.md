@@ -79,6 +79,11 @@ Everything clinical lives in `js/data.js`:
 Relatives with at least one cancer entered fold into a one-line card (cancers, criteria tags and Manchester score);
 click a card to edit it and **Done** to fold it again. Loading a family or adding a relative folds the others.
 
+Cousins, nieces/nephews, grandchildren, great-nieces/nephews and cousins' children have a **Child of** choice
+(which aunt/uncle, sibling, child, niece or cousin is the parent). With it, the tree draws them under that parent and
+eligibility uses the true relationships; without it, their links to possible parents are treated as unknown rather
+than assuming every aunt or uncle is the parent.
+
 ## Test Directory eligibility
 
 `js/eligibility.js` checks who in the family as entered meets the v9.1 criteria for the inherited cancer tests

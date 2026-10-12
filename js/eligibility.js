@@ -42,8 +42,34 @@
     return out;
   }
   const ANC = Object.fromEntries([...new Set([...Object.keys(PARENT), ...Object.keys(MEMBER)])].map(r => [r, ancestors(r)]));
-  // Degree of relationship (1 = first-degree) between two people, or null if unknown / not blood relatives.
-  function degree(a, b) {
+  /* Relatives whose parent can be named ("Child of"): which relations can be their parent. Known parent: relationships run
+   * through that person. Not named: links to the possible parents (and to others of the same kind) are unknown, so no
+   * aunt is assumed to be every cousin's mother. */
+  const PARENT_OF = { m_cousin: ['m_aunt', 'm_uncle'], p_cousin: ['p_aunt', 'p_uncle'], niece: ['sister', 'brother', 'm_halfsib', 'p_halfsib'],
+    grandchild: ['daughter', 'son'], gniece: ['niece'], m_cousin_child: ['m_cousin'], p_cousin_child: ['p_cousin'] };
+  let byId = new Map();
+  const setPeople = people => { byId = new Map((people || []).map(p => [p.id, p])); };
+  const parentOf = x => {
+    if (!PARENT_OF[x.rel] || x.parentId == null) return null;
+    const par = byId.get(x.parentId);
+    return par && par !== x && PARENT_OF[x.rel].includes(par.rel) ? par : null;
+  };
+  function degree(a, b, depth = 0) {
+    if (a === b) return 0;
+    if (depth > 6) return null;
+    const pa = parentOf(a), pb = parentOf(b);
+    if (pa || pb) {
+      if (pa === b || pb === a) return 1;
+      if (pa && pb && pa === pb) return 1; // children of the same parent
+      const [child, par, other] = pa ? [a, pa, b] : [b, pb, a];
+      const d = degree(par, other, depth + 1);
+      return d == null ? null : d + 1;
+    }
+    for (const [x, y] of [[a, b], [b, a]]) if (PARENT_OF[x.rel] && (PARENT_OF[x.rel].includes(y.rel) || y.rel === x.rel)) return null;
+    return unitDegree(a, b);
+  }
+  // Degree of relationship (1 = first-degree) from the family structure alone, or null if unknown / not blood relatives.
+  function unitDegree(a, b) {
     if (a === b) return 0;
     const A = ANC[a.rel], B = ANC[b.rel];
     if (!A || !B) return null;
@@ -176,6 +202,7 @@
    * Returns the best-matching group and a checklist, for display even when not all criteria are met. */
   const AMS_CANCER = d => is(d, 'colorectal') || is(d, 'uterus', 'endometrioid|serous|clearcell|carcinosarcoma|nos') || is(d, 'smallbowel') || is(d, 'urothelial', 'upper');
   function amsterdam(people) {
+    setPeople(people);
     const aff = people.filter(p => dxs(p).some(AMS_CANCER));
     const score = g => {
       const gens = [...new Set(g.map(b => GEN[b.rel]).filter(x => x !== undefined))];
@@ -219,6 +246,7 @@
   const HAM = d => is(d, 'polyps', 'pj|juvenile|mixed|ganglioneuroma');
 
   function check(people, ancestry) {
+    setPeople(people);
     const out = [];
     const add = (p, test, text, extra = {}) => out.push({ person: p, test, text, ...extra });
     const affected = people.filter(p => dxs(p).length);
@@ -771,5 +799,6 @@
   window.manchesterDetail = manchesterDetail;
   window.MSS_TABLE = MSS_TABLE;
   window.MSS_ADJ = MSS_ADJ;
-  window.relDegree = degree;
+  window.relDegree = (a, b, people) => { if (people) setPeople(people); return degree(a, b); };
+  window.PARENT_OF = PARENT_OF;
 })();

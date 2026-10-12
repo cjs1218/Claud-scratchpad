@@ -691,6 +691,31 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check((await hits('lobular breast')).length >= 1 && (await hits('breast lobular')).length === (await hits('lobular breast')).length, 'search words match in any order');
   await page.fill('#browse-search', '');
 
+  console.log('Child of (which aunt/uncle, sibling or child is the parent)');
+  await page.goto(BASE); await page.click('#clear');
+  await page.setInputFiles('#open-family', { name: 'co.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, people: [
+    { id: 1, rel: 'proband', sex: 'F', dx: [{ site: 'colorectal', hist: 'adeno', age: '44' }] }, { id: 3, rel: 'm_aunt', sex: 'F', dx: [{ site: 'uterus', hist: 'endometrioid', age: '52' }] },
+    { id: 4, rel: 'm_uncle', sex: 'M', dx: [{}] }, { id: 5, rel: 'm_cousin', sex: 'M', parentId: 3, dx: [{ site: 'colorectal', hist: 'adeno', age: '38' }] },
+    { id: 7, rel: 'm_cousin', sex: 'F', dx: [{ site: 'ovary', hist: 'hgsc', age: '50' }] }] })) });
+  await page.waitForSelector('#ped-wrap svg');
+  const coCards = await page.locator('#family .person').allTextContents();
+  check(coCards.some(t => /Maternal first cousin 1/.test(t) && /child of Maternal aunt/.test(t)), 'saved "Child of" link is kept when the file is opened and shown on the card');
+  check(/Not specified whose child this is/.test(coCards.find(t => /Maternal first cousin 2/.test(t)) || ''), 'warning when a cousin\'s parent is not specified');
+  const tr = await page.locator('#ped-wrap svg').textContent();
+  check(/Mat. aunt\/uncle \(not specified\)/.test(tr), 'tree puts a cousin with no named parent under an unspecified aunt/uncle, not under an entered one');
+  const c2 = page.locator('#family .person').nth(4);
+  await c2.locator('.person-open').click();
+  const sel = page.locator('#family .person').nth(4).locator('select[data-f=parentId]');
+  check((await sel.locator('option').allTextContents()).join('|') === 'Not specified|Maternal aunt|Maternal uncle', '"Child of" lists the maternal aunts and uncles entered');
+  await sel.selectOption({ label: 'Maternal uncle' }); await page.waitForTimeout(100);
+  check(!/not specified/.test(await page.locator('#ped-wrap svg').textContent()), 'choosing the parent moves the cousin under that uncle in the tree');
+  await page.click('#copy');
+  check(/Maternal first cousin 2 \(F\) \[child of Maternal uncle\]/.test(await page.evaluate(() => navigator.clipboard.readText())), 'summary says whose child the cousin is');
+  const [dl2] = await Promise.all([page.waitForEvent('download'), page.click('#save-family')]);
+  const saved2 = JSON.parse(require('fs').readFileSync(await dl2.path(), 'utf8'));
+  const uncle = saved2.people.find(p => p.rel === 'm_uncle'), cz = saved2.people.filter(p => p.rel === 'm_cousin');
+  check(cz.some(c => c.parentId === uncle.id), 'the link is saved in the family file');
+
   console.log('Entry checks');
   await page.goto(BASE); await page.click('#example');
   check(await page.locator('#family .person-warn li').count() === 0, 'no warnings for the example family');
