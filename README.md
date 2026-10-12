@@ -15,6 +15,8 @@ index.html        The app
 assets/style.css  Styles (light/dark, print)
 js/data.js        Knowledge base: sites/histologies, conditions + scoring rules,
                   Test Directory entries, NICPR gene list (June 2026)
+js/criteria.js    Test Directory testing criteria, verbatim (generated from the v9.1 PDF)
+js/eligibility.js Who in the family meets Test Directory criteria
 js/app.js         Scoring engine and UI
 .nojekyll         Serve files as-is (no Jekyll build)
 ```
@@ -73,13 +75,18 @@ Everything clinical lives in `js/data.js`:
 
 ## Test Directory eligibility
 
-`js/eligibility.js` checks who in the family as entered meets the v9.1 criteria for the main inherited cancer tests
-(R207, R208, R210, R211, R212–R219, R221–R225, R367, R430): single-person criteria (e.g. breast cancer under 40,
+`js/eligibility.js` checks who in the family as entered meets the v9.1 criteria for the inherited cancer tests
+(R207, R208, R210–R219, R221–R226, R254, R347, R363–R367, R414, R422, R430, R456, R457): single-person criteria (e.g. breast cancer under 40,
 triple-negative under 60, high-grade ovarian), family patterns (e.g. modified Amsterdam, LFS, renal, PPGL), the
 pathology-adjusted Manchester score (GeNotes table, Evans 2004/2017) and unaffected relatives when no affected relative
 is alive. Results appear in a "Meets Test Directory criteria now" box above the family tree, in the copied summary
-and in the printout. Deceased relatives are flagged as needing stored DNA or tissue. Criteria that need information
-the form does not record (tumour grade, CanRisk, Wimmer score) are not assessed.
+and in the printout. Deceased relatives are flagged as needing stored DNA or tissue. Criteria that fit apart from a detail
+the form does not record are listed as "may meet – check"; others (tumour grade, CanRisk, Wimmer score) are not assessed.
+
+Clicking any test code (results, eligibility box, form tags, family tree, syndrome and gene pages) opens a panel with
+the exact criteria from `js/criteria.js`, linked to the PDF page. `CRIT_REF` in `js/eligibility.js` ties each reason
+to its criterion line, so the lines the family meets (green), may meet (amber) or narrowly misses (grey) are
+highlighted with who and why.
 
 ## Family tree
 

@@ -196,6 +196,8 @@
       const eoc = d => is(d, 'ovary', 'hgsc|lgsc|endometrioid|clearcell|nos');
       if (has(eoc) && !ov.length && (rel(p, eoc, 1).length || rel(p, eoc, 3).filter(b => degree(p, b) >= 2).length >= 2))
         add(p, 'R207', ['epithelial ovarian cancer with a first-degree relative (or ≥2 second/third-degree relatives) with epithelial ovarian cancer']);
+      else if (has(eoc) && !ov.length && rel(p, eoc, 2).some(b => degree(p, b) === 2))
+        add(p, 'R207', ['epithelial ovarian cancer with a second-degree relative with epithelial ovarian cancer – qualifies if the intervening relative has no ovaries or is deceased'], { possible: true });
 
       /* R210 – Lynch syndrome */
       const r210g = [], r210t = [];
@@ -212,6 +214,13 @@
         const lyn = D.filter(LYNCH_SITES);
         const anyCrcEc = [...lyn, ...fam1.map(x => x.d)].some(CRC_EC);
         if (anyCrcEc && lyn.some(d => le(d, 60)) && fam1.some(x => le(x.d, 60)) && !D.some(d => d.mmr)) r210t.push('Lynch-related cancer with a first-degree relative, both 60 or under – tumour MMR/MSI testing');
+      }
+      if (D.some(LYNCH_SITES) && !D.some(d => d.mmr)) {
+        const r3 = relDx(p, LYNCH_SITES, 3), all = [...D.filter(LYNCH_SITES), ...r3.map(x => x.d)];
+        if (all.some(CRC_EC)) {
+          if (new Set(r3.filter(x => le(x.d, 75)).map(x => x.p)).size >= 2 && D.some(d => LYNCH_SITES(d) && le(d, 75))) r210t.push('Lynch-related cancer with ≥2 relatives (up to third-degree) with Lynch-related cancer, all 75 or under – tumour MMR/MSI testing');
+          if (new Set(r3.map(x => x.p)).size >= 3) r210t.push('Lynch-related cancer with ≥3 relatives (up to third-degree) with Lynch-related cancer – tumour MMR/MSI testing');
+        }
       }
       if (r210g.length) add(p, 'R210', r210g);
       if (r210t.length && !r210g.length) add(p, 'R210', r210t, { tumourFirst: true });
@@ -291,6 +300,14 @@
       if (pot.length >= 2 && !pot.every(d => is(d, 'skin', 'melanoma'))) r216.push('two POT1-associated cancers (POT1)');
       else if (pot.length && relDx(p, POT1, 2).some(x => !(is(x.d, 'skin', 'melanoma') && pot.every(d => is(d, 'skin', 'melanoma'))))) r216.push('POT1-associated cancer with a first/second-degree relative with one (POT1)');
       if (r216.length) add(p, 'R216', [...new Set(r216)]);
+      else {
+        const q = [];
+        D.forEach(d => {
+          if (is(d, 'sarcoma', 'osteo') && lt(d, 18)) q.push(`osteosarcoma under 18 – qualifies if jaw osteosarcoma (${histText(d)})`);
+          if ((is(d, 'sarcoma', 'rms') || is(d, 'cervix', 'erms')) && !le(d, 5)) q.push(`rhabdomyosarcoma – qualifies if embryonal anaplastic subtype (${histText(d)})`);
+        });
+        if (q.length) add(p, 'R216', q, { possible: true });
+      }
 
       /* R217 – endocrine neoplasia (MEN1, FIPA) and R218 – MEN2 */
       const r217 = [], men1 = D.filter(MEN1E);
@@ -578,10 +595,108 @@
     // Deceased affected people need stored DNA or tissue.
     for (const o of out) if (o.person.deceased && !o.unaffected) o.deceased = true;
     // Germline R210 supersedes "tumour testing first" for the same person.
-    return out.filter(o => !(o.test === 'R210' && o.tumourFirst && out.some(x => x.person === o.person && x.test === 'R210' && !x.tumourFirst)));
+    const res = out.filter(o => !(o.test === 'R210' && o.tumourFirst && out.some(x => x.person === o.person && x.test === 'R210' && !x.tumourFirst)));
+    for (const o of res) o.crit = o.text.map(t => critFor(o.test, t));
+    return res;
+  }
+
+
+  /* ---- Which line of the Test Directory criteria (TD_CRITERIA, verbatim) each reason relates to ----
+   * [pattern on the reason text, start of the criterion's wording]; the first match wins. */
+  const CRIT_REF = {
+    R207: [[/^epithelial ovarian cancer with a second/, 'second degree relative with EOC'], [/^epithelial ovarian cancer with/, 'Epithelial ovarian cancer (EOC) OR serous tubal intraepithelial carcinoma (STIC) AND'], [/ovarian cancer/, 'High grade non mucinous']],
+    R208: [[/^unaffected/, 'Living unaffected individual with'], [/^prostate cancer with/, 'Living affected individual with prostate cancer'], [/^pancreatic cancer with/, 'Living affected individual with pancreatic cancer'],
+      [/^breast cancer under 40/, 'Breast cancer (age <40'], [/^bilateral breast/, 'Bilateral breast cancer'], [/^triple-negative/, 'Triple negative breast cancer'], [/^male breast/, 'Assigned male at birth'],
+      [/^breast cancer under 45/, 'Breast cancer (age <45'], [/Manchester score/, 'Combined pathology-adjusted Manchester score'], [/^Ashkenazi/, 'Ashkenazi Jewish ancestry and breast'], [/DCIS/, '*Breast cancer definition']],
+    R210: [[/^unaffected/, 'Clinical Criteria for germline testing in an unaffected'], [/Amsterdam/, 'modified Amsterdam criteria positive family'], [/^MMR-deficient|^MLH1-deficient|^MLH1 loss/, 'The proband has a dMMR tumour'],
+      [/^MSI-high/, 'Clinical criteria for MSI /IHC testing'], [/under 50/, 'Any lynch-related cancer'], [/^two Lynch/, 'Two Lynch-related cancers'], [/first-degree relative, both 60/, 'Lynch-related cancer and ≥ 1 first degree relative'],
+      [/≥2 relatives/, 'Lynch-related cancer and ≥ 2 relatives'], [/≥3 relatives/, 'Lynch-related cancer and ≥ 3 relatives']],
+    R211: [[/^small/, 'Any small bowel cancer'], [/cancer under 40/, 'Any colorectal cancer OR endometrial'], [/siblings/, 'with ≥2 siblings'], [/^≥5 adenomas with colorectal/, '≥5 adenomatous polyps and colorectal'],
+      [/^≥5 adenomas under 40/, '≥5 adenomatous polyps (age <40'], [/^≥10 adenomas/, '≥10 adenomatous polyps'], [/^≥20 adenomas/, '≥20 adenomatous polyps'], [/^≥5 adenomas under 60/, '≥5 adenomatous polyps (age <60'],
+      [/^≥2 hamartomatous/, '≥ 2 hamartomatous polyps'], [/^hamartomatous polyp with/, '≥ 1 hamartomatous polyp and']],
+    R212: [[/^≥2 Peutz/, '≥2 PJS-type hamartomatous'], [/^SCTAT or adenoma malignum \(Cervix/, 'Adenoma malignum of the cervix'], [/^SCTAT/, 'Sex cord tumours with annular tubules'], [/with characteristic pigmentation/, '≥1 PJS-type hamartomatous polyp and characteristic'],
+      [/pigmentation under 10/, 'Characteristic mucocutaneous pigmentation age <10'], [/relative with a PJS/, '≥1 PJS-type hamartomatous polyp, AND']],
+    R213: [[/Lhermitte/, 'Cerebellar dysplastic gangliocytoma'], [/major criterion/, 'Macrocephaly AND ≥1 major'], [/mucocutaneous/, 'Macrocephaly AND Mucocutaneous']],
+    R214: [[/./, '≥ 1 major OR']],
+    R215: [[/^diffuse gastric cancer under 50/, 'Diffuse gastric cancer (<50'], [/cleft/, 'cleft lip or cleft palate'], [/both under 70/, 'double primary diffuse gastric'], [/^diffuse gastric cancer with a first/, 'diffuse gastric cancer at any age and ≥ 1 FDR/SDR with diffuse'],
+      [/^lobular breast cancer with/, 'Lobular breast cancer and ≥1 FDR/SDR'], [/^bilateral lobular/, 'Bilateral lobular breast cancer'], [/two lobular/, 'Two or more cases of lobular']],
+    R216: [[/jaw osteosarcoma/, 'Jaw osteosarcoma'], [/anaplastic/, 'Rhabdomyosarcoma of embryonal anaplastic'], [/^rhabdomyosarcoma at 5/, 'Rhabdomyosarcoma (≤ 5'], [/^adrenocortical/, 'Adrenocortical cancer'], [/^choroid/, 'Choroid plexus cancer'],
+      [/^breast cancer at 30/, 'Breast cancer (≤ 30'], [/^HER2/, 'HER2 positive breast cancer'], [/^hypodiploid/, 'Hypodiploid acute'], [/^SHH/, 'SHH medulloblastoma'], [/^two LFS/, '≥2 LFS-related cancers'],
+      [/^LFS-related cancer with/, '≥1 LFS-related cancer with'], [/classic LFS/, 'Cancer with ≥2 first / second degree relatives'], [/^two POT1/, 'Proband with personal history of 2 or more POT1'], [/^POT1/, 'Proband with POT1 associated cancer']],
+    R217: [[/under 20/, 'Any pituitary adenoma or insulinoma'], [/macroadenoma/, 'Pituitary macroadenoma'], [/multiglandular/, 'Parathyroid multiglandular disease'], [/two or more/, '≥2 MEN1-related endocrine'],
+      [/non-endocrine/, 'MEN1-related non-endocrine tumours (any age)'], [/FIPA/, 'Isolated pituitary adenoma developing'], [/first-degree relative/, '≥1 MEN1-related endocrine abnormality and a first degree']],
+    R218: [[/^medullary/, 'MTC (any age)'], [/two or more/, '≥2 MEN2-related'], [/first-degree/, '≥1 MEN2-related endocrine abnormality and a first']],
+    R219: [[/./, 'Testing of phenotypically affected individual where the proband has Retinoblastoma']],
+    R221: [[/^bilateral vestibular/, 'Bilateral vestibular schwannomas'], [/^schwannoma under 30/, 'Schwannoma diagnosed <30'], [/^meningioma under 20/, 'Meningioma diagnosed < 20'], [/clear cell/, 'Any clear Cell Meningioma'],
+      [/^vestibular schwannoma with/, 'Unilateral vestibular schwannoma and non-intradermal'], [/^meningioma with/, 'Meningioma AND one or more']],
+    R222: [[/./, 'Clinical diagnosis of NF1']],
+    R223: [[/^phaeochromocytoma under 60/, 'Phaeochromocytoma <60'], [/^paraganglioma/, 'Any paraganglioma'], [/^bilateral/, 'Bilateral phaeochromocytoma'], [/renal cell/, 'Phaeochromocytoma and renal cell'], [/relative/, 'AND ≥1 relative']],
+    R224: [[/at 46/, 'Renal cancer (≤ 46'], [/FH- or SDH/, 'FH deficient/HLRCC'], [/bilateral/, 'Bilateral/multifocal renal'], [/relative/, 'A renal cancer AND first degree relative'], [/syndromic/, 'Renal tumour and features of inherited']],
+    R225: [[/^haemangioblastoma/, 'Cerebellar OR spinal haemangioblastoma'], [/^endolymphatic/, 'Retinal angioma, spinal or endolymphatic'], [/two or more/, '≥2 VHL-related tumours'], [/first-degree/, '≥1 VHL-related tumour and a first']],
+    R226: [[/./, 'Testing of individual (proband) affected with parathyroid carcinoma']],
+    R254: [[/under 18/, '≥1 melanoma < 18'], [/^≥2 melanomas \(or in situ\) under 30/, '≥2 melanomas and/or melanomas in situ age <30'], [/^melanoma under 30 with/, 'One melanoma <30 years AND'], [/^≥3 melanomas/, '≥3 melanoma and/or'],
+      [/across/, 'Total of ≥3 melanoma across'], [/^≥2 melanomas with/, '≥ 2 Melanoma and/or melanoma in situ AND'], [/atypical moles/, 'AND atypical moles']],
+    R347: [[/relative/, 'AML/MDS AND ≥1 relative'], [/platelet/, 'AML/MDS AND a pre-existing']],
+    R363: [[/under 50/, 'Diagnosed age before age 50'], [/relative/, 'With ≥1 relative']],
+    R364: [[/^two DICER1|with a first-degree relative/, 'Testing of affected individual where there is a combination of two'], [/./, 'Testing of affected individual (proband) where the individual has one of the following diagnoses']],
+    R365: [[/^type 2/, 'Type 2 papillary'], [/and a renal tumour|with cutaneous leiomyomata or a renal/, 'Two of: cutaneous leiomyomata'], [/relative \(up to third-degree\) with a renal/, 'Cutaneous leiomyomata AND one first'],
+      [/two relatives/, 'Cutaneous leiomyomata AND two first'], [/multiple/, 'Multiple cutaneous leiomyomata'], [/under 40/, 'Uterine leiomyomata with classic histological features (age <40']],
+    R366: [[/with ALL$/, 'One first / second / third degree relative with ALL'], [/two relatives/, 'Two first / second / third degree relatives']],
+    R367: [[/^pancreatic cancer under 60/, 'Pancreatic cancer age <60'], [/own breast/, 'Breast cancer age <60, melanoma age <60, OR ovarian cancer, OR'], [/relative with pancreatic cancer under 60/, 'One first / second degree relative with pancreatic'], [/≥2/, 'Two or more first / second degree relatives']],
+    R414: [[/CHRPE/, 'Multifocal or bilateral CHRPE'], [/desmoid/, 'Aggressive fibromatosis'], [/cribriform/, 'Cribriform-morular'], [/^hepatoblastoma/, 'Hepatoblastoma'], [/osteomas/, 'Multiple osteomas'], [/gastric polyposis/, 'Affected individual of any age with gastric polyposis'],
+      [/medulloblastoma/, 'Classic type medulloblastoma'], [/^≥6/, '≥6 pilomatrixomas'], [/^≥2 pilomatrixomas/, '≥2 pilomatrixoma <20'], [/another APC/, 'Single pilomatrixoma in an individual'], [/epidermoid/, 'Pilomatrixoma with features of an epidermoid']],
+    R422: [[/core BAP1 tumours/, 'Individual with a personal history of two or more core'], [/melanocytic/, 'Individual with a personal history of two or more inactivated'], [/first-degree/, 'Individual with a personal history of a BAP1 associated tumour and a first'],
+      [/mesothelioma/, 'Individual with mesothelioma'], [/uveal/, 'Individual with uveal melanoma']],
+    R430: [[/under 50/, 'Proband diagnosed with prostate cancer at <50'], [/metastatic/, 'Proband diagnosed with metastatic prostate'], [/Ashkenazi/, 'Ashkenazi Jewish ancestry and prostate']],
+    R456: [[/^Wilms/, 'Wilms tumour, multiple nephrogenic'], [/^bilateral or multiple neuroblastoma/, 'Bilateral neuroblastoma'], [/relative \(up to third-degree\) with neuroblastoma/, 'One or more FDR/SDR/TDR with neuroblastoma'],
+      [/^neuroblastoma with Hirschsprung/, "Hirschsprung's or FDR"], [/^neuroblastoma/, 'Neuroblastoma'], [/medulloblastoma/, 'Medulloblastoma <25'], [/teratoid|small cell/, 'Atypical teratoid/rhabdoid tumour']],
+    R457: [[/sarcoma under 25/, 'Translocation negative sarcoma'], [/^MPNST/, 'Malignant peripheral nerve sheath'], [/^chordoma under 25/, 'Chordoma <25'], [/multiple primary/, 'Multiple primary sarcomas'], [/^sarcoma with/, 'Sarcoma and one or more FDR/SDR'],
+      [/multiple chordomas/, 'Multiple chordomas'], [/^chordoma with/, 'Chordoma and one or more']]
+  };
+  const critFor = (test, text) => ((CRIT_REF[test] || []).find(([re]) => re.test(text)) || [])[1] || null;
+
+  /* ---- Near misses: a threshold just missed (shown in the criteria panel only) ---- */
+  function nearMisses(people, met) {
+    const out = [];
+    const has = (p, test) => met.some(o => o.person === p && o.test === test && !o.possible);
+    const near = (p, test, text, crit) => { if (!has(p, test) && !out.some(o => o.person === p && o.test === test && o.text[0] === text)) out.push({ person: p, test, text: [text], crit: [crit], near: true }); };
+    const by = (d, lo, hi) => age(d) !== null && age(d) >= lo && age(d) <= hi;
+    for (const p of people) {
+      for (const d of dxs(p)) {
+        const at = `at ${age(d)}`;
+        if (isBreast(d) && by(d, 40, 44)) near(p, 'R208', `breast cancer ${at} – the age criterion is under 40`, 'Breast cancer (age <40');
+        if (isBreast(d) && PRED.tnbc(d) && by(d, 60, 64)) near(p, 'R208', `triple-negative breast cancer ${at} – the criterion is under 60`, 'Triple negative breast cancer');
+        if (isBreast(d) && d.bilat && by(d, 60, 64)) near(p, 'R208', `bilateral breast cancer ${at} – the criterion is under 60`, 'Bilateral breast cancer');
+        if (isBreast(d) && by(d, 31, 35)) near(p, 'R216', `breast cancer ${at} – the LFS criterion is 30 or under`, 'Breast cancer (≤ 30');
+        if ((CRC_EC(d) || is(d, 'smallbowel')) && by(d, 40, 44)) near(p, 'R211', `${SITES[d.site].label.split(' ')[0].toLowerCase()} cancer ${at} – the criterion is under 40`, is(d, 'smallbowel') ? 'Any small bowel cancer' : 'Any colorectal cancer OR endometrial');
+        if (LYNCH_SITES(d) && !['pancreas', 'prostate', 'stomach'].includes(d.site) && by(d, 50, 54)) near(p, 'R210', `Lynch-related cancer ${at} – tumour testing criterion is under 50`, 'Any lynch-related cancer');
+        if (is(d, 'pancreas', 'pdac|acinar|nos') && by(d, 60, 64)) near(p, 'R367', `pancreatic cancer ${at} – the criterion is under 60`, 'Pancreatic cancer age <60');
+        if (is(d, 'prostate') && by(d, 50, 54)) near(p, 'R430', `prostate cancer ${at} – the criterion is under 50`, 'Proband diagnosed with prostate cancer at <50');
+        if (RENAL(d) && by(d, 47, 51)) near(p, 'R224', `renal cancer ${at} – the criterion is 46 or under`, 'Renal cancer (≤ 46');
+        if (is(d, 'adrenal', 'phaeo') && by(d, 60, 64)) near(p, 'R223', `phaeochromocytoma ${at} – the criterion is under 60`, 'Phaeochromocytoma <60');
+        if (is(d, 'cns', 'hb') && by(d, 60, 64)) near(p, 'R225', `haemangioblastoma ${at} – the criterion is under 60`, 'Cerebellar OR spinal haemangioblastoma');
+        if (is(d, 'stomach', 'diffuse') && by(d, 50, 54)) near(p, 'R215', `diffuse gastric cancer ${at} – the criterion is under 50`, 'Diffuse gastric cancer (<50');
+        if (is(d, 'skin', 'melanoma') && by(d, 18, 21)) near(p, 'R254', `melanoma ${at} – the criterion is under 18`, '≥1 melanoma < 18');
+        if (is(d, 'sarcoma', 'gist') && by(d, 50, 54)) near(p, 'R363', `GIST ${at} – the criterion is under 50`, 'Diagnosed age before age 50');
+        if (is(d, 'eye', 'uveal') && by(d, 40, 44)) near(p, 'R422', `uveal melanoma ${at} – the criterion is under 40`, 'Individual with uveal melanoma');
+        if (is(d, 'sarcoma', 'rms|osteo|sts|lms|mpnst|chondrosarcoma|angiosarcoma|chordoma') && by(d, 25, 29)) near(p, 'R457', `${SITES[d.site].hist.find(h => h[0] === d.hist)[1].toLowerCase()} ${at} – the criterion is under 25`, is(d, 'sarcoma', 'chordoma') ? 'Chordoma <25' : 'Translocation negative sarcoma');
+        if (is(d, 'polyps', 'adenoma')) {
+          const n = +d.count || 0, a = age(d);
+          if (a !== null && a < 60 && n >= 7 && n < 10) near(p, 'R211', `${n} adenomas at ${a} – the criterion is ≥10 under 60`, '≥10 adenomatous polyps');
+          if (a !== null && a >= 60 && n >= 15 && n < 20) near(p, 'R211', `${n} adenomas at ${a} – the criterion is ≥20 at 60 or over`, '≥20 adenomatous polyps');
+        }
+      }
+      if (dxs(p).some(d => isBreast(d) || is(d, 'ovary', 'hgsc|clearcell'))) {
+        const m = manchester(p, people);
+        if ((m.combined >= 12 && m.combined < 15) || ((m.b1 === 8 || m.b1 === 9 || m.b2 === 8 || m.b2 === 9) && m.combined < 15)) near(p, 'R208', `Manchester score ${m.combined} (BRCA1 ${m.b1}, BRCA2 ${m.b2}) – needs 15 combined or 10 for one gene; consider CanRisk (≥10%)`, 'Combined pathology-adjusted Manchester score');
+      }
+    }
+    return out;
   }
 
   window.checkEligibility = check;
+  window.CRIT_REF = CRIT_REF;
+  window.nearMisses = (people, ancestry) => nearMisses(people, check(people, ancestry));
   window.manchesterScore = manchester;
   window.relDegree = degree;
 })();

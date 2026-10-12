@@ -190,8 +190,11 @@
   function testChip(key) {
     const t = TESTS[key];
     const part = t.part ? `Part ${t.part}: ` : '';
-    return `<span class="test-chip" title="${esc(part + t.name)}">${esc(t.code)} · ${esc(t.name)}</span>`;
+    return `<button type="button" class="test-chip test-link" data-test="${esc(key)}" title="${esc(part + t.name)} – show the criteria">${esc(t.code)} · ${esc(t.name)}</button>`;
   }
+  // A test code that opens the criteria panel.
+  const testBtn = (key, cls = 'code-sm', label = key, note = '') =>
+    `<button type="button" class="${cls} test-link" data-test="${esc(key)}" title="${esc(TESTS[key].name)}${note} – show the criteria">${esc(label)}</button>`;
 
   const link = (label, url) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a>`;
 
@@ -472,7 +475,7 @@
       <ul class="evidence">${r.evidence.map(evidenceLine).join('')}</ul>
       ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
       ${founderNote(c).map(([t, src]) => `<p class="note founder"><strong>Ashkenazi Jewish ancestry:</strong> ${esc(t)} <span class="ev-src">${evLinks(src)}</span></p>`).join('')}
-      <p class="tests-line small">Tests: ${c.tests.map(k => `<span class="code-sm" title="${esc(TESTS[k].name)}">${esc(TESTS[k].code)}</span>`).join(' ') || 'none listed'}</p>
+      <p class="tests-line small">Tests: ${c.tests.map(k => testBtn(k)).join(' ') || 'none listed'}</p>
       <details><summary>All associations</summary><ul class="assoc">${associationsHtml(c)}</ul></details>
       <details><summary>Leaflets &amp; sources</summary>${sourcesHtml(c)}</details>
       <a class="small syn-open" href="#syndrome=${c.id}">Open syndrome page →</a>
@@ -500,7 +503,7 @@
       ${list.map(([key, info]) => {
         const t = TESTS[key];
         return `<article class="test">
-          <h3><span class="code">${esc(t.code)}</span> ${esc(t.name)}${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}</h3>
+          <h3>${testBtn(key, 'code')} ${esc(t.name)}${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}</h3>
           <p class="muted">Genes: ${esc(t.genes)}${t.panel ? ` · ${link('PanelApp ' + t.panel, PANELAPP(t.panel))}` : ''}</p>
           <p class="muted">For: ${info.conds.map(c => esc(c.name)).join('; ')}</p>
           <details open><summary>Eligibility criteria</summary><ul>${t.criteria.map(c => `<li>${esc(c)}</li>`).join('')}</ul></details>
@@ -655,8 +658,8 @@
       if (st) n.lines.push({ t: st, cls: 'ped-l ped-hist' });
       const e = elig.get(n.p.id) || { meets: [], maybe: [] };
       n.elig = e.meets;
-      if (e.meets.length) n.lines.push({ t: `Meets ${e.meets.join(', ')}`, cls: 'ped-l ped-elig' });
-      if (e.maybe.length) n.lines.push({ t: `May meet ${e.maybe.join(', ')}`, cls: 'ped-l ped-maybe' });
+      if (e.meets.length) n.lines.push({ t: `Meets ${e.meets.join(', ')}`, cls: 'ped-l ped-elig', pre: 'Meets ', codes: e.meets });
+      if (e.maybe.length) n.lines.push({ t: `May meet ${e.maybe.join(', ')}`, cls: 'ped-l ped-maybe', pre: 'May meet ', codes: e.maybe });
       const dxs = n.p.dx.filter(d => d.site && d.hist);
       n.affected = dxs.length > 0;
       n.hit = dxs.some(d => hitDx.has(d.id));
@@ -704,7 +707,7 @@
       const shape = n.sex === 'M' ? `<rect class="${cls}" x="${x - S / 2}" y="${top}" width="${S}" height="${S}"/>`
         : n.sex === 'F' ? `<circle class="${cls}" cx="${x}" cy="${c}" r="${S / 2}"/>`
         : `<path class="${cls}" d="M${x} ${top - 1}L${x + S / 2 + 1} ${c}L${x} ${top + S + 1}L${x - S / 2 - 1} ${c}Z"/>`;
-      const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${esc(l.t)}</text>`).join('');
+      const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${l.codes ? esc(l.pre) + l.codes.map(c => `<tspan class="ped-test" data-test="${esc(c.replace('*', ''))}">${esc(c)}</tspan>`).join(', ') : esc(l.t)}</text>`).join('');
       const arrow = n.proband ? pedArrow(x - S / 2 - 24, top - 8, x - S / 2 - 1, top + 9) : '';
       const ring = n.elig && n.elig.length ? `<rect class="ped-elig-ring" x="${x - S / 2 - 5}" y="${top - 5}" width="${S + 10}" height="${S + 10}" rx="${n.sex === 'F' ? S / 2 + 5 : 4}"/>` : '';
       const slash = n.p && n.p.deceased ? `<line class="ped-dead" x1="${x - S / 2 - 5}" y1="${top + S + 5}" x2="${x + S / 2 + 5}" y2="${top - 5}"/>` : '';
@@ -827,10 +830,66 @@
     const m = eligByPerson();
     document.querySelectorAll('[data-elig-for]').forEach(el => {
       const e = m.get(+el.dataset.eligFor) || { meets: [], maybe: [] };
-      const chip = (c, cls, extra) => `<span class="code-sm ${cls}" title="${esc(TESTS[c.replace('*', '')].name)}${c.endsWith('*') ? ' – tumour testing first' : ''}${extra}">${c}</span>`;
+      const chip = (c, cls, extra) => testBtn(c.replace('*', ''), `code-sm ${cls}`, c, `${c.endsWith('*') ? ' – tumour testing first' : ''}${extra}`);
       el.innerHTML = [e.meets.length ? `Meets criteria: ${e.meets.map(c => chip(c, 'elig-code', '')).join(' ')}` : '',
         e.maybe.length ? `<span class="maybe">May meet: ${e.maybe.map(c => chip(c, 'elig-code maybe-code', ' – check an unrecorded detail')).join(' ')}</span>` : ''].filter(Boolean).join(' · ');
     });
+  }
+
+  /* ---- Criteria panel: the exact Test Directory wording for a test, with the family's matches highlighted ---- */
+  function critIndex(tc, snip) {
+    if (!tc || !snip) return -1;
+    const i = tc.items.findIndex(x => x[2].startsWith(snip));
+    return i >= 0 ? i : tc.items.findIndex(x => x[2].includes(snip));
+  }
+  const KIND = { met: ['Meets now', '✓'], maybe: ['May meet – check', '?'], near: ['Near miss', '–'] };
+  function criteriaHtml(code) {
+    const t = TESTS[code], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA[code] : null;
+    const entries = [
+      ...checkEligibility(state.people, state.ancestry).filter(o => o.test === code).map(o => ({ o, kind: o.possible ? 'maybe' : 'met' })),
+      ...nearMisses(state.people, state.ancestry).filter(o => o.test === code).map(o => ({ o, kind: 'near' }))];
+    const hits = new Map(), loose = [];
+    for (const { o, kind } of entries) o.text.forEach((text, i) => {
+      const h = { p: o.person, text, kind, tag: kind === 'met' ? eligTag(o) : '' };
+      const idx = critIndex(tc, o.crit && o.crit[i]);
+      if (idx >= 0) { if (!hits.has(idx)) hits.set(idx, []); hits.get(idx).push(h); } else loose.push(h);
+    });
+    const rank = { met: 0, maybe: 1, near: 2 };
+    const who = h => `<li class="who-${h.kind}"><span aria-hidden="true">${KIND[h.kind][1]}</span> <strong>${esc(personLabel(h.p))}</strong>${h.p.deceased ? ' (deceased)' : ''} – ${abbrHtml(h.text)}${h.tag ? ` <span class="elig-tag">${esc(h.tag)}</span>` : ''}</li>`;
+    const all = [...hits.values()].flat().concat(loose);
+    const family = state.people.some(p => p.dx.some(d => d.site && d.hist));
+    const summary = !family ? '<p class="small muted">Enter a family on the Assess tab to see who meets these criteria.</p>'
+      : !all.length ? '<p class="small">No one in the family as entered meets these criteria (as far as can be judged from what is recorded).</p>'
+      : ['met', 'maybe', 'near'].filter(k => all.some(h => h.kind === k)).map(k => `<h4 class="hit-${k}">${KIND[k][0]}</h4><ul class="crit-hits">${all.filter(h => h.kind === k).map(who).join('')}</ul>`).join('');
+    const items = tc ? `<ol class="crit-list">${tc.items.map(([lv, mk, text], i) => {
+      const hs = (hits.get(i) || []).sort((a, b) => rank[a.kind] - rank[b.kind]);
+      return `<li class="lv${lv}${hs.length ? ` hit hit-${hs[0].kind}` : ''}"${hs.length ? ` id="crit-hit-${i}"` : ''}>${mk ? `<span class="crit-mk">${esc(mk)}</span> ` : ''}${esc(text)}${hs.length ? `<ul class="crit-hits">${hs.map(who).join('')}</ul>` : ''}</li>`;
+    }).join('')}</ol>` : `<ul>${t.criteria.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="small muted">Summary only – see the PDF for the exact wording.</p>`;
+    return `<header class="crit-head">
+        <h2><span class="code">${esc(code)}</span> ${esc(t.name)}</h2>
+        <button type="button" class="crit-close" data-close aria-label="Close">×</button>
+      </header>
+      <p class="small muted">Genes: ${esc(t.genes)}${t.panel ? ` · ${link('PanelApp ' + t.panel, PANELAPP(t.panel))}` : ''} ·
+        ${link(`Test Directory v9.1${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))}</p>
+      <section class="crit-family"><h3>This family</h3>${summary}</section>
+      <section><h3>Testing criteria${tc ? ' (exact wording)' : ''}</h3>${items}</section>
+      <p class="small muted">Highlighted: green = met now, amber = may meet (check the detail named), grey = near miss. Judged only from what has been entered; the Test Directory always takes precedence.</p>`;
+  }
+  function openCriteria(code) {
+    if (!TESTS[code]) return;
+    let dlg = $('#crit-dialog');
+    if (!dlg) {
+      dlg = document.createElement('dialog');
+      dlg.id = 'crit-dialog'; dlg.setAttribute('aria-labelledby', 'crit-title');
+      document.body.append(dlg);
+      dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+    }
+    dlg.innerHTML = criteriaHtml(code);
+    dlg.querySelector('h2').id = 'crit-title';
+    if (!dlg.open) dlg.showModal();
+    const first = dlg.querySelector('.crit-list li.hit');
+    dlg.scrollTop = 0;
+    if (first) first.scrollIntoView({ block: 'center' });
   }
 
   /* ---- Who meets Test Directory criteria now (js/eligibility.js) ---- */
@@ -871,7 +930,7 @@
     const list = eligibilityList(), maybe = eligibilityList(true);
     const ams = amsterdamHtml();
     const people = l => `<ul>${l.map(([p, os]) => `<li><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}
-        <ul>${os.map(o => `<li><span class="code-sm" title="${esc(TESTS[o.test].name)}">${o.test}</span> ${esc(TESTS[o.test].name)}${eligTag(o) && !o.possible ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
+        <ul>${os.map(o => `<li>${testBtn(o.test)} ${esc(TESTS[o.test].name)}${eligTag(o) && !o.possible ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
           <div class="small muted">${o.text.map(t => abbrHtml(t)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>`;
     const maybeHtml = maybe.length ? `<div class="elig-maybe"><h4>May meet – check an unrecorded detail</h4>${people(maybe)}</div>` : '';
     if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>${ams}
@@ -1065,7 +1124,7 @@
     return keys.map(k => {
       const t = TESTS[k];
       return `<div class="test">
-        <h4><span class="code">${esc(t.code)}</span> ${esc(t.name)}${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}</h4>
+        <h4>${testBtn(k, 'code')} ${esc(t.name)}${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}</h4>
         <p class="muted">Genes: ${esc(t.genes)}${t.panel ? ` · ${link('PanelApp ' + t.panel, PANELAPP(t.panel))}` : ''}</p>
         <ul>${t.criteria.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
     }).join('');
@@ -1528,6 +1587,13 @@
       state.printFull = false; renderResults();
       const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; state.treeOpen = pedWasOpen; pedWasOpen = null; }
     });
+    // Test codes open the criteria panel.
+    document.addEventListener('click', e => {
+      const b = e.target.closest && e.target.closest('[data-test]');
+      if (!b || b.closest('#crit-dialog')) return;
+      e.preventDefault(); e.stopPropagation();
+      openCriteria(b.dataset.test);
+    }, true);
     // Abbreviations: marked everywhere as content renders; the meaning shows at once in a tooltip on hover or tap.
     const tip = document.createElement('div');
     tip.id = 'abbr-tip'; tip.className = 'no-abbr'; tip.setAttribute('role', 'tooltip'); tip.hidden = true;

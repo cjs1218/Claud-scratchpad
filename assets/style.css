@@ -477,3 +477,32 @@ body.compact-head .gh-link { margin-top: 0; padding: 3px 8px; }
 .elig-maybe { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); }
 .elig-maybe h4 { margin: 0 0 6px; font-size: 0.92rem; color: var(--warn-fg); }
 .elig-maybe > ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+
+/* Test codes open the criteria panel */
+button.test-link { cursor: pointer; line-height: inherit; }
+button.code-sm.test-link, button.code.test-link { appearance: none; }
+button.code-sm.test-link { background: var(--card); }
+button.code.test-link { border: 0; }
+button.test-chip.test-link { background: var(--card); color: inherit; font-family: inherit; }
+button.test-link:hover, button.test-link:focus-visible { text-decoration: underline; outline: 2px solid var(--focus, #ffeb3b); outline-offset: 1px; }
+.ped-test { cursor: pointer; text-decoration: underline; }
+#crit-dialog { width: min(760px, calc(100vw - 24px)); max-height: calc(100vh - 32px); padding: 0 18px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text, inherit); overflow: auto; }
+#crit-dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+.crit-head { position: sticky; top: 0; z-index: 1; display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; background: var(--card); padding: 14px 0 8px; border-bottom: 1px solid var(--border); }
+.crit-head h2 { margin: 0; font-size: 1.15rem; }
+.crit-close { font-size: 1.5rem; line-height: 1; border: 0; background: none; cursor: pointer; padding: 0 4px; color: inherit; }
+#crit-dialog h3 { font-size: 1rem; margin: 14px 0 6px; }
+#crit-dialog h4 { font-size: 0.9rem; margin: 8px 0 4px; }
+.crit-family { border: 1px solid var(--border); border-radius: 4px; padding: 4px 12px 8px; }
+.crit-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.crit-list li { padding: 3px 8px; border-left: 4px solid transparent; border-radius: 3px; }
+.crit-list .lv1 { margin-left: 22px; } .crit-list .lv2 { margin-left: 44px; } .crit-list .lv3 { margin-left: 66px; }
+.crit-mk { font-weight: 700; }
+.crit-list li.hit-met { background: color-mix(in srgb, #007f3b 12%, var(--card)); border-left-color: #007f3b; }
+.crit-list li.hit-maybe { background: var(--warn-bg); border-left-color: var(--warn-edge); }
+.crit-list li.hit-near { background: color-mix(in srgb, var(--muted) 12%, var(--card)); border-left-color: var(--muted); }
+.crit-hits { list-style: none; padding: 0; margin: 4px 0 0; font-size: 0.85rem; display: grid; gap: 2px; }
+.crit-hits .who-met > span, h4.hit-met { color: #007f3b; }
+.crit-hits .who-maybe > span, h4.hit-maybe { color: var(--warn-fg); }
+.crit-hits .who-near > span, h4.hit-near { color: var(--muted); }
+@media print { #crit-dialog { display: none; } }
