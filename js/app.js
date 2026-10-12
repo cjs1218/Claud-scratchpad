@@ -301,7 +301,7 @@
       for (const m of site.markers || []) {
         if (m === 'count') {
           markers += `<label class="mk">Number<input type="number" min="0" inputmode="numeric" data-f="count" value="${esc(dx.count)}" placeholder="n"></label>`;
-        } else {
+        } else if (showMarker(m, dx)) {
           const mo = MARKER_OPTIONS[m];
           markers += `<label class="mk">${abbrHtml(mo.label)}<select data-f="${m}">${optionList(mo.opts, dx[m])}</select></label>`;
         }
@@ -410,9 +410,10 @@
       if (f === 'hist') {
         if (!sideOptions(dx)) { dx.side = ''; dx.age2 = ''; }
         if (!isCounted(dx) && dx.site !== 'polyps') dx.count = '';
+        if (!showMarker('ovgrade', dx)) dx.ovgrade = '';
         // Show or hide the Side / Number boxes when the histology changes which apply.
         const box = el.closest('.dx');
-        if (!!box.querySelector('[data-f=side]') !== !!sideOptions(dx) || (!!box.querySelector('[data-f=count]') !== (isCounted(dx) || dx.site === 'polyps'))) { renderFamily(); renderResults(); return; }
+        if (!!box.querySelector('[data-f=side]') !== !!sideOptions(dx) || (!!box.querySelector('[data-f=ovgrade]') !== (dx.site === 'ovary' && showMarker('ovgrade', dx))) || (!!box.querySelector('[data-f=count]') !== (isCounted(dx) || dx.site === 'polyps'))) { renderFamily(); renderResults(); return; }
       }
       if (f === 'hist') {
         const box = el.closest('.dx'), old = box.querySelector('.abbr-hint');

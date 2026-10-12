@@ -161,6 +161,7 @@ const MARKER_OPTIONS = {
   her2: { label: 'HER2', opts: [['', 'Unknown'], ['pos', 'Pos'], ['neg', 'Neg']] },
   grade: { label: 'Grade', opts: [['', 'Unknown'], ['1', '1 (low)'], ['2', '2 (intermediate)'], ['3', '3 (high)']] },
   ovgrade: { label: 'Grade', opts: [['', 'Unknown'], ['low', 'Low grade'], ['high', 'High grade']] },
+  // Ovarian grade is asked only where the histology does not already give it (endometrioid, epithelial type unknown).
   mmr: { label: 'MMR / MSI', opts: [['', 'Not done'], ['intact', 'IHC intact'],
     ['mlh1', 'Loss MLH1 + PMS2'], ['msh2', 'Loss MSH2 + MSH6'], ['msh6', 'Loss MSH6 only'],
     ['pms2', 'Loss PMS2 only'], ['msi', 'MSI-high (no IHC)'], ['mss', 'MSS (no IHC)']] },
@@ -191,6 +192,8 @@ const SIDE_LABELS = {
 };
 const COUNTED = { skin: '*', sarcoma: '*', feature: 'bimt|cutleio|pilomatrixoma', cns: 'schwannoma|meningioma|meningioma_cc' };
 const sideOptions = d => { const l = LATERALITY[d.site]; return l && (l[0] === '*' || l[0].split('|').includes(d.hist)) ? l[1] : null; };
+const MARKER_HISTS = { ovgrade: ['endometrioid', 'nos'] };
+const showMarker = (m, d) => !MARKER_HISTS[m] || MARKER_HISTS[m].includes(d.hist);
 const isCounted = d => !!COUNTED[d.site] && (COUNTED[d.site] === '*' || COUNTED[d.site].split('|').includes(d.hist));
 
 /*
