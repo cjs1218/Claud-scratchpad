@@ -3,7 +3,7 @@
   'use strict';
 
   const REL = Object.fromEntries(RELATIONS.map(r => [r[0], { id: r[0], label: r[1], degree: r[2], side: r[3], sex: r[4] }]));
-  const REL_FACTOR = [1, 1, 0.6, 0.35];
+  const REL_FACTOR = [1, 1, 0.6, 0.35, 0.2];
   const MODES = {
     narrow: { label: 'Narrow', minFrac: 0.35, max: 6, needStrong: true, hint: 'Narrow: only the strongest matches – up to 6 syndromes, each with a hallmark or strong cancer and at least 35% of the top score.' },
     balanced: { label: 'Balanced', minFrac: 0.15, max: 15, needStrong: false, hint: 'Balanced: up to 15 syndromes scoring at least 15% of the top score.' },
@@ -136,10 +136,16 @@
   const personStatus = p => [p.deceased ? `deceased${has(p.ageDeath) ? ` at ${p.ageDeath}` : ''}` : (has(p.ageNow) ? `age ${p.ageNow}` : ''),
     p.adopted ? 'adopted, no known family history (Manchester +2/+2)' : ''].filter(Boolean).join('; ');
 
+  // Relatives sharing a relationship are numbered in the order entered ("Sister 1", "Sister 2").
+  const relNumber = p => {
+    const same = state.people.filter(x => x.rel === p.rel);
+    return same.length > 1 && same.includes(p) ? same.indexOf(p) + 1 : 0;
+  };
   function personLabel(p) {
-    const r = REL[p.rel];
-    return r.label + (p.sex && !r.sex ? ` (${p.sex})` : '');
+    const r = REL[p.rel], n = relNumber(p);
+    return r.label + (n ? ` ${n}` : '') + (p.sex && !r.sex ? ` (${p.sex})` : '');
   }
+  window.personLabel = personLabel;
 
   function dxText(dx, person) {
     const site = SITES[dx.site];
@@ -605,14 +611,17 @@
     p_gm: 'Pat. grandmother', p_gf: 'Pat. grandfather', p_aunt: 'Pat. aunt', p_uncle: 'Pat. uncle',
     m_halfsib: 'Mat. half-sibling', p_halfsib: 'Pat. half-sibling', niece: 'Niece / nephew', grandchild: 'Grandchild',
     m_cousin: 'Mat. cousin', p_cousin: 'Pat. cousin', m_great: 'Mat. great-aunt/uncle', p_great: 'Pat. great-aunt/uncle',
-    m_other: 'Other (maternal)', p_other: 'Other (paternal)', other: 'Other relative'
+    m_other: 'Other (maternal)', p_other: 'Other (paternal)', other: 'Other relative',
+    m_ggp: 'Mat. great-grandparent', p_ggp: 'Pat. great-grandparent', gniece: 'Great-niece/nephew',
+    m_cousin_child: "Mat. cousin's child", p_cousin_child: "Pat. cousin's child"
   };
   const PED = { SW: 124, S: 24, LINE: 13, TOP: 26, PAD: 16 };
   const shortText = (s, n) => { s = s.split(/ \/ | \(|;/)[0].trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
 
   function buildPedigree(people) {
     const by = rel => people.filter(p => p.rel === rel);
-    const node = (p, extra = {}) => ({ p, implied: !p, sex: p ? p.sex : '', label: p ? PED_SHORT[p.rel] : '', kids: [], partner: null, dashed: false, ...extra });
+    const pedLabel = p => PED_SHORT[p.rel] + (relNumber(p) ? ` ${relNumber(p)}` : '');
+    const node = (p, extra = {}) => ({ p, implied: !p, sex: p ? p.sex : '', label: p ? pedLabel(p) : '', kids: [], partner: null, dashed: false, ...extra });
     const implied = (label, sex = '') => node(null, { label, sex });
     const withKids = (n, kids) => { n.kids = kids; if (kids.length) n.partner = implied('Partner', n.sex === 'F' ? 'M' : n.sex === 'M' ? 'F' : ''); return n; };
     const proband = people.find(p => p.rel === 'proband');
@@ -630,8 +639,11 @@
 
     // Siblings; nieces / nephews hang from the first sibling (implied if none). Half-siblings get dashed links.
     const sibs = [...by('sister'), ...by('brother')].map(p => node(p));
-    if (by('niece').length && !sibs.length) sibs.push(implied('Sibling'));
-    if (sibs.length) withKids(sibs[0], by('niece').map(p => node(p)));
+    const nieces = by('niece').map(p => node(p));
+    if (by('gniece').length && !nieces.length) nieces.push(implied('Niece/nephew'));
+    if (nieces.length) withKids(nieces[0], by('gniece').map(p => node(p)));
+    if (nieces.length && !sibs.length) sibs.push(implied('Sibling'));
+    if (sibs.length) withKids(sibs[0], nieces);
     const coreKids = [...by('m_halfsib').map(p => node(p, { dashed: true })), ...sibs, probandNode, ...by('p_halfsib').map(p => node(p, { dashed: true }))];
     const mother = by('mother')[0], father = by('father')[0];
     const momNode = mother ? node(mother) : implied('Mother', 'F');
@@ -642,9 +654,12 @@
 
     const side = (s) => {
       const aunts = [...by(s + '_aunt'), ...by(s + '_uncle')].map(p => node(p));
-      if (by(s + '_cousin').length && !aunts.length) aunts.push(implied(s === 'm' ? 'Mat. aunt/uncle' : 'Pat. aunt/uncle'));
-      if (aunts.length) withKids(aunts[0], by(s + '_cousin').map(p => node(p)));
-      const need = anyOf([s + '_aunt', s + '_uncle', s + '_cousin', s + '_great', s + '_gm', s + '_gf']);
+      const cousins = by(s + '_cousin').map(p => node(p));
+      if (by(s + '_cousin_child').length && !cousins.length) cousins.push(implied(s === 'm' ? 'Mat. cousin' : 'Pat. cousin'));
+      if (cousins.length) withKids(cousins[0], by(s + '_cousin_child').map(p => node(p)));
+      if (cousins.length && !aunts.length) aunts.push(implied(s === 'm' ? 'Mat. aunt/uncle' : 'Pat. aunt/uncle'));
+      if (aunts.length) withKids(aunts[0], cousins);
+      const need = anyOf([s + '_aunt', s + '_uncle', s + '_cousin', s + '_cousin_child', s + '_great', s + '_gm', s + '_gf', s + '_ggp']);
       const gm = by(s + '_gm')[0], gf = by(s + '_gf')[0];
       const pre = s === 'm' ? 'Mat.' : 'Pat.';
       return {
@@ -652,6 +667,7 @@
         gf: gf ? node(gf) : implied(`${pre} grandfather`, 'M'),
         gm: gm ? node(gm) : implied(`${pre} grandmother`, 'F'),
         great: by(s + '_great').map(p => node(p, { dashed: true })),
+        ggp: (() => { const g = by(s + '_ggp').map(p => node(p)); if (g.length === 1) g.push(implied('Partner', g[0].sex === 'F' ? 'M' : g[0].sex === 'M' ? 'F' : '')); return g; })(),
         extraGp: [...by(s + '_gm').slice(1), ...by(s + '_gf').slice(1)]
       };
     };
@@ -708,6 +724,13 @@
         const anchor = q.isMat ? q.s.gf : q.s.gm;
         q.s.great.forEach((n, i) => { n.x = anchor.x + (q.isMat ? -(i + 1) : i + 1); n.g = 0; out.push(n); });
         if (q.s.great.length) out.dashedBars.push([anchor, ...q.s.great]);
+        // Great-grandparents sit above the grandparents, linked by a dashed line (which grandparent's parents is not recorded).
+        if (q.s.ggp.length) {
+          const gpMid = (q.s.gf.x + q.s.gm.x) / 2, w = q.s.ggp.length;
+          q.s.ggp.forEach((n, i) => { n.x = gpMid - (w - 1) / 2 + i; n.g = -1; out.push(n); });
+          if (w >= 2) out.couples.push([q.s.ggp[0], q.s.ggp[1]]);
+          out.sibships.push({ from: w >= 2 ? (q.s.ggp[0].x + q.s.ggp[1].x) / 2 : q.s.ggp[0].x, g: -1, kids: [anchor], dashed: true });
+        }
       }
       t.otherExtra = [...t.extra, ...t.mat.extraGp, ...t.pat.extraGp];
     }
@@ -780,9 +803,9 @@
       parts.push(`<line class="ped-line" x1="${Math.min(X(from), ...xs)}" y1="${barY}" x2="${Math.max(X(from), ...xs)}" y2="${barY}"/>`);
       kids.forEach(k => parts.push(`<line class="ped-line${k.dashed || dashedAll ? ' ped-dash' : ''}" x1="${X(k.x)}" y1="${barY}" x2="${X(k.x)}" y2="${rowY[k.g]}"/>`));
     };
-    for (const s of nodes.sibships || []) sibBar(s.from, s.g, s.kids);
+    for (const s of nodes.sibships || []) sibBar(s.from, s.g, s.kids, s.dashed);
     for (const grp of nodes.dashedBars || []) {
-      const barY = TOP - 14, xs = grp.map(n => X(n.x));
+      const barY = rowY[0] - 14, xs = grp.map(n => X(n.x));
       parts.push(`<line class="ped-line ped-dash" x1="${Math.min(...xs)}" y1="${barY}" x2="${Math.max(...xs)}" y2="${barY}"/>`);
       grp.forEach(n => parts.push(`<line class="ped-line ped-dash" x1="${X(n.x)}" y1="${barY}" x2="${X(n.x)}" y2="${rowY[0]}"/>`));
     }

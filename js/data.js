@@ -1726,6 +1726,9 @@ const RELATIONS = [
   ['niece', 'Niece / nephew', 2, 'core2', ''], ['grandchild', 'Grandchild', 2, 'child', ''],
   ['m_cousin', 'Maternal first cousin', 3, 'M', ''], ['p_cousin', 'Paternal first cousin', 3, 'P', ''],
   ['m_great', 'Maternal great-aunt / uncle', 3, 'M', ''], ['p_great', 'Paternal great-aunt / uncle', 3, 'P', ''],
+  ['m_ggp', 'Maternal great-grandparent', 3, 'M', ''], ['p_ggp', 'Paternal great-grandparent', 3, 'P', ''],
+  ['gniece', 'Great-niece / nephew', 3, 'core2', ''],
+  ['m_cousin_child', "Maternal first cousin's child", 4, 'M', ''], ['p_cousin_child', "Paternal first cousin's child", 4, 'P', ''],
   ['m_other', 'Other maternal relative', 3, 'M', ''], ['p_other', 'Other paternal relative', 3, 'P', ''],
   ['other', 'Other / side unknown', 3, 'unknown', '']
 ];

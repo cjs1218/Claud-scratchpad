@@ -629,6 +629,21 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.goto(BASE + '#syndrome=brca1'); await page.waitForSelector('#syn-detail h2');
   check(!(await page.isVisible('#stale-note')), 'no out-of-date note today');
 
+  console.log('Numbered relatives and new relationships');
+  await page.goto(BASE); await page.click('#clear');
+  await page.setInputFiles('#open-family', { name: 'n.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, people: [
+    { rel: 'proband', sex: 'F', dx: [{}] }, { rel: 'sister', sex: 'F', dx: [{ site: 'breast', hist: 'idc', age: '38' }] }, { rel: 'sister', sex: 'F', dx: [{ site: 'breast', hist: 'idc', age: '62' }] },
+    { rel: 'm_ggp', sex: 'F', dx: [{ site: 'ovary', hist: 'hgsc', age: '60' }] }, { rel: 'gniece', sex: 'F', dx: [{ site: 'breast', hist: 'idc', age: '30' }] },
+    { rel: 'm_cousin_child', sex: 'M', dx: [{ site: 'colorectal', hist: 'adeno', age: '35' }] }] })) });
+  await page.waitForSelector('#results .elig');
+  const relCards = await page.locator('#family .person').allTextContents();
+  check(relCards.some(t => /Sister 1/.test(t) && /age 38/.test(t)) && relCards.some(t => /Sister 2/.test(t) && /age 62/.test(t)), 'two sisters are numbered Sister 1 and Sister 2');
+  check(/Sister 1/.test(await page.locator('#results .elig').textContent()), 'eligibility box names the numbered sister');
+  const tree = await page.locator('#ped-wrap svg').textContent();
+  check(/Sister 1/.test(tree) && /Sister 2/.test(tree) && /Mat. great-grandparent/.test(tree) && /Great-niece\/nephew/.test(tree) && /Mat. cousin's child/.test(tree) && !/Other relatives \(position/.test(tree), 'family tree places great-grandparent, great-niece and cousin\'s child (not in the unplaced row)');
+  check((await page.locator('#family .person').first().locator('select[data-f=rel]').count()) === 0 && await page.evaluate(() => RELATIONS.some(r => r[0] === 'm_ggp') && RELATIONS.some(r => r[0] === 'gniece')), 'new relationships are in the list');
+  check(await page.evaluate(() => relDegree({ rel: 'proband' }, { rel: 'm_ggp' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'gniece' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'm_cousin_child' }) === 4), 'degrees of relationship for the new relatives');
+
   console.log('Ancestry criteria');
   await page.goto(BASE); await page.click('#clear');
   await page.setInputFiles('#open-family', { name: 'w.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, ancestry: 'whalsay', people: [

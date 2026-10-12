@@ -16,12 +16,14 @@
     proband: 'P0', sister: 'P0', brother: 'P0', mother: 'GM', father: 'GP',
     m_aunt: 'GM', m_uncle: 'GM', p_aunt: 'GP', p_uncle: 'GP', m_gm: 'GGM', m_gf: 'GGM', p_gm: 'GGP', p_gf: 'GGP',
     m_great: 'GGM', p_great: 'GGP', daughter: 'PC', son: 'PC', grandchild: 'CC', niece: 'SC',
-    m_cousin: 'AM', p_cousin: 'AP', m_halfsib: 'MOM', p_halfsib: 'DAD'
+    m_cousin: 'AM', p_cousin: 'AP', m_halfsib: 'MOM', p_halfsib: 'DAD',
+    gniece: 'NC', m_cousin_child: 'CM', p_cousin_child: 'CP'
   };
   const MEMBER = {
     mother: ['P0', 'MOM'], father: ['P0', 'DAD'], m_gm: ['GM'], m_gf: ['GM'], p_gm: ['GP'], p_gf: ['GP'],
     proband: ['PC'], sister: ['SC'], brother: ['SC'], daughter: ['CC'], son: ['CC'],
-    m_aunt: ['AM'], m_uncle: ['AM'], p_aunt: ['AP'], p_uncle: ['AP']
+    m_aunt: ['AM'], m_uncle: ['AM'], p_aunt: ['AP'], p_uncle: ['AP'],
+    niece: ['NC'], m_cousin: ['CM'], p_cousin: ['CP'], m_ggp: ['GGM'], p_ggp: ['GGP']
   };
   const SINGLE = new Set(['MOM', 'DAD']); // units with one parent (half-siblings)
   const UNIT_MEMBERS = {};
@@ -39,7 +41,7 @@
     for (const u of MEMBER[rel] || []) if (out[u] === undefined) out[u] = 0;
     return out;
   }
-  const ANC = Object.fromEntries(Object.keys(PARENT).map(r => [r, ancestors(r)]));
+  const ANC = Object.fromEntries([...new Set([...Object.keys(PARENT), ...Object.keys(MEMBER)])].map(r => [r, ancestors(r)]));
   // Degree of relationship (1 = first-degree) between two people, or null if unknown / not blood relatives.
   function degree(a, b) {
     if (a === b) return 0;
@@ -58,7 +60,10 @@
   }
   const GEN = { proband: 0, sister: 0, brother: 0, m_halfsib: 0, p_halfsib: 0, m_cousin: 0, p_cousin: 0,
     mother: -1, father: -1, m_aunt: -1, m_uncle: -1, p_aunt: -1, p_uncle: -1,
-    m_gm: -2, m_gf: -2, p_gm: -2, p_gf: -2, m_great: -2, p_great: -2, daughter: 1, son: 1, niece: 1, grandchild: 2 };
+    m_gm: -2, m_gf: -2, p_gm: -2, p_gf: -2, m_great: -2, p_great: -2, daughter: 1, son: 1, niece: 1, grandchild: 2,
+    m_ggp: -3, p_ggp: -3, gniece: 2, m_cousin_child: 1, p_cousin_child: 1 };
+  // The app numbers relatives sharing a relationship (window.personLabel); fall back to the plain label.
+  const labelOf = p => (window.personLabel ? window.personLabel(p) : REL[p.rel].label);
   const sideOf = p => { const s = REL[p.rel].side; return ['core', 'core2', 'child'].includes(s) ? 'core' : s; };
 
   /* ---- Cancer helpers ---- */
@@ -353,7 +358,7 @@
       const lfsOwn = D.filter(LFS);
       if (lfsOwn.filter(d => le(d, 46)).length >= 2 && !lfsOwn.every(isBreast)) r216.push('two LFS-related cancers, both at 46 or under');
       for (const d of lfsOwn) for (const x of relDx(p, LFS, 2))
-        if (!(isBreast(d) && isBreast(x.d)) && ((le(d, 46) && le(x.d, 56)) || (le(x.d, 46) && le(d, 56)))) { r216.push(`LFS-related cancer with a first/second-degree relative with an LFS-related cancer (${REL[x.p.rel].label})`); break; }
+        if (!(isBreast(d) && isBreast(x.d)) && ((le(d, 46) && le(x.d, 56)) || (le(x.d, 46) && le(d, 56)))) { r216.push(`LFS-related cancer with a first/second-degree relative with an LFS-related cancer (${labelOf(x.p)})`); break; }
       if (D.some(d => is(d, 'sarcoma') && le(d, 45))) {
         const f1 = relDx(p, d => le(d, 45), 1);
         if (f1.length && relDx(p, d => le(d, 45) || is(d, 'sarcoma'), 2).filter(x => x.p !== f1[0].p).length) r216.push('classic LFS pattern: sarcoma at 45 or under, a first-degree relative with cancer at 45 or under, and another relative with cancer at 45 or under or sarcoma');
@@ -649,7 +654,7 @@
         const fdr = affected.filter(a => degree(u, a) === 1 && dxs(a).some(d => isBreast(d) || is(d, 'ovary', 'hgsc|lgsc|nos')));
         for (const a of fdr) {
           const m = manchester(a, people);
-          if (m.combined >= 20) add(u, 'R208', [`unaffected first-degree relative of ${REL[a.rel].label.toLowerCase()} (deceased) with Manchester score ${m.combined} (≥20) – via Clinical Genetics`], { unaffected: true, manchester: m, mssFor: a });
+          if (m.combined >= 20) add(u, 'R208', [`unaffected first-degree relative of ${labelOf(a).replace(/^[A-Z]/, c => c.toLowerCase())} (deceased) with Manchester score ${m.combined} (≥20) – via Clinical Genetics`], { unaffected: true, manchester: m, mssFor: a });
         }
         if (out.some(o => o.test === 'R210' && /Amsterdam/.test(o.text.join(' ')))) add(u, 'R210', ['unaffected relative in a family meeting modified Amsterdam criteria with no living affected relative – via Clinical Genetics (R404 route)'], { unaffected: true });
       }

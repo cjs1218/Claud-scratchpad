@@ -9,6 +9,8 @@ const ok = (cond, msg) => { if (cond) pass++; else { fail++; console.log('FAIL',
 /* Relationship degrees */
 for (const [a, b, e] of [['proband','mother',1],['proband','sister',1],['proband','m_aunt',2],['proband','m_cousin',3],['proband','m_gm',2],['mother','m_aunt',1],['mother','m_gm',1],['m_aunt','m_cousin',1],['sister','niece',1],['proband','niece',2],['proband','m_halfsib',2],['sister','m_halfsib',2],['mother','father',null],['m_aunt','father',null],['proband','daughter',1],['proband','grandchild',2],['mother','daughter',2],['m_aunt','p_aunt',null],['m_gm','m_great',1],['proband','m_great',3],['m_aunt','m_aunt',1]]) ok(w.relDegree({ rel: a }, { rel: b }) === e, `degree ${a}–${b} expected ${e}`);
 
+for (const [a, b, e] of [['proband','m_ggp',3],['mother','m_ggp',2],['m_gm','m_ggp',1],['proband','gniece',3],['niece','gniece',1],['proband','m_cousin_child',4],['m_cousin','m_cousin_child',1]]) ok(w.relDegree({ rel: a }, { rel: b }) === e, `degree ${a}–${b} expected ${e}`);
+
 /* Modified Amsterdam */
 {
   const A = (rel, site, hist, age) => P(rel, 'F', [{ site, hist, age: String(age) }]);
