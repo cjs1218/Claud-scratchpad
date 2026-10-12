@@ -230,7 +230,24 @@ const ABBREVIATIONS = {
   ACG: 'American College of Gastroenterology', USMSTF: 'US Multi-Society Task Force on Colorectal Cancer', ATA: 'American Thyroid Association',
   AACR: 'American Association for Cancer Research', NCI: 'National Cancer Institute (US)', WHO: 'World Health Organization',
   OMIM: 'Online Mendelian Inheritance in Man', PLSD: 'Prospective Lynch Syndrome Database', BCAC: 'Breast Cancer Association Consortium',
-  CIMBA: 'Consortium of Investigators of Modifiers of BRCA1/2', IGCLC: 'International Gastric Cancer Linkage Consortium'
+  CIMBA: 'Consortium of Investigators of Modifiers of BRCA1/2', IGCLC: 'International Gastric Cancer Linkage Consortium',
+  // Further terms found in the page text
+  LCIS: 'lobular carcinoma in situ', HLBC: 'hereditary lobular breast cancer', PDAC: 'pancreatic ductal adenocarcinoma',
+  IPMN: 'intraductal papillary mucinous neoplasm', NMSC: 'non-melanoma skin cancer', OSCC: 'oral squamous cell carcinoma',
+  STS: 'soft tissue sarcoma', MRT: 'malignant rhabdoid tumour', NB: 'neuroblastoma', WT: 'Wilms tumour', PHEO: 'phaeochromocytoma',
+  NHL: 'non-Hodgkin lymphoma', CML: 'chronic myeloid leukaemia', MPD: 'myeloproliferative disorder', ZES: 'Zollinger–Ellison syndrome',
+  LDD: 'Lhermitte–Duclos disease', SEN: 'subependymal nodules', PSP: 'primary spontaneous pneumothorax', FD: 'fibrous dysplasia',
+  GU: 'genitourinary', DSD: 'difference in sex development', SRNS: 'steroid-resistant nephrotic syndrome', DMS: 'diffuse mesangial sclerosis',
+  HNPCC: 'hereditary non-polyposis colorectal cancer (older term for Lynch syndrome)', FMTC: 'familial medullary thyroid carcinoma',
+  FIHP: 'familial isolated hyperparathyroidism', CNC: 'Carney complex', MAS: 'McCune–Albright syndrome', NS: 'Noonan syndrome',
+  DC: 'dyskeratosis congenita', SGBS: 'Simpson–Golabi–Behmel syndrome', WAGR: 'Wilms tumour, aniridia, genitourinary anomalies, range of developmental delays',
+  GOM: 'gain of methylation', IC1: 'imprinting centre 1', IC2: 'imprinting centre 2', UPD11: 'uniparental disomy of chromosome 11',
+  XL: 'X-linked', VUS: 'variant of uncertain significance', NMD: 'nonsense-mediated decay', MAF: 'minor allele frequency',
+  CHIP: 'clonal haematopoiesis of indeterminate potential', PCR: 'polymerase chain reaction', HR: 'hormone receptor',
+  PARP: 'poly(ADP-ribose) polymerase', MRCP: 'magnetic resonance cholangiopancreatography', CEA: 'carcinoembryonic antigen',
+  TSH: 'thyroid-stimulating hormone', GFR: 'glomerular filtration rate', SDS: 'standard deviation score', ENT: 'ear, nose and throat',
+  GP: 'general practitioner', VHR: 'very high risk (NHS Breast Screening Programme)', ADHD: 'attention deficit hyperactivity disorder',
+  ASD: 'autism spectrum disorder', HVA: 'homovanillic acid', VMA: 'vanillylmandelic acid', BC: 'breast cancer'
 };
 
 /* Predicates used by rules and modifiers. */
