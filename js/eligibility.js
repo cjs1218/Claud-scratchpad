@@ -109,6 +109,36 @@
     return best;
   }
 
+  /* ---- Modified Amsterdam criteria (Amsterdam II) ----
+   * ≥3 relatives with a Lynch-associated cancer (colorectal, endometrial, small bowel, ureter / renal pelvis);
+   * one is a first-degree relative of the other two; ≥2 successive generations; ≥1 diagnosed under 50.
+   * Returns the best-matching group and a checklist, for display even when not all criteria are met. */
+  const AMS_CANCER = d => is(d, 'colorectal') || is(d, 'uterus', 'endometrioid|serous|clearcell|carcinosarcoma|nos') || is(d, 'smallbowel') || is(d, 'urothelial', 'upper');
+  function amsterdam(people) {
+    const aff = people.filter(p => dxs(p).some(AMS_CANCER));
+    const score = g => {
+      const gens = [...new Set(g.map(b => GEN[b.rel]).filter(x => x !== undefined))];
+      const checks = [
+        { label: 'at least three relatives with a Lynch-associated cancer (colorectal, endometrial, small bowel, ureter / renal pelvis)', ok: g.length >= 3 },
+        { label: 'one is a first-degree relative of the other two (all on one side of the family)', ok: g.some(a => g.filter(b => b !== a && degree(a, b) === 1).length >= 2) && g.every(a => g.every(b => a === b || degree(a, b) !== null)) },
+        { label: 'at least two successive generations affected', ok: gens.some(x => gens.includes(x + 1)) },
+        { label: 'at least one diagnosed under 50', ok: g.some(b => dxs(b).some(d => AMS_CANCER(d) && lt(d, 50))) }
+      ];
+      return { checks, n: checks.filter(c => c.ok).length };
+    };
+    let best = { members: aff, ...score(aff) };
+    // Try each relative as the link person, with their first-degree relatives and anyone else related within two degrees.
+    for (const a of aff) {
+      const fdr = aff.filter(b => b !== a && degree(a, b) === 1);
+      const g = [a, ...fdr, ...aff.filter(b => b !== a && !fdr.includes(b) && fdr.some(f => degree(f, b) === 1))];
+      // Keep one lineage: for the link person, try each side separately.
+      const lineages = ['M', 'P'].map(sd => g.filter(b => sideOf(b) === 'core' || sideOf(b) === sd));
+      for (const lg of [g, ...lineages]) { const sc = score(lg); if (sc.n > best.n || (sc.n === best.n && sc.n === 4 && lg.length < best.members.length)) best = { members: lg, ...sc }; }
+    }
+    return { met: best.n === 4, affectedCount: aff.length, ...best };
+  }
+  window.amsterdamCriteria = amsterdam;
+
   /* ---- Criteria ---- */
   const LYNCH_SITES = d => is(d, 'colorectal') || is(d, 'uterus', 'endometrioid|serous|clearcell|carcinosarcoma|nos') ||
     (is(d, 'ovary') && !['mucinous', 'germ', 'fibroma', 'granulosa_a', 'granulosa_j', 'sertoli', 'sctat', 'sccoht'].includes(d.hist)) ||
@@ -344,18 +374,10 @@
       if (nf.size >= 2 || (nf.size === 1 && relDx(p, NF1F, 1).length)) add(p, 'R222', ['clinical NF1 criteria likely met – testing if a molecular diagnosis is needed for management or reproduction']);
     }
 
-    /* Family-level: modified Amsterdam (R210 germline for the affected proband or relatives) */
-    const lyn = affected.filter(p => dxs(p).some(d => CRC_EC(d) || is(d, 'smallbowel') || is(d, 'urothelial', 'upper')));
-    for (const p of lyn) {
-      const group = lyn.filter(b => b === p || (degree(p, b) !== null && degree(p, b) <= 2));
-      if (group.length < 3) continue;
-      const gens = new Set(group.map(b => GEN[b.rel]).filter(g => g !== undefined));
-      const linked = group.some(a => group.filter(b => b !== a && degree(a, b) === 1).length >= 2);
-      const young = group.some(b => dxs(b).some(d => (CRC_EC(d) || is(d, 'smallbowel') || is(d, 'urothelial', 'upper')) && lt(d, 50)));
-      if (gens.size >= 2 && linked && young) {
-        if (!out.some(o => o.person === p && o.test === 'R210' && !o.tumourFirst)) add(p, 'R210', ['family meets modified Amsterdam criteria (≥3 relatives with Lynch cancers, one a first-degree relative of the other two, two generations, one under 50)']);
-      }
-    }
+    /* Family-level: modified Amsterdam (R210 germline for the affected relatives involved) */
+    const ams = amsterdam(people);
+    if (ams.met) for (const p of ams.members)
+      if (!out.some(o => o.person === p && o.test === 'R210' && !o.tumourFirst)) add(p, 'R210', ['family meets modified Amsterdam criteria']);
 
     /* Unaffected relatives (R208 / R210 via Clinical Genetics) when no affected relative is alive */
     const livingAffected = affected.filter(p => !p.deceased);

@@ -806,11 +806,25 @@
     return [...byPerson.entries()].sort((a, b) => (a[0].rel === 'proband' ? -1 : 0) - (b[0].rel === 'proband' ? -1 : 0));
   }
   const eligTag = o => o.unaffected ? 'via Clinical Genetics' : o.tumourFirst ? 'tumour MMR/MSI testing first' : o.deceased ? 'deceased – needs stored DNA or tissue' : '';
+  // Modified Amsterdam: a banner when met, a checklist when two or more relatives have Lynch-associated cancers.
+  function amsterdamHtml() {
+    const a = amsterdamCriteria(state.people);
+    if (a.affectedCount < 2) return '';
+    const who = a.members.map(p => esc(personLabel(p))).join(', ');
+    return `<div class="ams${a.met ? ' met' : ''}">
+      <p class="ams-head">${a.met ? '<strong>Family history meets the modified Amsterdam criteria</strong> – germline Lynch syndrome testing (R210) is indicated irrespective of tumour MMR status.' : `<strong>Modified Amsterdam criteria not met</strong> (${a.n} of 4)`}</p>
+      ${a.met ? `<p class="small">Relatives involved: ${who}.</p>` : ''}
+      <ul class="ams-list">${a.checks.map(c => `<li class="${c.ok ? 'ok' : 'no'}"><span aria-hidden="true">${c.ok ? '✓' : '✗'}</span> ${esc(c.label)}</li>`).join('')}</ul>
+      <p class="small muted">Excludes familial adenomatous polyposis; tumours should be verified by pathology where possible.</p>
+    </div>`;
+  }
+
   function eligibilityHtml() {
     const list = eligibilityList();
-    if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>
+    const ams = amsterdamHtml();
+    if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>${ams}
       <p class="small">No one in the family as entered meets the main inherited cancer test criteria checked here (${ELIG_TESTS.join(', ')}). Check the full criteria, CanRisk and the Manchester score.</p></section>`;
-    return `<section class="elig"><h3>Meets Test Directory criteria now</h3>
+    return `<section class="elig"><h3>Meets Test Directory criteria now</h3>${ams}
       <ul>${list.map(([p, os]) => `<li><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}
         <ul>${os.map(o => `<li><span class="code-sm" title="${esc(TESTS[o.test].name)}">${o.test}</span> ${esc(TESTS[o.test].name)}${eligTag(o) ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
           <div class="small muted">${o.text.map(t => abbrHtml(t)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>
@@ -855,6 +869,8 @@
       lines.push(`- ${personLabel(p)}${status ? ` (${status})` : ''}: ${dxs.length ? dxs.map(d => dxText(d, p)).join('; ') : 'no cancer'}`);
     }
     const el = eligibilityList();
+    const am = amsterdamCriteria(state.people);
+    if (am.affectedCount >= 2) lines.push('', am.met ? `FAMILY HISTORY MEETS MODIFIED AMSTERDAM CRITERIA (${am.members.map(personLabel).join(', ')})` : `Modified Amsterdam criteria not met (${am.n} of 4): ${am.checks.filter(c => !c.ok).map(c => c.label).join('; ')}`);
     lines.push('', 'MEETS TEST DIRECTORY CRITERIA NOW');
     if (!el.length) lines.push(`- None of the checked criteria met (${ELIG_TESTS.join(', ')})`);
     el.forEach(([p, os]) => os.forEach(o => lines.push(`- ${personLabel(p)}${p.deceased ? ' (deceased)' : ''}: ${o.test} ${TESTS[o.test].name}${eligTag(o) ? ` [${eligTag(o)}]` : ''} – ${o.text.join('; ')}`)));
