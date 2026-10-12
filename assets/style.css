@@ -573,3 +573,25 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
 .person-warn li::before { content: "⚠ "; }
 .person-warn:empty { display: none; }
 @media print { .person-warn { display: none; } }
+
+/* One-page clinic summary (Print summary): family table, tree, eligibility, top three syndromes */
+@media print {
+  body.print-brief #results .result:nth-of-type(n+4),
+  body.print-brief #results .result .evidence, body.print-brief #results .result details, body.print-brief #results .result .note,
+  body.print-brief #results .result .syn-open, body.print-brief #results .result .tests-line, body.print-brief #results .result .bar,
+  body.print-brief #results .result .bar-label, body.print-brief #results .result .tree-tag, body.print-brief #results .tier-legend,
+  body.print-brief #results .pointers, body.print-brief #results > .link-btn, body.print-brief .tests-compact > p,
+  body.print-brief .tests-compact li:not(.tr-family), body.print-brief .tr-for, body.print-brief .elig > p.small.muted,
+  body.print-brief .site-foot, body.print-brief .ped-tools, body.print-brief .shown-note, body.print-brief .ped-legend span.muted, body.print-brief .elig-maybe h4 + p, body.print-brief .lede, body.print-brief .disc-long, body.print-brief .ams-list { display: none !important; }
+  body.print-brief .disc-short { display: block !important; }
+  body.print-brief #results .result { padding: 4px 8px; margin: 0 0 4px; break-inside: avoid; }
+  body.print-brief #results .result .why { margin: 2px 0 0; }
+  body.print-brief .ped-wrap svg { max-height: 5.5cm; width: auto; max-width: 100%; }
+  body.print-brief .fam-table td, body.print-brief .fam-table th { padding: 2px 6px; }
+  body.print-brief .elig { padding: 6px 10px; }
+  body.print-brief .elig-people { gap: 4px; }
+  body.print-brief h2 { margin: 6px 0 4px; }
+  body.print-brief .tests-compact h2::after { content: " – met or possibly met"; font-weight: 400; font-size: 0.8em; }
+}
+@media print { body.print-brief .elig-why .why-short { display: inline; } body.print-brief .elig-why .why-full { display: none; } }
+@media print { body.print-brief .ped-legend { font-size: 0.7rem; margin: 2px 0; } body.print-brief .fam-table h2, body.print-brief .elig h3 { font-size: 1rem; } body.print-brief #results .result h3 { font-size: 0.95rem; } body.print-brief .panel h2 { margin-top: 0; } }

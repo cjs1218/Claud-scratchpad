@@ -644,6 +644,17 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check((await page.locator('#family .person').first().locator('select[data-f=rel]').count()) === 0 && await page.evaluate(() => RELATIONS.some(r => r[0] === 'm_ggp') && RELATIONS.some(r => r[0] === 'gniece')), 'new relationships are in the list');
   check(await page.evaluate(() => relDegree({ rel: 'proband' }, { rel: 'm_ggp' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'gniece' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'm_cousin_child' }) === 4), 'degrees of relationship for the new relatives');
 
+  console.log('Print summary');
+  await page.goto(BASE); await page.click('#example');
+  check(await page.isVisible('#print-brief') && /Print summary/.test(await page.textContent('#print-brief')), 'Print summary button next to Print');
+  await page.evaluate(() => { document.body.classList.add('print-brief'); window.dispatchEvent(new Event('beforeprint')); });
+  await page.emulateMedia({ media: 'print' });
+  const vis = async sel => page.locator(sel).first().isVisible();
+  check(await vis('.fam-table') && await vis('#results .elig') && await vis('#ped-wrap svg') && await page.locator('#results .result:visible').count() === 3, 'summary keeps the family table, eligibility, tree and the top three syndromes');
+  check(!(await vis('#results .result .evidence')) && !(await vis('.site-foot')) && await page.locator('.tests-compact li:visible').count() === await page.locator('.tests-compact li.tr-family').count(), 'summary drops evidence lists, footer and tests nobody meets');
+  await page.evaluate(() => { document.body.classList.remove('print-brief'); window.dispatchEvent(new Event('afterprint')); });
+  await page.emulateMedia({ media: 'screen' });
+
   console.log('Entry checks');
   await page.goto(BASE); await page.click('#example');
   check(await page.locator('#family .person-warn li').count() === 0, 'no warnings for the example family');

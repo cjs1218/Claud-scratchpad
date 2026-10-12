@@ -594,7 +594,7 @@
       <ul class="test-rows">${list.map(([key, info]) => {
         const t = TESTS[key], meets = who(key, false), maybe = who(key, true);
         const conds = info.conds.map(c => c.name);
-        return `<li>${testBtn(key)} <span class="tr-name">${esc(t.name)}</span>${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}
+        return `<li${meets.length || maybe.length ? ' class="tr-family"' : ''}>${testBtn(key)} <span class="tr-name">${esc(t.name)}</span>${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}
           ${meets.length ? `<span class="tr-meets">Meets now: ${esc(meets.join(', '))}</span>` : ''}${maybe.length ? `<span class="tr-maybe">May meet: ${esc(maybe.join(', '))}</span>` : ''}
           <span class="tr-for small muted">For ${esc(conds.slice(0, 3).join('; '))}${conds.length > 3 ? ` and ${conds.length - 3} more` : ''}</span></li>`;
       }).join('')}</ul>
@@ -948,7 +948,7 @@
       ${familyTableHtml()}
       ${eligibilityHtml()}
       ${pedigreeHtml(shown)}
-      <p class="muted small">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
+      <p class="muted small shown-note">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${TIER_LEGEND}
       ${shown.map((r, i) => resultCard(r, i, top)).join('')}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
@@ -1833,6 +1833,8 @@
     });
     $('#copy').addEventListener('click', e => copySummary(e.target));
     $('#print').addEventListener('click', () => window.print());
+    // One-page clinic summary: the same printout with only the essentials (see body.print-brief in style.css).
+    $('#print-brief').addEventListener('click', () => { document.body.classList.add('print-brief'); window.print(); setTimeout(() => document.body.classList.remove('print-brief'), 1000); });
     // Family tree: open/closed state, highlighted syndrome, downloads.
     $('#results').addEventListener('toggle', e => { if (e.target.id === 'ped') { state.treeOpen = e.target.open; fitPedigree(); } }, true);
     window.addEventListener('resize', fitPedigree);
@@ -1855,6 +1857,7 @@
     window.addEventListener('afterprint', () => {
       if (!state.printFull) return;
       state.printFull = false; renderResults();
+      document.body.classList.remove('print-brief');
       const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; state.treeOpen = pedWasOpen; pedWasOpen = null; }
     });
     // Adopted tick in the Manchester panel: saved on the proband, so every score and criterion updates.
