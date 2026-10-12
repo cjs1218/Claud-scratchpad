@@ -132,6 +132,16 @@ t('ovary NOS high grade + breast <40 sister → R208 Manchester', [P('proband','
   tA('Whalsay proband prostate 70', [P('proband','M',[{site:'prostate',hist:'adeno',age:'70'}])], 'whalsay', [['proband','R430','met']]);
   tA('Westray prostate 70 (no prostate criterion)', [P('proband','M',[{site:'prostate',hist:'adeno',age:'70'}])], 'westray', [['proband','R430','none']]);
   tA('Māori DGC 65 aunt', [P('proband','F'), P('m_aunt','F',[{site:'stomach',hist:'diffuse',age:'65'}])], 'maori', [['m_aunt','R215','met']]);
+  // R215 e/f/g: the relative's age limit applies to the relative, and the reason names them.
+  const dgc80 = () => P('m_gm','F',[{site:'stomach',hist:'diffuse',age:'80'}]), ilc = a => ({ site: 'breast', hist: 'ilc', age: a });
+  tA('grandmother DGC 80 alone', [P('proband','F'), dgc80()], '', [['m_gm','R215','none']]);
+  tA('grandmother DGC 80, granddaughter lobular 75', [P('proband','F',[ilc('75')]), dgc80()], '', [['m_gm','R215','none'], ['proband','R215','none']]);
+  tA('grandmother DGC 80, granddaughter lobular 60 (criterion f)', [P('proband','F',[ilc('60')]), dgc80()], '', [['m_gm','R215','met'], ['proband','R215','none']]);
+  tA('grandmother DGC 65, granddaughter lobular 75 (criterion g)', [P('proband','F',[ilc('75')]), P('m_gm','F',[{site:'stomach',hist:'diffuse',age:'65'}])], '', [['proband','R215','met']]);
+  {
+    const r = w.checkEligibility([P('proband','F',[ilc('60')]), dgc80()], '').find(x => x.test === 'R215');
+    ok(/at 80 – any age counts/.test(r.text[0]) && /lobular breast cancer under 70 \(Proband, age 60\)/.test(r.text[0]) && /with lobular/.test(r.crit[0]), 'R215 f reason names the relative and ages and links to criterion f: ' + r.text[0] + ' / ' + r.crit[0]);
+  }
   tA('no ancestry: breast 65', [P('proband','F',[br('65')])], '', [['proband','R208','none']]);
 }
 

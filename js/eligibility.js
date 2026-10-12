@@ -468,8 +468,14 @@
       if (dgc.length && ancestry === 'maori') r215.push('diffuse gastric cancer – Māori ethnicity');
       if (dgc.length && D.some(d => is(d, 'feature', 'cleft'))) r215.push('diffuse gastric cancer with cleft lip/palate');
       if (dgc.some(d => lt(d, 70)) && ilc.some(d => lt(d, 70))) r215.push('diffuse gastric cancer and lobular breast cancer, both under 70');
-      if (dgc.length && (relDx(p, x => is(x, 'stomach', 'diffuse'), 2).length || relDx(p, x => is(x, 'breast', 'ilc') && lt(x, 70), 2).length)) r215.push('diffuse gastric cancer with a first/second-degree relative with diffuse gastric cancer or lobular breast cancer under 70');
-      if (ilc.length && relDx(p, x => is(x, 'stomach', 'diffuse') && lt(x, 70), 2).length) r215.push('lobular breast cancer with a first/second-degree relative with diffuse gastric cancer under 70');
+      // Name the relative and both ages, so it is clear which cancer the "under 70" applies to.
+      const who = x => `${labelOf(x.p)}, ${age(x.d) === null ? 'age not given' : 'age ' + age(x.d)}`;
+      const own = dgc.length ? `diffuse gastric cancer ${age(dgc[0]) === null ? '(age not given)' : 'at ' + age(dgc[0])} – any age counts –` : '';
+      const relDgc = relDx(p, x => is(x, 'stomach', 'diffuse'), 2), relIlc = relDx(p, x => is(x, 'breast', 'ilc') && lt(x, 70), 2);
+      if (dgc.length && relDgc.length) r215.push(`${own} with a first/second-degree relative with diffuse gastric cancer at any age (${relDgc.map(who).join('; ')})`);
+      if (dgc.length && relIlc.length) r215.push(`${own} with a first/second-degree relative with lobular breast cancer under 70 (${relIlc.map(who).join('; ')})`);
+      const relDgc70 = relDx(p, x => is(x, 'stomach', 'diffuse') && lt(x, 70), 2);
+      if (ilc.length && relDgc70.length) r215.push(`lobular breast cancer with a first/second-degree relative with diffuse gastric cancer under 70 (${relDgc70.map(who).join('; ')})`);
       if (ilc.some(d => both(d) && lt(d, 70))) r215.push('bilateral lobular breast cancer under 70');
       if (ilc.some(d => lt(d, 50)) && relDx(p, x => is(x, 'breast', 'ilc') && lt(x, 50), 2).length) r215.push('two lobular breast cancers under 50 in the family');
       if (r215.length) add(p, 'R215', [...new Set(r215)]);
@@ -716,7 +722,7 @@
       [/pigmentation under 10/, 'Characteristic mucocutaneous pigmentation age <10'], [/relative with a PJS/, '≥1 PJS-type hamartomatous polyp, AND']],
     R213: [[/Lhermitte/, 'Cerebellar dysplastic gangliocytoma'], [/major criterion/, 'Macrocephaly AND ≥1 major'], [/mucocutaneous/, 'Macrocephaly AND Mucocutaneous']],
     R214: [[/./, '≥ 1 major OR']],
-    R215: [[/Māori/, 'diffuse gastric cancer in any individual of Maori'], [/^diffuse gastric cancer under 50/, 'Diffuse gastric cancer (<50'], [/cleft/, 'cleft lip or cleft palate'], [/both under 70/, 'double primary diffuse gastric'], [/^diffuse gastric cancer with a first/, 'diffuse gastric cancer at any age and ≥ 1 FDR/SDR with diffuse'],
+    R215: [[/Māori/, 'diffuse gastric cancer in any individual of Maori'], [/^diffuse gastric cancer under 50/, 'Diffuse gastric cancer (<50'], [/cleft/, 'cleft lip or cleft palate'], [/both under 70/, 'double primary diffuse gastric'], [/relative with diffuse gastric cancer at any age/, 'diffuse gastric cancer at any age and ≥ 1 FDR/SDR with diffuse'], [/^diffuse gastric cancer.*relative with lobular breast cancer under 70/, 'diffuse gastric cancer at any age and ≥1 FDR/SDR with lobular'],
       [/^lobular breast cancer with/, 'Lobular breast cancer and ≥1 FDR/SDR'], [/^bilateral lobular/, 'Bilateral lobular breast cancer'], [/two lobular/, 'Two or more cases of lobular']],
     R216: [[/jaw osteosarcoma/, 'Jaw osteosarcoma'], [/anaplastic/, 'Rhabdomyosarcoma of embryonal anaplastic'], [/^rhabdomyosarcoma at 5/, 'Rhabdomyosarcoma (≤ 5'], [/^adrenocortical/, 'Adrenocortical cancer'], [/^choroid/, 'Choroid plexus cancer'],
       [/^breast cancer at 30/, 'Breast cancer (≤ 30'], [/^HER2/, 'HER2 positive breast cancer'], [/^hypodiploid/, 'Hypodiploid acute'], [/^SHH/, 'SHH medulloblastoma'], [/^two LFS/, '≥2 LFS-related cancers'],
