@@ -525,3 +525,22 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 @media print { .person-mss { display: none; } }
 .mss-adopted { margin: 8px 0; padding: 6px 10px; border: 1px dashed var(--border); border-radius: 4px; font-size: 0.92rem; }
 .mss-adopted label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+
+/* Eligibility box: one line per test, short reasons on screen, full reasons in print */
+.elig-people { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.elig-people > li { border-top: 1px solid var(--border); padding-top: 8px; }
+.elig-people > li:first-child { border-top: 0; padding-top: 0; }
+.elig-who { margin-bottom: 4px; }
+.elig-line { display: block; }
+.elig-test { font-weight: 600; }
+.elig-why { font-size: 0.86rem; color: var(--muted); margin: 2px 0 0; }
+.elig-why .why-full { display: none; }
+@media print { .elig-why .why-short { display: none; } .elig-why .why-full { display: inline; } }
+
+/* Compact list of tests for the suggested syndromes */
+.test-rows { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
+.test-rows li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.tr-name { font-weight: 600; }
+.tr-meets { font-size: 0.82rem; font-weight: 700; color: #007f3b; }
+.tr-maybe { font-size: 0.82rem; font-weight: 700; color: var(--warn-fg); }
+.tr-for { flex-basis: 100%; }

@@ -537,23 +537,25 @@
     return [...map.entries()].sort((a, b) => a[1].rank - b[1].rank);
   }
 
+  // One line per test: who in the family meets it now (or may), and which suggested syndromes it covers.
+  // The exact criteria open from the code (criteria panel).
   function renderTests(shown) {
     const list = testsSummary(shown);
     if (!list.length) return '';
-    return `<h2>Suggested Test Directory tests</h2>
-      <p class="muted small">Criteria condensed from the ${link(TD_VERSION, TD_URL)}, Part XI (Inherited cancer) unless
-      another part is shown. For deceased probands, stored DNA or tissue is needed with no living affected relative,
-      after cancer genetics MDT.</p>
-      ${list.map(([key, info]) => {
-        const t = TESTS[key];
-        return `<article class="test">
-          <h3>${testBtn(key, 'code')} ${esc(t.name)}${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}</h3>
-          <p class="muted">Genes: ${esc(t.genes)}${t.panel ? ` · ${link('PanelApp ' + t.panel, PANELAPP(t.panel))}` : ''}</p>
-          <p class="muted">For: ${info.conds.map(c => esc(c.name)).join('; ')}</p>
-          <details open><summary>Eligibility criteria</summary><ul>${t.criteria.map(c => `<li>${esc(c)}</li>`).join('')}</ul></details>
-        </article>`;
-      }).join('')}
-      <p class="muted small">Unaffected individuals with no living affected relative: ${esc(TESTS.R404.code)} ${esc(TESTS.R404.name)} – ${esc(TESTS.R404.criteria[0])}.</p>`;
+    const elig = checkEligibility(state.people, state.ancestry);
+    const who = (key, possible) => [...new Set(elig.filter(o => o.test === key && !!o.possible === possible).map(o => personLabel(o.person)))];
+    return `<section class="tests-compact">
+      <h2>Test Directory tests for these syndromes</h2>
+      <p class="muted small">Click a code for the exact criteria, who in the family meets them and the genes tested.</p>
+      <ul class="test-rows">${list.map(([key, info]) => {
+        const t = TESTS[key], meets = who(key, false), maybe = who(key, true);
+        const conds = info.conds.map(c => c.name);
+        return `<li>${testBtn(key)} <span class="tr-name">${esc(t.name)}</span>${t.part ? ` <span class="muted small">Part ${esc(t.part)}</span>` : ''}
+          ${meets.length ? `<span class="tr-meets">Meets now: ${esc(meets.join(', '))}</span>` : ''}${maybe.length ? `<span class="tr-maybe">May meet: ${esc(maybe.join(', '))}</span>` : ''}
+          <span class="tr-for small muted">For ${esc(conds.slice(0, 3).join('; '))}${conds.length > 3 ? ` and ${conds.length - 3} more` : ''}</span></li>`;
+      }).join('')}</ul>
+      <p class="muted small">Unaffected individuals with no living affected relative: ${testBtn('R404')} ${esc(TESTS.R404.name)}. For deceased probands, stored DNA or tissue is needed with no living affected relative, after cancer genetics MDT. ${link(TD_VERSION, TD_URL)}.</p>
+    </section>`;
   }
 
   /* ---------------- Family tree (pedigree) ----------------
@@ -1042,18 +1044,30 @@
     </div>`;
   }
 
+  // Short form of a reason for the box: drop the "(Site: histology, age …)" detail and long Manchester wording;
+  // the full text is printed, copied in the summary and shown in the criteria panel.
+  const shortReason = t => {
+    const m = t.match(/^Manchester score (\d+)/);
+    if (m) return `Manchester ${m[1]}`;
+    return t.replace(/\s*\((?:[^()]|\([^()]*\))*:(?:[^()]|\([^()]*\))*\)/g, '').replace(/^note: /, '').trim();
+  };
   function eligibilityHtml() {
     const list = eligibilityList(), maybe = eligibilityList(true);
     const ams = amsterdamHtml();
-    const people = l => `<ul>${l.map(([p, os]) => `<li><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}
-        <ul>${os.map(o => `<li>${testBtn(o.test)} ${esc(TESTS[o.test].name)}${eligTag(o) && !o.possible ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
-          <div class="small muted">${o.text.map(t => reasonHtml(t, o.mssFor || o.person)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>`;
+    const reasons = o => {
+      const mssP = o.mssFor || o.person;
+      const short = [...new Set(o.text.map(t => /Manchester score/.test(t) ? reasonHtml(shortReason(t).replace('Manchester', 'Manchester score'), mssP) : abbrHtml(shortReason(t))))];
+      return `<span class="why-short">${short.join(' · ')}</span><span class="why-full">${o.text.map(t => abbrHtml(t)).join('; ')}</span>`;
+    };
+    const people = l => `<ul class="elig-people">${l.map(([p, os]) => `<li><div class="elig-who"><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}</div>
+        <ul>${os.map(o => `<li class="elig-line">${testBtn(o.test)} <span class="elig-test">${esc(TESTS[o.test].name)}</span>${eligTag(o) && !o.possible ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
+          <div class="elig-why">${reasons(o)}</div></li>`).join('')}</ul></li>`).join('')}</ul>`;
     const maybeHtml = maybe.length ? `<div class="elig-maybe"><h4>May meet – check an unrecorded detail</h4>${people(maybe)}</div>` : '';
+    const foot = `<p class="small muted">Checked against the inherited cancer tests (${ELIG_TESTS.join(', ')}) using what has been entered. Click a test code for the exact criteria and the full reasons. Criteria needing information not recorded here (e.g. CanRisk, Wimmer score) are not assessed. Deceased relatives need stored DNA, or tissue with Manchester ≥17 / CanRisk ≥15% for R208/R207. Always confirm against the ${link(TD_VERSION, TD_URL)}.</p>`;
     if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>${ams}
-      <p class="small">No one in the family as entered meets the inherited cancer test criteria checked here (${ELIG_TESTS.join(', ')}). Check the full criteria, CanRisk and the Manchester score.</p>${maybeHtml}</section>`;
+      <p class="small">No one in the family as entered meets the inherited cancer test criteria checked here. Check the full criteria, CanRisk and the Manchester score.</p>${maybeHtml}${foot}</section>`;
     return `<section class="elig"><h3>Meets Test Directory criteria now</h3>${ams}
-      ${people(list)}${maybeHtml}
-      <p class="small muted">Checked against the inherited cancer tests (${ELIG_TESTS.join(', ')}) using what has been entered; criteria needing information not recorded here (e.g. tumour grade, CanRisk, Wimmer score) are not assessed. Deceased relatives need stored DNA, or tissue with Manchester ≥17 / CanRisk ≥15% for R208/R207. Always confirm against the ${link(TD_VERSION, TD_URL)}.</p></section>`;
+      ${people(list)}${maybeHtml}${foot}</section>`;
   }
 
   // Print-only table of the family as entered.

@@ -90,7 +90,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await setPerson(page, 0, 'M', [{ site: 'parathyroid', hist: 'adenoma', age: 28 }, { site: 'pituitary', hist: 'gh', age: 32 }]);
   names = await topNames(page);
   check(/MEN1/.test(names[0]), `top result is MEN1 (got "${names[0]}")`);
-  const testCards = await page.locator('article.test h3').allTextContents();
+  const testCards = await page.locator('#results .test-rows li').allTextContents();
   check(testCards.some(t => /R217/.test(t) && /Part IV/.test(t)), 'R217 Endocrine neoplasia shown with Part IV');
   check(testCards.some(t => /R151/.test(t)), 'R151 familial hyperparathyroidism suggested');
 
@@ -160,7 +160,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.click('#clear');
   await setPerson(page, 0, 'M', [{ site: 'heme', hist: 'aml', age: 30 }]);
   await addRelative(page, 'father', 'M', [{ site: 'heme', hist: 'aml', age: 50 }]);
-  const haemTests = await page.locator('article.test h3').allTextContents();
+  const haemTests = await page.locator('#results .test-rows li').allTextContents();
   check(haemTests.some(t => /R347/.test(t) && /Part VIII/.test(t)), 'R347 inherited AML test with Part VIII');
 
   console.log('Syndromes tab');
@@ -601,6 +601,23 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     lms: c('lfs').rules.find(r => r[1] === 'lms')?.[2], mva: c('mva').rules.find(r => r[0] === 'kidney' || /wilms/.test(r[1]))?.[2],
     tbd: c('tbd').genes.join(), samd: c('samd9l').genes.join() }; });
   check(dec.lfs === 0 && dec.lms === 'W' && dec.mva === 'S' && /DKC1/.test(dec.tbd) && /TINF2/.test(dec.tbd) && /SAMD9\b/.test(dec.samd.replace('SAMD9L', '')), `decision changes applied (${JSON.stringify(dec)})`);
+
+  console.log('Shorter results');
+  await page.goto(BASE); await page.click('#example'); await page.waitForSelector('#results .elig');
+  check(await page.locator('#results article.test').count() === 0 && await page.locator('#results .test-rows li').count() >= 3, 'tests shown as a compact list, not full criteria cards');
+  const r208row = await page.locator('#results .test-rows li', { has: page.locator('button[data-test=R208]') }).textContent();
+  check(/Meets now: Proband \(F\), Mother, Maternal aunt/.test(r208row) && /For Hereditary breast and ovarian cancer/.test(r208row), 'test row says who meets it now and which syndromes it covers');
+  const h = await page.evaluate(() => document.getElementById('results').scrollHeight);
+  check(h < 6500, `results are much shorter (${h}px)`);
+  const why = await page.locator('#results .elig .elig-why').first().textContent();
+  const whyShort = await page.locator('#results .elig .why-short').first().textContent();
+  check(/breast cancer under 40 · triple-negative breast cancer under 60 · Manchester score 31/.test(whyShort) && !/Invasive ductal/.test(whyShort), `eligibility reasons shortened on screen ("${whyShort}")`);
+  await page.emulateMedia({ media: 'print' });
+  check(await page.locator('#results .elig .why-full').first().isVisible() && /Invasive ductal/.test(await page.locator('#results .elig .why-full').first().textContent()), 'full reasons printed');
+  await page.emulateMedia({ media: 'screen' });
+  await page.locator('#results .elig .why-short button.mss-link').first().click(); await page.waitForSelector('#crit-dialog[open]');
+  check(/Manchester score – Proband/.test(await page.locator('#crit-dialog h2').textContent()), 'short Manchester reason still opens the breakdown');
+  await page.keyboard.press('Escape');
 
   console.log('Criteria panel');
   await page.goto(BASE); await page.click('#example'); await page.waitForSelector('#results .elig');
