@@ -12,7 +12,7 @@
 
   let uid = 0;
   const nextId = () => ++uid;
-  const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', mmr: '', meth: '', braf: '', count: '', bilat: false });
+  const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', grade: '', ovgrade: '', mmr: '', meth: '', braf: '', count: '', bilat: false });
   const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', dx: [newDx()] });
 
   const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null, ancestry: '', expanded: new Set(), compareView: null };
@@ -144,7 +144,9 @@
         const sign = v => (v === 'pos' ? '+' : v === 'neg' ? '−' : '?');
         extra.push(PRED.tnbc(dx) ? 'triple negative' : `ER${sign(dx.er)} PR${sign(dx.pr)} HER2${sign(dx.her2)}`);
       }
+      if (dx.grade) extra.push(`grade ${dx.grade}`);
     }
+    if (dx.site === 'ovary' && dx.ovgrade) extra.push(`${dx.ovgrade} grade`);
     if (dx.mmr) extra.push(MARKER_OPTIONS.mmr.opts.find(o => o[0] === dx.mmr)[1]);
     if (dx.meth) extra.push(`MLH1 methylation ${dx.meth === 'yes' ? 'present' : 'absent'}`);
     if (dx.braf) extra.push(`BRAF V600E ${dx.braf === 'yes' ? 'present' : 'absent'}`);
@@ -958,7 +960,7 @@
         <tbody>${MSS_TABLE.map(([id, label, b1, b2]) => `<tr${used.has(id) ? ' class="used"' : ''}><td>${esc(label)}</td><td class="num">${b1}</td><td class="num">${b2}</td></tr>`).join('')}
         <tr class="mss-head"><th colspan="3">Pathology adjustments (tested person's tumour, BRCA1 score)</th></tr>
         ${MSS_ADJ.map(([id, label, b1]) => `<tr${usedAdj.has(id) ? ' class="used"' : ''}><td>${abbrHtml(label)}</td><td class="num">${b1 > 0 ? '+' : ''}${b1}</td><td class="num">–</td></tr>`).join('')}</tbody></table></div>
-      <p class="small muted">Rows used for this family are highlighted. Points from Evans et al. (${link('J Med Genet 2004', 'https://doi.org/10.1136/jmg.2003.017996')}; ${link('2017 update', 'https://doi.org/10.1136/jmedgenet-2017-104584')}) as published by ${link('GeNotes', 'https://www.genomicseducation.hee.nhs.uk/genotes/knowledge-hub/manchester-evans-score/')}. Not applied because they are not recorded here: breast tumour grade (grade 1 −2, grade 3 +2) and adoption with no known family history (+2/+2). Bilateral breast cancer is counted as two primaries. Count only one side of the family (plus the tested person's own cancers and siblings/children). R208 threshold: combined ≥15 or one gene ≥10 (deceased with tissue only ≥17; unaffected ≥20). Judged only from what has been entered.</p></section>`;
+      <p class="small muted">Rows used for this family are highlighted. Points from Evans et al. (${link('J Med Genet 2004', 'https://doi.org/10.1136/jmg.2003.017996')}; ${link('2017 update', 'https://doi.org/10.1136/jmedgenet-2017-104584')}) as published by ${link('GeNotes', 'https://www.genomicseducation.hee.nhs.uk/genotes/knowledge-hub/manchester-evans-score/')}. Grade adjustments apply to invasive breast cancer when a grade is entered. Not applied because it is not recorded here: adoption with no known family history (+2/+2). Bilateral breast cancer is counted as two primaries. Count only one side of the family (plus the tested person's own cancers and siblings/children). R208 threshold: combined ≥15 or one gene ≥10 (deceased with tissue only ≥17; unaffected ≥20). Judged only from what has been entered.</p></section>`;
   }
   function openManchester(id, back) {
     const p = state.people.find(x => x.id === id);

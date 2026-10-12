@@ -70,7 +70,7 @@
   const isBreast = d => d.site === 'breast';
   const isMale = p => p.sex === 'M';
   const dxs = p => p.dx.filter(d => d.site && d.hist);
-  const histText = d => `${SITES[d.site].label}: ${(SITES[d.site].hist.find(h => h[0] === d.hist) || [, d.hist])[1]}${age(d) !== null ? `, age ${age(d)}` : ''}`;
+  const histText = d => `${SITES[d.site].label}: ${(SITES[d.site].hist.find(h => h[0] === d.hist) || [, d.hist])[1]}${d.site === 'breast' && d.grade ? `, grade ${d.grade}` : ''}${d.site === 'ovary' && d.ovgrade ? `, ${d.ovgrade} grade` : ''}${age(d) !== null ? `, age ${age(d)}` : ''}`;
 
   /* ---- Manchester score (combined, BRCA1, BRCA2) for a person being considered for testing ----
    * manchesterDetail records every step (rows counted, pathology adjustments, what was not counted) for the
@@ -87,6 +87,7 @@
   const MSS_ADJ = [
     ['tnbc', 'Breast cancer triple negative', 4], ['her2', 'Breast cancer HER2 positive (not triple negative)', -6],
     ['erpos', 'Breast cancer ER positive (not triple negative)', -1], ['erneg', 'Breast cancer ER negative (not triple negative)', 1],
+    ['g1', 'Breast cancer grade 1', -2], ['g3', 'Breast cancer grade 3', 2],
     ['ilc', 'Breast cancer lobular', -2], ['dcis', 'Breast DCIS only', -1], ['hgsc', 'High-grade serous ovarian cancer <60 (no breast cancer)', 2]
   ];
   const MSS_ROW = Object.fromEntries(MSS_TABLE.map(r => [r[0], r])), MSS_ADJ_ROW = Object.fromEntries(MSS_ADJ.map(r => [r[0], r]));
@@ -127,6 +128,8 @@
         if (br.her2 === 'pos') adj.push('her2');
         if (br.er === 'pos') adj.push('erpos'); else if (br.er === 'neg') adj.push('erneg');
       }
+      if (br.hist !== 'dcis' && br.grade === '1') adj.push('g1');
+      if (br.hist !== 'dcis' && br.grade === '3') adj.push('g3');
       if (br.hist === 'ilc') adj.push('ilc');
       if (br.hist === 'dcis') adj.push('dcis');
     } else if (ov && ov.hist === 'hgsc' && lt(ov, 60)) adj.push('hgsc');
@@ -207,7 +210,9 @@
       const ms = () => manchester(p, people);
 
       /* R208 – breast or high-grade ovarian cancer */
-      const brd = D.filter(isBreast), hgOv = D.filter(d => is(d, 'ovary', 'hgsc|clearcell'));
+      // Breast cancer for R208 includes high-grade DCIS only; high-grade ovarian includes endometrioid / unknown type graded high.
+      const brd = D.filter(d => isBreast(d) && !(d.hist === 'dcis' && ['1', '2'].includes(d.grade)));
+      const hgOv = D.filter(d => is(d, 'ovary', 'hgsc|clearcell') || (is(d, 'ovary', 'endometrioid|nos') && d.ovgrade === 'high'));
       if (brd.length || hgOv.length) {
         const r = [];
         brd.forEach(d => {
@@ -220,19 +225,20 @@
         const m = ms();
         if (m.combined >= 15 || m.b1 >= 10 || m.b2 >= 10) r.push(`Manchester score ${m.combined} (BRCA1 ${m.b1}, BRCA2 ${m.b2}; threshold 15 combined or 10 single gene)`);
         if (ancestry === 'ashkenazi') r.push('Ashkenazi Jewish ancestry');
-        if (brd.some(d => d.hist === 'dcis') && r.length) r.push('note: DCIS counts only if high grade');
+        if (brd.some(d => d.hist === 'dcis' && !d.grade) && r.length) r.push('note: DCIS counts only if high grade');
         if (r.length) add(p, 'R208', r, { manchester: m });
       }
       /* R207 – high-grade non-mucinous epithelial ovarian cancer at any age */
-      const ov = D.filter(d => is(d, 'ovary', 'hgsc|clearcell|endometrioid|nos'));
-      if (ov.length) {
-        const r = ov.map(d => `${d.hist === 'endometrioid' || d.hist === 'nos' ? 'epithelial ovarian cancer – qualifies if high grade' : 'high-grade non-mucinous epithelial ovarian cancer'} (${histText(d)})`);
-        add(p, 'R207', r);
-      }
+      // High grade: HGSC and clear cell always; endometrioid / unknown type when graded high ("may meet" if grade not known).
+      const ovHi = D.filter(d => is(d, 'ovary', 'hgsc|clearcell') || (is(d, 'ovary', 'endometrioid|nos') && d.ovgrade === 'high'));
+      const ovUnk = D.filter(d => is(d, 'ovary', 'endometrioid|nos') && !d.ovgrade);
+      const ov = [...ovHi, ...ovUnk];
+      if (ovHi.length) add(p, 'R207', ovHi.map(d => `high-grade non-mucinous epithelial ovarian cancer (${histText(d)})`));
+      else if (ovUnk.length) add(p, 'R207', ovUnk.map(d => `epithelial ovarian cancer – qualifies if high grade (${histText(d)})`), { possible: true });
       const eoc = d => is(d, 'ovary', 'hgsc|lgsc|endometrioid|clearcell|nos');
-      if (has(eoc) && !ov.length && (rel(p, eoc, 1).length || rel(p, eoc, 3).filter(b => degree(p, b) >= 2).length >= 2))
+      if (has(eoc) && !ovHi.length && (rel(p, eoc, 1).length || rel(p, eoc, 3).filter(b => degree(p, b) >= 2).length >= 2))
         add(p, 'R207', ['epithelial ovarian cancer with a first-degree relative (or ≥2 second/third-degree relatives) with epithelial ovarian cancer']);
-      else if (has(eoc) && !ov.length && rel(p, eoc, 2).some(b => degree(p, b) === 2))
+      else if (has(eoc) && !ovHi.length && rel(p, eoc, 2).some(b => degree(p, b) === 2))
         add(p, 'R207', ['epithelial ovarian cancer with a second-degree relative with epithelial ovarian cancer – qualifies if the intervening relative has no ovaries or is deceased'], { possible: true });
 
       /* R210 – Lynch syndrome */
@@ -631,7 +637,9 @@
     // Deceased affected people need stored DNA or tissue.
     for (const o of out) if (o.person.deceased && !o.unaffected) o.deceased = true;
     // Germline R210 supersedes "tumour testing first" for the same person.
-    const res = out.filter(o => !(o.test === 'R210' && o.tumourFirst && out.some(x => x.person === o.person && x.test === 'R210' && !x.tumourFirst)));
+    const res = out.filter(o => !(o.test === 'R210' && o.tumourFirst && out.some(x => x.person === o.person && x.test === 'R210' && !x.tumourFirst)))
+      // "May meet" is dropped where the same person already meets that test outright.
+      .filter(o => !(o.possible && out.some(x => x.person === o.person && x.test === o.test && !x.possible)));
     for (const o of res) o.crit = o.text.map(t => critFor(o.test, t));
     return res;
   }

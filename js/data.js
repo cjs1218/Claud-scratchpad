@@ -20,11 +20,11 @@ const TIER_LABEL = { H: 'hallmark', S: 'strong', M: 'moderate', W: 'weak' };
 const MMR_MARKERS = ['mmr', 'meth', 'braf'];
 
 const SITES = {
-  breast: { label: 'Breast', markers: ['er', 'pr', 'her2'], hist: [
+  breast: { label: 'Breast', markers: ['er', 'pr', 'her2', 'grade'], hist: [
     ['idc', 'Invasive ductal / no special type'], ['ilc', 'Invasive lobular'],
     ['medullary', 'Medullary-like / basal-like'], ['metaplastic', 'Metaplastic'],
     ['dcis', 'DCIS only'], ['phyllodes', 'Malignant phyllodes'], ['nos', 'Other / unknown']] },
-  ovary: { label: 'Ovary / fallopian tube / peritoneum', hist: [
+  ovary: { label: 'Ovary / fallopian tube / peritoneum', markers: ['ovgrade'], hist: [
     ['fibroma', 'Ovarian fibroma / fibrothecoma'],
     ['hgsc', 'High-grade serous'], ['lgsc', 'Low-grade serous'], ['endometrioid', 'Endometrioid'],
     ['clearcell', 'Clear cell'], ['mucinous', 'Mucinous'], ['granulosa_a', 'Adult granulosa cell'],
@@ -159,6 +159,8 @@ const MARKER_OPTIONS = {
   er: { label: 'ER', opts: [['', 'Unknown'], ['pos', 'Pos'], ['neg', 'Neg']] },
   pr: { label: 'PR', opts: [['', 'Unknown'], ['pos', 'Pos'], ['neg', 'Neg']] },
   her2: { label: 'HER2', opts: [['', 'Unknown'], ['pos', 'Pos'], ['neg', 'Neg']] },
+  grade: { label: 'Grade', opts: [['', 'Unknown'], ['1', '1 (low)'], ['2', '2 (intermediate)'], ['3', '3 (high)']] },
+  ovgrade: { label: 'Grade', opts: [['', 'Unknown'], ['low', 'Low grade'], ['high', 'High grade']] },
   mmr: { label: 'MMR / MSI', opts: [['', 'Not done'], ['intact', 'IHC intact'],
     ['mlh1', 'Loss MLH1 + PMS2'], ['msh2', 'Loss MSH2 + MSH6'], ['msh6', 'Loss MSH6 only'],
     ['pms2', 'Loss PMS2 only'], ['msi', 'MSI-high (no IHC)'], ['mss', 'MSS (no IHC)']] },
