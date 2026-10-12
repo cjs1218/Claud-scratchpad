@@ -934,13 +934,13 @@
 
   function cancersTable(c) {
     const hasEv = c.rules.some(r => r[6] || r[7]);
-    const rows = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).map(([site, hist, tier, early, pred, maxAge, src, risk]) => {
+    const rows = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).map(([site, hist, tier, early, pred, maxAge, src, risk, usDiff]) => {
       const h = hist === '*' ? 'Any type' : hist.split('|').map(x => histLabel(site, x)).join('; ');
       return `<tr><td data-label="Site">${abbrHtml(SITES[site].label)}</td><td data-label="Histology / type">${abbrHtml(h)}</td>
         <td data-label="Strength"><span class="tier tier-${tier}">${TIER_LABEL[tier]}</span></td>
         <td data-label="Early onset"${early == null ? ' class="na"' : ''}>${early != null ? '≤' + early : '–'}</td><td data-label="Age limit"${maxAge == null ? ' class="na"' : ''}>${maxAge != null ? '≤' + maxAge : '–'}</td>
         <td data-label="Condition"${pred ? '' : ' class="na"'}>${pred ? abbrHtml(PRED_LABEL[pred]) : '–'}</td>
-        ${hasEv ? `<td class="ev" data-label="Risk and evidence"><div>${risk ? `<span class="ev-risk">${esc(risk)}</span>` : ''}<span class="ev-src">${evLinks(src)}</span></div></td>` : ''}</tr>`;
+        ${hasEv ? `<td class="ev" data-label="Risk and evidence"><div>${risk ? `<span class="ev-risk">${esc(risk)}</span>` : ''}<span class="ev-src">${evLinks(src)}</span>${usDiff ? `<span class="ev-diff"><strong>US differs:</strong> ${esc(usDiff)}</span>` : ''}</div></td>` : ''}</tr>`;
     }).join('');
     return `<div class="table-wrap"><table class="syn-table cancers">
       <thead><tr><th>Site</th><th>Histology / type</th><th>Strength</th><th>Early onset</th><th>Age limit</th><th>Condition</th>${hasEv ? '<th>Risk and evidence</th>' : ''}</tr></thead>
@@ -1169,7 +1169,7 @@
     L.push('', 'CANCERS AND HISTOLOGY');
     [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).forEach(r => {
       const t = ruleText(r);
-      L.push(`- [${TIER_LABEL[t.tier]}] ${t.text}${r[7] ? ` – ${r[7]}` : ''}${r[6] ? ` (${evShort(r[6])})` : ''}`);
+      L.push(`- [${TIER_LABEL[t.tier]}] ${t.text}${r[7] ? ` – ${r[7]}` : ''}${r[6] ? ` (${evShort(r[6])})` : ''}${r[8] ? ` [US differs: ${r[8]}]` : ''}`);
     });
     if (VARIANT_NOTES[c.id]) { L.push('', 'VARIANT-LEVEL NOTES (information only)'); VARIANT_NOTES[c.id].forEach(([t, src]) => L.push(`- ${t} (${evShort(src)})`)); }
     const sv = SURVEILLANCE[c.id];
