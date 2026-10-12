@@ -712,6 +712,10 @@
         n.lines.push({ t: shortText(SITES[d.site].label, 16) + (d.age !== '' ? ' ' + d.age : ''), cls: 'ped-l ped-dx' + cls });
         const h = histLabel(d.site, d.hist);
         if (!/^(any|other)/i.test(h)) n.lines.push({ t: shortText(h, 20), cls: 'ped-l ped-hist' + cls });
+        // Side (with the second cancer's age) and number of tumours, when entered.
+        const sn = [d.side ? sideLabel(d, d.side).replace(/ \(one (side|eye)\)/, '') + (d.side === 'both' && has(d.age2) ? `, 2nd ${d.age2}` : '') : '',
+          (isCounted(d) && +d.count > 1) ? `${d.count} tumours` : ''].filter(Boolean).join(' · ');
+        if (sn) n.lines.push({ t: shortText(sn, 22), cls: 'ped-l ped-hist' + cls });
       });
       if (dxs.length > 3) n.lines.push({ t: `+${dxs.length - 3} more`, cls: 'ped-l ped-hist' });
       n.title = `${personLabel(n.p)}${personStatus(n.p) ? ` (${personStatus(n.p)})` : ''}${dxs.length ? ': ' + dxs.map(d => dxText(d, n.p)).join('; ') : ' – no cancer entered'}`;
