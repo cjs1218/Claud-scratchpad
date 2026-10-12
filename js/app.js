@@ -338,6 +338,7 @@
       </div>
       <div class="person-elig" data-elig-for="${p.id}"></div>
       <div class="person-mss" data-mss-for="${p.id}"></div>
+      <div class="person-warn" data-warn-for="${p.id}"></div>
     </section>`;
   }
   function renderPerson(p) {
@@ -353,6 +354,7 @@
       </div>
       <div class="person-elig" data-elig-for="${p.id}"></div>
       <div class="person-mss" data-mss-for="${p.id}"></div>
+      <div class="person-warn" data-warn-for="${p.id}"></div>
       <div class="person-extra">
         ${p.deceased
           ? `<label class="mk">Age at death<input type="number" min="0" max="120" inputmode="numeric" data-f="ageDeath" value="${esc(p.ageDeath ?? '')}" placeholder="Age"></label>`
@@ -956,7 +958,35 @@
     updateToResults();
     updateFormTags();
   }
+  /* ---- Checks on what has been entered: impossible or doubtful values that would change the results ---- */
+  const ONE_ONLY = ['mother', 'father', 'm_gm', 'm_gf', 'p_gm', 'p_gf'];
+  function personWarnings(p) {
+    const w = [];
+    const n = v => (v === '' || v == null ? null : +v);
+    const status = p.deceased ? n(p.ageDeath) : n(p.ageNow);
+    if (ONE_ONLY.includes(p.rel) && state.people.filter(x => x.rel === p.rel).length > 1) w.push(`More than one ${REL[p.rel].label.toLowerCase()} entered – check the relationship.`);
+    for (const d of p.dx) {
+      if (!d.site) continue;
+      const name = SITES[d.site].label.split(/ \/ | \(/)[0];
+      if (!d.hist) { w.push(`${name}: choose the histology / type – until then this cancer is not counted.`); continue; }
+      const a = n(d.age);
+      if (a === null) w.push(`${name}: no age at diagnosis – age-based criteria and the Manchester score leave it out.`);
+      else if (a < 0 || a > 110) w.push(`${name}: age ${d.age} looks wrong.`);
+      else if (status !== null && a > status) w.push(`${name}: diagnosed at ${a}, older than ${p.deceased ? 'age at death' : 'age now'} (${status}).`);
+      if (d.side === 'both' && n(d.age2) !== null && a !== null && n(d.age2) < a) w.push(`${name}: second cancer (${d.age2}) is younger than the first (${a}) – swap them if so.`);
+      if (p.sex === 'M' && ['ovary', 'uterus', 'cervix'].includes(d.site)) w.push(`${name} cancer entered for a male relative – check sex or site.`);
+      if (p.sex === 'F' && ['prostate', 'testis'].includes(d.site)) w.push(`${name} cancer entered for a female relative – check sex or site.`);
+      if (d.site === 'polyps' && ['adenoma', 'pj', 'juvenile', 'serrated', 'mixed', 'ganglioneuroma'].includes(d.hist) && (d.count === '' || d.count == null)) w.push(`${name}: number of polyps not entered – polyposis criteria depend on it.`);
+    }
+    return w;
+  }
   function updateFormTags() {
+    document.querySelectorAll('[data-warn-for]').forEach(el => {
+      const p = state.people.find(x => x.id === +el.dataset.warnFor);
+      const w = p ? personWarnings(p) : [];
+      const html = w.length ? `<ul>${w.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '';
+      if (el.dataset.html !== html) { el.innerHTML = html; el.dataset.html = html; }
+    });
     document.querySelectorAll('[data-mss-for]').forEach(el => {
       const p = state.people.find(x => x.id === +el.dataset.mssFor);
       const show = p && p.dx.some(d => d.site === 'breast' || (d.site === 'ovary' && d.hist));

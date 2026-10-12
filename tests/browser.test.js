@@ -644,6 +644,21 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check((await page.locator('#family .person').first().locator('select[data-f=rel]').count()) === 0 && await page.evaluate(() => RELATIONS.some(r => r[0] === 'm_ggp') && RELATIONS.some(r => r[0] === 'gniece')), 'new relationships are in the list');
   check(await page.evaluate(() => relDegree({ rel: 'proband' }, { rel: 'm_ggp' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'gniece' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'm_cousin_child' }) === 4), 'degrees of relationship for the new relatives');
 
+  console.log('Entry checks');
+  await page.goto(BASE); await page.click('#example');
+  check(await page.locator('#family .person-warn li').count() === 0, 'no warnings for the example family');
+  await page.click('#clear');
+  await page.setInputFiles('#open-family', { name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, people: [
+    { rel: 'proband', sex: 'M', ageNow: '40', dx: [{ site: 'ovary', hist: 'hgsc', age: '45' }, { site: 'polyps', hist: 'adenoma', age: '30' }] },
+    { rel: 'mother', sex: 'F', dx: [{ site: 'breast', hist: 'idc', age: '50', side: 'both', age2: '44' }, { site: 'colorectal', hist: 'adeno' }] },
+    { rel: 'mother', sex: 'F', dx: [{ site: 'breast', hist: '' }] }] })) });
+  await page.waitForSelector('#family .person-warn li');
+  const wt = await page.locator('#family .person-warn').allTextContents();
+  check(/older than age now \(40\)/.test(wt[0]) && /for a male relative/.test(wt[0]) && /number of polyps not entered/.test(wt[0]), 'warns: diagnosis after age now, ovarian cancer in a male, polyp count missing');
+  check(/second cancer \(44\) is younger than the first \(50\)/.test(wt[1]) && /no age at diagnosis/.test(wt[1]) && /More than one mother entered/.test(wt[1]), 'warns: second age younger, missing age, two mothers');
+  check(/choose the histology/.test(wt[2]), 'warns when a cancer has no histology (not counted)');
+  check(await page.locator('#family .person.collapsed .person-warn li').count() > 0, 'warnings show on folded cards too');
+
   console.log('Ancestry criteria');
   await page.goto(BASE); await page.click('#clear');
   await page.setInputFiles('#open-family', { name: 'w.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, ancestry: 'whalsay', people: [

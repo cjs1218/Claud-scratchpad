@@ -567,3 +567,9 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .disclaimer.stale { border-left-color: #d5281b; }
 abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
 @media print { .mode-hint, .results-status { display: none; } }
+
+/* Entry checks */
+.person-warn ul { list-style: none; margin: 4px 0 2px; padding: 4px 8px; border-left: 3px solid var(--warn-edge); background: var(--warn-bg); color: var(--warn-fg); font-size: 0.8rem; border-radius: 2px; }
+.person-warn li::before { content: "⚠ "; }
+.person-warn:empty { display: none; }
+@media print { .person-warn { display: none; } }
