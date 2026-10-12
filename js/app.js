@@ -131,7 +131,8 @@
   /* ---------------- Text helpers ---------------- */
 
   const has = v => v !== '' && v != null;
-  const personStatus = p => p.deceased ? `deceased${has(p.ageDeath) ? ` at ${p.ageDeath}` : ''}` : (has(p.ageNow) ? `age ${p.ageNow}` : '');
+  const personStatus = p => [p.deceased ? `deceased${has(p.ageDeath) ? ` at ${p.ageDeath}` : ''}` : (has(p.ageNow) ? `age ${p.ageNow}` : ''),
+    p.adopted ? 'adopted, no known family history (Manchester +2/+2)' : ''].filter(Boolean).join('; ');
 
   function personLabel(p) {
     const r = REL[p.rel];
