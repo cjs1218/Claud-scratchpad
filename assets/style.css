@@ -433,3 +433,12 @@ body.compact-head .gh-link { margin-top: 0; padding: 3px 8px; }
 }
 @media print { body:not(.printing) #tab-assess > .panel:first-child { display: none !important; } }
 @media print { .lede-short { display: none !important; } }
+
+/* Footer: about this information */
+.site-foot { border-top: 1px solid var(--border); padding-top: 16px; }
+.foot-title { font-size: 1rem; color: var(--fg); margin: 0 0 8px; }
+.foot-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 0; }
+.foot-list dt { font-weight: 700; color: var(--fg); }
+.foot-list dd { margin: 0; }
+.foot-disclaimer { margin: 12px 0 0; color: var(--warn-fg); background: var(--warn-bg); border-left: 4px solid var(--warn-edge); padding: 6px 10px; }
+@media (max-width: 600px) { .foot-list { grid-template-columns: 1fr; gap: 2px; } .foot-list dd { margin-bottom: 8px; } }

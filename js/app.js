@@ -1449,6 +1449,9 @@
     });
     $('#gene-count').textContent = NICPR.genes.length;
     $('#cond-count').textContent = CONDITIONS.length;
+    $('#foot-genes').textContent = NICPR.genes.length;
+    $('#foot-conds').textContent = CONDITIONS.length;
+    $('#foot-checked').textContent = DATA_CHECKED;
     renderFamily();
     renderResults();
     route();
