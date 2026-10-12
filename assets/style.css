@@ -666,3 +666,6 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .quick-start h3 { margin: 0 0 8px; }
 .quick-start ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
 @media print { .ped-view, .ped-wide { display: none !important; } }
+.child-of { margin: 0 0 6px; }
+.child-of .mk { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.child-of select { flex: 1; min-width: 0; max-width: 360px; }

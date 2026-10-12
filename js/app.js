@@ -344,6 +344,14 @@
       <div class="person-warn" data-warn-for="${p.id}"></div>
     </section>`;
   }
+  // "Child of" row: which entered aunt/uncle, sibling, child, niece or cousin is this relative's parent.
+  const PARENT_WORDS = { m_cousin: 'maternal aunt or uncle', p_cousin: 'paternal aunt or uncle', niece: 'brother or sister', grandchild: 'son or daughter',
+    gniece: 'niece or nephew', m_cousin_child: 'maternal cousin', p_cousin_child: 'paternal cousin' };
+  function childOfHtml(p) {
+    const c = parentCandidates(p);
+    return `<div class="child-of"><label class="mk">Child of
+      <select data-f="parentId">${optionList([['', c.length ? `Not specified – choose the ${PARENT_WORDS[p.rel]}` : `Not specified (add the ${PARENT_WORDS[p.rel]} to choose)`], ...c.map(x => [String(x.id), personLabel(x)])], namedParent(p) ? String(p.parentId) : '')}</select></label></div>`;
+  }
   function renderPerson(p) {
     if (!isOpen(p) && !state.printFull) return renderPersonCard(p);
     const isProband = p.rel === 'proband';
@@ -356,6 +364,7 @@
         ${isComplete(p) ? '<button type="button" class="btn-done" data-act="done-person" title="Fold this relative into a one-line summary">Done</button>' : ''}
         ${isProband ? '' : '<button type="button" class="icon-btn" data-act="rm-person" title="Remove relative">×</button>'}
       </div>
+      ${PARENT_OF[p.rel] ? childOfHtml(p) : ''}
       <div class="person-elig" data-elig-for="${p.id}"></div>
       <div class="person-mss" data-mss-for="${p.id}"></div>
       <div class="person-warn" data-warn-for="${p.id}"></div>
@@ -364,7 +373,6 @@
           ? `<label class="mk">Age at death<input type="number" min="0" max="120" inputmode="numeric" data-f="ageDeath" value="${esc(p.ageDeath ?? '')}" placeholder="Age"></label>`
           : `<label class="mk">Age now<input type="number" min="0" max="120" inputmode="numeric" data-f="ageNow" value="${esc(p.ageNow ?? '')}" placeholder="Age"></label>`}
         <label class="mk chk"><input type="checkbox" data-f="deceased"${p.deceased ? ' checked' : ''}>Deceased</label>
-        ${PARENT_OF[p.rel] ? (() => { const c = parentCandidates(p); return `<label class="mk">Child of<select data-f="parentId">${optionList([['', c.length ? 'Not specified' : 'Not specified (no possible parent entered)'], ...c.map(x => [String(x.id), personLabel(x)])], namedParent(p) ? String(p.parentId) : '')}</select></label>`; })() : ''}
         ${isProband ? `<label class="mk chk" title="Manchester score +2 BRCA1, +2 BRCA2 when there is no known cancer history in blood relatives"><input type="checkbox" data-f="adopted"${p.adopted ? ' checked' : ''}>Adopted (no known family history)</label>` : ''}
       </div>
       ${p.dx.map(d => renderDx(p, d)).join('')}
@@ -430,6 +438,12 @@
       if (f === 'parentId') p.parentId = val === '' ? null : +val;
       if (f === 'rel') { if (REL[val].sex) p.sex = REL[val].sex; if (!namedParent(p)) p.parentId = null; renderFamily(); }
       if (f === 'deceased') renderFamily();
+    }
+    // Offer "Done" as soon as the relative has a complete cancer (without redrawing the form being typed in).
+    const pEl = el.closest('.person');
+    if (pEl && isComplete(p) && !pEl.querySelector('[data-act=done-person]')) {
+      const head = pEl.querySelector('.person-head'), rm = head && head.querySelector('[data-act=rm-person]');
+      if (head) head.insertBefore(Object.assign(document.createElement('button'), { type: 'button', className: 'btn-done', textContent: 'Done', title: 'Fold this relative into a one-line summary' }), rm || null).dataset.act = 'done-person';
     }
     renderResults();
   }

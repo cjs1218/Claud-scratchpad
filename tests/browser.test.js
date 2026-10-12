@@ -706,7 +706,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const c2 = page.locator('#family .person').nth(4);
   await c2.locator('.person-open').click();
   const sel = page.locator('#family .person').nth(4).locator('select[data-f=parentId]');
-  check((await sel.locator('option').allTextContents()).join('|') === 'Not specified|Maternal aunt|Maternal uncle', '"Child of" lists the maternal aunts and uncles entered');
+  check((await sel.locator('option').allTextContents()).join('|') === 'Not specified – choose the maternal aunt or uncle|Maternal aunt|Maternal uncle', '"Child of" lists the maternal aunts and uncles entered');
   await sel.selectOption({ label: 'Maternal uncle' }); await page.waitForTimeout(100);
   check(!/not specified/.test(await page.locator('#ped-wrap svg').textContent()), 'choosing the parent moves the cousin under that uncle in the tree');
   await page.click('#copy');
@@ -715,6 +715,16 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const saved2 = JSON.parse(require('fs').readFileSync(await dl2.path(), 'utf8'));
   const uncle = saved2.people.find(p => p.rel === 'm_uncle'), cz = saved2.people.filter(p => p.rel === 'm_cousin');
   check(cz.some(c => c.parentId === uncle.id), 'the link is saved in the family file');
+  // Adding a maternal cousin to the example family: the maternal aunt can be chosen as the parent
+  await page.click('#example');
+  await page.click('#add-person');
+  await page.locator('#family .person').last().locator('select[data-f=rel]').selectOption('m_cousin');
+  await page.locator('#family .person').last().locator('select[data-f=parentId]').selectOption({ label: 'Maternal aunt' });
+  await page.locator('#family .person').last().locator('select[data-f=site]').selectOption('colorectal');
+  await page.locator('#family .person').last().locator('select[data-f=hist]').selectOption('adeno');
+  await page.locator('#family .person').last().locator('input[data-f=age]').fill('39');
+  await page.locator('#family .person').last().locator('[data-act=done-person]').click();
+  check(/child of Maternal aunt/.test(await page.locator('#family .person').last().textContent()), 'example family: a new maternal cousin can be made the maternal aunt\'s child');
 
   console.log('Entry checks');
   await page.goto(BASE); await page.click('#example');
