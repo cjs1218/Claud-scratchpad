@@ -72,42 +72,78 @@
   const dxs = p => p.dx.filter(d => d.site && d.hist);
   const histText = d => `${SITES[d.site].label}: ${(SITES[d.site].hist.find(h => h[0] === d.hist) || [, d.hist])[1]}${age(d) !== null ? `, age ${age(d)}` : ''}`;
 
-  /* ---- Manchester score (combined, BRCA1, BRCA2) for a person being considered for testing ---- */
-  function manchester(person, people) {
+  /* ---- Manchester score (combined, BRCA1, BRCA2) for a person being considered for testing ----
+   * manchesterDetail records every step (rows counted, pathology adjustments, what was not counted) for the
+   * breakdown panel; manchester() returns the totals for the best lineage. */
+  const OV_NOT_SCORED = ['mucinous', 'germ', 'fibroma', 'granulosa_a', 'granulosa_j', 'sertoli', 'sctat', 'sccoht'];
+  // Points table (Evans 2004/2017, as published by GeNotes): [row id, label, BRCA1, BRCA2].
+  const MSS_TABLE = [
+    ['fbc30', 'Female breast cancer <30', 6, 5], ['fbc40', 'Female breast cancer 30–39', 4, 4], ['fbc50', 'Female breast cancer 40–49', 3, 3],
+    ['fbc60', 'Female breast cancer 50–59', 2, 2], ['fbc99', 'Female breast cancer ≥60', 1, 1],
+    ['mbc60', 'Male breast cancer <60', 5, 8], ['mbc99', 'Male breast cancer ≥60', 5, 5],
+    ['ov60', 'Ovarian cancer <60', 8, 5], ['ov99', 'Ovarian cancer ≥60', 5, 5],
+    ['panc', 'Pancreatic cancer', 0, 1], ['pr60', 'Prostate cancer <60', 0, 2], ['pr99', 'Prostate cancer ≥60', 0, 1]
+  ];
+  const MSS_ADJ = [
+    ['tnbc', 'Breast cancer triple negative', 4], ['her2', 'Breast cancer HER2 positive (not triple negative)', -6],
+    ['erpos', 'Breast cancer ER positive (not triple negative)', -1], ['erneg', 'Breast cancer ER negative (not triple negative)', 1],
+    ['ilc', 'Breast cancer lobular', -2], ['dcis', 'Breast DCIS only', -1], ['hgsc', 'High-grade serous ovarian cancer <60 (no breast cancer)', 2]
+  ];
+  const MSS_ROW = Object.fromEntries(MSS_TABLE.map(r => [r[0], r])), MSS_ADJ_ROW = Object.fromEntries(MSS_ADJ.map(r => [r[0], r]));
+  function mssRow(p, d) {
+    const a = age(d);
+    if (isBreast(d) && !isMale(p)) return a < 30 ? 'fbc30' : a < 40 ? 'fbc40' : a < 50 ? 'fbc50' : a < 60 ? 'fbc60' : 'fbc99';
+    if (isBreast(d)) return a < 60 ? 'mbc60' : 'mbc99';
+    if (d.site === 'ovary' && !OV_NOT_SCORED.includes(d.hist)) return a < 60 ? 'ov60' : 'ov99';
+    if (d.site === 'pancreas' && d.hist !== 'pnet') return 'panc';
+    if (d.site === 'prostate') return a < 60 ? 'pr60' : 'pr99';
+    return null;
+  }
+  function mssLineage(person, people, s) {
+    const rows = [], excluded = [], adj = [];
+    let b1 = 0, b2 = 0;
+    for (const p of people) {
+      const ps = sideOf(p), onSide = ps === 'core' || ps === s;
+      for (const d of dxs(p)) {
+        const relevant = isBreast(d) || ['ovary', 'pancreas', 'prostate'].includes(d.site);
+        if (!onSide) { if (relevant) excluded.push({ p, d, why: 'other side of the family' }); continue; }
+        if (!relevant) continue;
+        if (age(d) === null) { excluded.push({ p, d, why: 'no age at diagnosis entered' }); continue; }
+        const id = mssRow(p, d);
+        if (!id) { excluded.push({ p, d, why: d.site === 'ovary' ? 'non-epithelial or mucinous ovarian tumours are not scored' : 'pancreatic neuroendocrine tumours are not scored' }); continue; }
+        // Bilateral breast cancer scores as two primaries (local practice).
+        const k = isBreast(d) && !isMale(p) && d.bilat ? 2 : 1;
+        const [, , p1, p2] = MSS_ROW[id];
+        rows.push({ p, d, id, k, b1: k * p1, b2: k * p2 });
+        b1 += k * p1; b2 += k * p2;
+      }
+    }
+    // Pathology adjustment for the tested person's own tumour (BRCA1 score).
+    const own = dxs(person);
+    const br = own.find(isBreast), ov = own.find(d => d.site === 'ovary');
+    if (br) {
+      if (PRED.tnbc(br)) adj.push('tnbc');
+      else {
+        if (br.her2 === 'pos') adj.push('her2');
+        if (br.er === 'pos') adj.push('erpos'); else if (br.er === 'neg') adj.push('erneg');
+      }
+      if (br.hist === 'ilc') adj.push('ilc');
+      if (br.hist === 'dcis') adj.push('dcis');
+    } else if (ov && ov.hist === 'hgsc' && lt(ov, 60)) adj.push('hgsc');
+    const adjRows = adj.map(id => ({ id, label: MSS_ADJ_ROW[id][1], b1: MSS_ADJ_ROW[id][2], d: id === 'hgsc' ? ov : br }));
+    b1 += adjRows.reduce((t, r) => t + r.b1, 0);
+    return { side: s, b1, b2, combined: b1 + b2, rows, adj: adjRows, excluded };
+  }
+  function manchesterDetail(person, people) {
     const side = sideOf(person);
     const sides = side === 'core' ? ['M', 'P'] : [side];
-    let best = { combined: 0, b1: 0, b2: 0 };
-    for (const s of sides) {
-      let b1 = 0, b2 = 0;
-      for (const p of people) {
-        const ps = sideOf(p);
-        if (!(ps === 'core' || ps === s)) continue;
-        for (const d of dxs(p)) {
-          const a = age(d);
-          if (a === null) continue;
-          // Bilateral breast cancer scores as two primaries (local practice).
-          if (isBreast(d) && !isMale(p)) { const pts = a < 30 ? [6, 5] : a < 40 ? [4, 4] : a < 50 ? [3, 3] : a < 60 ? [2, 2] : [1, 1]; const k = d.bilat ? 2 : 1; b1 += k * pts[0]; b2 += k * pts[1]; }
-          else if (isBreast(d) && isMale(p)) { const pts = a < 60 ? [5, 8] : [5, 5]; b1 += pts[0]; b2 += pts[1]; }
-          else if (d.site === 'ovary' && !['mucinous', 'germ', 'fibroma', 'granulosa_a', 'granulosa_j', 'sertoli', 'sctat', 'sccoht'].includes(d.hist)) { const pts = a < 60 ? [8, 5] : [5, 5]; b1 += pts[0]; b2 += pts[1]; }
-          else if (d.site === 'prostate') b2 += a < 60 ? 2 : 1;
-          else if (d.site === 'pancreas' && d.hist !== 'pnet') b2 += 1;
-        }
-      }
-      // Pathology adjustment for the tested person's own tumour.
-      const own = dxs(person);
-      const br = own.find(isBreast), ov = own.find(d => d.site === 'ovary');
-      if (br) {
-        if (PRED.tnbc(br)) b1 += 4;
-        else {
-          if (br.her2 === 'pos') b1 -= 6;
-          if (br.er === 'pos') b1 -= 1; else if (br.er === 'neg') b1 += 1;
-        }
-        if (br.hist === 'ilc') b1 -= 2;
-        if (br.hist === 'dcis') b1 -= 1;
-      } else if (ov && ov.hist === 'hgsc' && lt(ov, 60)) b1 += 2;
-      if (b1 + b2 > best.combined) best = { combined: b1 + b2, b1, b2 };
-    }
-    return best;
+    const all = sides.map(s => mssLineage(person, people, s));
+    const best = all.reduce((a, b) => (b.combined > a.combined ? b : a));
+    return { ...best, person, sides: all };
+  }
+  function manchester(person, people) {
+    const d = manchesterDetail(person, people);
+    return d.combined > 0 ? { combined: d.combined, b1: d.b1, b2: d.b2 } : { combined: 0, b1: 0, b2: 0 };
   }
 
   /* ---- Modified Amsterdam criteria (Amsterdam II) ----
@@ -586,7 +622,7 @@
         const fdr = affected.filter(a => degree(u, a) === 1 && dxs(a).some(d => isBreast(d) || is(d, 'ovary', 'hgsc|lgsc|nos')));
         for (const a of fdr) {
           const m = manchester(a, people);
-          if (m.combined >= 20) add(u, 'R208', [`unaffected first-degree relative of ${REL[a.rel].label.toLowerCase()} (deceased) with Manchester score ${m.combined} (≥20) – via Clinical Genetics`], { unaffected: true, manchester: m });
+          if (m.combined >= 20) add(u, 'R208', [`unaffected first-degree relative of ${REL[a.rel].label.toLowerCase()} (deceased) with Manchester score ${m.combined} (≥20) – via Clinical Genetics`], { unaffected: true, manchester: m, mssFor: a });
         }
         if (out.some(o => o.test === 'R210' && /Amsterdam/.test(o.text.join(' ')))) add(u, 'R210', ['unaffected relative in a family meeting modified Amsterdam criteria with no living affected relative – via Clinical Genetics (R404 route)'], { unaffected: true });
       }
@@ -698,5 +734,8 @@
   window.CRIT_REF = CRIT_REF;
   window.nearMisses = (people, ancestry) => nearMisses(people, check(people, ancestry));
   window.manchesterScore = manchester;
+  window.manchesterDetail = manchesterDetail;
+  window.MSS_TABLE = MSS_TABLE;
+  window.MSS_ADJ = MSS_ADJ;
   window.relDegree = degree;
 })();

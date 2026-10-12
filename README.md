@@ -90,6 +90,11 @@ to its criterion line, so the lines the family meets (green), may meet (amber) o
 highlighted with who and why. The panel ends with the genes tested (green genes on the test's PanelApp panel,
 from `js/panels.js`); hovering over a test code also shows them.
 
+Any Manchester score (eligibility box, R208 panel, and a live score under each person with breast or ovarian cancer in
+the form) opens a breakdown: each cancer counted with its BRCA1/BRCA2 points, the tested person's pathology adjustments,
+what was not counted and why, and the scoring table with the rows used highlighted (`manchesterDetail` in
+`js/eligibility.js`).
+
 ## Family tree
 
 Above the differential, a pedigree is drawn from the relatives entered (standard symbols: square male,

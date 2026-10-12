@@ -303,6 +303,7 @@
         ${isProband ? '' : '<button type="button" class="icon-btn" data-act="rm-person" title="Remove relative">×</button>'}
       </div>
       <div class="person-elig" data-elig-for="${p.id}"></div>
+      <div class="person-mss" data-mss-for="${p.id}"></div>
       <div class="person-extra">
         ${p.deceased
           ? `<label class="mk">Age at death<input type="number" min="0" max="120" inputmode="numeric" data-f="ageDeath" value="${esc(p.ageDeath ?? '')}" placeholder="Age"></label>`
@@ -835,6 +836,13 @@
     updateFormTags();
   }
   function updateFormTags() {
+    document.querySelectorAll('[data-mss-for]').forEach(el => {
+      const p = state.people.find(x => x.id === +el.dataset.mssFor);
+      const show = p && p.dx.some(d => d.site === 'breast' || (d.site === 'ovary' && d.hist));
+      if (!show) { el.innerHTML = ''; return; }
+      const s = manchesterScore(p, state.people);
+      el.innerHTML = `<button type="button" class="mss-link" data-mss="${p.id}" title="Show how the Manchester score was calculated">Manchester score ${s.combined} (BRCA1 ${s.b1}, BRCA2 ${s.b2})</button>`;
+    });
     const m = eligByPerson();
     document.querySelectorAll('[data-elig-for]').forEach(el => {
       const e = m.get(+el.dataset.eligFor) || { meets: [], maybe: [] };
@@ -850,6 +858,10 @@
     const i = tc.items.findIndex(x => x[2].startsWith(snip));
     return i >= 0 ? i : tc.items.findIndex(x => x[2].includes(snip));
   }
+  // Reason text, with "Manchester score …" made a link to the breakdown for the person it was calculated for.
+  const reasonHtml = (text, mssPerson) => mssPerson && /Manchester score/.test(text)
+    ? `<button type="button" class="mss-link" data-mss="${mssPerson.id}" title="Show how the Manchester score was calculated">${abbrHtml(text)}</button>`
+    : abbrHtml(text);
   const KIND = { met: ['Meets now', '✓'], maybe: ['May meet – check', '?'], near: ['Near miss', '–'] };
   function criteriaHtml(code) {
     const t = TESTS[code], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA[code] : null;
@@ -858,12 +870,12 @@
       ...nearMisses(state.people, state.ancestry).filter(o => o.test === code).map(o => ({ o, kind: 'near' }))];
     const hits = new Map(), loose = [];
     for (const { o, kind } of entries) o.text.forEach((text, i) => {
-      const h = { p: o.person, text, kind, tag: kind === 'met' ? eligTag(o) : '' };
+      const h = { p: o.person, mss: o.mssFor || o.person, text, kind, tag: kind === 'met' ? eligTag(o) : '' };
       const idx = critIndex(tc, o.crit && o.crit[i]);
       if (idx >= 0) { if (!hits.has(idx)) hits.set(idx, []); hits.get(idx).push(h); } else loose.push(h);
     });
     const rank = { met: 0, maybe: 1, near: 2 };
-    const who = h => `<li class="who-${h.kind}"><span aria-hidden="true">${KIND[h.kind][1]}</span> <strong>${esc(personLabel(h.p))}</strong>${h.p.deceased ? ' (deceased)' : ''} – ${abbrHtml(h.text)}${h.tag ? ` <span class="elig-tag">${esc(h.tag)}</span>` : ''}</li>`;
+    const who = h => `<li class="who-${h.kind}"><span aria-hidden="true">${KIND[h.kind][1]}</span> <strong>${esc(personLabel(h.p))}</strong>${h.p.deceased ? ' (deceased)' : ''} – ${reasonHtml(h.text, h.mss)}${h.tag ? ` <span class="elig-tag">${esc(h.tag)}</span>` : ''}</li>`;
     const all = [...hits.values()].flat().concat(loose);
     const family = state.people.some(p => p.dx.some(d => d.site && d.hist));
     const summary = !family ? '<p class="small muted">Enter a family on the Assess tab to see who meets these criteria.</p>'
@@ -893,8 +905,8 @@
       ${extra ? `<p class="small">Also: ${esc(extra)}.</p>` : ''}
       <p class="small muted">Green (diagnostic-grade) genes on ${link(`PanelApp ${g.panel}: ${g.name} v${g.version}`, PANELAPP(g.panel))}, checked ${esc(PANEL_DATE)}. Test Directory: ${esc(t.genes)}.</p></section>`;
   }
-  function openCriteria(code) {
-    if (!TESTS[code]) return;
+  // One pop-up panel shared by the criteria and Manchester score views.
+  function openPanel(html, view) {
     let dlg = $('#crit-dialog');
     if (!dlg) {
       dlg = document.createElement('dialog');
@@ -902,12 +914,55 @@
       document.body.append(dlg);
       dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
     }
-    dlg.innerHTML = criteriaHtml(code);
+    dlg.innerHTML = html;
+    dlg.dataset.view = view;
     dlg.querySelector('h2').id = 'crit-title';
     if (!dlg.open) dlg.showModal();
-    const first = dlg.querySelector('.crit-list li.hit');
     dlg.scrollTop = 0;
+    return dlg;
+  }
+  function openCriteria(code) {
+    if (!TESTS[code]) return;
+    const dlg = openPanel(criteriaHtml(code), code);
+    const first = dlg.querySelector('.crit-list li.hit');
     if (first) first.scrollIntoView({ block: 'center' });
+  }
+
+  /* ---- Manchester score breakdown ---- */
+  const SIDE_LABEL = { M: 'maternal side', P: 'paternal side' };
+  function manchesterHtml(person, back) {
+    const m = manchesterDetail(person, state.people);
+    const both = m.sides.length > 1, other = m.sides.find(x => x.side !== m.side);
+    const dxLabel = d => abbrHtml(`${SITES[d.site].label}: ${histLabel(d.site, d.hist)}${d.age !== '' && d.age != null ? `, age ${d.age}` : ''}`);
+    const rowLabel = id => (MSS_TABLE.find(r => r[0] === id) || [])[1];
+    const threshold = m.combined >= 15 || m.b1 >= 10 || m.b2 >= 10;
+    const rows = m.rows.map(r => `<tr><td>${esc(personLabel(r.p))}</td><td>${dxLabel(r.d)}${r.k > 1 ? ' <span class="elig-tag">bilateral – counted twice</span>' : ''}</td><td>${esc(rowLabel(r.id))}</td><td class="num">${r.b1}</td><td class="num">${r.b2}</td></tr>`).join('');
+    const adj = m.adj.map(a => `<tr class="mss-adj"><td>${esc(personLabel(person))}</td><td>${a.d ? dxLabel(a.d) : ''}</td><td>Pathology: ${abbrHtml(a.label)}</td><td class="num">${a.b1 > 0 ? '+' : ''}${a.b1}</td><td class="num">–</td></tr>`).join('');
+    const used = new Set(m.rows.map(r => r.id)), usedAdj = new Set(m.adj.map(a => a.id));
+    return `<header class="crit-head">
+        <h2>Manchester score – ${esc(personLabel(person))}</h2>
+        <button type="button" class="crit-close" data-close aria-label="Close">×</button>
+      </header>
+      ${back ? `<p><button type="button" class="link-btn" data-back="${esc(back)}">← Back to ${esc(back)}</button></p>` : ''}
+      <p class="mss-total"><strong>Combined ${m.combined}</strong> (BRCA1 ${m.b1}, BRCA2 ${m.b2})${both ? ` · ${SIDE_LABEL[m.side]}` : ''}
+        <span class="elig-tag ${threshold ? 'mss-ok' : 'dec'}">${threshold ? 'meets the R208 threshold (≥15 combined or ≥10 for one gene)' : 'below the R208 threshold (≥15 combined or ≥10 for one gene)'}</span></p>
+      ${both ? `<p class="small muted">The proband can count either side of the family; the higher-scoring side is shown. The ${SIDE_LABEL[other.side]} scores ${other.combined} (BRCA1 ${other.b1}, BRCA2 ${other.b2}).</p>` : ''}
+      <section><h3>How it was calculated</h3>
+      ${m.rows.length || m.adj.length ? `<div class="table-wrap"><table class="syn-table mss-table"><thead><tr><th>Relative</th><th>Cancer</th><th>Scored as</th><th class="num">BRCA1</th><th class="num">BRCA2</th></tr></thead>
+        <tbody>${rows}${adj}</tbody>
+        <tfoot><tr><th colspan="3">Total (combined ${m.combined})</th><th class="num">${m.b1}</th><th class="num">${m.b2}</th></tr></tfoot></table></div>` : '<p>No cancers on this side of the family score points.</p>'}
+      <p class="small muted">Pathology adjustments apply to the tested person's own tumour only and change the BRCA1 score.</p></section>
+      ${m.excluded.length ? `<section><h3>Not counted</h3><ul class="mss-excl">${m.excluded.map(x => `<li><strong>${esc(personLabel(x.p))}</strong> – ${dxLabel(x.d)}: ${esc(x.why)}</li>`).join('')}</ul></section>` : ''}
+      <section><h3>Scoring table</h3>
+      <div class="table-wrap"><table class="syn-table mss-ref"><thead><tr><th>Cancer</th><th class="num">BRCA1</th><th class="num">BRCA2</th></tr></thead>
+        <tbody>${MSS_TABLE.map(([id, label, b1, b2]) => `<tr${used.has(id) ? ' class="used"' : ''}><td>${esc(label)}</td><td class="num">${b1}</td><td class="num">${b2}</td></tr>`).join('')}
+        <tr class="mss-head"><th colspan="3">Pathology adjustments (tested person's tumour, BRCA1 score)</th></tr>
+        ${MSS_ADJ.map(([id, label, b1]) => `<tr${usedAdj.has(id) ? ' class="used"' : ''}><td>${abbrHtml(label)}</td><td class="num">${b1 > 0 ? '+' : ''}${b1}</td><td class="num">–</td></tr>`).join('')}</tbody></table></div>
+      <p class="small muted">Rows used for this family are highlighted. Points from Evans et al. (${link('J Med Genet 2004', 'https://doi.org/10.1136/jmg.2003.017996')}; ${link('2017 update', 'https://doi.org/10.1136/jmedgenet-2017-104584')}) as published by ${link('GeNotes', 'https://www.genomicseducation.hee.nhs.uk/genotes/knowledge-hub/manchester-evans-score/')}. Not applied because they are not recorded here: breast tumour grade (grade 1 −2, grade 3 +2) and adoption with no known family history (+2/+2). Bilateral breast cancer is counted as two primaries. Count only one side of the family (plus the tested person's own cancers and siblings/children). R208 threshold: combined ≥15 or one gene ≥10 (deceased with tissue only ≥17; unaffected ≥20). Judged only from what has been entered.</p></section>`;
+  }
+  function openManchester(id, back) {
+    const p = state.people.find(x => x.id === id);
+    if (p) openPanel(manchesterHtml(p, back), 'mss');
   }
 
   /* ---- Who meets Test Directory criteria now (js/eligibility.js) ---- */
@@ -949,7 +1004,7 @@
     const ams = amsterdamHtml();
     const people = l => `<ul>${l.map(([p, os]) => `<li><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}
         <ul>${os.map(o => `<li>${testBtn(o.test)} ${esc(TESTS[o.test].name)}${eligTag(o) && !o.possible ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
-          <div class="small muted">${o.text.map(t => abbrHtml(t)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>`;
+          <div class="small muted">${o.text.map(t => reasonHtml(t, o.mssFor || o.person)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>`;
     const maybeHtml = maybe.length ? `<div class="elig-maybe"><h4>May meet – check an unrecorded detail</h4>${people(maybe)}</div>` : '';
     if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>${ams}
       <p class="small">No one in the family as entered meets the inherited cancer test criteria checked here (${ELIG_TESTS.join(', ')}). Check the full criteria, CanRisk and the Manchester score.</p>${maybeHtml}</section>`;
@@ -1605,6 +1660,15 @@
       state.printFull = false; renderResults();
       const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; state.treeOpen = pedWasOpen; pedWasOpen = null; }
     });
+    // Manchester score links open the breakdown (with a way back when opened from a criteria panel).
+    document.addEventListener('click', e => {
+      const m = e.target.closest && e.target.closest('[data-mss], [data-back]');
+      if (!m) return;
+      e.preventDefault(); e.stopPropagation();
+      if (m.dataset.back) { openCriteria(m.dataset.back); return; }
+      const dlg = m.closest('#crit-dialog');
+      openManchester(+m.dataset.mss, dlg && TESTS[dlg.dataset.view] ? dlg.dataset.view : null);
+    }, true);
     // Test codes open the criteria panel.
     document.addEventListener('click', e => {
       const b = e.target.closest && e.target.closest('[data-test]');
