@@ -15,7 +15,7 @@
   const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', grade: '', ovgrade: '', mmr: '', meth: '', braf: '', count: '', side: '', age2: '' });
   const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', adopted: false, dx: [newDx()] });
 
-  const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null, ancestry: '', expanded: new Set(), compareView: null };
+  const state = { openPeople: new Set(), people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null, ancestry: '', expanded: new Set(), compareView: null };
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -312,13 +312,35 @@
     </div>`;
   }
 
+  // A relative with at least one complete cancer folds into a one-line card unless it is being edited.
+  const isComplete = p => p.dx.some(d => d.site && d.hist);
+  const isOpen = p => !isComplete(p) || state.openPeople.has(p.id);
+  function renderPersonCard(p) {
+    const isProband = p.rel === 'proband';
+    const dxs = p.dx.filter(d => d.site && d.hist);
+    const status = personStatus(p);
+    return `<section class="person collapsed" data-pid="${p.id}">
+      <div class="person-card">
+        <button type="button" class="person-open" data-act="edit-person" aria-expanded="false" title="Edit ${esc(personLabel(p))}">
+          <span class="pc-who"><strong>${esc(personLabel(p))}</strong>${status ? ` <span class="pc-status">${esc(status)}</span>` : ''}</span>
+          <span class="pc-dx">${dxs.map(d => `<span>${abbrHtml(dxText(d, p))}</span>`).join('')}</span>
+          <span class="pc-edit" aria-hidden="true">✎ Edit</span>
+        </button>
+        ${isProband ? '' : '<button type="button" class="icon-btn" data-act="rm-person" title="Remove relative">×</button>'}
+      </div>
+      <div class="person-elig" data-elig-for="${p.id}"></div>
+      <div class="person-mss" data-mss-for="${p.id}"></div>
+    </section>`;
+  }
   function renderPerson(p) {
+    if (!isOpen(p) && !state.printFull) return renderPersonCard(p);
     const isProband = p.rel === 'proband';
     const relOpts = RELATIONS.filter(r => isProband ? r[0] === 'proband' : r[0] !== 'proband').map(r => [r[0], r[1]]);
     return `<section class="person" data-pid="${p.id}">
       <div class="person-head">
         ${isProband ? '<strong class="proband-label">Proband</strong>' : `<select data-f="rel" aria-label="Relationship">${optionList(relOpts, p.rel)}</select>`}
         <select data-f="sex" aria-label="Sex">${optionList([['F', 'Female'], ['M', 'Male']], p.sex, 'Sex')}</select>
+        ${isComplete(p) ? '<button type="button" class="btn-done" data-act="done-person" title="Fold this relative into a one-line summary">Done</button>' : ''}
         ${isProband ? '' : '<button type="button" class="icon-btn" data-act="rm-person" title="Remove relative">×</button>'}
       </div>
       <div class="person-elig" data-elig-for="${p.id}"></div>
@@ -335,6 +357,14 @@
     </section>`;
   }
 
+  // After opening or folding a card, keep keyboard focus on that person.
+  function focusPerson(id) {
+    const el = document.querySelector(`#family [data-pid="${id}"]`);
+    if (!el) return;
+    const target = el.querySelector('.person-open') || el.querySelector('select, input');
+    if (target) target.focus({ preventScroll: true });
+    if (el.getBoundingClientRect().top < 60) el.scrollIntoView({ block: 'start' });
+  }
   function renderFamily() {
     $('#family').innerHTML = state.people.map(renderPerson).join('');
     if (typeof updateFormTags === 'function') setTimeout(updateFormTags);
@@ -354,6 +384,7 @@
     if (!f) return;
     const { p, dx } = findTarget(el);
     if (!p) return;
+    state.openPeople.add(p.id); // stays open while being edited
     const val = el.type === 'checkbox' ? el.checked : el.value;
     if (f === 'find') {
       if (e.type === 'change') return;
@@ -396,6 +427,8 @@
       case 'rm-dx': p.dx = p.dx.filter(x => x !== dx); if (!p.dx.length) p.dx.push(newDx());
         if (dx.site) offerUndo(`${dx.site ? SITES[dx.site].label : 'Cancer'} removed from ${personLabel(p)}.`, before); break;
       case 'rm-person': state.people = state.people.filter(x => x !== p); offerUndo(`${personLabel(p)} removed.`, before); break;
+      case 'edit-person': state.openPeople.add(p.id); renderFamily(); focusPerson(p.id); return;
+      case 'done-person': state.openPeople.delete(p.id); renderFamily(); focusPerson(p.id); return;
       default: return;
     }
     renderFamily();
@@ -446,6 +479,7 @@
     if (!people.some(p => p.rel === 'proband')) people.unshift(newPerson('proband'));
     people.forEach(p => { if (!p.dx.length) p.dx.push(newDx()); });
     state.people = people;
+    state.openPeople.clear();
     state.ancestry = ['ashkenazi', 'other_founder'].includes(data.ancestry) ? data.ancestry : '';
     $('#ancestry').value = state.ancestry;
     renderFamily(); renderResults();
@@ -1631,6 +1665,7 @@
       mk('m_aunt', 'F', [{ site: 'breast', hist: 'idc', age: '46' }]),
       mk('father', 'M', [{ site: 'colorectal', hist: 'adeno', age: '68', mmr: 'intact' }])
     ];
+    state.openPeople.clear();
     renderFamily();
     renderResults();
   }
@@ -1650,11 +1685,15 @@
     $('#family').addEventListener('change', onFamilyInput);
     $('#family').addEventListener('input', e => { if (e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') onFamilyInput(e); });
     $('#family').addEventListener('click', onFamilyClick);
-    $('#add-person').addEventListener('click', () => { state.people.push(newPerson('mother')); renderFamily(); renderResults(); });
+    $('#add-person').addEventListener('click', () => {
+      const np = newPerson('mother');
+      state.people.push(np); state.openPeople.clear();
+      renderFamily(); renderResults(); focusPerson(np.id);
+    });
     $('#example').addEventListener('click', loadExample);
     $('#clear').addEventListener('click', () => {
       const before = JSON.stringify(state.people);
-      state.people = [newPerson('proband')]; state.expanded.clear(); renderFamily(); renderResults();
+      state.people = [newPerson('proband')]; state.expanded.clear(); state.openPeople.clear(); renderFamily(); renderResults();
       offerUndo('Family cleared.', before);
     });
     // Find-a-cancer list, family files, remember-on-device, ancestry.

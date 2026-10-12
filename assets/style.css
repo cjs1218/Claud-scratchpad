@@ -544,3 +544,16 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .tr-meets { font-size: 0.82rem; font-weight: 700; color: #007f3b; }
 .tr-maybe { font-size: 0.82rem; font-weight: 700; color: var(--warn-fg); }
 .tr-for { flex-basis: 100%; }
+
+/* Completed relatives fold into a one-line card */
+.person.collapsed { padding: 6px 8px 6px 10px; }
+.person-card { display: flex; gap: 6px; align-items: flex-start; }
+.person-open { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; text-align: left; background: none; border: 0; padding: 4px; font: inherit; color: inherit; cursor: pointer; border-radius: 3px; }
+.person-open:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.person-open:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; }
+.pc-who { grid-column: 1; }
+.pc-status { color: var(--muted); font-size: 0.85rem; }
+.pc-dx { grid-column: 1; display: grid; gap: 1px; font-size: 0.88rem; }
+.pc-edit { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--accent); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.person.collapsed .person-elig, .person.collapsed .person-mss { margin: 2px 0 0 4px; }
+.btn-done { font: inherit; font-size: 0.85rem; font-weight: 600; padding: 3px 10px; border: 2px solid var(--accent); border-radius: 4px; background: var(--card); color: var(--accent); cursor: pointer; }

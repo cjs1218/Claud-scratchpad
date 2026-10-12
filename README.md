@@ -74,6 +74,11 @@ Everything clinical lives in `js/data.js`:
 - The header slims once a family is entered; on phones a "See results" button jumps to the differential and syndrome
   tables become stacked cards.
 
+## Family form
+
+Relatives with at least one cancer entered fold into a one-line card (cancers, criteria tags and Manchester score);
+click a card to edit it and **Done** to fold it again. Loading a family or adding a relative folds the others.
+
 ## Test Directory eligibility
 
 `js/eligibility.js` checks who in the family as entered meets the v9.1 criteria for the inherited cancer tests
