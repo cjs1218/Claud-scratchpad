@@ -156,7 +156,7 @@
     if (dx.braf) extra.push(`BRAF V600E ${dx.braf === 'yes' ? 'present' : 'absent'}`);
     if (dx.site === 'polyps' && dx.count !== '') extra.push(`n=${dx.count}`);
     if (dx.side === 'both') extra.push(`${sideLabel(dx, 'both').toLowerCase()}${has(dx.age2) ? `, second at ${dx.age2}` : ''}`);
-    else if (dx.side === 'multi') extra.push(sideLabel(dx, 'multi').toLowerCase());
+    else if (dx.side) extra.push(sideLabel(dx, dx.side).toLowerCase());
     if (isCounted(dx) && +dx.count > 1) extra.push(`${dx.count} tumours`);
     if (extra.length) t += ` (${extra.join(', ')})`;
     if (dx.age !== '') t += `, age ${dx.age}`;
