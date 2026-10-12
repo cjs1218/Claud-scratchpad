@@ -5,9 +5,9 @@
   const REL = Object.fromEntries(RELATIONS.map(r => [r[0], { id: r[0], label: r[1], degree: r[2], side: r[3], sex: r[4] }]));
   const REL_FACTOR = [1, 1, 0.6, 0.35];
   const MODES = {
-    narrow: { label: 'Narrow', minFrac: 0.35, max: 6, needStrong: true },
-    balanced: { label: 'Balanced', minFrac: 0.15, max: 15, needStrong: false },
-    wide: { label: 'Wide', minFrac: 0, max: Infinity, needStrong: false }
+    narrow: { label: 'Narrow', minFrac: 0.35, max: 6, needStrong: true, hint: 'Narrow: only the strongest matches – up to 6 syndromes, each with a hallmark or strong cancer and at least 35% of the top score.' },
+    balanced: { label: 'Balanced', minFrac: 0.15, max: 15, needStrong: false, hint: 'Balanced: up to 15 syndromes scoring at least 15% of the top score.' },
+    wide: { label: 'Wide', minFrac: 0, max: Infinity, needStrong: false, hint: 'Wide: every syndrome with any matching cancer or finding.' }
   };
 
   let uid = 0;
@@ -26,7 +26,7 @@
   const abbrList = texts => [...new Set(texts.flatMap(t => [...String(t).matchAll(ABBR_RE)].map(m => m[2])))];
   // Mark abbreviations in every text node under `root` (skipping form controls, code and existing marks);
   // SVG labels (the family tree) get one tooltip listing each abbreviation they contain.
-  const ABBR_SKIP = 'script,style,textarea,select,option,input,abbr,code,pre,svg,.no-abbr';
+  const ABBR_SKIP = 'script,style,textarea,select,option,input,abbr,code,pre,svg,.no-abbr,.sr-only';
   function markAbbr(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const hits = [];
@@ -36,6 +36,8 @@
       if (ABBR_RE.test(n.nodeValue)) hits.push(n);
     }
     for (const n of hits) { const t = document.createElement('template'); t.innerHTML = abbrHtml(n.nodeValue); n.replaceWith(t.content); }
+    // Keyboard users can reach abbreviations in the form, eligibility box and pop-ups (not every page, to avoid hundreds of tab stops).
+    root.querySelectorAll('#family abbr.abbr:not([tabindex]), .elig abbr.abbr:not([tabindex]), #crit-dialog abbr.abbr:not([tabindex])').forEach(a => { if (!a.closest('a, button')) a.tabIndex = 0; });
     root.querySelectorAll('svg text').forEach(t => {
       const ks = abbrList([t.textContent]);
       if (ks.length) t.dataset.tip = ks.map(k => `${k} = ${ABBREVIATIONS[k]}`).join('\n'); else delete t.dataset.tip;
@@ -797,7 +799,7 @@
       const slash = n.p && n.p.deceased ? `<line class="ped-dead" x1="${x - S / 2 - 5}" y1="${top + S + 5}" x2="${x + S / 2 + 5}" y2="${top - 5}"/>` : '';
       parts.push(`<g class="ped-person${n.p ? '' : ' implied'}"${n.p ? ` data-person="${n.p.id}"` : ''}>${n.title ? `<title>${esc(n.title)}</title>` : ''}${ring}${shape}${slash}${arrow}${text}</g>`);
     }
-    return `<svg class="ped-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Family tree${result ? ', highlighting ' + esc(result.cond.name) : ''}">${parts.join('')}</svg>`;
+    return `<svg class="ped-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Family tree${result ? ', highlighting ' + esc(result.cond.name) : ''}" aria-describedby="ped-text">${parts.join('')}</svg>`;
   }
 
   // Fixed light colours for downloaded images (the page itself uses CSS so dark mode works).
@@ -840,6 +842,15 @@
     svg.style.width = `${w * k}px`; svg.style.height = `${h * k}px`;
   }
 
+  // Text version of the family tree for screen readers (the SVG points to it).
+  function pedigreeTextHtml(people) {
+    const elig = eligByPerson();
+    return `<ul class="sr-only" id="ped-text">${people.map(p => {
+      const dxs = p.dx.filter(d => d.site && d.hist), e = elig.get(p.id) || { meets: [], maybe: [] };
+      const st = personStatus(p);
+      return `<li>${esc(personLabel(p))}${st ? ` (${esc(st)})` : ''}: ${dxs.length ? dxs.map(d => esc(dxText(d, p))).join('; ') : 'no cancer entered'}${e.meets.length ? `. Meets ${e.meets.join(', ')}` : ''}${e.maybe.length ? `. May meet ${e.maybe.join(', ')}` : ''}.</li>`;
+    }).join('')}</ul>`;
+  }
   function pedigreeHtml(shown) {
     const people = state.people;
     if (!shown.some(r => r.cond.id === state.treeSyn)) state.treeSyn = shown[0] ? shown[0].cond.id : null;
@@ -854,6 +865,7 @@
           <button type="button" class="btn-ghost" data-ped-dl="svg">SVG</button></span>
       </div>
       <div class="ped-wrap" id="ped-wrap">${pedigreeSvg(people, sel)}</div>
+      ${pedigreeTextHtml(people)}
       <p class="ped-legend small">
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-hitfill" x="1" y="1" width="12" height="12"/></svg> Cancer that fits ${sel ? esc(sel.cond.name) : 'the highlighted syndrome'}</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-aff" x="1" y="1" width="12" height="12"/></svg> Other cancer</span>
@@ -882,15 +894,26 @@
       <ul>${list.map(t => `<li>${esc(t.aacr)}<br><span class="small"><strong>NHS route:</strong> ${esc(t.nhs)}</span></li>`).join('')}</ul></section>`;
   }
 
+  // Short status line under the results header (announced to screen readers; flashes briefly when it changes).
+  let statusTimer = null;
+  function setResultsStatus(text) {
+    const el = $('#results-status');
+    if (!el || el.dataset.text === text) return;
+    el.dataset.text = text; el.textContent = text;
+    el.classList.remove('flash'); void el.offsetWidth; if (text) el.classList.add('flash');
+    clearTimeout(statusTimer); statusTimer = setTimeout(() => el.classList.remove('flash'), 1200);
+  }
   function renderResults() {
     const all = scoreFamily();
     const { shown, hidden, top } = filterByMode(all);
     lastShown = shown;
-    document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === state.mode));
+    document.querySelectorAll('[data-mode]').forEach(b => { b.classList.toggle('active', b.dataset.mode === state.mode); if (b.closest('.segmented')) b.setAttribute('aria-pressed', b.dataset.mode === state.mode); });
+    $('#mode-hint').textContent = MODES[state.mode].hint;
     const out = $('#results');
     document.body.classList.toggle('compact-head', familyDxs().length > 0);
     $('#compare-top').hidden = shown.length < 2;
     remember();
+    setResultsStatus(all.length ? `${shown.length} syndrome${shown.length === 1 ? '' : 's'} shown${hidden ? ` (${all.length} matched)` : ''} · updated` : '');
     if (!all.length) {
       out.innerHTML = `<div class="empty">Enter cancers or findings in the family to see a ranked differential.</div>`;
       updateToResults();
@@ -984,6 +1007,7 @@
       <p class="small muted">Green (diagnostic-grade) genes on ${link(`PanelApp ${g.panel}: ${g.name} v${g.version}`, PANELAPP(g.panel))}, checked ${esc(PANEL_DATE)}. Test Directory: ${esc(t.genes)}.</p></section>`;
   }
   // One pop-up panel shared by the criteria and Manchester score views.
+  let panelOpener = null;
   function openPanel(html, view) {
     let dlg = $('#crit-dialog');
     if (!dlg) {
@@ -991,7 +1015,15 @@
       dlg.id = 'crit-dialog'; dlg.setAttribute('aria-labelledby', 'crit-title');
       document.body.append(dlg);
       dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+      // Return focus to what opened the panel (or its replacement after a re-render).
+      dlg.addEventListener('close', () => {
+        const o = panelOpener; panelOpener = null;
+        if (!o) return;
+        const el = o.isConnected ? o : (o.dataset.test ? document.querySelector(`[data-test="${o.dataset.test}"]`) : o.dataset.mss ? document.querySelector(`[data-mss="${o.dataset.mss}"]`) : null);
+        if (el) el.focus({ preventScroll: true });
+      });
     }
+    if (!dlg.open && document.activeElement && document.activeElement !== document.body) panelOpener = document.activeElement;
     dlg.innerHTML = html;
     dlg.dataset.view = view;
     dlg.querySelector('h2').id = 'crit-title';
@@ -1126,8 +1158,24 @@
     const btn = $('#to-results'), res = $('#results');
     const n = lastShown.length;
     const below = res.getBoundingClientRect().top > window.innerHeight - 40;
-    btn.hidden = !(n && state.tab === 'assess' && window.innerWidth < 1000 && below);
+    const typing = document.activeElement && document.activeElement.closest && document.activeElement.closest('#family') && /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
+    btn.hidden = !(n && state.tab === 'assess' && window.innerWidth < 1000 && below && !typing);
     btn.textContent = `See results (${n}) ↓`;
+  }
+
+  /* ---- Out-of-date warning: information checked over 6 months ago, or a Test Directory over a year old ---- */
+  function staleNote() {
+    const q = new URLSearchParams(location.search).get('today'); // for testing
+    const now = q ? new Date(q) : new Date();
+    const months = d => (now - new Date(d)) / (1000 * 60 * 60 * 24 * 30.44);
+    const tdDate = (TD_VERSION.match(/\(([^)]+)\)/) || [])[1];
+    const msgs = [];
+    const oldest = [['information checked', DATA_CHECKED], ['PanelApp gene lists', typeof PANEL_DATE !== 'undefined' ? PANEL_DATE : null]].filter(([, d]) => d && months(d) > 6);
+    if (oldest.length) msgs.push(`${oldest.map(([w, d]) => `${w} ${d}`).join('; ')} – over 6 months ago, so some details may be out of date`);
+    if (tdDate && months(tdDate) > 12) msgs.push(`the Test Directory version used (${tdDate}) is over a year old – check for a newer version`);
+    const el = $('#stale-note');
+    el.hidden = !msgs.length;
+    el.textContent = msgs.length ? `Please note: ${msgs.join('; ')}.` : '';
   }
 
   /* ---------------- Summary ---------------- */
@@ -1267,12 +1315,12 @@
       const h = hist === '*' ? 'Any type' : hist.split('|').map(x => histLabel(site, x)).join('; ');
       return `<tr><td data-label="Site">${abbrHtml(SITES[site].label)}</td><td data-label="Histology / type">${abbrHtml(h)}</td>
         <td data-label="Strength"><span class="tier tier-${tier}">${TIER_LABEL[tier]}</span></td>
-        <td data-label="Early onset"${early == null ? ' class="na"' : ''}>${early != null ? '≤' + early : '–'}</td><td data-label="Age limit"${maxAge == null ? ' class="na"' : ''}>${maxAge != null ? '≤' + maxAge : '–'}</td>
-        <td data-label="Condition"${pred ? '' : ' class="na"'}>${pred ? abbrHtml(PRED_LABEL[pred]) : '–'}</td>
+        ${(() => { const notes = [early != null ? `Early onset ≤${early}` : '', maxAge != null ? `Only ≤${maxAge}` : '', pred ? abbrHtml(PRED_LABEL[pred]) : ''].filter(Boolean);
+          return `<td data-label="Age / condition"${notes.length ? '' : ' class="na"'}>${notes.length ? notes.map(n => `<span class="ac-note">${n}</span>`).join('') : '–'}</td>`; })()}
         ${hasEv ? `<td class="ev" data-label="Risk and evidence"><div>${risk ? `<span class="ev-risk">${esc(risk)}</span>` : ''}<span class="ev-src">${evLinks(src)}</span>${usDiff ? `<span class="ev-diff"><strong>US differs:</strong> ${esc(usDiff)}</span>` : ''}</div></td>` : ''}</tr>`;
     }).join('');
     return `<div class="table-wrap"><table class="syn-table cancers">
-      <thead><tr><th>Site</th><th>Histology / type</th><th>Strength</th><th>Early onset</th><th>Age limit</th><th>Condition</th>${hasEv ? '<th>Risk and evidence</th>' : ''}</tr></thead>
+      <thead><tr><th>Site</th><th>Histology / type</th><th>Strength</th><th>Age / condition</th>${hasEv ? '<th>Risk and evidence</th>' : ''}</tr></thead>
       <tbody>${rows}</tbody></table></div>${TIER_LEGEND}`;
   }
 
@@ -1391,7 +1439,7 @@
       </dl>
       <h3 id="jump-cancers">Cancers and histology</h3>
       ${cancersTable(c)}
-      <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. Age limit: association only applies at or below this age.</p>
+      <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. “Only ≤”: the association only applies at or below this age.</p>
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
       ${variantHtml(c)}
       <h3 id="jump-tests">Test Directory tests</h3>
@@ -1776,6 +1824,8 @@
       const dlg = m.closest('#crit-dialog');
       openManchester(+m.dataset.mss, dlg && TESTS[dlg.dataset.view] ? dlg.dataset.view : null);
     }, true);
+    document.addEventListener('focusin', () => updateToResults());
+    document.addEventListener('focusout', () => setTimeout(updateToResults, 0));
     // Test codes open the criteria panel.
     document.addEventListener('click', e => {
       const b = e.target.closest && e.target.closest('[data-test]');
@@ -1803,6 +1853,7 @@
     };
     const hideTip = () => { tip.hidden = true; tipFor = null; };
     document.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest(TIP_SEL); if (el) showTip(el); else if (tipFor) hideTip(); });
+    document.addEventListener('focusin', e => { const el = e.target.closest && e.target.closest('abbr.abbr'); if (el) showTip(el); else if (tipFor) hideTip(); });
     document.addEventListener('click', e => {
       const el = e.target.closest && e.target.closest(TIP_SEL);
       if (!el) { if (tipFor) hideTip(); return; }
@@ -1846,6 +1897,7 @@
     $('#foot-genes').textContent = NICPR.genes.length;
     $('#foot-conds').textContent = CONDITIONS.length;
     $('#foot-checked').textContent = DATA_CHECKED;
+    staleNote();
     renderFamily();
     renderResults();
     route();

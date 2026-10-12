@@ -7,7 +7,7 @@
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#005eb8">
-  <link rel="stylesheet" href="assets/style.css?v=20261012-30">
+  <link rel="stylesheet" href="assets/style.css?v=20261012-31">
 </head>
 <body>
   <header class="site-head">
@@ -21,6 +21,7 @@
         syndromes, based on the <span id="gene-count"></span> genes on the NICPR list (June 2026)
         across <span id="cond-count"></span> conditions, with suggested NHS Genomic Test Directory tests.</p>
       <p class="disclaimer disc-short">Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser.</p>
+      <p class="disclaimer stale" id="stale-note" hidden></p>
       <p class="disclaimer disc-long">Clinical decision support only. Not a validated medical device and not a substitute for clinical
         judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this
         browser or is stored.</p>
@@ -78,6 +79,8 @@
         </div>
         <button type="button" id="compare-top" class="btn-ghost" hidden>Compare top two</button>
         </div>
+        <p class="mode-hint small muted" id="mode-hint"></p>
+        <p class="results-status" id="results-status" role="status" aria-live="polite"></p>
         <div id="results"></div>
       </section>
     </div>
@@ -148,10 +151,10 @@
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261012-30"></script>
-  <script src="js/panels.js?v=20261012-30"></script>
-  <script src="js/criteria.js?v=20261012-30"></script>
-  <script src="js/eligibility.js?v=20261012-30"></script>
-  <script src="js/app.js?v=20261012-30"></script>
+  <script src="js/data.js?v=20261012-31"></script>
+  <script src="js/panels.js?v=20261012-31"></script>
+  <script src="js/criteria.js?v=20261012-31"></script>
+  <script src="js/eligibility.js?v=20261012-31"></script>
+  <script src="js/app.js?v=20261012-31"></script>
 </body>
 </html>

@@ -557,3 +557,13 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .pc-edit { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--accent); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
 .person.collapsed .person-elig, .person.collapsed .person-mss { margin: 2px 0 0 4px; }
 .btn-done { font: inherit; font-size: 0.85rem; font-weight: 600; padding: 3px 10px; border: 2px solid var(--accent); border-radius: 4px; background: var(--card); color: var(--accent); cursor: pointer; }
+
+/* Smaller usability items */
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.mode-hint { margin: 6px 0 0; }
+.results-status { margin: 2px 0 8px; font-size: 0.8rem; color: var(--muted); min-height: 1.2em; transition: color .3s; }
+.results-status.flash { color: #007f3b; font-weight: 600; }
+.ac-note { display: block; white-space: nowrap; }
+.disclaimer.stale { border-left-color: #d5281b; }
+abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+@media print { .mode-hint, .results-status { display: none; } }
