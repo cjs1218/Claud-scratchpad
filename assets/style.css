@@ -133,6 +133,7 @@ button { font: inherit; cursor: pointer; }
 .person { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 4px; padding: 10px 12px; margin-bottom: 12px; }
 .person-head { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
 .person-head select:first-child { flex: 1; }
+.person-head select[data-f=relSide] { flex: 1; }
 .proband-label { flex: 1; }
 .dx { border-top: 1px dashed var(--border); padding: 8px 0; }
 /* Site, age and remove on one row; histology gets the full width below so long names are not cut off. */

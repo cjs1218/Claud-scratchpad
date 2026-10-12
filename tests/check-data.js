@@ -96,6 +96,10 @@ const covered = new Set(d.CONDITIONS.flatMap(c => c.genes));
 for (const g of d.NICPR.genes) if (!covered.has(g)) e(`NICPR gene ${g} not covered by any condition`);
 for (const g of [...d.NICPR.biallelic, ...d.NICPR.susceptibilityOnly, ...d.NICPR.nonTruncatingAgreed, ...d.NICPR.addedSince2025])
   if (!d.NICPR.genes.includes(g)) e(`NICPR annotation gene ${g} not on list`);
+// Two-step relationship list: every relationship (bar proband/unset) reachable exactly once, and only real ids used.
+const kindIds = d.REL_KINDS.flatMap(([k, , sides]) => sides ? Object.values(sides).map(v => v[0]) : [k]);
+for (const id of kindIds) if (!d.RELATIONS.some(r => r[0] === id)) e(`REL_KINDS id ${id} is not in RELATIONS`);
+for (const [id] of d.RELATIONS) if (!['proband', 'unset'].includes(id) && kindIds.filter(x => x === id).length !== 1) e(`relationship ${id} must appear once in REL_KINDS`);
 const used = new Set(d.CONDITIONS.flatMap(c => c.tests));
 const unused = Object.keys(d.TESTS).filter(k => !used.has(k) && k !== 'R404');
 console.log(`${d.CONDITIONS.length} conditions, ${d.CONDITIONS.reduce((n, c) => n + c.rules.length, 0)} rules, ${Object.keys(d.TESTS).length} tests, ${Object.keys(d.EG).length} leaflets, ${Object.keys(d.GUIDES).length} guides`);

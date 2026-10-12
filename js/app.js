@@ -355,11 +355,14 @@
   function renderPerson(p) {
     if (!isOpen(p) && !state.printFull) return renderPersonCard(p);
     const isProband = p.rel === 'proband';
-    const relOpts = RELATIONS.filter(r => isProband ? r[0] === 'proband' : r[0] !== 'proband' && r[0] !== 'unset').map(r => [r[0], r[1]]);
-    if (p.rel === 'unset') relOpts.unshift(['unset', 'Choose relationship…']);
+    // Two-step choice: relationship, then the side of the family where it matters.
+    const [kind, side] = p.rel === 'unset' ? [p.relKind || '', ''] : relParts(p.rel);
+    const sides = (REL_KINDS.find(k => k[0] === kind) || [])[2];
+    const relSelect = `<select data-f="relKind" aria-label="Relationship">${optionList(REL_KINDS.map(k => [k[0], k[1]]), kind, kind ? null : 'Choose relationship…')}</select>` +
+      (sides ? `<select data-f="relSide" aria-label="Side of the family">${optionList(Object.entries(sides).map(([s, v]) => [s, v[1]]), side, side ? null : 'Which side?')}</select>` : '');
     return `<section class="person" data-pid="${p.id}">
       <div class="person-head">
-        ${isProband ? '<strong class="proband-label">Proband</strong>' : `<select data-f="rel" aria-label="Relationship">${optionList(relOpts, p.rel)}</select>`}
+        ${isProband ? '<strong class="proband-label">Proband</strong>' : relSelect}
         <select data-f="sex" aria-label="Sex">${optionList([['F', 'Female'], ['M', 'Male']], p.sex, 'Sex')}</select>
         ${isComplete(p) ? '<button type="button" class="btn-done" data-act="done-person" title="Fold this relative into a one-line summary">Done</button>' : ''}
         ${isProband ? '' : '<button type="button" class="icon-btn" data-act="rm-person" title="Remove relative">×</button>'}
@@ -436,7 +439,18 @@
     } else {
       p[f] = val;
       if (f === 'parentId') p.parentId = val === '' ? null : +val;
-      if (f === 'rel') { if (REL[val].sex) p.sex = REL[val].sex; if (!namedParent(p)) p.parentId = null; renderFamily(); }
+      if (f === 'relKind' || f === 'relSide') {
+        delete p[f];
+        const k = REL_KINDS.find(x => x[0] === (f === 'relKind' ? val : (p.rel === 'unset' ? p.relKind : relParts(p.rel)[0])));
+        // Keep the side already chosen when switching between relationships that have one.
+        const s = f === 'relSide' ? val : relParts(p.rel)[1];
+        const rel = !k ? 'unset' : !k[2] ? k[0] : k[2][s] ? k[2][s][0] : 'unset';
+        if (rel === 'unset') p.relKind = k ? k[0] : ''; else delete p.relKind;
+        p.rel = rel;
+        if (REL[rel].sex) p.sex = REL[rel].sex;
+        if (!namedParent(p)) p.parentId = null;
+        renderFamily();
+      }
       if (f === 'deceased') renderFamily();
     }
     // Offer "Done" as soon as the relative has a complete cancer (without redrawing the form being typed in).
@@ -1024,7 +1038,8 @@
     const w = [];
     const n = v => (v === '' || v == null ? null : +v);
     const status = p.deceased ? n(p.ageDeath) : n(p.ageNow);
-    if (p.rel === 'unset') w.push('Choose the relationship – until then this relative is not counted in family-history criteria and only weakly in the ranking.');
+    if (p.rel === 'unset' && p.relKind) w.push('Choose which side of the family – until then this relative is not counted in family-history criteria and only weakly in the ranking.');
+    else if (p.rel === 'unset') w.push('Choose the relationship – until then this relative is not counted in family-history criteria and only weakly in the ranking.');
     if (PARENT_OF[p.rel] && !namedParent(p) && parentCandidates(p).length && isComplete(p)) w.push(`Not specified whose child this is ("Child of") – links to ${parentCandidates(p).map(personLabel).join(', ')} are not counted.`);
     if (ONE_ONLY.includes(p.rel) && state.people.filter(x => x.rel === p.rel).length > 1) w.push(`More than one ${REL[p.rel].label.toLowerCase()} entered – check the relationship.`);
     for (const d of p.dx) {

@@ -79,6 +79,10 @@ Everything clinical lives in `js/data.js`:
 Relatives with at least one cancer entered fold into a one-line card (cancers, criteria tags and Manchester score);
 click a card to edit it and **Done** to fold it again. Loading a family or adding a relative folds the others.
 
+The relationship is chosen in two steps: a short list (Grandmother, Aunt, First cousin…), then the side of the
+family where it matters (e.g. mother's mother or father's mother). Both map onto the relationship ids in `RELATIONS`
+(`REL_KINDS` in `js/data.js`), so saved family files are unchanged; until the side is chosen the relative isn't counted.
+
 Cousins, nieces/nephews, grandchildren, great-nieces/nephews and cousins' children have a **Child of** choice
 (which aunt/uncle, sibling, child, niece or cousin is the parent). With it, the tree draws them under that parent and
 eligibility uses the true relationships; without it, their links to possible parents are treated as unknown rather

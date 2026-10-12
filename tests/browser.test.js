@@ -22,10 +22,16 @@ async function setPerson(page, pi, sex, dxs) {
     }
   }
 }
+// The form picks a relationship in two steps (relationship, then side); choose both for an internal id.
+async function chooseRel(person, rel) {
+  const [k, side] = await person.page().evaluate(r => relParts(r), rel);
+  await person.locator('select[data-f=relKind]').selectOption(k);
+  if (side) await person.locator('select[data-f=relSide]').selectOption(side);
+}
 async function addRelative(page, rel, sex, dxs) {
   await page.click('#add-person');
   const n = await page.locator('#family .person').count();
-  await page.locator('#family .person').nth(n - 1).locator('select[data-f=rel]').selectOption(rel);
+  await chooseRel(page.locator('#family .person').nth(n - 1), rel);
   await setPerson(page, n - 1, sex, dxs);
 }
 // Loaded families start folded; open every relative's form before editing it.
@@ -499,7 +505,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.click('#undo');
   check(await page.locator('#family .person').count() === 2, 'Undo restores the relative');
   const p1 = page.locator('#family .person').nth(1);
-  await p1.locator('select[data-f=rel]').selectOption('mother');
+  await chooseRel(p1, 'mother');
   await p1.locator('input[data-f=deceased]').check();
   await p1.locator('input[data-f=ageDeath]').fill('67');
   await p1.locator('select[data-f=site]').selectOption('ovary'); await p1.locator('select[data-f=hist]').selectOption('hgsc'); await p1.locator('input[data-f=age]').fill('60');
@@ -643,7 +649,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/Sister 1/.test(await page.locator('#results .elig').textContent()), 'eligibility box names the numbered sister');
   const tree = await page.locator('#ped-wrap svg').textContent();
   check(/Sister 1/.test(tree) && /Sister 2/.test(tree) && /Mat. great-grandparent/.test(tree) && /Great-niece\/nephew/.test(tree) && /Mat. cousin's child/.test(tree) && !/Other relatives \(position/.test(tree), 'family tree places great-grandparent, great-niece and cousin\'s child (not in the unplaced row)');
-  check((await page.locator('#family .person').first().locator('select[data-f=rel]').count()) === 0 && await page.evaluate(() => RELATIONS.some(r => r[0] === 'm_ggp') && RELATIONS.some(r => r[0] === 'gniece')), 'new relationships are in the list');
+  check((await page.locator('#family .person').first().locator('select[data-f=relKind]').count()) === 0 && await page.evaluate(() => RELATIONS.some(r => r[0] === 'm_ggp') && RELATIONS.some(r => r[0] === 'gniece')), 'new relationships are in the list');
   check(await page.evaluate(() => relDegree({ rel: 'proband' }, { rel: 'm_ggp' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'gniece' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'm_cousin_child' }) === 4), 'degrees of relationship for the new relatives');
 
   console.log('Print summary');
@@ -663,11 +669,25 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.click('#results [data-load-example]'); await page.waitForSelector('#results .elig');
   check(await page.locator('#family .person').count() === 4, 'quick-start example link loads the example');
   await page.click('#add-person');
-  const newRel = page.locator('#family .person').last().locator('select[data-f=rel]');
-  check(await newRel.inputValue() === 'unset' && /Choose relationship/.test(await newRel.locator('option:checked').textContent()), 'a new relative starts as "Choose relationship…", not Mother');
+  const newRel = page.locator('#family .person').last().locator('select[data-f=relKind]');
+  check(await newRel.inputValue() === '' && /Choose relationship/.test(await newRel.locator('option:checked').textContent()), 'a new relative starts as "Choose relationship…", not Mother');
   check(/Choose the relationship/.test(await page.locator('#family .person').last().locator('.person-warn').textContent()), 'reminder to choose the relationship');
+  check(await newRel.locator('option').count() < 25, 'the relationship list is short (sides chosen separately)');
   await newRel.selectOption('sister');
-  check(!(await page.locator('#family .person').last().locator('select[data-f=rel] option[value=unset]').count()), 'placeholder disappears once a relationship is chosen');
+  check(!(await page.locator('#family .person').last().locator('select[data-f=relKind] option[value=""]').count()) && !(await page.locator('#family .person').last().locator('select[data-f=relSide]').count()), 'placeholder disappears once a relationship is chosen; no side box for a sister');
+  // Two-step: Grandmother, then mother's or father's mother
+  await newRel.selectOption('gm');
+  const sideSel = page.locator('#family .person').last().locator('select[data-f=relSide]');
+  check(await sideSel.count() === 1 && /Which side/.test(await sideSel.locator('option:checked').textContent()) && /Mother's mother/.test(await sideSel.textContent()) && /Father's mother/.test(await sideSel.textContent()), 'Grandmother asks mother\'s mother or father\'s mother');
+  check(/Choose which side/.test(await page.locator('#family .person').last().locator('.person-warn').textContent()), 'until the side is chosen the relative is not counted, with a reminder');
+  await sideSel.selectOption('p');
+  check(await page.locator('#family .person').last().locator('select[data-f=relSide]').inputValue() === 'p' && await page.locator('#family .person').last().locator('select[data-f=sex]').inputValue() === 'F' && !/Choose/.test(await page.locator('#family .person').last().locator('.person-warn').textContent()), 'father\'s mother is stored as paternal grandmother');
+  await page.locator('#family .person').last().locator('select[data-f=relKind]').selectOption('uncle');
+  check(await page.locator('#family .person').last().locator('select[data-f=relSide]').inputValue() === 'p' && /Father's brother/.test(await page.locator('#family .person').last().locator('select[data-f=relSide] option:checked').textContent()), 'changing the relationship keeps the side (paternal grandmother → paternal uncle)');
+  await page.locator('#family .person').last().locator('select[data-f=relKind]').selectOption('other');
+  await page.locator('#family .person').last().locator('select[data-f=relSide]').selectOption('u');
+  check(await page.locator('#family .person').last().locator('select[data-f=relSide]').inputValue() === 'u' && !/Choose/.test(await page.locator('#family .person').last().locator('.person-warn').textContent()), 'other relative can have side not known');
+  await page.locator('#family .person').last().locator('select[data-f=relKind]').selectOption('sister');
   // Large family
   const rels = ['mother', 'father', 'sister', 'sister', 'brother', 'm_aunt', 'm_aunt', 'm_uncle', 'p_aunt', 'p_uncle', 'm_gm', 'm_gf', 'p_gm', 'p_gf', 'm_cousin', 'm_cousin', 'p_cousin', 'niece', 'daughter', 'son', 'm_great', 'p_great', 'm_ggp', 'grandchild'];
   const bigSites = [['breast', 'idc'], ['ovary', 'hgsc'], ['colorectal', 'adeno'], ['prostate', 'adeno'], ['pancreas', 'pdac'], ['uterus', 'endometrioid'], ['skin', 'melanoma'], ['kidney', 'ccrcc']];
@@ -718,7 +738,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   // Adding a maternal cousin to the example family: the maternal aunt can be chosen as the parent
   await page.click('#example');
   await page.click('#add-person');
-  await page.locator('#family .person').last().locator('select[data-f=rel]').selectOption('m_cousin');
+  await chooseRel(page.locator('#family .person').last(), 'm_cousin');
   await page.locator('#family .person').last().locator('select[data-f=parentId]').selectOption({ label: 'Maternal aunt' });
   await page.locator('#family .person').last().locator('select[data-f=site]').selectOption('colorectal');
   await page.locator('#family .person').last().locator('select[data-f=hist]').selectOption('adeno');
@@ -768,7 +788,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.locator('#family .person.collapsed').count() === 4 && /age 50/.test(await page.locator('#family .person').nth(1).textContent()), 'Done folds it again with the change shown');
   await page.locator('#family .person').nth(0).locator('.person-open').click();
   await page.click('#add-person');
-  check(await page.locator('#family .person.collapsed').count() === 4 && await page.locator('#family .person').last().locator('select[data-f=rel]').count() === 1, 'adding a relative folds the others and opens the new one');
+  check(await page.locator('#family .person.collapsed').count() === 4 && await page.locator('#family .person').last().locator('select[data-f=relKind]').count() === 1, 'adding a relative folds the others and opens the new one');
   await page.locator('#family .person').last().locator('select[data-f=site]').selectOption('breast');
   await page.locator('#family .person').last().locator('select[data-f=hist]').selectOption('idc');
   check(await page.locator('#family .person').last().locator('input[data-f=age]').count() === 1, 'choosing a cancer does not fold the relative mid-edit');

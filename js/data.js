@@ -1738,6 +1738,37 @@ const RELATIONS = [
 ];
 
 /*
+ * The form asks for the relationship in two steps: a short list, then the side
+ * of the family where it matters (e.g. Grandmother, then mother's mother or
+ * father's mother). Each choice maps onto a RELATIONS id above, so saved files
+ * and the eligibility logic are unchanged. Sides: m maternal, p paternal, u not known.
+ */
+const REL_KINDS = [
+  ['mother', 'Mother'], ['father', 'Father'], ['sister', 'Sister'], ['brother', 'Brother'],
+  ['halfsib', 'Half-sibling', { m: ['m_halfsib', 'Same mother (maternal)'], p: ['p_halfsib', 'Same father (paternal)'] }],
+  ['daughter', 'Daughter'], ['son', 'Son'],
+  ['gm', 'Grandmother', { m: ['m_gm', "Mother's mother (maternal)"], p: ['p_gm', "Father's mother (paternal)"] }],
+  ['gf', 'Grandfather', { m: ['m_gf', "Mother's father (maternal)"], p: ['p_gf', "Father's father (paternal)"] }],
+  ['aunt', 'Aunt', { m: ['m_aunt', "Mother's sister (maternal)"], p: ['p_aunt', "Father's sister (paternal)"] }],
+  ['uncle', 'Uncle', { m: ['m_uncle', "Mother's brother (maternal)"], p: ['p_uncle', "Father's brother (paternal)"] }],
+  ['cousin', 'First cousin', { m: ['m_cousin', "Mother's side (maternal)"], p: ['p_cousin', "Father's side (paternal)"] }],
+  ['niece', 'Niece / nephew'], ['grandchild', 'Grandchild'],
+  ['great', 'Great-aunt / uncle', { m: ['m_great', "Mother's side (maternal)"], p: ['p_great', "Father's side (paternal)"] }],
+  ['ggp', 'Great-grandparent', { m: ['m_ggp', "Mother's side (maternal)"], p: ['p_ggp', "Father's side (paternal)"] }],
+  ['gniece', 'Great-niece / nephew'],
+  ['cousin_child', "First cousin's child", { m: ['m_cousin_child', "Mother's side (maternal)"], p: ['p_cousin_child', "Father's side (paternal)"] }],
+  ['other', 'Other relative', { m: ['m_other', "Mother's side (maternal)"], p: ['p_other', "Father's side (paternal)"], u: ['other', 'Side not known'] }]
+];
+/* [kind, side] for a RELATIONS id ('' side for kinds without one). */
+function relParts(rel) {
+  for (const [k, , sides] of REL_KINDS) {
+    if (!sides && k === rel) return [k, ''];
+    if (sides) for (const s in sides) if (sides[s][0] === rel) return [k, s];
+  }
+  return ['', ''];
+}
+
+/*
  * East Genomics patient information leaflets (direct pages, all checked
  * against the East Genomics A-Z index, Oct 2026). `general` leaflets are shown
  * for conditions without a specific leaflet.
