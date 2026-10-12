@@ -420,3 +420,16 @@ body.compact-head .gh-link { margin-top: 0; padding: 3px 8px; }
   .syn-table.cancers td > .tier, .syn-table.compare td > .tier { justify-self: start; }
   .syn-table.compare td { align-items: center; }
 }
+
+/* Print-only family history table at the top of the printed assessment */
+.print-show { display: none; }
+@media print {
+  .print-show { display: block; }
+  .fam-table { margin-bottom: 14px; break-inside: avoid; }
+  .fam-table h2 { margin-bottom: 6px; }
+  #results .result { break-inside: avoid; }
+  .bar-label, .why { color: #000; }
+  [data-expand], [data-collapse], #compare-top { display: none !important; }
+}
+@media print { body:not(.printing) #tab-assess > .panel:first-child { display: none !important; } }
+@media print { .lede-short { display: none !important; } }

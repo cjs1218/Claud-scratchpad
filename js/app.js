@@ -414,7 +414,7 @@
   function resultCard(r, i, top) {
     const c = r.cond;
     const pct = Math.max(4, Math.round((r.score / top) * 100));
-    const compact = i >= 3 && !state.expanded.has(c.id);
+    const compact = i >= 3 && !state.expanded.has(c.id) && !state.printFull;
     const notes = [];
     if (c.note) notes.push(c.note);
     if (c.notOnNicpr) notes.push('Not on the NICPR gene list (June 2026) but included in Test Directory panels.');
@@ -771,6 +771,7 @@
       return;
     }
     out.innerHTML = `
+      ${familyTableHtml()}
       ${pedigreeHtml(shown)}
       <p class="muted small">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${TIER_LEGEND}
@@ -780,6 +781,23 @@
       ${renderTests(shown)}`;
     fitPedigree();
     updateToResults();
+  }
+
+  // Print-only table of the family as entered.
+  function familyTableHtml() {
+    const rows = state.people.map(p => {
+      const dxs = p.dx.filter(d => d.site && d.hist);
+      return `<tr><td>${esc(personLabel(p))}</td><td>${p.sex === 'F' ? 'Female' : p.sex === 'M' ? 'Male' : '–'}</td>
+        <td>${esc(personStatus(p) || '–')}</td>
+        <td>${dxs.length ? dxs.map(d => abbrHtml(dxText(d, p))).join('<br>') : 'No cancer entered'}</td></tr>`;
+    }).join('');
+    return `<section class="print-show fam-table">
+      <h2>Family history</h2>
+      ${state.ancestry ? `<p class="small">Ancestry: ${esc($('#ancestry').selectedOptions[0].text)}</p>` : ''}
+      <table class="syn-table"><thead><tr><th>Relative</th><th>Sex</th><th>Age / status</th><th>Cancers and findings (age at diagnosis)</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+      <p class="small muted">Printed ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · search breadth: ${esc(MODES[state.mode].label.toLowerCase())} · information checked ${esc(DATA_CHECKED)}</p>
+    </section>`;
   }
 
   // Phones: a floating button jumps to the results while they are below the screen.
@@ -1390,8 +1408,18 @@
     });
     // Printing the assessment always includes the tree, even if it was collapsed.
     let pedWasOpen = null;
-    window.addEventListener('beforeprint', () => { const d = $('#ped'); if (d && !document.body.classList.contains('printing')) { pedWasOpen = d.open; d.open = true; } });
-    window.addEventListener('afterprint', () => { const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; pedWasOpen = null; } });
+    // Printing the assessment: every result in full, the tree open, and a family history table first.
+    window.addEventListener('beforeprint', () => {
+      if (document.body.classList.contains('printing')) return;
+      const wasOpen = $('#ped') ? $('#ped').open : null;
+      state.printFull = true; renderResults();
+      const d = $('#ped'); if (d) { pedWasOpen = wasOpen; d.open = true; }
+    });
+    window.addEventListener('afterprint', () => {
+      if (!state.printFull) return;
+      state.printFull = false; renderResults();
+      const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; state.treeOpen = pedWasOpen; pedWasOpen = null; }
+    });
     // Abbreviations: click, tap or Enter / Space shows the full term after it.
     const toggleAbbr = el => { const open = el.classList.toggle('open'); el.setAttribute('aria-expanded', open); };
     document.addEventListener('click', e => { const a = e.target.closest('abbr.abbr'); if (a) { e.preventDefault(); e.stopPropagation(); toggleAbbr(a); } }, true);
