@@ -125,3 +125,30 @@ for age, markers and bilaterality, then by relatedness (1st degree ×1, 2nd ×0.
 for recessive conditions only the proband and siblings count fully. Several
 matching cancers add a bonus. Narrow / Balanced / Wide set the cutoff relative
 to the top score.
+
+
+## Tests and data updates
+
+Everything a contributor needs is in the repository (no build step for the site itself):
+
+```
+npm install                 # Playwright for the browser tests (first time only)
+npx playwright install chromium
+npm test                    # data checks, eligibility logic, criteria links, browser tests, gene pages
+npm run test:fast           # the Node-only checks (seconds)
+npm run test:live           # browser tests against the published site
+```
+
+- `tests/check-data.js` – every rule's site/histology/predicate/test exists, NICPR genes covered.
+- `tests/eligibility.test.js` – Test Directory criteria, Manchester score, modified Amsterdam, relationships.
+- `tests/criteria.test.js` – every eligibility reason links to a line of the verbatim criteria (random families).
+- `tests/browser.test.js` – the app in Chromium (forms, results, pop-ups, printout, phone layout).
+- `tests/genes.test.js` – every gene page renders and its links are well formed.
+
+GitHub runs the same checks on every push (`.github/workflows/test.yml`).
+
+Data updates:
+
+- `npm run update:panels` – refresh `js/panels.js` from the PanelApp API.
+- `npm run update:criteria` – rebuild `js/criteria.js` from the Test Directory PDF (needs `pdftotext`).
+- `npm run bump` – new `?v=` version on every script and style tag in `index.html`.

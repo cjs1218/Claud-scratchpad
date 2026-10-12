@@ -32,7 +32,7 @@ const TEST_GENES = {
   R156: {"panel": 1313, "name": "Carney complex", "version": "1.5", "n": 1, "genes": ["PRKAR1A"]},
   R160: {"panel": 566, "name": "Primary pigmented nodular adrenocortical disease", "version": "1.13", "n": 4, "genes": ["ARMC5", "PDE11A", "PDE8B", "PRKAR1A"]},
   R49: {"panel": 1309, "name": "Beckwith-Wiedemann syndrome", "version": "1.5", "n": 1, "genes": ["CDKN1C"]},
-  R27: {"panel": 486, "name": "Paediatric disorders", "version": "76.142", "n": 6683, "strs": 5, "regions": 68},
+  R27: {"panel": 486, "name": "Paediatric disorders", "version": "76.150", "n": 2992, "strs": 5, "regions": 68},
   R221: {"panel": 1334, "name": "Familial tumours of the nervous system", "version": "3.3", "n": 7, "genes": ["CDKN2A", "DGCR8", "LZTR1", "NF2", "SMARCB1", "SMARCE1", "SUFU"]},
   R222: {"panel": 1370, "name": "Neurofibromatosis type 1 (GMS)", "version": "1.6", "n": 2, "genes": ["NF1", "SPRED1"]},
   R376: {"panel": 1387, "name": "Segmental or atypical neurofibromatosis type 1 testing", "version": "1.5", "n": 1, "genes": ["NF1"]},

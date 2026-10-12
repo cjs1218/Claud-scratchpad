@@ -1,0 +1,20 @@
+name: Tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Data, eligibility logic and criteria links
+        run: npm run test:fast
+      - name: Browser tests
+        run: node tests/browser.test.js
+      - name: Gene pages and links
+        run: node tests/genes.test.js
