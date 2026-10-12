@@ -17,7 +17,7 @@ for (let f = 0; f < 20000; f++) {
       er: ['', 'pos', 'neg'][rnd(3)], pr: ['', 'neg'][rnd(2)], her2: ['', 'neg', 'pos'][rnd(3)], grade: ['', '1', '2', '3'][rnd(4)], ovgrade: ['', 'low', 'high'][rnd(3)],
       mmr: ['', '', 'msh2', 'mlh1', 'msi'][rnd(5)], meth: ['', 'no'][rnd(2)], braf: '' });
   }
-  for (const o of [...w.checkEligibility(people, rnd(10) ? '' : 'ashkenazi'), ...w.nearMisses(people, '')])
+  for (const o of [...w.checkEligibility(people, ['', '', '', '', '', 'ashkenazi', 'westray', 'whalsay', 'maori', 'other_founder'][rnd(10)]), ...w.nearMisses(people, '')])
     o.text.forEach((t, i) => { n++; if (!o.crit || !o.crit[i]) { const k = o.test + ' | ' + t.replace(/\(.*?\)/g, '(…)').replace(/\d+/g, 'N'); miss.set(k, (miss.get(k) || 0) + 1); } });
 }
 for (const [k, c] of miss) { fail++; console.log('FAIL unlinked reason', c, k); }

@@ -99,5 +99,19 @@ t('ovary NOS high grade + breast <40 sister → R208 Manchester', [P('proband','
   t('3 melanomas by number', [P('proband','F',[{site:'skin',hist:'melanoma',age:'50',count:'3'}])], [['proband','R254','met']]);
 }
 
+/* Ancestry criteria */
+{
+  const tA = (name, people, anc, exp) => { const r = w.checkEligibility(people, anc);
+    for (const [rel, test, kind] of exp) { const o = r.filter(x => x.person.rel === rel && x.test === test); const got = !o.length ? 'none' : o.some(x => !x.possible) ? 'met' : 'maybe'; ok(got === kind, `${name}: ${rel} ${test} expected ${kind} got ${got}`); } };
+  const br = age => ({ site: 'breast', hist: 'idc', age, er: 'pos' });
+  tA('Westray proband breast 65', [P('proband','F',[br('65')])], 'westray', [['proband','R208','met']]);
+  tA('Westray mother breast 65', [P('proband','F'), P('mother','F',[br('65')])], 'westray', [['mother','R208','maybe']]);
+  tA('Whalsay sister breast 65', [P('proband','F'), P('sister','F',[br('65')])], 'whalsay', [['sister','R208','met']]);
+  tA('Whalsay proband prostate 70', [P('proband','M',[{site:'prostate',hist:'adeno',age:'70'}])], 'whalsay', [['proband','R430','met']]);
+  tA('Westray prostate 70 (no prostate criterion)', [P('proband','M',[{site:'prostate',hist:'adeno',age:'70'}])], 'westray', [['proband','R430','none']]);
+  tA('Māori DGC 65 aunt', [P('proband','F'), P('m_aunt','F',[{site:'stomach',hist:'diffuse',age:'65'}])], 'maori', [['m_aunt','R215','met']]);
+  tA('no ancestry: breast 65', [P('proband','F',[br('65')])], '', [['proband','R208','none']]);
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

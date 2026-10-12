@@ -629,6 +629,18 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.goto(BASE + '#syndrome=brca1'); await page.waitForSelector('#syn-detail h2');
   check(!(await page.isVisible('#stale-note')), 'no out-of-date note today');
 
+  console.log('Ancestry criteria');
+  await page.goto(BASE); await page.click('#clear');
+  await page.setInputFiles('#open-family', { name: 'w.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, ancestry: 'whalsay', people: [
+    { rel: 'proband', sex: 'F', dx: [{ site: 'breast', hist: 'idc', age: '66', er: 'pos' }] }, { rel: 'father', sex: 'M', dx: [{ site: 'prostate', hist: 'adeno', age: '72' }] }] })) });
+  await page.waitForSelector('#results .elig');
+  check(await page.inputValue('#ancestry') === 'whalsay' && (await page.locator('#ancestry option').allTextContents()).join('|') === 'Not known / not relevant|Ashkenazi Jewish|Grandparent from Westray (Orkney)|Grandparent from Whalsay (Shetland)|Māori|Other founder population', 'ancestry list includes Westray, Whalsay and Māori (saved files keep it)');
+  const ea = await page.locator('#results .elig').textContent();
+  check(/grandparent from Whalsay \(Shetland\) and breast cancer/.test(ea.split('May meet')[0]) && /R430/.test(ea.split('May meet')[1] || '') && /qualifies if this relative has a grandparent from Whalsay/.test(ea), 'Whalsay: proband meets R208; father may meet R430 (his grandparents differ)');
+  await page.locator('#results .elig button.test-link[data-test=R208]').first().click(); await page.waitForSelector('#crit-dialog[open]');
+  check(await page.locator('#crit-dialog .crit-list li.hit-met', { hasText: 'Westray (Orkney) or Whalsay' }).count() === 1, 'R208 panel highlights the island criterion');
+  await page.keyboard.press('Escape');
+
   console.log('Folded relatives');
   await page.goto(BASE); await page.click('#example');
   check(await page.locator('#family .person.collapsed').count() === 4 && await page.locator('#family select[data-f=site]').count() === 0, 'example family loads as four one-line cards');

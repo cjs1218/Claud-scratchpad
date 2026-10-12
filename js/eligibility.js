@@ -70,6 +70,10 @@
   const isBreast = d => d.site === 'breast';
   const isMale = p => p.sex === 'M';
   const dxs = p => p.dx.filter(d => d.site && d.hist);
+  // Island founder criteria name the tested person's grandparent: certain for the proband and full siblings,
+  // "may meet" for other relatives (their grandparents may differ).
+  const ISLAND = { westray: 'Westray (Orkney)', whalsay: 'Whalsay (Shetland)' };
+  const sharesGrandparents = p => ['proband', 'sister', 'brother'].includes(p.rel);
   const both = d => d.side === 'both';                       // both sides (bilateral)
   const bothOrMulti = d => d.side === 'both' || d.side === 'multi';
   const nTumours = d => (+d.count > 1 ? +d.count : both(d) ? 2 : 1);
@@ -237,8 +241,10 @@
         const m = ms();
         if (m.combined >= 15 || m.b1 >= 10 || m.b2 >= 10) r.push(`Manchester score ${m.combined} (BRCA1 ${m.b1}, BRCA2 ${m.b2}; threshold 15 combined or 10 single gene)`);
         if (ancestry === 'ashkenazi') r.push('Ashkenazi Jewish ancestry');
+        if (ISLAND[ancestry] && brd.length && sharesGrandparents(p)) r.push(`grandparent from ${ISLAND[ancestry]} and breast cancer`);
         if (brd.some(d => d.hist === 'dcis' && !d.grade) && r.length) r.push('note: DCIS counts only if high grade');
         if (r.length) add(p, 'R208', r, { manchester: m });
+        else if (ISLAND[ancestry] && brd.length) add(p, 'R208', [`breast cancer – qualifies if this relative has a grandparent from ${ISLAND[ancestry]}`], { possible: true });
       }
       /* R207 – high-grade non-mucinous epithelial ovarian cancer at any age */
       // High grade: HGSC and clear cell always; endometrioid / unknown type when graded high ("may meet" if grade not known).
@@ -309,7 +315,9 @@
         if (lt(d, 50)) r.push(`prostate cancer under 50 (${histText(d)})`);
         if (d.hist === 'highrisk' && lt(d, 60)) r.push(`metastatic prostate cancer under 60 – qualifies if metastatic (${histText(d)})`);
         if (ancestry === 'ashkenazi') r.push('Ashkenazi Jewish ancestry');
+        if (ancestry === 'whalsay' && sharesGrandparents(p)) r.push('grandparent from Whalsay (Shetland) and prostate cancer');
         if (r.length) add(p, 'R430', r);
+        else if (ancestry === 'whalsay') add(p, 'R430', ['prostate cancer – qualifies if this relative has a grandparent from Whalsay (Shetland)'], { possible: true });
         const famBOP = relDx(p, x => isBreast(x) || is(x, 'ovary') || is(x, 'pancreas'), 3).length;
         const m = ms();
         if (famBOP && m.combined >= 15) add(p, 'R208', [`prostate cancer with a family history of breast/ovarian/pancreatic cancer and Manchester score ${m.combined}`], { manchester: m });
@@ -424,6 +432,7 @@
       if (gor.length) add(p, 'R214', gor.map(d => `major Gorlin criterion: ${histText(d)}`));
       const r215 = [], dgc = D.filter(d => is(d, 'stomach', 'diffuse')), ilc = D.filter(d => is(d, 'breast', 'ilc'));
       dgc.forEach(d => { if (lt(d, 50)) r215.push(`diffuse gastric cancer under 50 (${histText(d)})`); });
+      if (dgc.length && ancestry === 'maori') r215.push('diffuse gastric cancer – Māori ethnicity');
       if (dgc.length && D.some(d => is(d, 'feature', 'cleft'))) r215.push('diffuse gastric cancer with cleft lip/palate');
       if (dgc.some(d => lt(d, 70)) && ilc.some(d => lt(d, 70))) r215.push('diffuse gastric cancer and lobular breast cancer, both under 70');
       if (dgc.length && (relDx(p, x => is(x, 'stomach', 'diffuse'), 2).length || relDx(p, x => is(x, 'breast', 'ilc') && lt(x, 70), 2).length)) r215.push('diffuse gastric cancer with a first/second-degree relative with diffuse gastric cancer or lobular breast cancer under 70');
@@ -661,7 +670,7 @@
    * [pattern on the reason text, start of the criterion's wording]; the first match wins. */
   const CRIT_REF = {
     R207: [[/^epithelial ovarian cancer with a second/, 'second degree relative with EOC'], [/^epithelial ovarian cancer with/, 'Epithelial ovarian cancer (EOC) OR serous tubal intraepithelial carcinoma (STIC) AND'], [/ovarian cancer/, 'High grade non mucinous']],
-    R208: [[/^unaffected/, 'Living unaffected individual with'], [/^prostate cancer with/, 'Living affected individual with prostate cancer'], [/^pancreatic cancer with/, 'Living affected individual with pancreatic cancer'],
+    R208: [[/grandparent from/, '≥ 1 grandparent from Westray'], [/^unaffected/, 'Living unaffected individual with'], [/^prostate cancer with/, 'Living affected individual with prostate cancer'], [/^pancreatic cancer with/, 'Living affected individual with pancreatic cancer'],
       [/^breast cancer under 40/, 'Breast cancer (age <40'], [/^bilateral breast/, 'Bilateral breast cancer'], [/^triple-negative/, 'Triple negative breast cancer'], [/^male breast/, 'Assigned male at birth'],
       [/^breast cancer under 45/, 'Breast cancer (age <45'], [/Manchester score/, 'Combined pathology-adjusted Manchester score'], [/^Ashkenazi/, 'Ashkenazi Jewish ancestry and breast'], [/DCIS/, '*Breast cancer definition']],
     R210: [[/^unaffected/, 'Clinical Criteria for germline testing in an unaffected'], [/Amsterdam/, 'modified Amsterdam criteria positive family'], [/^MMR-deficient|^MLH1-deficient|^MLH1 loss/, 'The proband has a dMMR tumour'],
@@ -674,7 +683,7 @@
       [/pigmentation under 10/, 'Characteristic mucocutaneous pigmentation age <10'], [/relative with a PJS/, '≥1 PJS-type hamartomatous polyp, AND']],
     R213: [[/Lhermitte/, 'Cerebellar dysplastic gangliocytoma'], [/major criterion/, 'Macrocephaly AND ≥1 major'], [/mucocutaneous/, 'Macrocephaly AND Mucocutaneous']],
     R214: [[/./, '≥ 1 major OR']],
-    R215: [[/^diffuse gastric cancer under 50/, 'Diffuse gastric cancer (<50'], [/cleft/, 'cleft lip or cleft palate'], [/both under 70/, 'double primary diffuse gastric'], [/^diffuse gastric cancer with a first/, 'diffuse gastric cancer at any age and ≥ 1 FDR/SDR with diffuse'],
+    R215: [[/Māori/, 'diffuse gastric cancer in any individual of Maori'], [/^diffuse gastric cancer under 50/, 'Diffuse gastric cancer (<50'], [/cleft/, 'cleft lip or cleft palate'], [/both under 70/, 'double primary diffuse gastric'], [/^diffuse gastric cancer with a first/, 'diffuse gastric cancer at any age and ≥ 1 FDR/SDR with diffuse'],
       [/^lobular breast cancer with/, 'Lobular breast cancer and ≥1 FDR/SDR'], [/^bilateral lobular/, 'Bilateral lobular breast cancer'], [/two lobular/, 'Two or more cases of lobular']],
     R216: [[/jaw osteosarcoma/, 'Jaw osteosarcoma'], [/anaplastic/, 'Rhabdomyosarcoma of embryonal anaplastic'], [/^rhabdomyosarcoma at 5/, 'Rhabdomyosarcoma (≤ 5'], [/^adrenocortical/, 'Adrenocortical cancer'], [/^choroid/, 'Choroid plexus cancer'],
       [/^breast cancer at 30/, 'Breast cancer (≤ 30'], [/^HER2/, 'HER2 positive breast cancer'], [/^hypodiploid/, 'Hypodiploid acute'], [/^SHH/, 'SHH medulloblastoma'], [/^two LFS/, '≥2 LFS-related cancers'],
@@ -703,7 +712,7 @@
       [/medulloblastoma/, 'Classic type medulloblastoma'], [/^≥6/, '≥6 pilomatrixomas'], [/^≥2 pilomatrixomas/, '≥2 pilomatrixoma <20'], [/another APC/, 'Single pilomatrixoma in an individual'], [/epidermoid/, 'Pilomatrixoma with features of an epidermoid']],
     R422: [[/core BAP1 tumours/, 'Individual with a personal history of two or more core'], [/melanocytic/, 'Individual with a personal history of two or more inactivated'], [/first-degree/, 'Individual with a personal history of a BAP1 associated tumour and a first'],
       [/mesothelioma/, 'Individual with mesothelioma'], [/uveal/, 'Individual with uveal melanoma']],
-    R430: [[/under 50/, 'Proband diagnosed with prostate cancer at <50'], [/metastatic/, 'Proband diagnosed with metastatic prostate'], [/Ashkenazi/, 'Ashkenazi Jewish ancestry and prostate']],
+    R430: [[/under 50/, 'Proband diagnosed with prostate cancer at <50'], [/metastatic/, 'Proband diagnosed with metastatic prostate'], [/Ashkenazi/, 'Ashkenazi Jewish ancestry and prostate'], [/Whalsay/, '≥1 grandparent from Whalsay']],
     R456: [[/^Wilms/, 'Wilms tumour, multiple nephrogenic'], [/^bilateral or multiple neuroblastoma/, 'Bilateral neuroblastoma'], [/relative \(up to third-degree\) with neuroblastoma/, 'One or more FDR/SDR/TDR with neuroblastoma'],
       [/^neuroblastoma with Hirschsprung/, "Hirschsprung's or FDR"], [/^neuroblastoma/, 'Neuroblastoma'], [/medulloblastoma/, 'Medulloblastoma <25'], [/teratoid|small cell/, 'Atypical teratoid/rhabdoid tumour']],
     R457: [[/sarcoma under 25/, 'Translocation negative sarcoma'], [/^MPNST/, 'Malignant peripheral nerve sheath'], [/^chordoma under 25/, 'Chordoma <25'], [/multiple primary/, 'Multiple primary sarcomas'], [/^sarcoma with/, 'Sarcoma and one or more FDR/SDR'],

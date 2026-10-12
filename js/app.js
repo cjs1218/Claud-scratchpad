@@ -482,7 +482,7 @@
     people.forEach(p => { if (!p.dx.length) p.dx.push(newDx()); });
     state.people = people;
     state.openPeople.clear();
-    state.ancestry = ['ashkenazi', 'other_founder'].includes(data.ancestry) ? data.ancestry : '';
+    state.ancestry = ['ashkenazi', 'westray', 'whalsay', 'maori', 'other_founder'].includes(data.ancestry) ? data.ancestry : '';
     $('#ancestry').value = state.ancestry;
     renderFamily(); renderResults();
   }
