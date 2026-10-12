@@ -465,7 +465,13 @@ body.compact-head .gh-link { margin-top: 0; padding: 3px 8px; }
 @media print { .ams { background: none !important; } }
 /* Eligibility tags: family tree ring + label, form tag */
 .ped-elig { fill: var(--primary); font-weight: 700; }
+.ped-maybe { fill: var(--warn-fg); font-weight: 700; }
 .ped-elig-ring { fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-dasharray: 5 3; }
 .person-elig { font-size: 0.8rem; color: var(--primary); font-weight: 700; margin: -2px 0 6px; }
 .person-elig:empty { display: none; }
 .person-elig .elig-code { color: var(--primary); border-color: var(--primary); }
+.person-elig .maybe { color: var(--warn-fg); }
+.person-elig .maybe-code { color: var(--warn-fg); border-color: var(--warn-edge); background: var(--warn-bg); }
+.elig-maybe { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); }
+.elig-maybe h4 { margin: 0 0 6px; font-size: 0.92rem; color: var(--warn-fg); }
+.elig-maybe > ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }

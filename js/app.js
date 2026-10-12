@@ -636,8 +636,10 @@
       if (n.implied) continue;
       const st = n.p.deceased ? (has(n.p.ageDeath) ? `d. ${n.p.ageDeath}` : 'deceased') : (has(n.p.ageNow) ? `age ${n.p.ageNow}` : '');
       if (st) n.lines.push({ t: st, cls: 'ped-l ped-hist' });
-      n.elig = elig.get(n.p.id) || [];
-      if (n.elig.length) n.lines.push({ t: `Meets ${n.elig.join(', ')}`, cls: 'ped-l ped-elig' });
+      const e = elig.get(n.p.id) || { meets: [], maybe: [] };
+      n.elig = e.meets;
+      if (e.meets.length) n.lines.push({ t: `Meets ${e.meets.join(', ')}`, cls: 'ped-l ped-elig' });
+      if (e.maybe.length) n.lines.push({ t: `May meet ${e.maybe.join(', ')}`, cls: 'ped-l ped-maybe' });
       const dxs = n.p.dx.filter(d => d.site && d.hist);
       n.affected = dxs.length > 0;
       n.hit = dxs.some(d => hitDx.has(d.id));
@@ -697,7 +699,7 @@
   // Fixed light colours for downloaded images (the page itself uses CSS so dark mode works).
   const PED_EXPORT_CSS = `.ped-line{stroke:#4c6272;stroke-width:1.5;fill:none}.ped-dash{stroke-dasharray:4 3}
     .ped-sym{fill:#fff;stroke:#212b32;stroke-width:2}.ped-aff{fill:#768692}.ped-hitfill{fill:#005eb8;stroke:#003087}
-    .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-dead{stroke:#212b32;stroke-width:2}.ped-elig{fill:#007f3b;font-weight:700}.ped-elig-ring{fill:none;stroke:#007f3b;stroke-width:2.5;stroke-dasharray:5 3}.ped-arrowhead{fill:#212b32}
+    .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-dead{stroke:#212b32;stroke-width:2}.ped-elig{fill:#007f3b;font-weight:700}.ped-maybe{fill:#8a5a00;font-weight:700}.ped-elig-ring{fill:none;stroke:#007f3b;stroke-width:2.5;stroke-dasharray:5 3}.ped-arrowhead{fill:#212b32}
     .ped-l{font:11px Arial,Helvetica,sans-serif;fill:#212b32}.ped-rel{font-weight:700}.ped-l-imp{fill:#768692;font-style:italic}
     .ped-hist{font-size:10px;fill:#4c6272}.ped-hit{fill:#005eb8;font-weight:700}`;
 
@@ -753,7 +755,7 @@
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-aff" x="1" y="1" width="12" height="12"/></svg> Other cancer</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym" x="1" y="1" width="12" height="12"/></svg> No cancer entered</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-imp" x="1" y="1" width="12" height="12"/></svg> Not entered (implied)</span>
-        <span><svg width="16" height="16" aria-hidden="true"><rect class="ped-elig-ring" x="1.5" y="1.5" width="13" height="13" rx="3"/></svg> Meets test criteria now (* = tumour testing first)</span>
+        <span><svg width="16" height="16" aria-hidden="true"><rect class="ped-elig-ring" x="1.5" y="1.5" width="13" height="13" rx="3"/></svg> Meets test criteria now (* = tumour testing first); “May meet” = check an unrecorded detail</span>
         <span class="muted">□ male · ○ female · ◇ sex not given · ↘ proband · ⁄ deceased · dashed line = half-sibling or uncertain link</span>
       </p>
     </details>`;
@@ -807,15 +809,18 @@
   function updateFormTags() {
     const m = eligByPerson();
     document.querySelectorAll('[data-elig-for]').forEach(el => {
-      const codes = m.get(+el.dataset.eligFor) || [];
-      el.innerHTML = codes.length ? `Meets criteria: ${codes.map(c => `<span class="code-sm elig-code" title="${esc(TESTS[c.replace('*', '')].name)}${c.endsWith('*') ? ' – tumour testing first' : ''}">${c}</span>`).join(' ')}` : '';
+      const e = m.get(+el.dataset.eligFor) || { meets: [], maybe: [] };
+      const chip = (c, cls, extra) => `<span class="code-sm ${cls}" title="${esc(TESTS[c.replace('*', '')].name)}${c.endsWith('*') ? ' – tumour testing first' : ''}${extra}">${c}</span>`;
+      el.innerHTML = [e.meets.length ? `Meets criteria: ${e.meets.map(c => chip(c, 'elig-code', '')).join(' ')}` : '',
+        e.maybe.length ? `<span class="maybe">May meet: ${e.maybe.map(c => chip(c, 'elig-code maybe-code', ' – check an unrecorded detail')).join(' ')}</span>` : ''].filter(Boolean).join(' · ');
     });
   }
 
   /* ---- Who meets Test Directory criteria now (js/eligibility.js) ---- */
-  const ELIG_TESTS = ['R207', 'R208', 'R210', 'R211', 'R212', 'R213', 'R214', 'R215', 'R216', 'R217', 'R218', 'R219', 'R221', 'R222', 'R223', 'R224', 'R225', 'R367', 'R430'];
-  function eligibilityList() {
-    const res = checkEligibility(state.people, state.ancestry);
+  const ELIG_TESTS = ['R207', 'R208', 'R210', 'R211', 'R212', 'R213', 'R214', 'R215', 'R216', 'R217', 'R218', 'R219', 'R221', 'R222', 'R223', 'R224', 'R225', 'R226', 'R254', 'R347', 'R363', 'R364', 'R365', 'R366', 'R367', 'R414', 'R422', 'R430', 'R456', 'R457'];
+  // People grouped with their entries; `possible` picks the "may meet" entries instead of those met now.
+  function eligibilityList(possible = false) {
+    const res = checkEligibility(state.people, state.ancestry).filter(o => !!o.possible === possible);
     const byPerson = new Map();
     for (const o of res) { if (!byPerson.has(o.person)) byPerson.set(o.person, []); byPerson.get(o.person).push(o); }
     return [...byPerson.entries()].sort((a, b) => (a[0].rel === 'proband' ? -1 : 0) - (b[0].rel === 'proband' ? -1 : 0));
@@ -825,12 +830,13 @@
     const m = new Map();
     for (const o of checkEligibility(state.people, state.ancestry)) {
       const code = o.tumourFirst ? `${o.test}*` : o.test;
-      if (!m.has(o.person.id)) m.set(o.person.id, []);
-      if (!m.get(o.person.id).includes(code)) m.get(o.person.id).push(code);
+      if (!m.has(o.person.id)) m.set(o.person.id, { meets: [], maybe: [] });
+      const list = m.get(o.person.id)[o.possible ? 'maybe' : 'meets'];
+      if (!list.includes(code)) list.push(code);
     }
     return m;
   }
-  const eligTag = o => o.unaffected ? 'via Clinical Genetics' : o.tumourFirst ? 'tumour MMR/MSI testing first' : o.deceased ? 'deceased – needs stored DNA or tissue' : '';
+  const eligTag = o => o.possible ? (o.deceased ? 'may meet – check; deceased' : 'may meet – check') : o.unaffected ? 'via Clinical Genetics' : o.tumourFirst ? 'tumour MMR/MSI testing first' : o.deceased ? 'deceased – needs stored DNA or tissue' : '';
   // Modified Amsterdam: a banner when met, a checklist when two or more relatives have Lynch-associated cancers.
   function amsterdamHtml() {
     const a = amsterdamCriteria(state.people);
@@ -845,15 +851,17 @@
   }
 
   function eligibilityHtml() {
-    const list = eligibilityList();
+    const list = eligibilityList(), maybe = eligibilityList(true);
     const ams = amsterdamHtml();
+    const people = l => `<ul>${l.map(([p, os]) => `<li><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}
+        <ul>${os.map(o => `<li><span class="code-sm" title="${esc(TESTS[o.test].name)}">${o.test}</span> ${esc(TESTS[o.test].name)}${eligTag(o) && !o.possible ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
+          <div class="small muted">${o.text.map(t => abbrHtml(t)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>`;
+    const maybeHtml = maybe.length ? `<div class="elig-maybe"><h4>May meet – check an unrecorded detail</h4>${people(maybe)}</div>` : '';
     if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>${ams}
-      <p class="small">No one in the family as entered meets the main inherited cancer test criteria checked here (${ELIG_TESTS.join(', ')}). Check the full criteria, CanRisk and the Manchester score.</p></section>`;
+      <p class="small">No one in the family as entered meets the inherited cancer test criteria checked here (${ELIG_TESTS.join(', ')}). Check the full criteria, CanRisk and the Manchester score.</p>${maybeHtml}</section>`;
     return `<section class="elig"><h3>Meets Test Directory criteria now</h3>${ams}
-      <ul>${list.map(([p, os]) => `<li><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}
-        <ul>${os.map(o => `<li><span class="code-sm" title="${esc(TESTS[o.test].name)}">${o.test}</span> ${esc(TESTS[o.test].name)}${eligTag(o) ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
-          <div class="small muted">${o.text.map(t => abbrHtml(t)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>
-      <p class="small muted">Checked against the main inherited cancer tests (${ELIG_TESTS.join(', ')}) using what has been entered; criteria needing information not recorded here (e.g. tumour grade, CanRisk, Wimmer score) are not assessed. Deceased relatives need stored DNA, or tissue with Manchester ≥17 / CanRisk ≥15% for R208/R207. Always confirm against the ${link(TD_VERSION, TD_URL)}.</p></section>`;
+      ${people(list)}${maybeHtml}
+      <p class="small muted">Checked against the inherited cancer tests (${ELIG_TESTS.join(', ')}) using what has been entered; criteria needing information not recorded here (e.g. tumour grade, CanRisk, Wimmer score) are not assessed. Deceased relatives need stored DNA, or tissue with Manchester ≥17 / CanRisk ≥15% for R208/R207. Always confirm against the ${link(TD_VERSION, TD_URL)}.</p></section>`;
   }
 
   // Print-only table of the family as entered.
@@ -898,7 +906,10 @@
     if (am.affectedCount >= 2) lines.push('', am.met ? `FAMILY HISTORY MEETS MODIFIED AMSTERDAM CRITERIA (${am.members.map(personLabel).join(', ')})` : `Modified Amsterdam criteria not met (${am.n} of 4): ${am.checks.filter(c => !c.ok).map(c => c.label).join('; ')}`);
     lines.push('', 'MEETS TEST DIRECTORY CRITERIA NOW');
     if (!el.length) lines.push(`- None of the checked criteria met (${ELIG_TESTS.join(', ')})`);
-    el.forEach(([p, os]) => os.forEach(o => lines.push(`- ${personLabel(p)}${p.deceased ? ' (deceased)' : ''}: ${o.test} ${TESTS[o.test].name}${eligTag(o) ? ` [${eligTag(o)}]` : ''} – ${o.text.join('; ')}`)));
+    const eLine = ([p, os]) => os.forEach(o => lines.push(`- ${personLabel(p)}${p.deceased ? ' (deceased)' : ''}: ${o.test} ${TESTS[o.test].name}${eligTag(o) && !o.possible ? ` [${eligTag(o)}]` : ''} – ${o.text.join('; ')}`));
+    el.forEach(eLine);
+    const mb = eligibilityList(true);
+    if (mb.length) { lines.push('', 'MAY MEET TEST DIRECTORY CRITERIA – CHECK'); mb.forEach(eLine); }
     lines.push('', `DIFFERENTIAL (${MODES[state.mode].label.toLowerCase()} search)`);
     lastShown.forEach((r, i) => lines.push(`${i + 1}. ${r.cond.name} [${r.cond.genes.join(', ')}] – score ${r.score.toFixed(1)}`));
     const ptrs = pointersFor(familyDxs());

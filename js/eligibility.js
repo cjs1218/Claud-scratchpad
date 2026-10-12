@@ -1,8 +1,8 @@
 /*
  * Test Directory eligibility (Rare and Inherited Disease eligibility criteria v9.1, 20 May 2026).
  * checkEligibility(people, ancestry) returns the criteria met by each person in the family as entered.
- * Decision support only: it covers the main inherited cancer tests and criteria that can be judged from the
- * information entered; the full criteria in the Test Directory always take precedence.
+ * Decision support only: it covers the inherited cancer tests and criteria that can be judged from the
+ * information entered. Entries marked `possible` fit except for a detail not recorded here ("may meet – check"); the full criteria in the Test Directory always take precedence.
  *
  * Manchester score (BRCA1/BRCA2): points table and pathology adjustments as published by GeNotes
  * (Evans et al. J Med Genet 2004;41:474 and 2017;54:674).
@@ -373,6 +373,187 @@
       if (r221.length) add(p, 'R221', [...new Set(r221)]);
       const nf = new Set(D.filter(NF1F).map(d => d.site + d.hist));
       if (nf.size >= 2 || (nf.size === 1 && relDx(p, NF1F, 1).length)) add(p, 'R222', ['clinical NF1 criteria likely met – testing if a molecular diagnosis is needed for management or reproduction']);
+
+      /* Further solid tumour, childhood and haematological tests. Each collects criteria met now (`met`) and
+       * criteria that fit but depend on something not recorded here (`maybe`, shown as "may meet – check …"). */
+      const crit = (test, met, maybe) => {
+        if (met.length) add(p, test, [...new Set(met)]);
+        else if (maybe.length) add(p, test, [...new Set(maybe)], { possible: true });
+      };
+      const count = (pred) => D.filter(pred).reduce((n, d) => n + (+d.count > 1 ? +d.count : d.bilat ? 2 : 1), 0);
+      const people1 = (pred, maxDeg) => new Set(relDx(p, pred, maxDeg).map(x => x.p));
+
+      /* R414 – APC-associated polyposis (children / young adults before colonoscopy; GAPPS at any age) */
+      {
+        const met = [], maybe = [];
+        const apcF = d => is(d, 'feature', 'chrpe|osteomas|gapps') || is(d, 'sarcoma', 'desmoid') || is(d, 'thyroid', 'cmv') || is(d, 'liver', 'hepatoblastoma') || is(d, 'cns', 'medullo_wnt');
+        D.forEach(d => {
+          if (is(d, 'feature', 'chrpe')) (d.bilat ? met : maybe).push(d.bilat ? 'multifocal or bilateral CHRPE' : 'CHRPE – check multifocal or bilateral, assessed by an experienced ophthalmologist');
+          if (is(d, 'sarcoma', 'desmoid')) met.push(`desmoid tumour (CTNNB1 wild-type where tested) (${histText(d)})`);
+          if (is(d, 'thyroid', 'cmv')) met.push(`cribriform-morular variant papillary thyroid cancer (${histText(d)})`);
+          if (is(d, 'liver', 'hepatoblastoma')) met.push(`hepatoblastoma (${histText(d)})`);
+          if (is(d, 'feature', 'osteomas')) met.push('multiple osteomas of the skull and mandible or dental abnormalities');
+          if (is(d, 'feature', 'gapps')) met.push('gastric polyposis – qualifies if GAPPS criteria met (any age)');
+          if (is(d, 'cns', 'medullo_wnt|medullo_nos')) maybe.push(`medulloblastoma – qualifies if classic type (${histText(d)})`);
+        });
+        const pilo = D.filter(d => is(d, 'feature', 'pilomatrixoma'));
+        if (pilo.length) {
+          const n = count(d => is(d, 'feature', 'pilomatrixoma'));
+          if (n >= 6) met.push(`≥6 pilomatrixomas (${n})`);
+          else if (n >= 2 && pilo.some(d => lt(d, 20))) met.push('≥2 pilomatrixomas under 20');
+          else if (D.some(apcF)) met.push('pilomatrixoma with another APC-associated feature');
+          else maybe.push('pilomatrixoma – qualifies if it has features of an epidermoid cyst (and no syndromic alternative)');
+        }
+        crit('R414', met, maybe);
+      }
+
+      /* R254 – familial melanoma */
+      {
+        const met = [], maybe = [];
+        const mel = d => is(d, 'skin', 'melanoma');
+        const M = D.filter(mel);
+        if (M.length) {
+          const n = count(mel), nU30 = count(d => mel(d) && lt(d, 30));
+          if (M.some(d => lt(d, 18))) met.push('melanoma under 18');
+          if (nU30 >= 2) met.push('≥2 melanomas (or in situ) under 30');
+          if (M.some(d => lt(d, 30)) && relDx(p, d => mel(d) && lt(d, 30), 2).length) met.push('melanoma under 30 with a first/second-degree relative with melanoma under 30');
+          if (n >= 3) met.push(`≥3 melanomas (or in situ) (${n})`);
+          const fam = relDx(p, mel, 2).reduce((k, x) => k + (x.d.bilat ? 2 : 1), 0);
+          if (n < 3 && n + fam >= 3) met.push(`${n + fam} melanomas across the patient and first/second-degree relatives`);
+          const panc1 = relDx(p, d => is(d, 'pancreas', 'pdac|acinar|nos') && lt(d, 60), 1).length;
+          if (n >= 2 && panc1) met.push('≥2 melanomas with a first-degree relative with pancreatic cancer under 60');
+          else if (panc1) maybe.push('melanoma with a first-degree relative with pancreatic cancer under 60 – qualifies if atypical moles');
+        }
+        crit('R254', met, maybe);
+      }
+
+      /* R422 – BAP1 tumour predisposition */
+      {
+        const met = [], maybe = [];
+        const core = d => is(d, 'eye', 'uveal') || is(d, 'skin', 'melanoma') || RENAL(d) || is(d, 'meso') || is(d, 'feature', 'bimt');
+        const assoc = d => core(d) || is(d, 'skin', 'bcc') || is(d, 'cns', 'meningioma|meningioma_cc') || is(d, 'biliary', 'cholangio') || is(d, 'liver', 'hcc');
+        const cm = d => is(d, 'skin', 'melanoma');
+        const C = D.filter(core);
+        if (C.length >= 2 && !C.every(cm)) met.push('two or more core BAP1 tumours (not two melanomas)');
+        if (count(d => is(d, 'feature', 'bimt')) >= 2) met.push('two or more BAP1-inactivated melanocytic tumours');
+        const A = D.filter(assoc);
+        if (A.length && relDx(p, core, 1).some(x => !A.every(d => (cm(d) && cm(x.d)) || (RENAL(d) && RENAL(x.d))))) met.push('BAP1-associated tumour with a first-degree relative with a core BAP1 tumour');
+        D.forEach(d => {
+          if (is(d, 'meso') && lt(d, 60)) maybe.push(`mesothelioma under 60 – qualifies if no asbestos exposure (${histText(d)})`);
+          if (is(d, 'eye', 'uveal') && lt(d, 40)) met.push(`uveal melanoma under 40 (${histText(d)})`);
+        });
+        crit('R422', met, maybe);
+      }
+
+      /* R363 – GIST */
+      {
+        const met = [];
+        D.filter(d => is(d, 'sarcoma', 'gist')).forEach(d => {
+          if (lt(d, 50)) met.push(`GIST under 50 (${histText(d)})`);
+          if (relDx(p, x => is(x, 'sarcoma', 'gist') || PPGL(x), 3).length) met.push('GIST with a relative (up to third-degree) with GIST or phaeochromocytoma/paraganglioma');
+        });
+        crit('R363', met, []);
+      }
+
+      /* R364 – DICER1 */
+      {
+        const met = [], maybe = [];
+        D.forEach(d => {
+          if (is(d, 'lung', 'ppb') || is(d, 'cervix', 'erms') || is(d, 'kidney', 'cystic_nephroma') || is(d, 'ovary', 'sertoli') ||
+            is(d, 'cns', 'pineoblastoma') || is(d, 'pituitary', 'blastoma') || is(d, 'feature', 'dicer1_rare') ||
+            (is(d, 'feature', 'lungcysts') && lt(d, 18)) || (is(d, 'thyroid', 'mng|papillary|follicular') && lt(d, 18))) met.push(`DICER1-associated diagnosis (${histText(d)})`);
+          if (is(d, 'sarcoma', 'rms')) maybe.push(`rhabdomyosarcoma – qualifies if embryonal and thoracic, uterine, cervical or ovarian (${histText(d)})`);
+        });
+        // Two of the minor diagnoses, in one person or across two affected first-degree relatives.
+        const minor = [['lung cysts (adult)', d => is(d, 'feature', 'lungcysts') && !lt(d, 18)], ['Wilms tumour', d => is(d, 'kidney', 'wilms')],
+          ['multinodular goitre or differentiated thyroid cancer', d => is(d, 'thyroid', 'mng|papillary|follicular')], ['rhabdomyosarcoma', d => is(d, 'sarcoma', 'rms')],
+          ['macrocephaly', d => is(d, 'feature', 'macrocephaly')]];
+        const own = minor.filter(([, f]) => D.some(f));
+        if (own.length >= 2) met.push(`two DICER1-associated diagnoses: ${own.map(m => m[0]).join(' and ')}`);
+        else if (own.length === 1) {
+          const other = minor.find(([lab, f]) => lab !== own[0][0] && relDx(p, f, 1).length);
+          if (other) met.push(`${own[0][0]} with a first-degree relative with ${other[0]}`);
+        }
+        crit('R364', met, maybe);
+      }
+
+      /* R365 – fumarate hydratase (HLRCC) */
+      {
+        const met = [], maybe = [];
+        const cut = d => is(d, 'feature', 'cutleio'), fib = d => is(d, 'feature', 'fibroids'), ren = d => d.site === 'kidney' && d.hist !== 'wilms';
+        if (D.some(d => is(d, 'kidney', 'fhrcc'))) met.push('type 2 papillary / HLRCC-associated or tubulo-papillary renal cancer');
+        if (D.some(cut) && D.some(ren)) met.push('cutaneous leiomyomata and a renal tumour');
+        else if (D.some(fib) && (D.some(cut) || D.some(ren))) maybe.push('uterine leiomyomata with cutaneous leiomyomata or a renal tumour – qualifies if classic histological features or FH deficiency');
+        if (D.some(cut)) {
+          if (relDx(p, ren, 3).length) met.push('cutaneous leiomyomata with a relative (up to third-degree) with a renal tumour');
+          if (people1(cut, 3).size >= 2) met.push('cutaneous leiomyomata with two relatives with cutaneous leiomyomata');
+          else if (people1(d => cut(d) || (fib(d) && lt(d, 40)), 3).size >= 2) maybe.push('cutaneous leiomyomata with two relatives with leiomyomata – qualifies if the uterine ones have classic features');
+          if (count(cut) >= 2) met.push('multiple cutaneous leiomyomata');
+          else maybe.push('cutaneous leiomyoma – qualifies if multiple (histologically confirmed)');
+        }
+        if (D.some(d => fib(d) && lt(d, 40))) maybe.push('uterine leiomyomata under 40 – qualifies if classic histological features');
+        crit('R365', met, maybe);
+      }
+
+      /* R226 – parathyroid carcinoma */
+      if (D.some(d => is(d, 'parathyroid', 'carcinoma'))) add(p, 'R226', ['parathyroid carcinoma']);
+
+      /* R456 – embryonal tumour and R457 – sarcoma of possible germline origin (living individuals) */
+      if (!p.deceased) {
+        const met = [], maybe = [];
+        D.filter(d => is(d, 'kidney', 'wilms')).forEach(d => {
+          const r = [];
+          if (lt(d, 2)) r.push('under 2');
+          if (d.bilat) r.push('bilateral or multifocal');
+          if (relDx(p, x => is(x, 'kidney', 'wilms'), 9).length) r.push('family history of Wilms tumour');
+          if (D.some(x => is(x, 'feature', 'gu_anom'))) r.push('genital anomaly or gonadoblastoma');
+          if (r.length) met.push(`Wilms tumour – ${r.join(', ')}`);
+          else maybe.push('Wilms tumour – qualifies with unexplained proteinuria or renal failure, nephrogenic rests or another listed feature');
+        });
+        D.filter(d => is(d, 'nb')).forEach(d => {
+          if (d.bilat) met.push('bilateral or multiple neuroblastoma');
+          else if (relDx(p, x => is(x, 'nb'), 3).length) met.push('neuroblastoma with a relative (up to third-degree) with neuroblastoma');
+          else if (D.some(x => is(x, 'feature', 'cchs')) || relDx(p, x => is(x, 'feature', 'cchs'), 3).length) met.push('neuroblastoma with Hirschsprung disease or congenital hypoventilation in the patient or family');
+          else maybe.push('neuroblastoma – qualifies with Hirschsprung disease or congenital hypoventilation in the patient or family');
+        });
+        D.forEach(d => {
+          if (is(d, 'cns', 'medullo_shh') && lt(d, 25)) met.push(`SHH medulloblastoma under 25 (${histText(d)})`);
+          if (is(d, 'cns', 'atrt') || is(d, 'ovary', 'sccoht')) met.push(`${is(d, 'cns', 'atrt') ? 'atypical teratoid/rhabdoid tumour' : 'small cell carcinoma of the ovary, hypercalcaemic type'} (${histText(d)})`);
+        });
+        crit('R456', met, maybe);
+
+        const m7 = [], q7 = [];
+        const sarc = d => is(d, 'sarcoma', 'rms|osteo|sts|lms|mpnst|chondrosarcoma|angiosarcoma|mrt') || is(d, 'uterus', 'lms') || is(d, 'cervix', 'erms');
+        const chord = d => is(d, 'sarcoma', 'chordoma');
+        D.forEach(d => {
+          if (is(d, 'sarcoma', 'osteo|lms|chondrosarcoma|angiosarcoma') && lt(d, 25)) m7.push(`translocation-negative sarcoma under 25 (${histText(d)})`);
+          else if (sarc(d) && !is(d, 'sarcoma', 'mpnst') && lt(d, 25)) q7.push(`sarcoma under 25 – qualifies if translocation-negative (${histText(d)})`);
+          if (is(d, 'sarcoma', 'mpnst') && lt(d, 25)) m7.push(`MPNST under 25 (${histText(d)})`);
+          if (chord(d) && lt(d, 25)) m7.push(`chordoma under 25 (${histText(d)})`);
+        });
+        if (count(sarc) >= 2) m7.push('multiple primary sarcomas');
+        if (D.some(sarc) && relDx(p, sarc, 2).length) m7.push('sarcoma with a first/second-degree relative with sarcoma');
+        if (count(chord) >= 2) m7.push('multiple chordomas');
+        if (D.some(chord) && relDx(p, chord, 2).length) m7.push('chordoma with a first/second-degree relative with chordoma');
+        crit('R457', m7, q7);
+      }
+
+      /* R347 – inherited AML and R366 – inherited ALL */
+      {
+        const myel = d => is(d, 'heme', 'aml|mds');
+        if (D.some(myel)) {
+          const met = [];
+          if (D.some(d => is(d, 'feature', 'thrombocytopenia'))) met.push('AML/MDS with a pre-existing platelet disorder');
+          if (relDx(p, x => myel(x) || is(x, 'feature', 'bmf'), 3).length) met.push('AML/MDS with a relative (up to third-degree) with AML/MDS, unexplained cytopenia or aplastic anaemia');
+          crit('R347', met, ['AML/MDS – qualifies with a pre-existing platelet function disorder']);
+        }
+        if (D.some(d => is(d, 'heme', 'all|all_hypo'))) {
+          const met = [];
+          if (relDx(p, x => is(x, 'heme', 'all|all_hypo'), 3).length) met.push('ALL with a relative (up to third-degree) with ALL');
+          if (people1(x => is(x, 'heme') || is(x, 'feature', 'thrombocytopenia|bmf'), 3).size >= 2) met.push('ALL with two relatives (up to third-degree) with a myeloid, lymphoid or platelet disorder');
+          crit('R366', met, []);
+        }
+      }
     }
 
     /* Family-level: modified Amsterdam (R210 germline for the affected relatives involved) */
