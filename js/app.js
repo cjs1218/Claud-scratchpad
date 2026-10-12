@@ -13,7 +13,7 @@
   let uid = 0;
   const nextId = () => ++uid;
   const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', grade: '', ovgrade: '', mmr: '', meth: '', braf: '', count: '', bilat: false });
-  const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', dx: [newDx()] });
+  const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', adopted: false, dx: [newDx()] });
 
   const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null, ancestry: '', expanded: new Set(), compareView: null };
 
@@ -311,6 +311,7 @@
           ? `<label class="mk">Age at death<input type="number" min="0" max="120" inputmode="numeric" data-f="ageDeath" value="${esc(p.ageDeath ?? '')}" placeholder="Age"></label>`
           : `<label class="mk">Age now<input type="number" min="0" max="120" inputmode="numeric" data-f="ageNow" value="${esc(p.ageNow ?? '')}" placeholder="Age"></label>`}
         <label class="mk chk"><input type="checkbox" data-f="deceased"${p.deceased ? ' checked' : ''}>Deceased</label>
+        ${isProband ? `<label class="mk chk" title="Manchester score +2 BRCA1, +2 BRCA2 when there is no known cancer history in blood relatives"><input type="checkbox" data-f="adopted"${p.adopted ? ' checked' : ''}>Adopted (no known family history)</label>` : ''}
       </div>
       ${p.dx.map(d => renderDx(p, d)).join('')}
       <button type="button" class="link-btn" data-act="add-dx">+ Add cancer or finding</button>
@@ -403,7 +404,7 @@
     if (!data || !Array.isArray(data.people)) throw new Error('not a family file');
     const people = data.people.filter(p => REL[p.rel]).map(p => ({
       ...newPerson(p.rel), sex: ['F', 'M'].includes(p.sex) ? p.sex : '',
-      ageNow: p.ageNow ?? '', deceased: !!p.deceased, ageDeath: p.ageDeath ?? '',
+      ageNow: p.ageNow ?? '', deceased: !!p.deceased, ageDeath: p.ageDeath ?? '', adopted: !!p.adopted && p.rel === 'proband',
       dx: (p.dx || []).map(d => {
         const site = SITES[d.site] ? d.site : '';
         const hist = site && SITES[site].hist.some(h => h[0] === d.hist) ? d.hist : '';
@@ -939,28 +940,29 @@
     const rowLabel = id => (MSS_TABLE.find(r => r[0] === id) || [])[1];
     const threshold = m.combined >= 15 || m.b1 >= 10 || m.b2 >= 10;
     const rows = m.rows.map(r => `<tr><td>${esc(personLabel(r.p))}</td><td>${dxLabel(r.d)}${r.k > 1 ? ' <span class="elig-tag">bilateral – counted twice</span>' : ''}</td><td>${esc(rowLabel(r.id))}</td><td class="num">${r.b1}</td><td class="num">${r.b2}</td></tr>`).join('');
-    const adj = m.adj.map(a => `<tr class="mss-adj"><td>${esc(personLabel(person))}</td><td>${a.d ? dxLabel(a.d) : ''}</td><td>Pathology: ${abbrHtml(a.label)}</td><td class="num">${a.b1 > 0 ? '+' : ''}${a.b1}</td><td class="num">–</td></tr>`).join('');
+    const adj = m.adj.map(a => `<tr class="mss-adj"><td>${esc(personLabel(person))}</td><td>${a.d ? dxLabel(a.d) : ''}</td><td>Pathology: ${abbrHtml(a.label)}</td><td class="num">${a.b1 > 0 ? '+' : ''}${a.b1}</td><td class="num">${a.b2 ? `+${a.b2}` : '–'}</td></tr>`).join('');
     const used = new Set(m.rows.map(r => r.id)), usedAdj = new Set(m.adj.map(a => a.id));
     return `<header class="crit-head">
         <h2>Manchester score – ${esc(personLabel(person))}</h2>
         <button type="button" class="crit-close" data-close aria-label="Close">×</button>
       </header>
-      ${back ? `<p><button type="button" class="link-btn" data-back="${esc(back)}">← Back to ${esc(back)}</button></p>` : ''}
+      ${back ? `<p><button type="button" class="link-btn" id="back-from-mss" data-back="${esc(back)}">← Back to ${esc(back)}</button></p>` : ''}
       <p class="mss-total"><strong>Combined ${m.combined}</strong> (BRCA1 ${m.b1}, BRCA2 ${m.b2})${both ? ` · ${SIDE_LABEL[m.side]}` : ''}
         <span class="elig-tag ${threshold ? 'mss-ok' : 'dec'}">${threshold ? 'meets the R208 threshold (≥15 combined or ≥10 for one gene)' : 'below the R208 threshold (≥15 combined or ≥10 for one gene)'}</span></p>
+      ${person.rel === 'proband' ? `<p class="mss-adopted"><label class="chk"><input type="checkbox" data-mss-adopted="${person.id}"${person.adopted ? ' checked' : ''}> Adopted, with no known cancer history in blood relatives (+2 BRCA1, +2 BRCA2)</label></p>` : ''}
       ${both ? `<p class="small muted">The proband can count either side of the family; the higher-scoring side is shown. The ${SIDE_LABEL[other.side]} scores ${other.combined} (BRCA1 ${other.b1}, BRCA2 ${other.b2}).</p>` : ''}
       <section><h3>How it was calculated</h3>
       ${m.rows.length || m.adj.length ? `<div class="table-wrap"><table class="syn-table mss-table"><thead><tr><th>Relative</th><th>Cancer</th><th>Scored as</th><th class="num">BRCA1</th><th class="num">BRCA2</th></tr></thead>
         <tbody>${rows}${adj}</tbody>
         <tfoot><tr><th colspan="3">Total (combined ${m.combined})</th><th class="num">${m.b1}</th><th class="num">${m.b2}</th></tr></tfoot></table></div>` : '<p>No cancers on this side of the family score points.</p>'}
-      <p class="small muted">Pathology adjustments apply to the tested person's own tumour only and change the BRCA1 score.</p></section>
+      <p class="small muted">Pathology adjustments apply to the tested person's own tumour only and change the BRCA1 score; the adoption adjustment adds to both.</p></section>
       ${m.excluded.length ? `<section><h3>Not counted</h3><ul class="mss-excl">${m.excluded.map(x => `<li><strong>${esc(personLabel(x.p))}</strong> – ${dxLabel(x.d)}: ${esc(x.why)}</li>`).join('')}</ul></section>` : ''}
       <section><h3>Scoring table</h3>
       <div class="table-wrap"><table class="syn-table mss-ref"><thead><tr><th>Cancer</th><th class="num">BRCA1</th><th class="num">BRCA2</th></tr></thead>
         <tbody>${MSS_TABLE.map(([id, label, b1, b2]) => `<tr${used.has(id) ? ' class="used"' : ''}><td>${esc(label)}</td><td class="num">${b1}</td><td class="num">${b2}</td></tr>`).join('')}
-        <tr class="mss-head"><th colspan="3">Pathology adjustments (tested person's tumour, BRCA1 score)</th></tr>
-        ${MSS_ADJ.map(([id, label, b1]) => `<tr${usedAdj.has(id) ? ' class="used"' : ''}><td>${abbrHtml(label)}</td><td class="num">${b1 > 0 ? '+' : ''}${b1}</td><td class="num">–</td></tr>`).join('')}</tbody></table></div>
-      <p class="small muted">Rows used for this family are highlighted. Points from Evans et al. (${link('J Med Genet 2004', 'https://doi.org/10.1136/jmg.2003.017996')}; ${link('2017 update', 'https://doi.org/10.1136/jmedgenet-2017-104584')}) as published by ${link('GeNotes', 'https://www.genomicseducation.hee.nhs.uk/genotes/knowledge-hub/manchester-evans-score/')}. Grade adjustments apply to invasive breast cancer when a grade is entered. Not applied because it is not recorded here: adoption with no known family history (+2/+2). Bilateral breast cancer is counted as two primaries. Count only one side of the family (plus the tested person's own cancers and siblings/children). R208 threshold: combined ≥15 or one gene ≥10 (deceased with tissue only ≥17; unaffected ≥20). Judged only from what has been entered.</p></section>`;
+        <tr class="mss-head"><th colspan="3">Adjustments for the tested person (pathology of their own tumour; adoption)</th></tr>
+        ${MSS_ADJ.map(([id, label, b1, b2]) => `<tr${usedAdj.has(id) ? ' class="used"' : ''}><td>${abbrHtml(label)}</td><td class="num">${b1 > 0 ? '+' : ''}${b1}</td><td class="num">${b2 ? `+${b2}` : '–'}</td></tr>`).join('')}</tbody></table></div>
+      <p class="small muted">Rows used for this family are highlighted. Points from Evans et al. (${link('J Med Genet 2004', 'https://doi.org/10.1136/jmg.2003.017996')}; ${link('2017 update', 'https://doi.org/10.1136/jmedgenet-2017-104584')}) as published by ${link('GeNotes', 'https://www.genomicseducation.hee.nhs.uk/genotes/knowledge-hub/manchester-evans-score/')}. Grade adjustments apply to invasive breast cancer when a grade is entered. The adoption adjustment (+2/+2) applies to the proband when ticked, for an adopted person with no known cancer history in blood relatives. Bilateral breast cancer is counted as two primaries. Count only one side of the family (plus the tested person's own cancers and siblings/children). R208 threshold: combined ≥15 or one gene ≥10 (deceased with tissue only ≥17; unaffected ≥20). Judged only from what has been entered.</p></section>`;
   }
   function openManchester(id, back) {
     const p = state.people.find(x => x.id === id);
@@ -1661,6 +1663,17 @@
       if (!state.printFull) return;
       state.printFull = false; renderResults();
       const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; state.treeOpen = pedWasOpen; pedWasOpen = null; }
+    });
+    // Adopted tick in the Manchester panel: saved on the proband, so every score and criterion updates.
+    document.addEventListener('change', e => {
+      const t = e.target.closest && e.target.closest('[data-mss-adopted]');
+      if (!t) return;
+      const p = state.people.find(x => x.id === +t.dataset.mssAdopted);
+      if (!p) return;
+      p.adopted = t.checked;
+      const back = $('#back-from-mss') ? $('#back-from-mss').dataset.back : null;
+      renderFamily(); renderResults();
+      openManchester(p.id, back);
     });
     // Manchester score links open the breakdown (with a way back when opened from a criteria panel).
     document.addEventListener('click', e => {

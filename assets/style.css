@@ -523,3 +523,5 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .mss-ref tr.mss-head th { text-align: left; font-size: 0.85rem; padding-top: 8px; }
 .mss-excl { margin: 0; padding-left: 18px; font-size: 0.9rem; }
 @media print { .person-mss { display: none; } }
+.mss-adopted { margin: 8px 0; padding: 6px 10px; border: 1px dashed var(--border); border-radius: 4px; font-size: 0.92rem; }
+.mss-adopted label { display: flex; gap: 8px; align-items: center; cursor: pointer; }

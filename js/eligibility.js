@@ -88,7 +88,8 @@
     ['tnbc', 'Breast cancer triple negative', 4], ['her2', 'Breast cancer HER2 positive (not triple negative)', -6],
     ['erpos', 'Breast cancer ER positive (not triple negative)', -1], ['erneg', 'Breast cancer ER negative (not triple negative)', 1],
     ['g1', 'Breast cancer grade 1', -2], ['g3', 'Breast cancer grade 3', 2],
-    ['ilc', 'Breast cancer lobular', -2], ['dcis', 'Breast DCIS only', -1], ['hgsc', 'High-grade serous ovarian cancer <60 (no breast cancer)', 2]
+    ['ilc', 'Breast cancer lobular', -2], ['dcis', 'Breast DCIS only', -1], ['hgsc', 'High-grade serous ovarian cancer <60 (no breast cancer)', 2],
+    ['adopted', 'Adopted, no known cancer history in blood relatives', 2, 2]
   ];
   const MSS_ROW = Object.fromEntries(MSS_TABLE.map(r => [r[0], r])), MSS_ADJ_ROW = Object.fromEntries(MSS_ADJ.map(r => [r[0], r]));
   function mssRow(p, d) {
@@ -133,8 +134,10 @@
       if (br.hist === 'ilc') adj.push('ilc');
       if (br.hist === 'dcis') adj.push('dcis');
     } else if (ov && ov.hist === 'hgsc' && lt(ov, 60)) adj.push('hgsc');
-    const adjRows = adj.map(id => ({ id, label: MSS_ADJ_ROW[id][1], b1: MSS_ADJ_ROW[id][2], d: id === 'hgsc' ? ov : br }));
+    if (person.adopted && person.rel === 'proband') adj.push('adopted');
+    const adjRows = adj.map(id => ({ id, label: MSS_ADJ_ROW[id][1], b1: MSS_ADJ_ROW[id][2], b2: MSS_ADJ_ROW[id][3] || 0, d: id === 'hgsc' ? ov : id === 'adopted' ? null : br }));
     b1 += adjRows.reduce((t, r) => t + r.b1, 0);
+    b2 += adjRows.reduce((t, r) => t + r.b2, 0);
     return { side: s, b1, b2, combined: b1 + b2, rows, adj: adjRows, excluded };
   }
   function manchesterDetail(person, people) {
