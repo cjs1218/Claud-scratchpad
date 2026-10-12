@@ -332,12 +332,14 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 .variant-notes li + li { margin-top: 4px; }
 .evidence-refs { padding-left: 18px; }
 
-/* Click-to-expand abbreviations */
-abbr.abbr { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; border-radius: 2px; }
+/* Abbreviations: dotted underline; the meaning shows in a tooltip on hover or tap */
+abbr.abbr { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }
 abbr.abbr:hover { color: var(--accent); }
-abbr.abbr.open::after { content: " (" attr(data-full) ")"; font-style: italic; color: var(--muted); }
+svg text[data-tip] { cursor: help; }
+#abbr-tip { position: fixed; z-index: 1000; max-width: min(340px, calc(100vw - 16px)); padding: 6px 9px; border-radius: 4px; background: #212b32; color: #fff; font-size: 0.82rem; line-height: 1.35; white-space: pre-line; pointer-events: none; box-shadow: 0 2px 8px rgb(0 0 0 / 0.25); }
+#abbr-tip[hidden] { display: none; }
 .abbr-hint { margin: 4px 0 0; font-size: 0.8rem; color: var(--muted); }
-@media print { abbr.abbr { text-decoration: none; } abbr.abbr::after { content: " (" attr(data-full) ")"; font-style: italic; } }
+@media print { abbr.abbr { text-decoration: none; } :is(.fam-table, .elig) abbr.abbr::after { content: " (" attr(data-full) ")"; font-style: italic; } #abbr-tip { display: none; } }
 
 /* ---- Strength pills (results, tables, compare) ---- */
 .tier { display: inline-block; min-width: 0; padding: 1px 7px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.6; border: 1px solid currentColor; background: var(--card); }

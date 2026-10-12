@@ -19,11 +19,28 @@
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  // Escape text and mark known abbreviations as click-to-expand.
+  // Escape text and mark known abbreviations (the meaning shows in a tooltip on hover or tap).
   const ABBR_RE = new RegExp(`(^|[^A-Za-z0-9])(${Object.keys(ABBREVIATIONS).sort((a, b) => b.length - a.length).join('|')})(?![A-Za-z0-9])`, 'g');
   const abbrHtml = s => esc(s).replace(ABBR_RE, (m, pre, k) =>
-    `${pre}<abbr class="abbr" tabindex="0" role="button" aria-expanded="false" title="${esc(ABBREVIATIONS[k])}" data-full="${esc(ABBREVIATIONS[k])}">${k}</abbr>`);
+    `${pre}<abbr class="abbr" title="${esc(ABBREVIATIONS[k])}" data-full="${esc(ABBREVIATIONS[k])}">${k}</abbr>`);
   const abbrList = texts => [...new Set(texts.flatMap(t => [...String(t).matchAll(ABBR_RE)].map(m => m[2])))];
+  // Mark abbreviations in every text node under `root` (skipping form controls, code and existing marks);
+  // SVG labels (the family tree) get one tooltip listing each abbreviation they contain.
+  const ABBR_SKIP = 'script,style,textarea,select,option,input,abbr,code,pre,svg,.no-abbr';
+  function markAbbr(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const hits = [];
+    for (let n; (n = walker.nextNode());) {
+      if (!/[A-Z]{2}/.test(n.nodeValue) || !n.parentElement || n.parentElement.closest(ABBR_SKIP)) continue;
+      ABBR_RE.lastIndex = 0;
+      if (ABBR_RE.test(n.nodeValue)) hits.push(n);
+    }
+    for (const n of hits) { const t = document.createElement('template'); t.innerHTML = abbrHtml(n.nodeValue); n.replaceWith(t.content); }
+    root.querySelectorAll('svg text').forEach(t => {
+      const ks = abbrList([t.textContent]);
+      if (ks.length) t.dataset.tip = ks.map(k => `${k} = ${ABBREVIATIONS[k]}`).join('\n'); else delete t.dataset.tip;
+    });
+  }
   const histLabel = (site, hist) => (SITES[site].hist.find(h => h[0] === hist) || [, hist])[1];
 
   /* ---------------- Scoring ---------------- */
@@ -1511,10 +1528,39 @@
       state.printFull = false; renderResults();
       const d = $('#ped'); if (d && pedWasOpen !== null) { d.open = pedWasOpen; state.treeOpen = pedWasOpen; pedWasOpen = null; }
     });
-    // Abbreviations: click, tap or Enter / Space shows the full term after it.
-    const toggleAbbr = el => { const open = el.classList.toggle('open'); el.setAttribute('aria-expanded', open); };
-    document.addEventListener('click', e => { const a = e.target.closest('abbr.abbr'); if (a) { e.preventDefault(); e.stopPropagation(); toggleAbbr(a); } }, true);
-    document.addEventListener('keydown', e => { const a = e.target.closest && e.target.closest('abbr.abbr'); if (a && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleAbbr(a); } });
+    // Abbreviations: marked everywhere as content renders; the meaning shows at once in a tooltip on hover or tap.
+    const tip = document.createElement('div');
+    tip.id = 'abbr-tip'; tip.className = 'no-abbr'; tip.setAttribute('role', 'tooltip'); tip.hidden = true;
+    document.body.append(tip);
+    let tipFor = null;
+    const TIP_SEL = 'abbr.abbr, svg text[data-tip]';
+    const showTip = el => {
+      if (el.title) { el.dataset.full = el.dataset.full || el.title; el.removeAttribute('title'); } // avoid the slow browser tooltip as well
+      tip.textContent = el.dataset.full || el.dataset.tip;
+      tip.hidden = false; tipFor = el;
+      const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+      const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8));
+      const top = r.bottom + 6 + h > window.innerHeight ? r.top - h - 6 : r.bottom + 6;
+      tip.style.left = `${left}px`; tip.style.top = `${top}px`;
+    };
+    const hideTip = () => { tip.hidden = true; tipFor = null; };
+    document.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest(TIP_SEL); if (el) showTip(el); else if (tipFor) hideTip(); });
+    document.addEventListener('click', e => {
+      const el = e.target.closest && e.target.closest(TIP_SEL);
+      if (!el) { if (tipFor) hideTip(); return; }
+      if (el.closest('a, button, summary, label')) return; // links and controls keep working; hover still shows the meaning
+      e.preventDefault();
+      if (tipFor === el && e.pointerType !== 'mouse') hideTip(); else showTip(el);
+    }, true);
+    window.addEventListener('scroll', () => { if (tipFor) hideTip(); }, { passive: true });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && tipFor) hideTip(); });
+    let abbrQueued = false;
+    new MutationObserver(() => {
+      if (abbrQueued) return;
+      abbrQueued = true;
+      requestAnimationFrame(() => { abbrQueued = false; markAbbr(document.body); });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    markAbbr(document.body);
     document.addEventListener('click', e => {
       const m = e.target.closest('[data-mode]');
       if (m) { state.mode = m.dataset.mode; renderResults(); }
