@@ -71,6 +71,16 @@ Everything clinical lives in `js/data.js`:
 - The header slims once a family is entered; on phones a "See results" button jumps to the differential and syndrome
   tables become stacked cards.
 
+## Test Directory eligibility
+
+`js/eligibility.js` checks who in the family as entered meets the v9.1 criteria for the main inherited cancer tests
+(R207, R208, R210, R211, R212–R219, R221–R225, R367, R430): single-person criteria (e.g. breast cancer under 40,
+triple-negative under 60, high-grade ovarian), family patterns (e.g. modified Amsterdam, LFS, renal, PPGL), the
+pathology-adjusted Manchester score (GeNotes table, Evans 2004/2017) and unaffected relatives when no affected relative
+is alive. Results appear in a "Meets Test Directory criteria now" box above the family tree, in the copied summary
+and in the printout. Deceased relatives are flagged as needing stored DNA or tissue. Criteria that need information
+the form does not record (tumour grade, CanRisk, Wimmer score) are not assessed.
+
 ## Family tree
 
 Above the differential, a pedigree is drawn from the relatives entered (standard symbols: square male,

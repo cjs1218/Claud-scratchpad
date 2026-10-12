@@ -785,6 +785,7 @@
     }
     out.innerHTML = `
       ${familyTableHtml()}
+      ${eligibilityHtml()}
       ${pedigreeHtml(shown)}
       <p class="muted small">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${TIER_LEGEND}
@@ -794,6 +795,26 @@
       ${renderTests(shown)}`;
     fitPedigree();
     updateToResults();
+  }
+
+  /* ---- Who meets Test Directory criteria now (js/eligibility.js) ---- */
+  const ELIG_TESTS = ['R207', 'R208', 'R210', 'R211', 'R212', 'R213', 'R214', 'R215', 'R216', 'R217', 'R218', 'R219', 'R221', 'R222', 'R223', 'R224', 'R225', 'R367', 'R430'];
+  function eligibilityList() {
+    const res = checkEligibility(state.people, state.ancestry);
+    const byPerson = new Map();
+    for (const o of res) { if (!byPerson.has(o.person)) byPerson.set(o.person, []); byPerson.get(o.person).push(o); }
+    return [...byPerson.entries()].sort((a, b) => (a[0].rel === 'proband' ? -1 : 0) - (b[0].rel === 'proband' ? -1 : 0));
+  }
+  const eligTag = o => o.unaffected ? 'via Clinical Genetics' : o.tumourFirst ? 'tumour MMR/MSI testing first' : o.deceased ? 'deceased – needs stored DNA or tissue' : '';
+  function eligibilityHtml() {
+    const list = eligibilityList();
+    if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>
+      <p class="small">No one in the family as entered meets the main inherited cancer test criteria checked here (${ELIG_TESTS.join(', ')}). Check the full criteria, CanRisk and the Manchester score.</p></section>`;
+    return `<section class="elig"><h3>Meets Test Directory criteria now</h3>
+      <ul>${list.map(([p, os]) => `<li><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}
+        <ul>${os.map(o => `<li><span class="code-sm" title="${esc(TESTS[o.test].name)}">${o.test}</span> ${esc(TESTS[o.test].name)}${eligTag(o) ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
+          <div class="small muted">${o.text.map(t => abbrHtml(t)).join('; ')}</div></li>`).join('')}</ul></li>`).join('')}</ul>
+      <p class="small muted">Checked against the main inherited cancer tests (${ELIG_TESTS.join(', ')}) using what has been entered; criteria needing information not recorded here (e.g. tumour grade, CanRisk, Wimmer score) are not assessed. Deceased relatives need stored DNA, or tissue with Manchester ≥17 / CanRisk ≥15% for R208/R207. Always confirm against the ${link(TD_VERSION, TD_URL)}.</p></section>`;
   }
 
   // Print-only table of the family as entered.
@@ -833,6 +854,10 @@
       if (!dxs.length && !status) continue;
       lines.push(`- ${personLabel(p)}${status ? ` (${status})` : ''}: ${dxs.length ? dxs.map(d => dxText(d, p)).join('; ') : 'no cancer'}`);
     }
+    const el = eligibilityList();
+    lines.push('', 'MEETS TEST DIRECTORY CRITERIA NOW');
+    if (!el.length) lines.push(`- None of the checked criteria met (${ELIG_TESTS.join(', ')})`);
+    el.forEach(([p, os]) => os.forEach(o => lines.push(`- ${personLabel(p)}${p.deceased ? ' (deceased)' : ''}: ${o.test} ${TESTS[o.test].name}${eligTag(o) ? ` [${eligTag(o)}]` : ''} – ${o.text.join('; ')}`)));
     lines.push('', `DIFFERENTIAL (${MODES[state.mode].label.toLowerCase()} search)`);
     lastShown.forEach((r, i) => lines.push(`${i + 1}. ${r.cond.name} [${r.cond.genes.join(', ')}] – score ${r.score.toFixed(1)}`));
     const ptrs = pointersFor(familyDxs());

@@ -443,3 +443,13 @@ body.compact-head .gh-link { margin-top: 0; padding: 3px 8px; }
 .foot-disclaimer { margin: 12px 0 0; color: var(--warn-fg); background: var(--warn-bg); border-left: 4px solid var(--warn-edge); padding: 6px 10px; }
 @media (max-width: 600px) { .foot-list { grid-template-columns: 1fr; gap: 2px; } .foot-list dd { margin-bottom: 8px; } }
 .ev-diff { display: block; margin-top: 3px; font-size: 0.78rem; color: var(--fg); border-left: 3px solid var(--warn-edge); padding-left: 6px; }
+
+/* Who meets Test Directory criteria now */
+.elig { border: 1px solid var(--border); border-left: 4px solid var(--primary); background: color-mix(in srgb, var(--primary) 7%, var(--card)); border-radius: 4px; padding: 10px 12px; margin: 0 0 14px; }
+.elig.none { border-left-color: var(--border); background: var(--card); }
+.elig h3 { margin: 0 0 6px; font-size: 1rem; }
+.elig > ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.elig ul ul { margin: 4px 0 0; padding-left: 0; list-style: none; display: grid; gap: 4px; }
+.elig-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0 6px; border-radius: 999px; border: 1px solid var(--warn-edge); color: var(--warn-fg); background: var(--warn-bg); }
+.elig-tag.dec { border-color: var(--border); color: var(--muted); background: var(--card); }
+@media print { .elig { background: none !important; break-inside: avoid; } }
