@@ -477,7 +477,7 @@
       ${founderNote(c).map(([t, src]) => `<p class="note founder"><strong>Ashkenazi Jewish ancestry:</strong> ${esc(t)} <span class="ev-src">${evLinks(src)}</span></p>`).join('')}
       <p class="tests-line small">Tests: ${c.tests.map(k => testBtn(k)).join(' ') || 'none listed'}</p>
       <details><summary>All associations</summary><ul class="assoc">${associationsHtml(c)}</ul></details>
-      <details><summary>Leaflets &amp; sources</summary>${sourcesHtml(c)}</details>
+      <details><summary>Leaflets, guidance &amp; sources</summary>${sourcesHtml(c)}</details>
       <a class="small syn-open" href="#syndrome=${c.id}">Open syndrome page →</a>
       ${i >= 3 ? `<button type="button" class="link-btn small" data-collapse="${c.id}">Show less ▴</button>` : ''}
     </article>`;
