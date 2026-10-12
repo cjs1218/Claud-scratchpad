@@ -281,7 +281,7 @@ const CONDITIONS = [
     rules: [
       ['breast', '*', 'M', 50, null, null, ['ukcgg:chek2', 'gr:NBK615090', 'dorling2021', 'hu2021', 'acmg_chek2'], 'Female breast OR 2.54 (c.1100del), 2.40 all GPV; ~20-50% by 80 depending on family history (UKCGG); ER-positive association'],
       ['breast', '*', 'M', null, 'male', null, ['ukcgg:chek2', 'gr:NBK615090', 'acmg_chek2'], 'Male breast OR 3.13; up to 1% (UKCGG)'],
-      ['prostate', '*', 'W', null, null, null, ['ukcgg:chek2', 'gr:NBK615090', 'acmg_chek2'], 'Prostate OR 3.29 for c.1100del (UKCGG); ~2-fold (GeneReviews); possibly more aggressive disease', 'ACMG 2023: truncating CHEK2 variants confer moderate prostate cancer risk (RR ≥2; missense unclear); PSA discussed in shared decision-making'],
+      ['prostate', '*', 'M', null, null, null, ['ukcgg:chek2', 'gr:NBK615090', 'acmg_chek2'], 'Prostate OR 3.29 for c.1100del (UKCGG); ~2-fold (GeneReviews); possibly more aggressive disease'],
       ['colorectal', '*', 'W', null, null, null, ['ukcgg:chek2', 'gr:NBK615090', 'clingen:CHEK2', 'acmg_chek2', 'nccn_ceg2024'], 'Conflicting; c.1100delC SIR 1.43 (Schreurs 2024 via GeneReviews); ClinGen HNPCC Limited', 'NCCN (CEG v3.2024): colon cancer screening for CHEK2 carriers de-implemented on updated evidence about the CHEK2–colon cancer association'],
       ['kidney', '*', 'W', null, null, null, ['ukcgg:chek2', 'gr:NBK615090', 'acmg_chek2'], 'Conflicting; excess in UK 100,000 Genomes renal cohort'],
       ['thyroid', 'papillary', 'W', null, null, null, ['ukcgg:chek2', 'gr:NBK615090', 'acmg_chek2'], 'Suggested; significant mainly for Polish founder c.444+1G>A']
@@ -547,13 +547,10 @@ const CONDITIONS = [
       ['cns', 'medullo_shh', 'S', null, null, 18, ['eu:ern_lfs', 'gr:NBK1311', 'us:aacr_brain']],
       ['breast', 'phyllodes', 'S', null, null, null, ['gr:NBK1311']],
       ['heme', 'aml|mds', 'M', 40, null, null, ['gr:NBK1311'], 'Leukaemia ~4% of carriers (Bougeard 2015 via GR); often therapy-related'],
-      ['uterus', 'lms', 'M', 46, null, null, ['gr:NBK1311']],
-      ['sarcoma', 'chordoma', 'W', null, null, null, ['gr:NBK1311']],
+      ['uterus', 'lms', 'W', 46, null, null, ['gr:NBK1311']],
       ['lung', 'adeno', 'W', 46, null, null, ['gr:NBK1311', 'fortuno2024']],
       ['colorectal', '*', 'W', 30, null, null, ['ukcgg:tp53', 'eu:ern_lfs', 'gr:NBK1311', 'fortuno2024'], 'CRC in 2.8% of carriers (Hatton 2024 via GR)'],
       ['kidney', '*', 'W', 20, null, null, ['gr:NBK1311']],
-      ['nb', '*', 'W', null, null, null, ['gr:NBK1311']],
-      ['liver', 'hepatoblastoma', 'W', null, null, null, ['gr:NBK1311']],
       ['pancreas', '*', 'W', 46, null, null, ['gr:NBK1311', 'fortuno2024']],
       ['stomach', '*', 'W', null, null, null, ['fortuno2024', 'gr:NBK1311', 'ukcgg:tp53'], 'Stomach ~2%, oesophagus 0.6% of carriers (UKCGG)'],
       ['ovary', '*', 'W', null, null, null, ['fortuno2024', 'gr:NBK1311']],
@@ -812,7 +809,7 @@ const CONDITIONS = [
       ['cns', 'lgg', 'S', 20, null, null, ['eu:ern_nf1', 'us:aacr_ras'], 'Non-OPG glioma in ~4-5% of NF1; most LGG in childhood'],
       ['sarcoma', 'gist', 'S', null, null, null, ['eu:ern_nf1', 'us:aacr_ras', 'gr:NBK1109'], '~200-fold increased GIST risk; mean age ~53, often multiple, small bowel, KIT/PDGFRA wild-type'],
       ['heme', 'jmml', 'S', null, null, null, ['eu:ern_nf1', 'gr:NBK1109', 'us:aacr_ras'], 'JMML hundreds of times more frequent in NF1, but absolute risk <1%'],
-      ['net', 'duodenal_som', 'S', null, null, null, ['gr:NBK1109']],
+      ['net', 'duodenal_som', 'M', null, null, null, ['gr:NBK1109']],
       ['cns', 'hgg', 'M', null, null, null, ['eu:ern_nf1', 'us:aacr_ras']],
       ['adrenal', 'phaeo', 'M', null, null, null, ['eu:ern_nf1', 'us:aacr_ras'], 'PPGL in 1-5% of adults with NF1, median 40-50 y; 12% malignant'],
       ['breast', '*', 'M', 50, null, null, ['eu:ern_nf1', 'gr:NBK1109', 'us:aacr_ras'], 'Excess breast cancer confined to women aged 30-50; more often ER-/HER2+; annual MRI from 30 (ERN)', 'AACR 2024: breast screening (mammography, consider MRI) discussed from about age 30, earlier than UK practice'],
@@ -862,8 +859,8 @@ const CONDITIONS = [
   { id: 'dgcr8', name: 'DGCR8-related familial schwannomatosis with multinodular goitre', genes: ['DGCR8'], inh: 'AD',
     notOnNicpr: true, note: 'Recently described microprocessor defect (AACR 2024 childhood CNS tumour update).', tests: ['R221'],
     rules: [
-      ['cns', 'schwannoma', 'M', null, null, null, ['rivera2020', 'us:aacr_brain', 'us:aacr_schwann'], 'Single kindred (DGCR8 p.E518K); penetrance unknown'],
-      ['thyroid', 'mng', 'M', null, null, null, ['rivera2020'], 'Early-onset MNG in the index kindred']
+      ['cns', 'schwannoma', 'W', null, null, null, ['rivera2020', 'us:aacr_brain', 'us:aacr_schwann'], 'Single kindred (DGCR8 p.E518K); penetrance unknown'],
+      ['thyroid', 'mng', 'W', null, null, null, ['rivera2020'], 'Early-onset MNG in the index kindred']
     ] },
   { id: 'jmjd1c', name: 'JMJD1C-associated intracranial germ cell tumour predisposition', genes: ['JMJD1C'], inh: 'AD (low penetrance)',
     notOnNicpr: true, tests: ['R89'],
@@ -873,7 +870,7 @@ const CONDITIONS = [
     ] },
   { id: 'elp1', name: 'ELP1-associated SHH medulloblastoma', genes: ['ELP1'], inh: 'AD', tests: ['R456'],
     rules: [
-      ['cns', 'medullo_shh', 'S', 15, null, 20, ['waszak2020', 'us:aacr_brain'], 'Germline ELP1 LoF in 14.4% (29/202) of paediatric SHH-MB; median age 6.3 y; absent in 51 adult SHH-MB; absolute risk considered low']
+      ['cns', 'medullo_shh', 'M', 15, null, 20, ['waszak2020', 'us:aacr_brain'], 'Germline ELP1 LoF in 14.4% (29/202) of paediatric SHH-MB; median age 6.3 y; absent in 51 adult SHH-MB; absolute risk considered low']
     ],
     note: '14–21% of SHH medulloblastoma in older children (median 6.3 years), with somatic 9q loss. Absolute medulloblastoma risk in carriers is low.' },
   { id: 'gpr161', name: 'GPR161-associated SHH medulloblastoma', genes: ['GPR161'], inh: 'AD', tests: ['R456'],
@@ -935,12 +932,13 @@ const CONDITIONS = [
     inh: 'AR', tests: ['R456','R457'],
     rules: [
       ['feature', 'microcephaly', 'S', null, null, null, ['gr:NBK1294', 'us:aacr_gid']],
-      ['kidney', 'wilms', 'M', null, null, null, ['gr:NBK1294', 'clingen:BUB1B', 'us:aacr_gid'], 'Wilms: GeneReviews table gives >85% for BUB1B-MVA and ~10% for TRIP13-MVA', 'AACR: convincing cancer risk only for MVA1 (BUB1B) and MVA3 (TRIP13); none of 15 reported MVA2 (CEP57) individuals developed cancer, though surveillance still advised for all MVA'],
+      ['kidney', 'wilms', 'S', null, null, null, ['gr:NBK1294', 'clingen:BUB1B', 'us:aacr_gid'], 'Wilms: GeneReviews table gives >85% for BUB1B-MVA and ~10% for TRIP13-MVA', 'AACR: convincing cancer risk only for MVA1 (BUB1B) and MVA3 (TRIP13); none of 15 reported MVA2 (CEP57) individuals developed cancer, though surveillance still advised for all MVA'],
       ['sarcoma', 'rms', 'M', null, null, null, ['gr:NBK1294', 'us:aacr_gid']],
       ['heme', '*', 'W', null, null, null, ['gr:NBK1294', 'us:aacr_gid']]
     ] },
   { id: 'bws', name: 'Beckwith–Wiedemann spectrum (CDKN1C)', genes: ['CDKN1C'], inh: 'AD (maternal transmission)',
     tests: ['R49','R456'],
+    note: 'Most BWS is epigenetic (11p15 imprinting) rather than a CDKN1C variant. Wilms tumour and hepatoblastoma risk is mainly in IC1 gain of methylation and paternal UPD11; CDKN1C carriers mainly develop neuroblastoma.',
     rules: [
       ['feature', 'overgrowth', 'H', null, null, null, ['eu:bws_consensus', 'us:aacr_bws']],
       ['kidney', 'wilms', 'M', null, null, null, ['eu:bws_consensus', 'us:aacr_bws', 'gr:NBK1294'], 'Wilms 24% IC1 GOM, 7.9% pUPD11, 1.4% CDKN1C, 0.2% IC2 LOM (consensus)', 'AACR: no Wilms tumour reported in 126 BWSp patients with CDKN1C PVs; WT surveillance not recommended for CDKN1C'],
@@ -1144,7 +1142,7 @@ const CONDITIONS = [
       ['heme', 'other', 'W', null, null, null, ['ukcgg:ankrd26', 'us:aacr_heme'], 'CML 1.3% of 222 carriers'],
       ['heme', 'cll', 'W', null, null, null, ['us:aacr_heme'], 'CLL reported; absolute risk not established']
     ] },
-  { id: 'samd9l', name: 'SAMD9L-related ataxia-pancytopenia / MDS', genes: ['SAMD9L'], inh: 'AD', tests: ['R91','R347'],
+  { id: 'samd9l', name: 'SAMD9 / SAMD9L-related monosomy 7 MDS (incl. ataxia-pancytopenia, MIRAGE)', genes: ['SAMD9L', 'SAMD9'], inh: 'AD', tests: ['R91','R347'],
     rules: [
       ['heme', 'mds', 'S', 20, null, null, ['gr:NBK435692', 'us:aacr_heme', 'clingen:SAMD9L'], 'SAMD9/SAMD9L variants in 8-18% of childhood MDS (AACR 2024)'],
       ['feature', 'bmf', 'M', null, null, null, ['gr:NBK435692', 'us:aacr_heme']],
@@ -1161,7 +1159,7 @@ const CONDITIONS = [
       ['kidney', 'wilms', 'W', null, null, null, ['mahamdallie2019']]
     ] },
   { id: 'tbd', name: 'Telomere biology disorder (dyskeratosis congenita spectrum)',
-    genes: ['TERT', 'TERC', 'RTEL1', 'NHP2', 'WRAP53'], inh: 'AD / AR', tests: ['R91','R421'],
+    genes: ['TERT', 'TERC', 'DKC1', 'TINF2', 'RTEL1', 'NHP2', 'WRAP53'], inh: 'AD / AR / X-linked (DKC1)', tests: ['R91','R421'],
     rules: [
       ['feature', 'tbd', 'H', null, null, null, ['gr:NBK22301', 'us:aacr_gid']],
       ['feature', 'bmf', 'S', null, null, null, ['gr:NBK22301', 'us:aacr_gid'], 'About half develop severe BMF by 40'],
@@ -1329,23 +1327,23 @@ const SURVEILLANCE = {
  */
 const LAST_REVIEWED = {
   fancm: '2026-10-11',
-  brca1: '2026-10-11', brca2: '2026-10-11', palb2: '2026-10-11', atm: '2026-10-11', chek2: '2026-10-11', bard1: '2026-10-11',
+  brca1: '2026-10-11', brca2: '2026-10-11', palb2: '2026-10-11', atm: '2026-10-11', chek2: '2026-10-12', bard1: '2026-10-11',
   rad51d: '2026-10-11', rad51c: '2026-10-11', brip1: '2026-10-11', lynch_mlh1: '2026-10-11', lynch_msh2: '2026-10-11', lynch_msh6: '2026-10-11',
   lynch_pms2: '2026-10-11', cmmrd: '2026-10-11', fap: '2026-10-11', map: '2026-10-11', nthl1: '2026-10-11', ppap: '2026-10-11',
   mbd4: '2026-10-11', jps_smad4: '2026-10-11', jps_bmpr1a: '2026-10-11', hmps: '2026-10-11', rnf43: '2026-10-11', pjs: '2026-10-11',
-  phts: '2026-10-11', hdgc: '2026-10-11', ctnna1: '2026-10-11', tylosis: '2026-10-11', lfs: '2026-10-11', men1: '2026-10-11',
+  phts: '2026-10-11', hdgc: '2026-10-11', ctnna1: '2026-10-11', tylosis: '2026-10-11', lfs: '2026-10-12', men1: '2026-10-11',
   men4: '2026-10-11', men2: '2026-10-11', hptjt: '2026-10-11', fipa: '2026-10-11', carney: '2026-10-11', mas: '2026-10-11',
   vhl: '2026-10-11', sdhb: '2026-10-11', sdhd: '2026-10-11', sdhc: '2026-10-11', sdha: '2026-10-11', sdhaf2: '2026-10-11',
   tmem127: '2026-10-11', max: '2026-10-11', hlrcc: '2026-10-11', bhd: '2026-10-11', hprc: '2026-10-11', tsc: '2026-10-11',
   bap1: '2026-10-11', cdkn2a: '2026-10-11', cdk4: '2026-10-11', pot1: '2026-10-11', gorlin: '2026-10-11', sufu: '2026-10-11',
-  xp: '2026-10-11', nf1: '2026-10-11', nf2: '2026-10-11', smarcb1: '2026-10-11', lztr1: '2026-10-11', smarca4: '2026-10-11',
-  smarce1: '2026-10-11', dgcr8: '2026-10-11', jmjd1c: '2026-10-11', elp1: '2026-10-11', gpr161: '2026-10-11', dicer1: '2026-10-11',
-  rb1: '2026-10-11', wt1: '2026-10-11', wilms_other: '2026-10-11', perlman: '2026-10-11', mulibrey: '2026-10-11', mva: '2026-10-11',
-  bws: '2026-10-11', sgbs: '2026-10-11', sotos: '2026-10-11', weaver: '2026-10-11', alk: '2026-10-11', phox2b: '2026-10-11',
+  xp: '2026-10-11', nf1: '2026-10-12', nf2: '2026-10-11', smarcb1: '2026-10-11', lztr1: '2026-10-11', smarca4: '2026-10-11',
+  smarce1: '2026-10-11', dgcr8: '2026-10-12', jmjd1c: '2026-10-11', elp1: '2026-10-12', gpr161: '2026-10-11', dicer1: '2026-10-11',
+  rb1: '2026-10-11', wt1: '2026-10-11', wilms_other: '2026-10-11', perlman: '2026-10-11', mulibrey: '2026-10-11', mva: '2026-10-12',
+  bws: '2026-10-12', sgbs: '2026-10-11', sotos: '2026-10-11', weaver: '2026-10-11', alk: '2026-10-11', phox2b: '2026-10-11',
   noonan: '2026-10-11', cbl: '2026-10-11', costello: '2026-10-11', kit: '2026-10-11', pdgfra: '2026-10-11', pdgfrb: '2026-10-11',
   tbxt: '2026-10-11', ollier: '2026-10-11', fanconi: '2026-10-11', at: '2026-10-11', nbs: '2026-10-11', bloom: '2026-10-11',
   rts: '2026-10-11', werner: '2026-10-11', cebpa: '2026-10-11', runx1: '2026-10-11', gata2: '2026-10-11', ddx41: '2026-10-11',
-  etv6: '2026-10-11', ankrd26: '2026-10-11', samd9l: '2026-10-11', pax5: '2026-10-11', kdm3b: '2026-10-11', tbd: '2026-10-11'
+  etv6: '2026-10-11', ankrd26: '2026-10-11', samd9l: '2026-10-12', pax5: '2026-10-11', kdm3b: '2026-10-11', tbd: '2026-10-12'
 };
 
 /* Syndrome categories for the Syndromes tab (same order as CONDITIONS). */
@@ -1979,6 +1977,10 @@ const OMIM_TITLES = {
   117550: 'Sotos Syndrome',
   120435: 'Lynch Syndrome 1',
   127550: 'Dyskeratosis Congenita, Autosomal Dominant 1',
+  305000: 'Dyskeratosis Congenita, X-Linked',
+  613990: 'Dyskeratosis Congenita, Autosomal Dominant 3',
+  617053: 'MIRAGE Syndrome',
+  619041: 'Monosomy 7 Myelodysplasia and Leukemia Syndrome 2',
   130650: 'Beckwith-Wiedemann Syndrome',
   131100: 'Multiple Endocrine Neoplasia, Type I',
   135150: 'Birt-Hogg-Dube Syndrome 1',
@@ -2122,6 +2124,7 @@ const OMIM_TITLES = {
   621687: 'Pheochromocytoma/Paraganglioma Syndrome 8'
 };
 const GENE_MIM = {
+  DKC1: 300126, TINF2: 604319, SAMD9: 610456,
   DGCR8: 609030, JMJD1C: 604503, TBXT: 601397, IDH1: 147700, IDH2: 147650,
   AIP: 605555, ALK: 105590, ANKRD26: 610855, APC: 611731, ATM: 607585, BAP1: 603089, BARD1: 601593, BLM: 604610,
   BMPR1A: 601299, BRCA1: 113705, BRCA2: 600185, BRIP1: 605882, BUB1B: 602860, CBL: 165360, CDC73: 607393, CDH1: 192090,
@@ -2237,14 +2240,14 @@ const REFS = {
   ddx41: { gr: ['NBK574843'], omim: [616871] },
   etv6: { gr: ['NBK564234'], omim: [616216] },
   ankrd26: { gr: ['NBK507664'], omim: [188000] },
-  samd9l: { gr: ['NBK435692'], omim: [159550] },
+  samd9l: { gr: ['NBK435692'], omim: [159550, 617053, 619041] },
   pax5: { gr: [], omim: [615545] },
   kdm3b: { gr: ['NBK1294'], omim: [618846] },
   dgcr8: { gr: [], omim: [] },
   jmjd1c: { gr: [], omim: [] },
   tbxt: { gr: [], omim: [215400] },
   ollier: { gr: [], omim: [166000, 614569] },
-  tbd: { gr: ['NBK22301'], omim: [127550, 613989, 224230, 613987, 615190, 613988, 614742, 614743, 616373] }
+  tbd: { gr: ['NBK22301'], omim: [127550, 613989, 224230, 613987, 615190, 613988, 614742, 614743, 616373, 305000, 613990] }
 };
 
 /*
@@ -2784,6 +2787,7 @@ const VARIANT_NOTES = {
 
 /* HGNC IDs for ClinGen gene pages. */
 const CLINGEN_HGNC = {
+  DKC1: 'HGNC:2890', TINF2: 'HGNC:11824', SAMD9: 'HGNC:1348',
   ANKRD26: 'HGNC:29186', APC: 'HGNC:583', ATM: 'HGNC:795', BAP1: 'HGNC:950', BARD1: 'HGNC:952', BLM: 'HGNC:1058',
   BMPR1A: 'HGNC:1076', BRCA1: 'HGNC:1100', BRCA2: 'HGNC:1101', BRIP1: 'HGNC:20473', BUB1B: 'HGNC:1149',
   CBL: 'HGNC:1541', CDC73: 'HGNC:16783', CDK4: 'HGNC:1773', CDKN1B: 'HGNC:1785', CDKN2A: 'HGNC:1787',

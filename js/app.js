@@ -274,6 +274,7 @@
         <select data-f="sex" aria-label="Sex">${optionList([['F', 'Female'], ['M', 'Male']], p.sex, 'Sex')}</select>
         ${isProband ? '' : '<button type="button" class="icon-btn" data-act="rm-person" title="Remove relative">×</button>'}
       </div>
+      <div class="person-elig" data-elig-for="${p.id}"></div>
       <div class="person-extra">
         ${p.deceased
           ? `<label class="mk">Age at death<input type="number" min="0" max="120" inputmode="numeric" data-f="ageDeath" value="${esc(p.ageDeath ?? '')}" placeholder="Age"></label>`
@@ -287,6 +288,7 @@
 
   function renderFamily() {
     $('#family').innerHTML = state.people.map(renderPerson).join('');
+    if (typeof updateFormTags === 'function') setTimeout(updateFormTags);
   }
 
   function findTarget(el) {
@@ -625,6 +627,7 @@
 
   function pedigreeSvg(people, result) {
     const nodes = layoutPedigree(people);
+    const elig = eligByPerson();
     const hitDx = new Set(result ? result.evidence.map(e => e.dx.id) : []);
     const { SW, S, LINE, TOP, PAD } = PED;
     // Label lines for each person: relation, then up to three cancers ("Breast 38" + short histology).
@@ -633,6 +636,8 @@
       if (n.implied) continue;
       const st = n.p.deceased ? (has(n.p.ageDeath) ? `d. ${n.p.ageDeath}` : 'deceased') : (has(n.p.ageNow) ? `age ${n.p.ageNow}` : '');
       if (st) n.lines.push({ t: st, cls: 'ped-l ped-hist' });
+      n.elig = elig.get(n.p.id) || [];
+      if (n.elig.length) n.lines.push({ t: `Meets ${n.elig.join(', ')}`, cls: 'ped-l ped-elig' });
       const dxs = n.p.dx.filter(d => d.site && d.hist);
       n.affected = dxs.length > 0;
       n.hit = dxs.some(d => hitDx.has(d.id));
@@ -682,8 +687,9 @@
         : `<path class="${cls}" d="M${x} ${top - 1}L${x + S / 2 + 1} ${c}L${x} ${top + S + 1}L${x - S / 2 - 1} ${c}Z"/>`;
       const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${esc(l.t)}</text>`).join('');
       const arrow = n.proband ? pedArrow(x - S / 2 - 24, top - 8, x - S / 2 - 1, top + 9) : '';
+      const ring = n.elig && n.elig.length ? `<rect class="ped-elig-ring" x="${x - S / 2 - 5}" y="${top - 5}" width="${S + 10}" height="${S + 10}" rx="${n.sex === 'F' ? S / 2 + 5 : 4}"/>` : '';
       const slash = n.p && n.p.deceased ? `<line class="ped-dead" x1="${x - S / 2 - 5}" y1="${top + S + 5}" x2="${x + S / 2 + 5}" y2="${top - 5}"/>` : '';
-      parts.push(`<g class="ped-person${n.p ? '' : ' implied'}"${n.p ? ` data-person="${n.p.id}"` : ''}>${n.title ? `<title>${esc(n.title)}</title>` : ''}${shape}${slash}${arrow}${text}</g>`);
+      parts.push(`<g class="ped-person${n.p ? '' : ' implied'}"${n.p ? ` data-person="${n.p.id}"` : ''}>${n.title ? `<title>${esc(n.title)}</title>` : ''}${ring}${shape}${slash}${arrow}${text}</g>`);
     }
     return `<svg class="ped-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Family tree${result ? ', highlighting ' + esc(result.cond.name) : ''}">${parts.join('')}</svg>`;
   }
@@ -691,7 +697,7 @@
   // Fixed light colours for downloaded images (the page itself uses CSS so dark mode works).
   const PED_EXPORT_CSS = `.ped-line{stroke:#4c6272;stroke-width:1.5;fill:none}.ped-dash{stroke-dasharray:4 3}
     .ped-sym{fill:#fff;stroke:#212b32;stroke-width:2}.ped-aff{fill:#768692}.ped-hitfill{fill:#005eb8;stroke:#003087}
-    .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-dead{stroke:#212b32;stroke-width:2}.ped-arrowhead{fill:#212b32}
+    .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-dead{stroke:#212b32;stroke-width:2}.ped-elig{fill:#007f3b;font-weight:700}.ped-elig-ring{fill:none;stroke:#007f3b;stroke-width:2.5;stroke-dasharray:5 3}.ped-arrowhead{fill:#212b32}
     .ped-l{font:11px Arial,Helvetica,sans-serif;fill:#212b32}.ped-rel{font-weight:700}.ped-l-imp{fill:#768692;font-style:italic}
     .ped-hist{font-size:10px;fill:#4c6272}.ped-hit{fill:#005eb8;font-weight:700}`;
 
@@ -747,6 +753,7 @@
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-aff" x="1" y="1" width="12" height="12"/></svg> Other cancer</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym" x="1" y="1" width="12" height="12"/></svg> No cancer entered</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-imp" x="1" y="1" width="12" height="12"/></svg> Not entered (implied)</span>
+        <span><svg width="16" height="16" aria-hidden="true"><rect class="ped-elig-ring" x="1.5" y="1.5" width="13" height="13" rx="3"/></svg> Meets test criteria now (* = tumour testing first)</span>
         <span class="muted">□ male · ○ female · ◇ sex not given · ↘ proband · ⁄ deceased · dashed line = half-sibling or uncertain link</span>
       </p>
     </details>`;
@@ -795,6 +802,14 @@
       ${renderTests(shown)}`;
     fitPedigree();
     updateToResults();
+    updateFormTags();
+  }
+  function updateFormTags() {
+    const m = eligByPerson();
+    document.querySelectorAll('[data-elig-for]').forEach(el => {
+      const codes = m.get(+el.dataset.eligFor) || [];
+      el.innerHTML = codes.length ? `Meets criteria: ${codes.map(c => `<span class="code-sm elig-code" title="${esc(TESTS[c.replace('*', '')].name)}${c.endsWith('*') ? ' – tumour testing first' : ''}">${c}</span>`).join(' ')}` : '';
+    });
   }
 
   /* ---- Who meets Test Directory criteria now (js/eligibility.js) ---- */
@@ -804,6 +819,16 @@
     const byPerson = new Map();
     for (const o of res) { if (!byPerson.has(o.person)) byPerson.set(o.person, []); byPerson.get(o.person).push(o); }
     return [...byPerson.entries()].sort((a, b) => (a[0].rel === 'proband' ? -1 : 0) - (b[0].rel === 'proband' ? -1 : 0));
+  }
+  // Test codes each person meets now, by person id (germline routes; tumour-first and unaffected routes marked).
+  function eligByPerson() {
+    const m = new Map();
+    for (const o of checkEligibility(state.people, state.ancestry)) {
+      const code = o.tumourFirst ? `${o.test}*` : o.test;
+      if (!m.has(o.person.id)) m.set(o.person.id, []);
+      if (!m.get(o.person.id).includes(code)) m.get(o.person.id).push(code);
+    }
+    return m;
   }
   const eligTag = o => o.unaffected ? 'via Clinical Genetics' : o.tumourFirst ? 'tumour MMR/MSI testing first' : o.deceased ? 'deceased – needs stored DNA or tissue' : '';
   // Modified Amsterdam: a banner when met, a checklist when two or more relatives have Lynch-associated cancers.

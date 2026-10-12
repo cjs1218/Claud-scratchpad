@@ -85,7 +85,8 @@
         for (const d of dxs(p)) {
           const a = age(d);
           if (a === null) continue;
-          if (isBreast(d) && !isMale(p)) { const pts = a < 30 ? [6, 5] : a < 40 ? [4, 4] : a < 50 ? [3, 3] : a < 60 ? [2, 2] : [1, 1]; b1 += pts[0]; b2 += pts[1]; }
+          // Bilateral breast cancer scores as two primaries (local practice).
+          if (isBreast(d) && !isMale(p)) { const pts = a < 30 ? [6, 5] : a < 40 ? [4, 4] : a < 50 ? [3, 3] : a < 60 ? [2, 2] : [1, 1]; const k = d.bilat ? 2 : 1; b1 += k * pts[0]; b2 += k * pts[1]; }
           else if (isBreast(d) && isMale(p)) { const pts = a < 60 ? [5, 8] : [5, 5]; b1 += pts[0]; b2 += pts[1]; }
           else if (d.site === 'ovary' && !['mucinous', 'germ', 'fibroma', 'granulosa_a', 'granulosa_j', 'sertoli', 'sctat', 'sccoht'].includes(d.hist)) { const pts = a < 60 ? [8, 5] : [5, 5]; b1 += pts[0]; b2 += pts[1]; }
           else if (d.site === 'prostate') b2 += a < 60 ? 2 : 1;
