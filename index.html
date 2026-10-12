@@ -7,26 +7,35 @@
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#005eb8">
-  <link rel="stylesheet" href="assets/style.css?v=20261012-39">
+  <link rel="stylesheet" href="assets/style.css?v=20261012-41">
 </head>
 <body>
   <header class="site-head">
-    <div class="wrap">
-      <div class="head-row">
-        <h1>Cancer Predisposition Differential</h1>
-        <a class="gh-link" href="https://github.com/cjs1218/Claud-scratchpad" target="_blank" rel="noopener" title="View the source code on GitHub"><svg class="gh-mark" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>View code on GitHub</span></a>
+    <div class="wrap head-row">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 32 32" width="40" height="40" aria-hidden="true" focusable="false">
+          <rect width="32" height="32" rx="7" fill="#ffffff"/>
+          <g fill="none" stroke="#005eb8" stroke-width="2.2"><rect x="4.5" y="5.5" width="8" height="8"/><circle cx="23.5" cy="9.5" r="4.2"/><path d="M12.5 9.5h7M16 9.5v8"/></g>
+          <circle cx="16" cy="22.5" r="4.6" fill="#005eb8"/>
+        </svg>
+        <div class="brand-text">
+          <h1>Cancer Predisposition Differential <span class="dev-pill" title="Still being developed and checked – comments welcome">In development</span></h1>
+          <p class="lede lede-short">Ranked germline cancer predisposition syndromes from a family history, with NHS Test Directory tests.</p>
+          <p class="lede lede-long">Ranked germline cancer predisposition syndromes from the cancers and histology in a family, with NHS Genomic Test Directory eligibility.
+            <span class="head-stats"><span><span id="gene-count"></span> NICPR genes</span><span><span id="cond-count"></span> conditions</span><span>Test Directory v9.1</span></span></p>
+        </div>
       </div>
-      <p class="lede lede-short">Ranked germline cancer predisposition syndromes from a family history, with NHS Test Directory tests.</p>
-      <p class="lede lede-long">Enter cancers and histology in the family to get a ranked differential of germline cancer predisposition
-        syndromes, based on the <span id="gene-count"></span> genes on the NICPR list (June 2026)
-        across <span id="cond-count"></span> conditions, with suggested NHS Genomic Test Directory tests.</p>
-      <p class="disclaimer disc-short">Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser.</p>
-      <p class="disclaimer stale" id="stale-note" hidden></p>
-      <p class="disclaimer disc-long">Clinical decision support only. Not a validated medical device and not a substitute for clinical
-        judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this
-        browser or is stored.</p>
+      <a class="gh-link" href="https://github.com/cjs1218/Claud-scratchpad" target="_blank" rel="noopener" title="View the source code on GitHub"><svg class="gh-mark" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>View code on GitHub</span></a>
     </div>
   </header>
+  <div class="notice-strip">
+    <div class="wrap">
+      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser.</p>
+      <p class="disclaimer stale" id="stale-note" hidden></p>
+      <p class="disclaimer disc-long"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only. Not a validated medical device and not a substitute for clinical
+        judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this browser or is stored.</p>
+    </div>
+  </div>
   <div class="tabbar">
     <nav class="tabs wrap" aria-label="Sections">
       <button type="button" data-tab="assess" class="active">Family assessment</button>
@@ -155,10 +164,10 @@
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261012-39"></script>
-  <script src="js/panels.js?v=20261012-39"></script>
-  <script src="js/criteria.js?v=20261012-39"></script>
-  <script src="js/eligibility.js?v=20261012-39"></script>
-  <script src="js/app.js?v=20261012-39"></script>
+  <script src="js/data.js?v=20261012-41"></script>
+  <script src="js/panels.js?v=20261012-41"></script>
+  <script src="js/criteria.js?v=20261012-41"></script>
+  <script src="js/eligibility.js?v=20261012-41"></script>
+  <script src="js/app.js?v=20261012-41"></script>
 </body>
 </html>
