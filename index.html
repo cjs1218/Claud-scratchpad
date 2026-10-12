@@ -7,7 +7,7 @@
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#005eb8">
-  <link rel="stylesheet" href="assets/style.css?v=20261011-22">
+  <link rel="stylesheet" href="assets/style.css?v=20261012-1">
 </head>
 <body>
   <header class="site-head">
@@ -20,7 +20,8 @@
       <p class="lede lede-long">Enter cancers and histology in the family to get a ranked differential of germline cancer predisposition
         syndromes, based on the <span id="gene-count"></span> genes on the NICPR list (June 2026)
         across <span id="cond-count"></span> conditions, with suggested NHS Genomic Test Directory tests.</p>
-      <p class="disclaimer">Clinical decision support only. Not a validated medical device and not a substitute for clinical
+      <p class="disclaimer disc-short">Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser.</p>
+      <p class="disclaimer disc-long">Clinical decision support only. Not a validated medical device and not a substitute for clinical
         judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this
         browser or is stored.</p>
     </div>
@@ -43,6 +44,20 @@
             <button type="button" id="clear" class="btn-ghost">Clear</button>
           </div>
         </div>
+        <div class="family-tools">
+          <button type="button" id="save-family" class="btn-ghost">Save family to file</button>
+          <label class="btn-ghost file-btn">Open family file<input type="file" id="open-family" accept=".json,application/json"></label>
+          <label class="mk chk" title="Keeps the family in this browser only, until you clear it"><input type="checkbox" id="remember">Remember on this device</label>
+        </div>
+        <div class="family-ancestry">
+          <label class="mk" for="ancestry">Family ancestry</label>
+          <select id="ancestry">
+            <option value="">Not known / not relevant</option>
+            <option value="ashkenazi">Ashkenazi Jewish</option>
+            <option value="other_founder">Other founder population</option>
+          </select>
+        </div>
+        <datalist id="cancer-finder"></datalist>
         <div id="family"></div>
         <button type="button" id="add-person" class="btn">+ Add relative</button>
       </section>
@@ -55,14 +70,19 @@
             <button type="button" id="print" class="btn-ghost">Print</button>
           </div>
         </div>
+        <div class="results-tools">
         <div class="segmented" role="group" aria-label="Search breadth">
           <button type="button" data-mode="narrow">Narrow</button>
           <button type="button" data-mode="balanced">Balanced</button>
           <button type="button" data-mode="wide">Wide</button>
         </div>
+        <button type="button" id="compare-top" class="btn-ghost" hidden>Compare top two</button>
+        </div>
         <div id="results"></div>
       </section>
     </div>
+    <button type="button" id="to-results" class="to-results" hidden>See results ↓</button>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
     <div id="tab-sources" hidden>
       <section class="panel" id="sources-page"></section>
@@ -106,7 +126,7 @@
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261011-22"></script>
-  <script src="js/app.js?v=20261011-22"></script>
+  <script src="js/data.js?v=20261012-1"></script>
+  <script src="js/app.js?v=20261012-1"></script>
 </body>
 </html>

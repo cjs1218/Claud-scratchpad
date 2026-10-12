@@ -156,9 +156,9 @@ const SITES = {
 };
 
 const MARKER_OPTIONS = {
-  er: { label: 'ER', opts: [['', '?'], ['pos', '+'], ['neg', '−']] },
-  pr: { label: 'PR', opts: [['', '?'], ['pos', '+'], ['neg', '−']] },
-  her2: { label: 'HER2', opts: [['', '?'], ['pos', '+'], ['neg', '−']] },
+  er: { label: 'ER', opts: [['', 'Unknown'], ['pos', 'Pos'], ['neg', 'Neg']] },
+  pr: { label: 'PR', opts: [['', 'Unknown'], ['pos', 'Pos'], ['neg', 'Neg']] },
+  her2: { label: 'HER2', opts: [['', 'Unknown'], ['pos', 'Pos'], ['neg', 'Neg']] },
   mmr: { label: 'MMR / MSI', opts: [['', 'Not done'], ['intact', 'IHC intact'],
     ['mlh1', 'Loss MLH1 + PMS2'], ['msh2', 'Loss MSH2 + MSH6'], ['msh6', 'Loss MSH6 only'],
     ['pms2', 'Loss PMS2 only'], ['msi', 'MSI-high (no IHC)'], ['mss', 'MSS (no IHC)']] },

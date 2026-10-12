@@ -55,6 +55,20 @@ Everything clinical lives in `js/data.js`:
   update), each with the NHS Test Directory route; shown in results and the By-cancer view.
 - **CATEGORIES** – groups conditions for the Syndromes tab (every condition in exactly one group).
 
+## Family assessment features
+
+- **Results**: top three in full; lower-ranked results as compact rows (Show details). Each shows its score, % of the
+  top score and a one-line "why here". Strength is shown as coloured pills with a legend.
+- **Save family to file / Open family file** (JSON, stays on the user's computer) and an opt-in
+  **Remember on this device** (browser storage only).
+- **Find a cancer type** box on each cancer (searches histologies, sites and spelled-out abbreviations).
+- **Undo** after removing a cancer, a relative or clearing the family.
+- **Person details**: age now, deceased and age at death (shown in the tree and summary, not scored);
+  **family ancestry** (Ashkenazi Jewish adds founder-variant notes from `VARIANT_NOTES`; not scored).
+- **Compare top two** (or "Compare with…" on a syndrome page; `#compare=a,b`): the cancers each syndrome causes.
+- The header slims once a family is entered; on phones a "See results" button jumps to the differential and syndrome
+  tables become stacked cards.
+
 ## Family tree
 
 Above the differential, a pedigree is drawn from the relatives entered (standard symbols: square male,

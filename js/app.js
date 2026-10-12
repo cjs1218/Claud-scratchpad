@@ -13,9 +13,9 @@
   let uid = 0;
   const nextId = () => ++uid;
   const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', mmr: '', meth: '', braf: '', count: '', bilat: false });
-  const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, dx: [newDx()] });
+  const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', dx: [newDx()] });
 
-  const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null };
+  const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null, ancestry: '', expanded: new Set(), compareView: null };
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -109,6 +109,9 @@
   }
 
   /* ---------------- Text helpers ---------------- */
+
+  const has = v => v !== '' && v != null;
+  const personStatus = p => p.deceased ? `deceased${has(p.ageDeath) ? ` at ${p.ageDeath}` : ''}` : (has(p.ageNow) ? `age ${p.ageNow}` : '');
 
   function personLabel(p) {
     const r = REL[p.rel];
@@ -237,6 +240,7 @@
       }
     }
     return `<div class="dx" data-did="${dx.id}">
+      <input type="search" class="dx-find" list="cancer-finder" data-f="find" placeholder="Type to find a cancer type (e.g. GIST, lobular)…" aria-label="Find a cancer type">
       <div class="dx-main">
         <select data-f="site" aria-label="Site">${optionList(siteOpts, dx.site, 'Cancer site / finding…')}</select>
         <select data-f="hist" aria-label="Histology"${site ? '' : ' disabled'}>${site ? optionList(site.hist, dx.hist, 'Histology / type…') : '<option>Histology…</option>'}</select>
@@ -256,6 +260,12 @@
         ${isProband ? '<strong class="proband-label">Proband</strong>' : `<select data-f="rel" aria-label="Relationship">${optionList(relOpts, p.rel)}</select>`}
         <select data-f="sex" aria-label="Sex">${optionList([['F', 'Female'], ['M', 'Male']], p.sex, 'Sex')}</select>
         ${isProband ? '' : '<button type="button" class="icon-btn" data-act="rm-person" title="Remove relative">×</button>'}
+      </div>
+      <div class="person-extra">
+        ${p.deceased
+          ? `<label class="mk">Age at death<input type="number" min="0" max="120" inputmode="numeric" data-f="ageDeath" value="${esc(p.ageDeath ?? '')}" placeholder="Age"></label>`
+          : `<label class="mk">Age now<input type="number" min="0" max="120" inputmode="numeric" data-f="ageNow" value="${esc(p.ageNow ?? '')}" placeholder="Age"></label>`}
+        <label class="mk chk"><input type="checkbox" data-f="deceased"${p.deceased ? ' checked' : ''}>Deceased</label>
       </div>
       ${p.dx.map(d => renderDx(p, d)).join('')}
       <button type="button" class="link-btn" data-act="add-dx">+ Add cancer or finding</button>
@@ -281,6 +291,13 @@
     const { p, dx } = findTarget(el);
     if (!p) return;
     const val = el.type === 'checkbox' ? el.checked : el.value;
+    if (f === 'find') {
+      if (e.type === 'change') return;
+      const hit = FINDER.get(val);
+      if (hit) el.blur();
+      if (hit && dx) { Object.assign(dx, { ...newDx(), id: dx.id, site: hit[0], hist: hit[1], age: dx.age }); renderFamily(); renderResults(); }
+      return;
+    }
     if (dx) {
       dx[f] = val;
       if (f === 'site') { Object.assign(dx, { ...newDx(), id: dx.id, site: val, age: dx.age }); renderFamily(); }
@@ -292,6 +309,7 @@
     } else {
       p[f] = val;
       if (f === 'rel' && REL[val].sex) { p.sex = REL[val].sex; renderFamily(); }
+      if (f === 'deceased') renderFamily();
     }
     renderResults();
   }
@@ -300,14 +318,69 @@
     const btn = e.target.closest('[data-act]');
     if (!btn) return;
     const { p, dx } = findTarget(btn);
+    const before = JSON.stringify(state.people);
     switch (btn.dataset.act) {
       case 'add-dx': p.dx.push(newDx()); break;
-      case 'rm-dx': p.dx = p.dx.filter(x => x !== dx); if (!p.dx.length) p.dx.push(newDx()); break;
-      case 'rm-person': state.people = state.people.filter(x => x !== p); break;
+      case 'rm-dx': p.dx = p.dx.filter(x => x !== dx); if (!p.dx.length) p.dx.push(newDx());
+        if (dx.site) offerUndo(`${dx.site ? SITES[dx.site].label : 'Cancer'} removed from ${personLabel(p)}.`, before); break;
+      case 'rm-person': state.people = state.people.filter(x => x !== p); offerUndo(`${personLabel(p)} removed.`, before); break;
       default: return;
     }
     renderFamily();
     renderResults();
+  }
+
+  /* ---------------- Find a cancer type, undo, save / open ---------------- */
+  // "Histology — Site" → [site, hist]; abbreviations are spelled out so typing either form finds it.
+  const FINDER = new Map();
+  for (const [sk, st] of Object.entries(SITES)) for (const [hk, hl] of st.hist) {
+    const ab = abbrList([hl, st.label]).map(k => `${k} = ${ABBREVIATIONS[k]}`);
+    FINDER.set(`${hl} — ${st.label}${ab.length ? ` (${ab.join('; ')})` : ''}`, [sk, hk]);
+  }
+
+  let toastTimer;
+  function offerUndo(msg, snapshot) {
+    const t = $('#toast');
+    t.innerHTML = `<span>${esc(msg)}</span><button type="button" class="link-btn" id="undo">Undo</button>`;
+    t.hidden = false;
+    $('#undo').onclick = () => { state.people = JSON.parse(snapshot); t.hidden = true; renderFamily(); renderResults(); };
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 8000);
+  }
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 5000);
+  }
+
+  // Family files stay on the user's own computer.
+  const familyData = () => ({ app: 'cancer-predisposition-differential', version: 1, ancestry: state.ancestry, people: state.people });
+  function loadFamily(data) {
+    if (!data || !Array.isArray(data.people)) throw new Error('not a family file');
+    const people = data.people.filter(p => REL[p.rel]).map(p => ({
+      ...newPerson(p.rel), sex: ['F', 'M'].includes(p.sex) ? p.sex : '',
+      ageNow: p.ageNow ?? '', deceased: !!p.deceased, ageDeath: p.ageDeath ?? '',
+      dx: (p.dx || []).map(d => {
+        const site = SITES[d.site] ? d.site : '';
+        const hist = site && SITES[site].hist.some(h => h[0] === d.hist) ? d.hist : '';
+        return { ...newDx(), ...Object.fromEntries(Object.entries(d).filter(([k]) => k in newDx() && k !== 'id')), site, hist };
+      })
+    }));
+    if (!people.some(p => p.rel === 'proband')) people.unshift(newPerson('proband'));
+    people.forEach(p => { if (!p.dx.length) p.dx.push(newDx()); });
+    state.people = people;
+    state.ancestry = ['ashkenazi', 'other_founder'].includes(data.ancestry) ? data.ancestry : '';
+    $('#ancestry').value = state.ancestry;
+    renderFamily(); renderResults();
+  }
+  function saveFamilyFile() {
+    const blob = new Blob([JSON.stringify(familyData(), null, 1)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `family-history-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('Family saved to your downloads.');
+  }
+  const REMEMBER_KEY = 'cpd-family-v1';
+  function remember() {
+    try { if (localStorage.getItem(REMEMBER_KEY + ':on') === '1') localStorage.setItem(REMEMBER_KEY, JSON.stringify(familyData())); } catch (e) { /* storage unavailable */ }
   }
 
   /* ---------------- Results ---------------- */
@@ -325,14 +398,28 @@
       .map(r => `<li><span class="tier tier-${r.tier}">${TIER_LABEL[r.tier]}</span> ${abbrHtml(r.text)}</li>`).join('');
   }
 
+  // One plain-language line on why a syndrome scored where it did.
+  function whyRanked(r) {
+    const n = { H: 0, S: 0, M: 0, W: 0 };
+    r.evidence.forEach(e => n[e.s.tier]++);
+    const tiers = ['H', 'S', 'M', 'W'].filter(t => n[t]).map(t => `${n[t]} ${TIER_LABEL[t]}`);
+    const people = new Set(r.evidence.map(e => e.person.id)).size;
+    const sides = [...new Set(r.evidence.map(e => REL[e.person.rel].side))];
+    const sideTxt = sides.includes('M') && sides.includes('P') ? 'both sides of the family' : sides.includes('M') ? 'maternal side' : sides.includes('P') ? 'paternal side' : 'proband and close relatives';
+    const early = r.evidence.filter(e => e.s.notes.some(x => /early onset/.test(x))).length;
+    return `${tiers.join(' + ')} match${r.evidence.length > 1 ? 'es' : ''} in ${people} ${people > 1 ? 'people' : 'person'}, ${sideTxt}${early ? `; early onset in ${early}` : ''}.`;
+  }
+  const founderNote = c => state.ancestry === 'ashkenazi' ? (VARIANT_NOTES[c.id] || []).filter(([t]) => /Ashkenazi/.test(t)) : [];
+
   function resultCard(r, i, top) {
     const c = r.cond;
     const pct = Math.max(4, Math.round((r.score / top) * 100));
+    const compact = i >= 3 && !state.expanded.has(c.id);
     const notes = [];
     if (c.note) notes.push(c.note);
     if (c.notOnNicpr) notes.push('Not on the NICPR gene list (June 2026) but included in Test Directory panels.');
     const inTree = c.id === state.treeSyn;
-    return `<article class="result${inTree ? ' in-tree' : ''}" data-cond="${c.id}">
+    const head = `<article class="result${inTree ? ' in-tree' : ''}${compact ? ' compact' : ''}" data-cond="${c.id}">
       <div class="result-head" title="Highlight in the family tree">
         <span class="rank">${i + 1}</span>
         <div class="result-title">
@@ -342,15 +429,25 @@
         <span class="score" title="Relative score">${r.score.toFixed(1)}</span>
       </div>
       ${inTree ? '<p class="tree-tag small">Highlighted in the family tree</p>' : ''}
-      <div class="bar"><span style="width:${pct}%"></span></div>
+      <div class="bar" role="img" aria-label="${r.score.toFixed(1)} points, ${pct}% of the top score"><span style="width:${pct}%"></span></div>
+      <div class="bar-label"><span>${r.score.toFixed(1)} points</span><span>${i === 0 ? 'top match' : `${pct}% of top`}</span></div>`;
+    if (compact) return `${head}
+      <p class="why small">${esc(whyRanked(r))}</p>
+      <button type="button" class="link-btn small" data-expand="${c.id}">Show details ▾</button>
+    </article>`;
+    return `${head}
+      <p class="why small"><strong>Why here:</strong> ${esc(whyRanked(r))}</p>
       <ul class="evidence">${r.evidence.map(evidenceLine).join('')}</ul>
       ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
-      <div class="tests">${c.tests.map(testChip).join('')}</div>
+      ${founderNote(c).map(([t, src]) => `<p class="note founder"><strong>Ashkenazi Jewish ancestry:</strong> ${esc(t)} <span class="ev-src">${evLinks(src)}</span></p>`).join('')}
+      <p class="tests-line small">Tests: ${c.tests.map(k => `<span class="code-sm" title="${esc(TESTS[k].name)}">${esc(TESTS[k].code)}</span>`).join(' ') || 'none listed'}</p>
       <details><summary>All associations</summary><ul class="assoc">${associationsHtml(c)}</ul></details>
       <details><summary>Leaflets &amp; sources</summary>${sourcesHtml(c)}</details>
       <a class="small syn-open" href="#syndrome=${c.id}">Open syndrome page →</a>
+      ${i >= 3 ? `<button type="button" class="link-btn small" data-collapse="${c.id}">Show less ▴</button>` : ''}
     </article>`;
   }
+  const TIER_LEGEND = `<p class="tier-legend small">Strength: ${['H', 'S', 'M', 'W'].map(t => `<span class="tier tier-${t}">${TIER_LABEL[t]}</span>`).join(' ')}</p>`;
 
   function testsSummary(shown) {
     const map = new Map();
@@ -521,6 +618,8 @@
     for (const n of nodes) {
       n.lines = [{ t: n.label, cls: n.implied ? 'ped-l ped-l-imp' : 'ped-l ped-rel' }];
       if (n.implied) continue;
+      const st = n.p.deceased ? (has(n.p.ageDeath) ? `d. ${n.p.ageDeath}` : 'deceased') : (has(n.p.ageNow) ? `age ${n.p.ageNow}` : '');
+      if (st) n.lines.push({ t: st, cls: 'ped-l ped-hist' });
       const dxs = n.p.dx.filter(d => d.site && d.hist);
       n.affected = dxs.length > 0;
       n.hit = dxs.some(d => hitDx.has(d.id));
@@ -531,7 +630,7 @@
         if (!/^(any|other)/i.test(h)) n.lines.push({ t: shortText(h, 20), cls: 'ped-l ped-hist' + cls });
       });
       if (dxs.length > 3) n.lines.push({ t: `+${dxs.length - 3} more`, cls: 'ped-l ped-hist' });
-      n.title = `${personLabel(n.p)}${dxs.length ? ': ' + dxs.map(d => dxText(d, n.p)).join('; ') : ' – no cancer entered'}`;
+      n.title = `${personLabel(n.p)}${personStatus(n.p) ? ` (${personStatus(n.p)})` : ''}${dxs.length ? ': ' + dxs.map(d => dxText(d, n.p)).join('; ') : ' – no cancer entered'}`;
     }
     // Row heights from the tallest label in each generation.
     const gens = [...new Set(nodes.map(n => n.g))].sort((a, b) => a - b);
@@ -570,7 +669,8 @@
         : `<path class="${cls}" d="M${x} ${top - 1}L${x + S / 2 + 1} ${c}L${x} ${top + S + 1}L${x - S / 2 - 1} ${c}Z"/>`;
       const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${esc(l.t)}</text>`).join('');
       const arrow = n.proband ? pedArrow(x - S / 2 - 24, top - 8, x - S / 2 - 1, top + 9) : '';
-      parts.push(`<g class="ped-person${n.p ? '' : ' implied'}"${n.p ? ` data-person="${n.p.id}"` : ''}>${n.title ? `<title>${esc(n.title)}</title>` : ''}${shape}${arrow}${text}</g>`);
+      const slash = n.p && n.p.deceased ? `<line class="ped-dead" x1="${x - S / 2 - 5}" y1="${top + S + 5}" x2="${x + S / 2 + 5}" y2="${top - 5}"/>` : '';
+      parts.push(`<g class="ped-person${n.p ? '' : ' implied'}"${n.p ? ` data-person="${n.p.id}"` : ''}>${n.title ? `<title>${esc(n.title)}</title>` : ''}${shape}${slash}${arrow}${text}</g>`);
     }
     return `<svg class="ped-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Family tree${result ? ', highlighting ' + esc(result.cond.name) : ''}">${parts.join('')}</svg>`;
   }
@@ -578,7 +678,7 @@
   // Fixed light colours for downloaded images (the page itself uses CSS so dark mode works).
   const PED_EXPORT_CSS = `.ped-line{stroke:#4c6272;stroke-width:1.5;fill:none}.ped-dash{stroke-dasharray:4 3}
     .ped-sym{fill:#fff;stroke:#212b32;stroke-width:2}.ped-aff{fill:#768692}.ped-hitfill{fill:#005eb8;stroke:#003087}
-    .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-arrowhead{fill:#212b32}
+    .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-dead{stroke:#212b32;stroke-width:2}.ped-arrowhead{fill:#212b32}
     .ped-l{font:11px Arial,Helvetica,sans-serif;fill:#212b32}.ped-rel{font-weight:700}.ped-l-imp{fill:#768692;font-style:italic}
     .ped-hist{font-size:10px;fill:#4c6272}.ped-hit{fill:#005eb8;font-weight:700}`;
 
@@ -634,7 +734,7 @@
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-aff" x="1" y="1" width="12" height="12"/></svg> Other cancer</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym" x="1" y="1" width="12" height="12"/></svg> No cancer entered</span>
         <span><svg width="14" height="14" aria-hidden="true"><rect class="ped-sym ped-imp" x="1" y="1" width="12" height="12"/></svg> Not entered (implied)</span>
-        <span class="muted">□ male · ○ female · ◇ sex not given · ↘ proband · dashed line = half-sibling or uncertain link</span>
+        <span class="muted">□ male · ○ female · ◇ sex not given · ↘ proband · ⁄ deceased · dashed line = half-sibling or uncertain link</span>
       </p>
     </details>`;
   }
@@ -662,28 +762,45 @@
     lastShown = shown;
     document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === state.mode));
     const out = $('#results');
+    document.body.classList.toggle('compact-head', familyDxs().length > 0);
+    $('#compare-top').hidden = shown.length < 2;
+    remember();
     if (!all.length) {
       out.innerHTML = `<div class="empty">Enter cancers or findings in the family to see a ranked differential.</div>`;
+      updateToResults();
       return;
     }
     out.innerHTML = `
       ${pedigreeHtml(shown)}
       <p class="muted small">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
+      ${TIER_LEGEND}
       ${shown.map((r, i) => resultCard(r, i, top)).join('')}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
       ${pointersHtml(pointersFor(familyDxs()), 'Testing pointers for the cancers entered')}
       ${renderTests(shown)}`;
     fitPedigree();
+    updateToResults();
+  }
+
+  // Phones: a floating button jumps to the results while they are below the screen.
+  function updateToResults() {
+    const btn = $('#to-results'), res = $('#results');
+    const n = lastShown.length;
+    const below = res.getBoundingClientRect().top > window.innerHeight - 40;
+    btn.hidden = !(n && state.tab === 'assess' && window.innerWidth < 1000 && below);
+    btn.textContent = `See results (${n}) ↓`;
   }
 
   /* ---------------- Summary ---------------- */
 
   function summaryText() {
     const lines = ['FAMILY HISTORY'];
+    if (state.ancestry) lines.push(`Ancestry: ${$('#ancestry').selectedOptions[0].text}`);
     for (const p of state.people) {
       const dxs = p.dx.filter(d => d.site && d.hist);
-      if (!dxs.length) continue;
-      lines.push(`- ${personLabel(p)}: ${dxs.map(d => dxText(d, p)).join('; ')}`);
+      const status = personStatus(p);
+      if (!dxs.length && !status) continue;
+      lines.push(`- ${personLabel(p)}${status ? ` (${status})` : ''}: ${dxs.length ? dxs.map(d => dxText(d, p)).join('; ') : 'no cancer'}`);
     }
     lines.push('', `DIFFERENTIAL (${MODES[state.mode].label.toLowerCase()} search)`);
     lastShown.forEach((r, i) => lines.push(`${i + 1}. ${r.cond.name} [${r.cond.genes.join(', ')}] – score ${r.score.toFixed(1)}`));
@@ -782,8 +899,8 @@
     if (type === 'ukcgg') { const g = GUIDES[id]; return [EV_SHORT[id] || g[0].split(' ').slice(0, 2).join(' '), g[0], g[1]]; }
     if (type === 'eu') { const g = EU_GUIDES[id]; return [EV_SHORT[id] || shortTitle(g[0]), g[0], g[1]]; }
     if (type === 'us') { const g = US_GUIDES[id]; return [EV_SHORT[id] || shortTitle(g[0]), g[0], g[1]]; }
-    if (type === 'clingen') return ['ClinGen', `ClinGen gene–disease validity: ${id}`, REF_LINKS.clingen(id)];
-    if (type === 'canvar') return ['CanVar-UK', `CanVar-UK gene-specific variant interpretation: ${id}`, REF_LINKS.canvar(id)];
+    if (type === 'clingen') return [`ClinGen ${id}`, `ClinGen gene–disease validity: ${id}`, REF_LINKS.clingen(id)];
+    if (type === 'canvar') return [`CanVar-UK ${id}`, `CanVar-UK gene-specific variant interpretation: ${id}`, REF_LINKS.canvar(id)];
     const e = EVIDENCE[k];
     return [e[0], e[1], e[2]];
   }
@@ -793,22 +910,22 @@
     const org = (t.match(/^(ERN GENTURIS|EHTG|SIOPE|AACR|IGCLC|ESMO|NCCN|ACMG|NICE|BSG)/) || [])[0];
     return `${org || t.split(/[:(–]/)[0].trim().split(' ').slice(0, 3).join(' ')}${y ? ' ' + y : ''}`;
   };
-  const evLinks = keys => (keys || []).map(k => { const [sh, t, u] = evSource(k); return `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(t)}">${esc(sh)}</a>`; }).join(' · ');
+  const evLinks = keys => [...new Set(keys || [])].map(k => { const [sh, t, u] = evSource(k); return `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(t)}">${esc(sh)}</a>`; }).join(' · ');
   const evShort = keys => (keys || []).map(k => evSource(k)[0]).join(', ');
 
   function cancersTable(c) {
     const hasEv = c.rules.some(r => r[6] || r[7]);
     const rows = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).map(([site, hist, tier, early, pred, maxAge, src, risk]) => {
       const h = hist === '*' ? 'Any type' : hist.split('|').map(x => histLabel(site, x)).join('; ');
-      return `<tr><td>${abbrHtml(SITES[site].label)}</td><td>${abbrHtml(h)}</td>
-        <td><span class="tier tier-${tier}">${TIER_LABEL[tier]}</span></td>
-        <td>${early != null ? '≤' + early : '–'}</td><td>${maxAge != null ? '≤' + maxAge : '–'}</td>
-        <td>${pred ? abbrHtml(PRED_LABEL[pred]) : '–'}</td>
-        ${hasEv ? `<td class="ev">${risk ? `<span class="ev-risk">${esc(risk)}</span>` : ''}<span class="ev-src">${evLinks(src)}</span></td>` : ''}</tr>`;
+      return `<tr><td data-label="Site">${abbrHtml(SITES[site].label)}</td><td data-label="Histology / type">${abbrHtml(h)}</td>
+        <td data-label="Strength"><span class="tier tier-${tier}">${TIER_LABEL[tier]}</span></td>
+        <td data-label="Early onset"${early == null ? ' class="na"' : ''}>${early != null ? '≤' + early : '–'}</td><td data-label="Age limit"${maxAge == null ? ' class="na"' : ''}>${maxAge != null ? '≤' + maxAge : '–'}</td>
+        <td data-label="Condition"${pred ? '' : ' class="na"'}>${pred ? abbrHtml(PRED_LABEL[pred]) : '–'}</td>
+        ${hasEv ? `<td class="ev" data-label="Risk and evidence"><div>${risk ? `<span class="ev-risk">${esc(risk)}</span>` : ''}<span class="ev-src">${evLinks(src)}</span></div></td>` : ''}</tr>`;
     }).join('');
     return `<div class="table-wrap"><table class="syn-table cancers">
       <thead><tr><th>Site</th><th>Histology / type</th><th>Strength</th><th>Early onset</th><th>Age limit</th><th>Condition</th>${hasEv ? '<th>Risk and evidence</th>' : ''}</tr></thead>
-      <tbody>${rows}</tbody></table></div>`;
+      <tbody>${rows}</tbody></table></div>${TIER_LEGEND}`;
   }
 
   function variantHtml(c, heading = 'h3') {
@@ -871,6 +988,7 @@
 
   function pageActions(key) {
     return `<div class="actions">
+      ${key.startsWith('syn:') ? `<select class="compare-pick" data-compare-from="${key.slice(4)}" aria-label="Compare with another syndrome"><option value="">Compare with…</option>${CONDITIONS.filter(c => c.id !== key.slice(4)).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>` : ''}
       ${key.startsWith('syn:') ? '<button type="button" class="btn-ghost" data-syn-act="copy">Copy summary</button>' : ''}
       <button type="button" class="btn-ghost" data-syn-act="link">Copy link</button>
       <button type="button" class="btn-ghost" data-syn-act="print">Print</button>
@@ -984,9 +1102,40 @@
     return $('#browse-mode').value === 'gene' ? (state.gene && `gene:${state.gene}`) : (state.syn && `syn:${state.syn}`);
   }
 
+  /* ---- Compare two syndromes: the cancers each causes, side by side ---- */
+  function comparePage(a, b) {
+    const A = COND[a], B = COND[b];
+    const opts = sel => CONDITIONS.map(c => `<option value="${c.id}"${c.id === sel ? ' selected' : ''}>${esc(c.name)}</option>`).join('');
+    const rows = new Map();
+    for (const [c, side] of [[A, 0], [B, 1]]) for (const r of c.rules) {
+      const k = `${r[0]}|${r[1]}|${r[4] || ''}`;
+      if (!rows.has(k)) rows.set(k, { r, cells: [null, null] });
+      const cur = rows.get(k).cells[side];
+      if (!cur || TIER_ORDER[r[2]] < TIER_ORDER[cur[2]]) rows.get(k).cells[side] = r;
+    }
+    const best = x => Math.min(...x.cells.filter(Boolean).map(r => TIER_ORDER[r[2]]));
+    const cell = r => r ? `<span class="tier tier-${r[2]}">${TIER_LABEL[r[2]]}</span>${r[3] != null ? ` <span class="muted small">early ≤${r[3]}</span>` : ''}${r[5] != null ? ` <span class="muted small">only ≤${r[5]}</span>` : ''}` : '<span class="muted">–</span>';
+    const list = [...rows.values()].sort((x, y) => best(x) - best(y) || SITES[x.r[0]].label.localeCompare(SITES[y.r[0]].label));
+    const shared = list.filter(x => x.cells[0] && x.cells[1]).length;
+    return `<div class="syn-head"><div><h2>Compare syndromes</h2>
+        <p class="muted small">The cancers and features each syndrome causes. ${shared} shared, ${list.length - shared} in only one.</p></div></div>
+      <div class="compare-pickers">
+        <label class="mk">First<select id="cmp-a">${opts(a)}</select></label>
+        <label class="mk">Second<select id="cmp-b">${opts(b)}</select></label>
+      </div>
+      <div class="table-wrap"><table class="syn-table compare">
+        <thead><tr><th>Cancer / feature</th>
+          <th><a href="#syndrome=${A.id}">${esc(A.name)}</a><div class="genes">${geneChips(A.genes)} <span class="inh">${esc(A.inh)}</span></div></th>
+          <th><a href="#syndrome=${B.id}">${esc(B.name)}</a><div class="genes">${geneChips(B.genes)} <span class="inh">${esc(B.inh)}</span></div></th></tr></thead>
+        <tbody>${list.map(x => `<tr${x.cells[0] && x.cells[1] ? ' class="shared"' : ''}><td data-label="Cancer / feature">${abbrHtml(`${SITES[x.r[0]].label} – ${x.r[1] === '*' ? 'any type' : x.r[1].split('|').map(h => histLabel(x.r[0], h)).join(' / ')}`)}${x.r[4] ? ` <span class="muted small">(${abbrHtml(PRED_LABEL[x.r[4]])})</span>` : ''}</td>
+          <td data-label="${esc(A.name)}">${cell(x.cells[0])}</td><td data-label="${esc(B.name)}">${cell(x.cells[1])}</td></tr>`).join('')}</tbody>
+      </table></div>${TIER_LEGEND}`;
+  }
+
   function renderSynDetail() {
     const key = currentKey();
     const out = $('#syn-detail');
+    if (state.compareView) { out.innerHTML = comparePage(...state.compareView); return; }
     if (!key) { out.innerHTML = '<div class="empty">Choose an item from the list.</div>'; return; }
     const [t, id] = key.split(':');
     out.innerHTML = t === 'syn' ? synPage(COND[id], false) : genePage(id, false);
@@ -1121,6 +1270,14 @@
    * and Forward follow it.
    */
   function route() {
+    const cm = location.hash.match(/^#compare=(\w+),(\w+)$/);
+    state.compareView = cm && COND[cm[1]] && COND[cm[2]] ? [cm[1], cm[2]] : null;
+    if (state.compareView) {
+      $('#browse-mode').value = 'syndrome';
+      setTab('browse');
+      if ($('#syn-detail').getBoundingClientRect().top < $('.tabbar').offsetHeight) $('#syn-detail').scrollIntoView();
+      return;
+    }
     const m = location.hash.match(/^#(syndrome|gene)=(\w+)$/);
     const ok = m && (m[1] === 'syndrome' ? COND[m[2]] : GENES.includes(m[2]));
     if (ok) {
@@ -1140,7 +1297,7 @@
       if (location.hash !== '#sources') location.hash = 'sources'; else route();
     } else if (tab === 'browse') {
       const key = currentKey();
-      if (!/^#(syndrome|gene)=/.test(location.hash)) location.hash = key ? `${key.startsWith('gene') ? 'gene' : 'syndrome'}=${key.split(':')[1]}` : 'syndromes';
+      if (!/^#(syndrome|gene|compare)=/.test(location.hash)) location.hash = key ? `${key.startsWith('gene') ? 'gene' : 'syndrome'}=${key.split(':')[1]}` : 'syndromes';
       else route();
     } else if (location.hash) {
       history.pushState(null, '', location.pathname + location.search);
@@ -1152,7 +1309,7 @@
   /* ---------------- Example & setup ---------------- */
 
   function loadExample() {
-    const mk = (rel, sex, dxs) => ({ id: nextId(), rel, sex, dx: dxs.map(d => ({ ...newDx(), ...d })) });
+    const mk = (rel, sex, dxs) => ({ ...newPerson(rel), sex, dx: dxs.map(d => ({ ...newDx(), ...d })) });
     state.people = [
       mk('proband', 'F', [{ site: 'breast', hist: 'idc', age: '38', er: 'neg', pr: 'neg', her2: 'neg' }]),
       mk('mother', 'F', [{ site: 'ovary', hist: 'hgsc', age: '52' }]),
@@ -1180,7 +1337,45 @@
     $('#family').addEventListener('click', onFamilyClick);
     $('#add-person').addEventListener('click', () => { state.people.push(newPerson('mother')); renderFamily(); renderResults(); });
     $('#example').addEventListener('click', loadExample);
-    $('#clear').addEventListener('click', () => { state.people = [newPerson('proband')]; renderFamily(); renderResults(); });
+    $('#clear').addEventListener('click', () => {
+      const before = JSON.stringify(state.people);
+      state.people = [newPerson('proband')]; state.expanded.clear(); renderFamily(); renderResults();
+      offerUndo('Family cleared.', before);
+    });
+    // Find-a-cancer list, family files, remember-on-device, ancestry.
+    $('#cancer-finder').innerHTML = [...FINDER.keys()].map(k => `<option value="${esc(k)}"></option>`).join('');
+    $('#save-family').addEventListener('click', saveFamilyFile);
+    $('#open-family').addEventListener('change', e => {
+      const f = e.target.files[0]; if (!f) return;
+      f.text().then(t => { loadFamily(JSON.parse(t)); toast(`Opened ${f.name}.`); })
+        .catch(() => toast('That file could not be opened. Choose a family file saved from this site.'))
+        .finally(() => { e.target.value = ''; });
+    });
+    try {
+      $('#remember').checked = localStorage.getItem(REMEMBER_KEY + ':on') === '1';
+      if ($('#remember').checked) { const saved = localStorage.getItem(REMEMBER_KEY); if (saved) loadFamily(JSON.parse(saved)); }
+    } catch (e) { /* storage unavailable */ }
+    $('#remember').addEventListener('change', e => {
+      try {
+        if (e.target.checked) { localStorage.setItem(REMEMBER_KEY + ':on', '1'); remember(); toast('This family will be remembered in this browser until you untick the box.'); }
+        else { localStorage.removeItem(REMEMBER_KEY + ':on'); localStorage.removeItem(REMEMBER_KEY); toast('Family removed from this browser.'); }
+      } catch (err) { e.target.checked = false; toast('This browser does not allow saving here. Use "Save family to file" instead.'); }
+    });
+    $('#ancestry').addEventListener('change', e => { state.ancestry = e.target.value; renderResults(); });
+    // Results: expand / collapse lower-ranked cards, compare the top two, jump to results on phones.
+    $('#results').addEventListener('click', e => {
+      const ex = e.target.closest('[data-expand]'), co = e.target.closest('[data-collapse]');
+      if (ex) { state.expanded.add(ex.dataset.expand); renderResults(); }
+      if (co) { state.expanded.delete(co.dataset.collapse); renderResults(); }
+    });
+    $('#compare-top').addEventListener('click', () => { if (lastShown.length > 1) location.hash = `compare=${lastShown[0].cond.id},${lastShown[1].cond.id}`; });
+    $('#to-results').addEventListener('click', () => $('#results').scrollIntoView({ behavior: 'smooth' }));
+    window.addEventListener('scroll', updateToResults, { passive: true });
+    window.addEventListener('resize', updateToResults);
+    $('#syn-detail').addEventListener('change', e => {
+      if (e.target.matches('.compare-pick') && e.target.value) location.hash = `compare=${e.target.dataset.compareFrom},${e.target.value}`;
+      if (e.target.id === 'cmp-a' || e.target.id === 'cmp-b') location.hash = `compare=${$('#cmp-a').value},${$('#cmp-b').value}`;
+    });
     $('#copy').addEventListener('click', e => copySummary(e.target));
     $('#print').addEventListener('click', () => window.print());
     // Family tree: open/closed state, highlighted syndrome, downloads.
