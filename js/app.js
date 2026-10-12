@@ -1621,6 +1621,9 @@
     const showTip = el => {
       if (el.title) { el.dataset.full = el.dataset.full || el.title; el.removeAttribute('title'); } // avoid the slow browser tooltip as well
       tip.textContent = el.dataset.full || el.dataset.tip;
+      // An open modal (the criteria panel) sits in the top layer above the page, so the tooltip must live inside it.
+      const host = el.closest('dialog[open]') || document.body;
+      if (tip.parentNode !== host) host.append(tip);
       tip.hidden = false; tipFor = el;
       const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
       const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8));
