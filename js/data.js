@@ -225,7 +225,6 @@ const LYNCH_MODS = {
     ['*', 'msh6', 0.05], ['*', 'msi', 1.3], ['*', 'mmr_prof', 0.2]]
 };
 
-const NICPR_NOTE = 'NICPR lists this gene as biallelic only; heterozygous Lynch syndrome is shown because it is a key differential.';
 
 const CONDITIONS = [
   /* ---------- Breast / ovarian ---------- */
@@ -303,7 +302,7 @@ const CONDITIONS = [
       ['breast', '*', 'M', null, null, null, ['ukcgg:rad51d', 'ukcgg:hanson', 'yang2020rad51', 'dorling2021'], 'Female breast ~20% by 80, RR 1.83 (Yang 2020); BCAC OR 1.8']
     ] },
   { id: 'rad51c', name: 'RAD51C-related ovarian/breast cancer predisposition', genes: ['RAD51C'], inh: 'AD',
-    notOnNicpr: true, tests: ['R207','R208'],
+    tests: ['R207','R208'],
     rules: [
       ['ovary', 'hgsc', 'S', null, null, null, ['ukcgg:rad51c', 'ukcgg:hanson', 'yang2020rad51'], 'Tubo-ovarian ~11% by 80, RR 7.55; up to 32-36% with 2 FDRs; risk mostly after 50 (Yang 2020; UKCGG)'],
       ['ovary', 'endometrioid|nos', 'M', null, null, null, ['ukcgg:rad51c', 'yang2020rad51'], 'Tubo-ovarian ~11% by 80 (histotype not separated)'],
@@ -318,7 +317,7 @@ const CONDITIONS = [
     ] },
 
   /* ---------- Colorectal / GI ---------- */
-  { id: 'lynch_mlh1', name: 'Lynch syndrome (MLH1)', genes: ['MLH1'], inh: 'AD', note: NICPR_NOTE,
+  { id: 'lynch_mlh1', name: 'Lynch syndrome (MLH1)', genes: ['MLH1'], inh: 'AD',
     tests: ['R210','R211'],
     rules: [
       ['colorectal', '*', 'S', 50, null, null, ['ukcgg:mlh1', 'plsd2023', 'gr:NBK1211', 'clingen:MLH1'], 'Colorectal ~56% (M) / 48% (F) by 75 vs 2-3% population (PLSD, UKCGG v5)'],
@@ -334,7 +333,7 @@ const CONDITIONS = [
       ['polyps', 'adenoma', 'W', 40, null, null, ['gr:NBK1211', 'ukcgg:bsg'], 'No risk figure; adenomas are the CRC precursor targeted by colonoscopy']
     ],
     mods: LYNCH_MODS.MLH1 },
-  { id: 'lynch_msh2', name: 'Lynch syndrome (MSH2 / EPCAM)', genes: ['MSH2', 'EPCAM'], inh: 'AD', note: NICPR_NOTE,
+  { id: 'lynch_msh2', name: 'Lynch syndrome (MSH2 / EPCAM)', genes: ['MSH2', 'EPCAM'], inh: 'AD',
     tests: ['R210','R211'],
     rules: [
       ['skin', 'sebaceous', 'H', null, null, null, ['ukcgg:msh2', 'gr:NBK1211'], 'No reliable risk estimate; MSH2 is the commonest gene in Lynch-associated sebaceous carcinoma (Cook 2023, via GeneReviews)'],
@@ -352,7 +351,7 @@ const CONDITIONS = [
       ['polyps', 'adenoma', 'W', 40, null, null, ['gr:NBK1211', 'ukcgg:bsg'], 'No risk figure']
     ],
     mods: LYNCH_MODS.MSH2 },
-  { id: 'lynch_msh6', name: 'Lynch syndrome (MSH6)', genes: ['MSH6'], inh: 'AD', note: NICPR_NOTE,
+  { id: 'lynch_msh6', name: 'Lynch syndrome (MSH6)', genes: ['MSH6'], inh: 'AD',
     tests: ['R210','R211'],
     rules: [
       ['uterus', 'endometrioid|serous|clearcell|carcinosarcoma|nos', 'S', 60, null, null, ['ukcgg:msh6', 'plsd2023', 'gr:NBK1211', 'clingen:MSH6'], 'Endometrial ~46% by 75 but only 9% by 50 (UKCGG v5); median age 60-62'],
@@ -363,7 +362,7 @@ const CONDITIONS = [
       ['smallbowel', 'adeno', 'W', null, null, null, ['ukcgg:msh6'], 'Small bowel ~3% (M) by 75; similar to population in females (UKCGG v5)']
     ],
     mods: LYNCH_MODS.MSH6 },
-  { id: 'lynch_pms2', name: 'Lynch syndrome (PMS2)', genes: ['PMS2'], inh: 'AD', note: NICPR_NOTE,
+  { id: 'lynch_pms2', name: 'Lynch syndrome (PMS2)', genes: ['PMS2'], inh: 'AD',
     tests: ['R210','R211'],
     rules: [
       ['colorectal', '*', 'M', 60, null, null, ['ukcgg:pms2', 'tenbroeke2018', 'plsd2023', 'gr:NBK1211', 'ukcgg:bsg', 'clingen:PMS2'], 'Colorectal ~10% (M) / 9% (F) by 75 (Ten Broeke 2018); 13%/12% by 80 vs 6.6%/4.7%; PLSD median age 66-71'],
@@ -1564,6 +1563,10 @@ const TESTS = {
   R327: { code: 'R327', part: 'XX', name: 'Mosaic skin disorders – deep sequencing', panel: 564, genes: 'Medium panel – deep sequencing (incl. GNAS)',
     criteria: ['Skin abnormality likely to have a mosaic single-gene cause; McCune-Albright syndrome is eligible (test affected tissue)'] }
 };
+
+/* Genes treated as fully in scope on this site: no NICPR scope warnings are shown for them
+   (the NICPR list below is kept exactly as published). */
+const NICPR_IN_SCOPE = ['RAD51C', 'MLH1', 'MSH2', 'MSH6', 'PMS2', 'EPCAM'];
 
 const NICPR = {
   genes: ['AIP', 'ALK', 'ANKRD26', 'APC', 'ATM', 'BAP1', 'BARD1', 'BLM', 'BMPR1A', 'BRCA1', 'BRCA2', 'BRIP1', 'BUB1B',

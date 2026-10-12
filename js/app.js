@@ -153,6 +153,7 @@
 
   function geneFlags(g) {
     const f = [];
+    if (NICPR_IN_SCOPE.includes(g)) return f;
     if (!NICPR.genes.includes(g)) f.push('not on NICPR list');
     if (NICPR.biallelic.includes(g)) f.push('NICPR: biallelic only');
     if (NICPR.susceptibilityOnly.includes(g)) f.push('NICPR: susceptibility variants only');
