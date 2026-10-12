@@ -1733,7 +1733,8 @@ const RELATIONS = [
   ['gniece', 'Great-niece / nephew', 3, 'core2', ''],
   ['m_cousin_child', "Maternal first cousin's child", 4, 'M', ''], ['p_cousin_child', "Paternal first cousin's child", 4, 'P', ''],
   ['m_other', 'Other maternal relative', 3, 'M', ''], ['p_other', 'Other paternal relative', 3, 'P', ''],
-  ['other', 'Other / side unknown', 3, 'unknown', '']
+  ['other', 'Other / side unknown', 3, 'unknown', ''],
+  ['unset', 'Relationship not chosen', 3, 'unknown', '']
 ];
 
 /*

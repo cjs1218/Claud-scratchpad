@@ -653,3 +653,16 @@ body.compact-head .notice-strip .disc-short { display: flex; }
 body.compact-head .notice-strip .disc-long { display: none; }
 .notice-strip .disclaimer[hidden] { display: none; }
 @media print { .notice-strip .disc-short { display: none !important; } .notice-strip .disc-long { display: block !important; } }
+
+/* Family tree view controls, full screen, quick start */
+.ped-view { display: inline-flex; gap: 6px; }
+.ped-view [aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.ped-wide { margin: 4px 0; }
+.ped-more { fill: var(--muted); cursor: help; }
+#crit-dialog.wide { width: min(1400px, calc(100vw - 24px)); }
+.tree-full { overflow: auto; max-height: calc(100vh - 220px); border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 8px; }
+.tree-full svg { display: block; }
+.quick-start { text-align: left; }
+.quick-start h3 { margin: 0 0 8px; }
+.quick-start ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
+@media print { .ped-view, .ped-wide { display: none !important; } }

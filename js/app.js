@@ -344,7 +344,8 @@
   function renderPerson(p) {
     if (!isOpen(p) && !state.printFull) return renderPersonCard(p);
     const isProband = p.rel === 'proband';
-    const relOpts = RELATIONS.filter(r => isProband ? r[0] === 'proband' : r[0] !== 'proband').map(r => [r[0], r[1]]);
+    const relOpts = RELATIONS.filter(r => isProband ? r[0] === 'proband' : r[0] !== 'proband' && r[0] !== 'unset').map(r => [r[0], r[1]]);
+    if (p.rel === 'unset') relOpts.unshift(['unset', 'Choose relationship…']);
     return `<section class="person" data-pid="${p.id}">
       <div class="person-head">
         ${isProband ? '<strong class="proband-label">Proband</strong>' : `<select data-f="rel" aria-label="Relationship">${optionList(relOpts, p.rel)}</select>`}
@@ -616,7 +617,7 @@
     m_cousin: 'Mat. cousin', p_cousin: 'Pat. cousin', m_great: 'Mat. great-aunt/uncle', p_great: 'Pat. great-aunt/uncle',
     m_other: 'Other (maternal)', p_other: 'Other (paternal)', other: 'Other relative',
     m_ggp: 'Mat. great-grandparent', p_ggp: 'Pat. great-grandparent', gniece: 'Great-niece/nephew',
-    m_cousin_child: "Mat. cousin's child", p_cousin_child: "Pat. cousin's child"
+    m_cousin_child: "Mat. cousin's child", p_cousin_child: "Pat. cousin's child", unset: 'Relative (relationship?)'
   };
   const PED = { SW: 124, S: 24, LINE: 13, TOP: 26, PAD: 16 };
   const shortText = (s, n) => { s = s.split(/ \/ | \(|;/)[0].trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
@@ -738,7 +739,7 @@
       t.otherExtra = [...t.extra, ...t.mat.extraGp, ...t.pat.extraGp];
     }
     // Relatives without a fixed position go on a separate row.
-    const others = [...people.filter(p => ['m_other', 'p_other', 'other'].includes(p.rel)), ...(t.otherExtra || [])];
+    const others = [...people.filter(p => ['m_other', 'p_other', 'other', 'unset'].includes(p.rel)), ...(t.otherExtra || [])];
     const minX = Math.min(...out.map(n => n.x));
     others.forEach((p, i) => { const n = { p, implied: false, sex: p.sex, label: PED_SHORT[p.rel], kids: [], x: minX + i, g: 5, loose: true }; out.push(n); });
     return out;
@@ -766,8 +767,9 @@
       if (st) n.lines.push({ t: st, cls: 'ped-l ped-hist' });
       const e = elig.get(n.p.id) || { meets: [], maybe: [] };
       n.elig = e.meets;
-      if (e.meets.length) n.lines.push({ t: `Meets ${e.meets.join(', ')}`, cls: 'ped-l ped-elig', pre: 'Meets ', codes: e.meets });
-      if (e.maybe.length) n.lines.push({ t: `May meet ${e.maybe.join(', ')}`, cls: 'ped-l ped-maybe', pre: 'May meet ', codes: e.maybe });
+      // Long lists of codes are shortened ("+1") so labels do not run into neighbours; all codes are in the hover text.
+      if (e.meets.length) n.lines.push({ t: `Meets ${e.meets.slice(0, 2).join(', ')}${e.meets.length > 2 ? ` +${e.meets.length - 2}` : ''}`, cls: 'ped-l ped-elig', pre: 'Meets ', codes: e.meets });
+      if (e.maybe.length) n.lines.push({ t: `May meet ${e.maybe.slice(0, 2).join(', ')}${e.maybe.length > 2 ? ` +${e.maybe.length - 2}` : ''}`, cls: 'ped-l ped-maybe', pre: 'May meet ', codes: e.maybe });
       const dxs = n.p.dx.filter(d => d.site && d.hist);
       n.affected = dxs.length > 0;
       n.hit = dxs.some(d => hitDx.has(d.id));
@@ -819,7 +821,7 @@
       const shape = n.sex === 'M' ? `<rect class="${cls}" x="${x - S / 2}" y="${top}" width="${S}" height="${S}"/>`
         : n.sex === 'F' ? `<circle class="${cls}" cx="${x}" cy="${c}" r="${S / 2}"/>`
         : `<path class="${cls}" d="M${x} ${top - 1}L${x + S / 2 + 1} ${c}L${x} ${top + S + 1}L${x - S / 2 - 1} ${c}Z"/>`;
-      const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${l.codes ? esc(l.pre) + l.codes.map(c => `<tspan class="ped-test" data-test="${esc(c.replace('*', ''))}">${esc(c)}</tspan>`).join(', ') : esc(l.t)}</text>`).join('');
+      const text = n.lines.map((l, i) => `<text class="${l.cls}" x="${x}" y="${top + S + 16 + i * LINE}" text-anchor="middle">${l.codes ? esc(l.pre) + l.codes.slice(0, 2).map(c => `<tspan class="ped-test" data-test="${esc(c.replace('*', ''))}">${esc(c)}</tspan>`).join(', ') + (l.codes.length > 2 ? ` <tspan class="ped-more">+${l.codes.length - 2}<title>${esc(l.codes.join(', '))}</title></tspan>` : '') : esc(l.t)}</text>`).join('');
       const arrow = n.proband ? pedArrow(x - S / 2 - 24, top - 8, x - S / 2 - 1, top + 9) : '';
       const ring = n.elig && n.elig.length ? `<rect class="ped-elig-ring" x="${x - S / 2 - 5}" y="${top - 5}" width="${S + 10}" height="${S + 10}" rx="${n.sex === 'F' ? S / 2 + 5 : 4}"/>` : '';
       const slash = n.p && n.p.deceased ? `<line class="ped-dead" x1="${x - S / 2 - 5}" y1="${top + S + 5}" x2="${x + S / 2 + 5}" y2="${top - 5}"/>` : '';
@@ -864,8 +866,24 @@
     const wrap = $('#ped-wrap'), svg = wrap && wrap.querySelector('svg');
     if (!svg || !wrap.clientWidth) return;
     const w = +svg.getAttribute('width'), h = +svg.getAttribute('height');
-    const k = Math.min(1, Math.max(0.75, wrap.clientWidth / w));
+    // Normally shrink to at most 75% and scroll sideways; "Fit to width" shrinks as far as needed.
+    const k = Math.min(1, state.treeFit ? wrap.clientWidth / w : Math.max(0.75, wrap.clientWidth / w));
     svg.style.width = `${w * k}px`; svg.style.height = `${h * k}px`;
+    const note = $('#ped-wide');
+    if (note) note.hidden = !(w * k > wrap.clientWidth + 2);
+  }
+
+  // Full-screen view of the family tree in the pop-up panel, at full size with scrolling.
+  function openTreeFull() {
+    const svg = $('#ped-wrap svg'), legend = $('#ped .ped-legend');
+    if (!svg) return;
+    const sel = $('#ped-syn');
+    const clone = svg.cloneNode(true); clone.removeAttribute('style'); clone.removeAttribute('aria-describedby');
+    const dlg = openPanel(`<header class="crit-head"><h2>Family tree${sel && sel.selectedOptions[0] ? ` – highlighting ${esc(sel.selectedOptions[0].text.replace(/^\d+\. /, ''))}` : ''}</h2>
+      <button type="button" class="crit-close" data-close aria-label="Close">×</button></header>
+      <div class="tree-full">${clone.outerHTML}</div>${legend ? legend.outerHTML : ''}`, 'tree');
+    dlg.classList.add('wide');
+    dlg.addEventListener('close', () => dlg.classList.remove('wide'), { once: true });
   }
 
   // Text version of the family tree for screen readers (the SVG points to it).
@@ -887,9 +905,12 @@
         <label class="mk">Highlight
           <select id="ped-syn" aria-label="Syndrome to highlight in the family tree">${shown.map((r, i) =>
             `<option value="${r.cond.id}"${r.cond.id === state.treeSyn ? ' selected' : ''}>${i + 1}. ${esc(r.cond.name)}</option>`).join('')}</select></label>
+        <span class="ped-view"><button type="button" class="btn-ghost" data-ped-fit aria-pressed="${state.treeFit ? 'true' : 'false'}">Fit to width</button>
+          <button type="button" class="btn-ghost" data-ped-full>Full screen</button></span>
         <span class="ped-dl"><button type="button" class="btn-ghost" data-ped-dl="png">Download PNG</button>
           <button type="button" class="btn-ghost" data-ped-dl="svg">SVG</button></span>
       </div>
+      <p class="ped-wide small muted" id="ped-wide" hidden>The tree is wider than this panel – scroll sideways, or use Fit to width or Full screen.</p>
       <div class="ped-wrap" id="ped-wrap">${pedigreeSvg(people, sel)}</div>
       ${pedigreeTextHtml(people)}
       <p class="ped-legend small">
@@ -941,7 +962,15 @@
     remember();
     setResultsStatus(all.length ? `${shown.length} syndrome${shown.length === 1 ? '' : 's'} shown${hidden ? ` (${all.length} matched)` : ''} · updated` : '');
     if (!all.length) {
-      out.innerHTML = `<div class="empty">Enter cancers or findings in the family to see a ranked differential.</div>`;
+      out.innerHTML = `<div class="empty quick-start">
+        <h3>How to use</h3>
+        <ol>
+          <li><strong>Add the proband's cancers</strong> – choose the site and type (or type in the find box), and the age at diagnosis.</li>
+          <li><strong>Add relatives</strong> with their cancers. Finished relatives fold into one-line cards.</li>
+          <li><strong>Read the results</strong> – who meets Test Directory criteria, the family tree and the ranked syndromes. Click any test code (e.g. <span class="code-sm">R208</span>) or Manchester score for the detail.</li>
+        </ol>
+        <p><button type="button" class="btn-ghost" data-load-example>Load an example family</button> <span class="muted small">Nothing you enter leaves this browser.</span></p>
+      </div>`;
       updateToResults();
       return;
     }
@@ -965,6 +994,7 @@
     const w = [];
     const n = v => (v === '' || v == null ? null : +v);
     const status = p.deceased ? n(p.ageDeath) : n(p.ageNow);
+    if (p.rel === 'unset') w.push('Choose the relationship – until then this relative is not counted in family-history criteria and only weakly in the ranking.');
     if (ONE_ONLY.includes(p.rel) && state.people.filter(x => x.rel === p.rel).length > 1) w.push(`More than one ${REL[p.rel].label.toLowerCase()} entered – check the relationship.`);
     for (const d of p.dx) {
       if (!d.site) continue;
@@ -1291,14 +1321,27 @@
   state.sel = new Set();
 
   /* Shared filters (search text, Test Directory code, UKCGG guideline). */
+  // Search ignores case, accents, hyphens and punctuation, treats UK and US spellings alike and matches all words in any order.
+  const SPELL = [[/phaeo/g, 'pheo'], [/haem/g, 'hem'], [/oesoph/g, 'esoph'], [/tumour/g, 'tumor'], [/oestrogen/g, 'estrogen'], [/anaem/g, 'anem'],
+    [/leukaem/g, 'leukem'], [/paediatr/g, 'pediatr'], [/gynaec/g, 'gynec'], [/foetal/g, 'fetal'], [/colour/g, 'color'], [/fibre/g, 'fiber']];
+  const normSearch = s => SPELL.reduce((t, [re, v]) => t.replace(re, v),
+    String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[‐-―\-_/,.;:'’()[\]]+/g, ' ')).replace(/\s+/g, ' ').trim();
+  // Abbreviations whose meaning names a syndrome (e.g. LFS, HNPCC, PHTS) also find it.
+  const ALIASES = {};
+  for (const c of CONDITIONS) {
+    const main = normSearch(c.name.split('(')[0]);
+    ALIASES[c.id] = Object.entries(ABBREVIATIONS).filter(([, full]) => main.length > 4 && normSearch(full).includes(main)).map(([k]) => k);
+  }
   function filterPass(conds, texts) {
-    const q = $('#browse-search').value.trim().toLowerCase();
+    const q = normSearch($('#browse-search').value);
     const test = $('#browse-test').value;
     if (test && !conds.some(c => c.tests.includes(test))) return false;
     if ($('#browse-ukcgg').checked && !conds.some(c => SOURCES[c.id] && SOURCES[c.id].guide)) return false;
-    return !q || texts.some(t => t.toLowerCase().includes(q));
+    if (!q) return true;
+    const hay = normSearch(texts.join(' | '));
+    return q.split(' ').every(w => hay.includes(w));
   }
-  const synMatches = c => filterPass([c], [c.name, ...c.genes, ...c.rules.map(r => ruleText(r).text)]);
+  const synMatches = c => filterPass([c], [c.name, ...c.genes, ...(ALIASES[c.id] || []), ...c.rules.map(r => ruleText(r).text)]);
   const geneMatches = g => { const cs = condsForGene(g); return filterPass(cs, [g, ...cs.map(c => c.name)]); };
 
   function listGroups(mode) {
@@ -1806,11 +1849,12 @@
     $('#family').addEventListener('input', e => { if (e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') onFamilyInput(e); });
     $('#family').addEventListener('click', onFamilyClick);
     $('#add-person').addEventListener('click', () => {
-      const np = newPerson('mother');
+      const np = newPerson('unset');
       state.people.push(np); state.openPeople.clear();
       renderFamily(); renderResults(); focusPerson(np.id);
     });
     $('#example').addEventListener('click', loadExample);
+    document.addEventListener('click', e => { if (e.target.closest && e.target.closest('[data-load-example]')) loadExample(); });
     $('#clear').addEventListener('click', () => {
       const before = JSON.stringify(state.people);
       state.people = [newPerson('proband')]; state.expanded.clear(); state.openPeople.clear(); renderFamily(); renderResults();
@@ -1861,6 +1905,9 @@
     $('#results').addEventListener('click', e => {
       const dl = e.target.closest('[data-ped-dl]');
       if (dl) { pedigreeExport(dl.dataset.pedDl); return; }
+      const fit = e.target.closest('[data-ped-fit]');
+      if (fit) { state.treeFit = !state.treeFit; fit.setAttribute('aria-pressed', state.treeFit); fitPedigree(); return; }
+      if (e.target.closest('[data-ped-full]')) { openTreeFull(); return; }
       const head = e.target.closest('.result-head');
       if (head && !e.target.closest('a, button')) { state.treeSyn = head.closest('.result').dataset.cond; renderResults(); }
     });

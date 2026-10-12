@@ -120,7 +120,7 @@
       const ps = sideOf(p), onSide = ps === 'core' || ps === s;
       for (const d of dxs(p)) {
         const relevant = isBreast(d) || ['ovary', 'pancreas', 'prostate'].includes(d.site);
-        if (!onSide) { if (relevant) excluded.push({ p, d, why: 'other side of the family' }); continue; }
+        if (!onSide) { if (relevant) excluded.push({ p, d, why: ps === 'unknown' ? 'side of the family not known' : 'other side of the family' }); continue; }
         if (!relevant) continue;
         if (age(d) === null) { excluded.push({ p, d, why: 'no age at diagnosis entered' }); continue; }
         const id = mssRow(p, d);

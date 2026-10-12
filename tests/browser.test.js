@@ -499,6 +499,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.click('#undo');
   check(await page.locator('#family .person').count() === 2, 'Undo restores the relative');
   const p1 = page.locator('#family .person').nth(1);
+  await p1.locator('select[data-f=rel]').selectOption('mother');
   await p1.locator('input[data-f=deceased]').check();
   await p1.locator('input[data-f=ageDeath]').fill('67');
   await p1.locator('select[data-f=site]').selectOption('ovary'); await p1.locator('select[data-f=hist]').selectOption('hgsc'); await p1.locator('input[data-f=age]').fill('60');
@@ -655,6 +656,40 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(!(await vis('#results .result .evidence')) && !(await vis('.site-foot')) && await page.locator('.tests-compact li:visible').count() === await page.locator('.tests-compact li.tr-family').count(), 'summary drops evidence lists, footer and tests nobody meets');
   await page.evaluate(() => { document.body.classList.remove('print-brief'); window.dispatchEvent(new Event('afterprint')); });
   await page.emulateMedia({ media: 'screen' });
+
+  console.log('Review batch: relationship default, large trees, search, quick start');
+  await page.goto(BASE); await page.click('#clear');
+  check(/How to use/.test(await page.textContent('#results')) && await page.locator('#results [data-load-example]').count() === 1, 'empty results show a quick-start guide with an example link');
+  await page.click('#results [data-load-example]'); await page.waitForSelector('#results .elig');
+  check(await page.locator('#family .person').count() === 4, 'quick-start example link loads the example');
+  await page.click('#add-person');
+  const newRel = page.locator('#family .person').last().locator('select[data-f=rel]');
+  check(await newRel.inputValue() === 'unset' && /Choose relationship/.test(await newRel.locator('option:checked').textContent()), 'a new relative starts as "Choose relationship…", not Mother');
+  check(/Choose the relationship/.test(await page.locator('#family .person').last().locator('.person-warn').textContent()), 'reminder to choose the relationship');
+  await newRel.selectOption('sister');
+  check(!(await page.locator('#family .person').last().locator('select[data-f=rel] option[value=unset]').count()), 'placeholder disappears once a relationship is chosen');
+  // Large family
+  const rels = ['mother', 'father', 'sister', 'sister', 'brother', 'm_aunt', 'm_aunt', 'm_uncle', 'p_aunt', 'p_uncle', 'm_gm', 'm_gf', 'p_gm', 'p_gf', 'm_cousin', 'm_cousin', 'p_cousin', 'niece', 'daughter', 'son', 'm_great', 'p_great', 'm_ggp', 'grandchild'];
+  const bigSites = [['breast', 'idc'], ['ovary', 'hgsc'], ['colorectal', 'adeno'], ['prostate', 'adeno'], ['pancreas', 'pdac'], ['uterus', 'endometrioid'], ['skin', 'melanoma'], ['kidney', 'ccrcc']];
+  const big = [{ rel: 'proband', sex: 'F', dx: [{ site: 'breast', hist: 'idc', age: '41' }] }, ...rels.map((r, i) => ({ rel: r, sex: i % 2 ? 'M' : 'F', dx: [{ site: bigSites[i % 8][0], hist: bigSites[i % 8][1], age: String(35 + i) }] }))];
+  await page.setInputFiles('#open-family', { name: 'big.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, people: big })) });
+  await page.waitForSelector('#ped-wrap svg');
+  await page.evaluate(() => { document.getElementById('ped').open = true; }); await page.waitForTimeout(100);
+  check(await page.isVisible('#ped-wide') && await page.locator('#ped-wrap .ped-more').count() > 0, 'large tree: note that it is wider than the panel; long code lists shortened with +N');
+  await page.click('[data-ped-fit]'); await page.waitForTimeout(100);
+  check(await page.evaluate(() => document.querySelector('#ped-wrap svg').getBoundingClientRect().width <= document.getElementById('ped-wrap').clientWidth + 2) && !(await page.isVisible('#ped-wide')), 'Fit to width shrinks the tree to the panel');
+  await page.click('[data-ped-fit]');
+  await page.click('[data-ped-full]'); await page.waitForSelector('#crit-dialog[open]');
+  check(await page.locator('#crit-dialog.wide .tree-full svg').count() === 1 && /Family tree/.test(await page.locator('#crit-dialog h2').textContent()), 'Full screen opens the tree in a wide panel');
+  await page.keyboard.press('Escape');
+  // Search
+  await page.click('[data-tab=browse]'); await page.waitForSelector('#syn-detail h2');
+  const hits = async q => { await page.fill('#browse-search', q); await page.waitForTimeout(80); return page.locator('#syn-list li').allTextContents(); };
+  check((await hits('pheochromocytoma')).length > 3 && (await hits('phaeochromocytoma')).length === (await hits('pheochromocytoma')).length, 'search treats UK and US spellings alike (phaeo/pheo)');
+  check((await hits('li fraumeni')).some(t => /Li–Fraumeni/.test(t)), 'search ignores hyphens (li fraumeni)');
+  check((await hits('hnpcc')).some(t => /Lynch/.test(t)) && (await hits('lfs')).some(t => /Li–Fraumeni/.test(t)), 'syndrome abbreviations find the syndrome (HNPCC, LFS)');
+  check((await hits('lobular breast')).length >= 1 && (await hits('breast lobular')).length === (await hits('lobular breast')).length, 'search words match in any order');
+  await page.fill('#browse-search', '');
 
   console.log('Entry checks');
   await page.goto(BASE); await page.click('#example');
