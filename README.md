@@ -16,6 +16,7 @@ assets/style.css  Styles (light/dark, print)
 js/data.js        Knowledge base: sites/histologies, conditions + scoring rules,
                   Test Directory entries, NICPR gene list (June 2026)
 js/criteria.js    Test Directory testing criteria, verbatim (generated from the v9.1 PDF)
+js/panels.js      Green genes on each test's PanelApp panel (generated from the PanelApp API)
 js/eligibility.js Who in the family meets Test Directory criteria
 js/app.js         Scoring engine and UI
 .nojekyll         Serve files as-is (no Jekyll build)
@@ -86,7 +87,8 @@ the form does not record are listed as "may meet – check"; others (tumour grad
 Clicking any test code (results, eligibility box, form tags, family tree, syndrome and gene pages) opens a panel with
 the exact criteria from `js/criteria.js`, linked to the PDF page. `CRIT_REF` in `js/eligibility.js` ties each reason
 to its criterion line, so the lines the family meets (green), may meet (amber) or narrowly misses (grey) are
-highlighted with who and why.
+highlighted with who and why. The panel ends with the genes tested (green genes on the test's PanelApp panel,
+from `js/panels.js`); hovering over a test code also shows them.
 
 ## Family tree
 

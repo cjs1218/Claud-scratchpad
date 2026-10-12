@@ -192,9 +192,17 @@
     const part = t.part ? `Part ${t.part}: ` : '';
     return `<button type="button" class="test-chip test-link" data-test="${esc(key)}" title="${esc(part + t.name)} – show the criteria">${esc(t.code)} · ${esc(t.name)}</button>`;
   }
-  // A test code that opens the criteria panel.
+  // Genes on a test's PanelApp panel (green), or the Test Directory description when there is no panel.
+  const testGenes = key => (typeof TEST_GENES !== 'undefined' && TEST_GENES[key]) || null;
+  function genesShort(key, max = 15) {
+    const g = testGenes(key);
+    if (!g) return TESTS[key].genes;
+    if (!g.genes) return `${g.n} genes (PanelApp ${g.panel})`;
+    return g.genes.length > max ? `${g.genes.slice(0, max).join(', ')} +${g.genes.length - max} more` : g.genes.join(', ');
+  }
+  // A test code that opens the criteria panel; hovering shows its name and genes.
   const testBtn = (key, cls = 'code-sm', label = key, note = '') =>
-    `<button type="button" class="${cls} test-link" data-test="${esc(key)}" title="${esc(TESTS[key].name)}${note} – show the criteria">${esc(label)}</button>`;
+    `<button type="button" class="${cls} test-link" data-test="${esc(key)}" title="${esc(TESTS[key].name)}${note}&#10;Genes: ${esc(genesShort(key))}&#10;Click for the full criteria">${esc(label)}</button>`;
 
   const link = (label, url) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a>`;
 
@@ -873,7 +881,17 @@
         ${link(`Test Directory v9.1${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))}</p>
       <section class="crit-family"><h3>This family</h3>${summary}</section>
       <section><h3>Testing criteria${tc ? ' (exact wording)' : ''}</h3>${items}</section>
+      ${testGenesHtml(code)}
       <p class="small muted">Highlighted: green = met now, amber = may meet (check the detail named), grey = near miss. Judged only from what has been entered; the Test Directory always takes precedence.</p>`;
+  }
+  function testGenesHtml(code) {
+    const g = testGenes(code), t = TESTS[code];
+    if (!g) return `<section class="crit-genes"><h3>Genes tested</h3><p>${esc(t.genes)}</p></section>`;
+    const extra = [g.strs ? `${g.strs} repeat expansion${g.strs > 1 ? 's' : ''}` : '', g.regions ? (Array.isArray(g.regions) ? `region${g.regions.length > 1 ? 's' : ''} ${g.regions.join(', ')}` : `${g.regions} regions`) : ''].filter(Boolean).join('; ');
+    return `<section class="crit-genes"><h3>Genes tested (${g.n})</h3>
+      ${g.genes ? `<p class="crit-gene-list">${g.genes.map(x => `<span class="gene">${esc(x)}</span>`).join(' ')}</p>` : `<p>${g.n} genes – too many to list here; see ${link('PanelApp panel ' + g.panel, PANELAPP(g.panel))}.</p>`}
+      ${extra ? `<p class="small">Also: ${esc(extra)}.</p>` : ''}
+      <p class="small muted">Green (diagnostic-grade) genes on ${link(`PanelApp ${g.panel}: ${g.name} v${g.version}`, PANELAPP(g.panel))}, checked ${esc(PANEL_DATE)}. Test Directory: ${esc(t.genes)}.</p></section>`;
   }
   function openCriteria(code) {
     if (!TESTS[code]) return;

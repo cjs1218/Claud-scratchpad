@@ -506,3 +506,5 @@ button.test-link:hover, button.test-link:focus-visible { text-decoration: underl
 .crit-hits .who-maybe > span, h4.hit-maybe { color: var(--warn-fg); }
 .crit-hits .who-near > span, h4.hit-near { color: var(--muted); }
 @media print { #crit-dialog { display: none; } }
+.crit-genes { border-top: 1px solid var(--border); margin-top: 14px; }
+.crit-gene-list { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }

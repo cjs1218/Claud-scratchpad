@@ -1665,10 +1665,10 @@ const NICPR = {
  * When each information source was last pulled and checked (shown on every syndrome and gene page).
  * Update the matching entry whenever a source is re-checked.
  */
-const DATA_CHECKED = '11 October 2026';
+const DATA_CHECKED = '12 October 2026';
 const SOURCE_DATES = [
   ['NHS Genomic Test Directory eligibility criteria', 'v9.1, 20 May 2026', '11 Oct 2026'],
-  ['PanelApp panels', 'Panel IDs and gene membership', '11 Oct 2026'],
+  ['PanelApp panels', 'Panel IDs and green gene lists (PanelApp API)', '12 Oct 2026'],
   ['NICPR gene list', 'Appendix 1, June 2026', '11 Oct 2026'],
   ['GeneReviews chapters', 'NCBI GeneReviews mapping files', '11 Oct 2026'],
   ['OMIM entries', 'mim2gene.txt and NCBI Gene → OMIM gene map', '11 Oct 2026'],
