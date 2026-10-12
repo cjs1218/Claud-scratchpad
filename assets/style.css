@@ -24,6 +24,12 @@
   --t-S: #b35c00;
   --t-M: #7a5f00;
   --t-W: #4c6272;
+  /* Badge text (darker than the tier colour so it passes contrast on the tinted badge) and "met" green text */
+  --tb-H: #a3190e;
+  --tb-S: #8a4600;
+  --tb-M: #6b5300;
+  --tb-W: #425563;
+  --ok: #007f3b;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -38,7 +44,7 @@
     --on-accent: #0f1a24;
     --head-bg: #003087;
     --head-fg: #ffffff;
-    --primary: #00a650;
+    --primary: #007f3b;
     --primary-shadow: #00401e;
     --warn-bg: #3a3112;
     --warn-fg: #f6e08e;
@@ -47,6 +53,11 @@
     --t-S: #f5a95c;
     --t-M: #e2c85a;
     --t-W: #a7b6c2;
+    --tb-H: #ffa396;
+    --tb-S: #f7b877;
+    --tb-M: #e8d27a;
+    --tb-W: #b9c6d0;
+    --ok: #6cc993;
   }
 }
 * { box-sizing: border-box; }
@@ -215,7 +226,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
   .print-bar { position: static; }
 }
 @media (min-width: 900px) { .syn-list { max-height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 64px; scrollbar-width: thin; } }
-.syn-list h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin: 10px 0 2px; }
+.syn-list h4, .syn-list h2.list-group { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin: 10px 0 2px; }
 .syn-list ul { list-style: none; margin: 0; padding: 0; }
 .syn-list a { display: block; padding: 3px 6px; border-radius: 4px; text-decoration: none; font-size: 0.88rem; color: var(--fg); }
 .syn-list a:hover { background: var(--accent-soft); }
@@ -343,10 +354,10 @@ svg text[data-tip] { cursor: help; }
 
 /* ---- Strength pills (results, tables, compare) ---- */
 .tier { display: inline-block; min-width: 0; padding: 1px 7px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.6; border: 1px solid currentColor; background: var(--card); }
-.tier-H { color: var(--t-H); background: color-mix(in srgb, var(--t-H) 12%, var(--card)); }
-.tier-S { color: var(--t-S); background: color-mix(in srgb, var(--t-S) 12%, var(--card)); }
-.tier-M { color: var(--t-M); background: color-mix(in srgb, var(--t-M) 12%, var(--card)); }
-.tier-W { color: var(--t-W); background: color-mix(in srgb, var(--t-W) 10%, var(--card)); }
+.tier-H { color: var(--tb-H); background: color-mix(in srgb, var(--t-H) 12%, var(--card)); }
+.tier-S { color: var(--tb-S); background: color-mix(in srgb, var(--t-S) 12%, var(--card)); }
+.tier-M { color: var(--tb-M); background: color-mix(in srgb, var(--t-M) 12%, var(--card)); }
+.tier-W { color: var(--tb-W); background: color-mix(in srgb, var(--t-W) 10%, var(--card)); }
 .evidence .tier, .assoc .tier { margin-right: 6px; min-width: 84px; text-align: center; }
 .tier-legend { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); margin: 6px 0 10px; }
 @media print { .tier { background: none !important; } }
@@ -466,12 +477,12 @@ body.compact-head .gh-link { margin-top: 0; padding: 3px 8px; }
 .ams-list li.no span { color: var(--t-H); font-weight: 700; }
 @media print { .ams { background: none !important; } }
 /* Eligibility tags: family tree ring + label, form tag */
-.ped-elig { fill: var(--primary); font-weight: 700; }
+.ped-elig { fill: var(--ok); font-weight: 700; }
 .ped-maybe { fill: var(--warn-fg); font-weight: 700; }
-.ped-elig-ring { fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-dasharray: 5 3; }
-.person-elig { font-size: 0.8rem; color: var(--primary); font-weight: 700; margin: -2px 0 6px; }
+.ped-elig-ring { fill: none; stroke: var(--ok); stroke-width: 2.5; stroke-dasharray: 5 3; }
+.person-elig { font-size: 0.8rem; color: var(--ok); font-weight: 700; margin: -2px 0 6px; }
 .person-elig:empty { display: none; }
-.person-elig .elig-code { color: var(--primary); border-color: var(--primary); }
+.person-elig .elig-code { color: var(--ok); border-color: var(--ok); }
 .person-elig .maybe { color: var(--warn-fg); }
 .person-elig .maybe-code { color: var(--warn-fg); border-color: var(--warn-edge); background: var(--warn-bg); }
 .elig-maybe { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); }
@@ -498,11 +509,11 @@ button.test-link:hover, button.test-link:focus-visible { text-decoration: underl
 .crit-list li { padding: 3px 8px; border-left: 4px solid transparent; border-radius: 3px; }
 .crit-list .lv1 { margin-left: 22px; } .crit-list .lv2 { margin-left: 44px; } .crit-list .lv3 { margin-left: 66px; }
 .crit-mk { font-weight: 700; }
-.crit-list li.hit-met { background: color-mix(in srgb, #007f3b 12%, var(--card)); border-left-color: #007f3b; }
+.crit-list li.hit-met { background: color-mix(in srgb, var(--ok) 12%, var(--card)); border-left-color: var(--ok); }
 .crit-list li.hit-maybe { background: var(--warn-bg); border-left-color: var(--warn-edge); }
 .crit-list li.hit-near { background: color-mix(in srgb, var(--muted) 12%, var(--card)); border-left-color: var(--muted); }
 .crit-hits { list-style: none; padding: 0; margin: 4px 0 0; font-size: 0.85rem; display: grid; gap: 2px; }
-.crit-hits .who-met > span, h4.hit-met { color: #007f3b; }
+.crit-hits .who-met > span, h4.hit-met { color: var(--ok); }
 .crit-hits .who-maybe > span, h4.hit-maybe { color: var(--warn-fg); }
 .crit-hits .who-near > span, h4.hit-near { color: var(--muted); }
 @media print { #crit-dialog { display: none; } }
@@ -515,11 +526,11 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .person-mss { font-size: 0.8rem; margin: -2px 0 6px; }
 .person-mss:empty { display: none; }
 .mss-total { font-size: 1.05rem; margin: 10px 0 4px; }
-.elig-tag.mss-ok { border-color: #007f3b; color: #007f3b; background: color-mix(in srgb, #007f3b 10%, var(--card)); }
+.elig-tag.mss-ok { border-color: var(--ok); color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--card)); }
 .mss-table td.num, .mss-table th.num, .mss-ref td.num, .mss-ref th.num { text-align: right; white-space: nowrap; }
 .mss-table tfoot th { border-top: 2px solid var(--border); }
 .mss-adj td { font-style: italic; }
-.mss-ref tr.used td { background: color-mix(in srgb, #007f3b 12%, var(--card)); font-weight: 700; }
+.mss-ref tr.used td { background: color-mix(in srgb, var(--ok) 12%, var(--card)); font-weight: 700; }
 .mss-ref tr.mss-head th { text-align: left; font-size: 0.85rem; padding-top: 8px; }
 .mss-excl { margin: 0; padding-left: 18px; font-size: 0.9rem; }
 @media print { .person-mss { display: none; } }
@@ -541,7 +552,7 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .test-rows { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
 .test-rows li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
 .tr-name { font-weight: 600; }
-.tr-meets { font-size: 0.82rem; font-weight: 700; color: #007f3b; }
+.tr-meets { font-size: 0.82rem; font-weight: 700; color: var(--ok); }
 .tr-maybe { font-size: 0.82rem; font-weight: 700; color: var(--warn-fg); }
 .tr-for { flex-basis: 100%; }
 
@@ -562,7 +573,7 @@ button.mss-link:hover, button.mss-link:focus-visible { text-decoration-style: so
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .mode-hint { margin: 6px 0 0; }
 .results-status { margin: 2px 0 8px; font-size: 0.8rem; color: var(--muted); min-height: 1.2em; transition: color .3s; }
-.results-status.flash { color: #007f3b; font-weight: 600; }
+.results-status.flash { color: var(--ok); font-weight: 600; }
 .ac-note { display: block; white-space: nowrap; }
 .disclaimer.stale { border-left-color: #d5281b; }
 abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
@@ -595,3 +606,7 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
 }
 @media print { body.print-brief .elig-why .why-short { display: inline; } body.print-brief .elig-why .why-full { display: none; } }
 @media print { body.print-brief .ped-legend { font-size: 0.7rem; margin: 2px 0; } body.print-brief .fam-table h2, body.print-brief .elig h3 { font-size: 1rem; } body.print-brief #results .result h3 { font-size: 0.95rem; } body.print-brief .panel h2 { margin-top: 0; } }
+/* Phones: folded syndrome-page sections */
+details.syn-fold { border-top: 1px solid var(--border); margin: 6px 0; }
+details.syn-fold > summary { font-size: 1.05rem; font-weight: 700; padding: 10px 0; cursor: pointer; }
+@media print { details.syn-fold > summary { display: block; } details.syn-fold:not([open]) > *:not(summary) { display: block; } }

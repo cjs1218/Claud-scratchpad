@@ -1333,7 +1333,7 @@
         ${selecting ? `<button type="button" class="btn-ghost" data-print="selected"${n ? '' : ' disabled'}>Print selected (${n})</button>
           <button type="button" class="link-btn small" data-print="done">${n ? 'Clear selection' : 'Cancel'}</button>`
         : '<button type="button" class="btn-ghost" data-print="select">Select to print</button>'}
-      </div>` + (groups.map(([label, list]) => `<h4>${esc(label)}</h4><ul>${list.map(i =>
+      </div>` + (groups.map(([label, list]) => `<h2 class="list-group">${esc(label)}</h2><ul>${list.map(i =>
         `<li>${selecting ? `<input type="checkbox" data-sel="${i.key}" aria-label="Select ${esc(i.name)} for printing"${state.sel.has(i.key) ? ' checked' : ''}>` : ''}
           <a href="${i.href}"${i.key === cur ? ' aria-current="true"' : ''}>${esc(i.name)}${i.sub ? ` <span class="muted small">${i.sub}</span>` : ''}</a></li>`).join('')}</ul>`).join('')
       || '<div class="empty">No matches.</div>');
@@ -1589,6 +1589,24 @@
     if (!key) { out.innerHTML = '<div class="empty">Choose an item from the list.</div>'; return; }
     const [t, id] = key.split(':');
     out.innerHTML = t === 'syn' ? synPage(COND[id], false) : genePage(id, false);
+    foldSections(out);
+  }
+  // Phones: long sections (variants, tests, guidance, surveillance) start folded under their headings; the jump links open them.
+  const FOLD = ['jump-variants', 'jump-tests', 'jump-guidance', 'jump-surveillance'];
+  function foldSections(root) {
+    if (window.innerWidth >= 700) return;
+    for (const id of FOLD) {
+      const h = root.querySelector(`h3#${id}`);
+      if (!h) continue;
+      const det = document.createElement('details');
+      det.className = 'syn-fold'; det.id = id;
+      const sum = document.createElement('summary');
+      sum.innerHTML = h.innerHTML;
+      det.append(sum);
+      let n = h.nextSibling;
+      while (n && !(n.nodeType === 1 && (/^H[23]$/.test(n.tagName) || n.matches('.sources-link, .dates')))) { const next = n.nextSibling; det.append(n); n = next; }
+      h.replaceWith(det);
+    }
   }
 
   function synSummary(c) {
@@ -1656,7 +1674,7 @@
 
   function onSynAction(e) {
     const j = e.target.closest('[data-jump]');
-    if (j) { const t = document.getElementById('jump-' + j.dataset.jump); if (t) t.scrollIntoView({ behavior: 'smooth' }); return; }
+    if (j) { const t = document.getElementById('jump-' + j.dataset.jump); if (t) { const d = t.closest('details.syn-fold'); if (d) d.open = true; t.scrollIntoView({ behavior: 'smooth' }); } return; }
     const btn = e.target.closest('[data-syn-act]');
     if (!btn) return;
     const key = currentKey();
