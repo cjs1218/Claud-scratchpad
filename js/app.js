@@ -1,4 +1,4 @@
-/* Cancer predisposition differential – scoring engine and UI. */
+/* Cancer Family History Navigator – scoring engine and UI. */
 (function () {
   'use strict';
 
@@ -887,7 +887,7 @@
     const clone = svg.cloneNode(true);
     const w = +svg.getAttribute('width'), h = +svg.getAttribute('height');
     const caption = [state.treeSyn && COND[state.treeSyn] ? 'Highlighted: ' + COND[state.treeSyn].name : '',
-      `Cancer Predisposition Differential · ${new Date().toLocaleDateString('en-GB')} · clinical decision support only`].filter(Boolean);
+      `Cancer Family History Navigator · ${new Date().toLocaleDateString('en-GB')} · clinical decision support only`].filter(Boolean);
     const W = Math.max(w, Math.max(...caption.map(c => c.length)) * 5.6 + 2 * PED.PAD), H = h + 8 + caption.length * 14;
     clone.setAttribute('width', W); clone.setAttribute('height', H); clone.setAttribute('viewBox', `${(w - W) / 2} 0 ${W} ${H}`);
     clone.insertAdjacentHTML('afterbegin', `<style>${PED_EXPORT_CSS}</style><rect x="${(w - W) / 2}" width="${W}" height="${H}" fill="#fff"/>`);
@@ -1533,7 +1533,7 @@
       <button type="button" class="btn-ghost" data-syn-act="print">Print</button>
     </div>`;
   }
-  const printKicker = (kind) => `<p class="print-only print-kicker">Cancer Predisposition Differential – ${kind} summary · information checked ${esc(DATA_CHECKED)}</p>`;
+  const printKicker = (kind) => `<p class="print-only print-kicker">Cancer Family History Navigator – ${kind} summary · information checked ${esc(DATA_CHECKED)}</p>`;
 
   /* ---- Suggested surveillance (UK first, then European, then international) ---- */
   const SURV_LEVEL = {
@@ -1731,7 +1731,7 @@
     sec('EUROPEAN GUIDANCE', src.eu, EU_GUIDES);
     sec('US AND INTERNATIONAL GUIDANCE', src.us, US_GUIDES);
     if (src.eg) { L.push('', 'EAST GENOMICS LEAFLETS'); src.eg.forEach(k => L.push(`- ${EG[k].label} ${EG[k].url}`)); }
-    L.push('', `Information checked: ${DATA_CHECKED}`, `Source: Cancer Predisposition Differential – ${itemUrl(`syn:${c.id}`)}`);
+    L.push('', `Information checked: ${DATA_CHECKED}`, `Source: Cancer Family History Navigator – ${itemUrl(`syn:${c.id}`)}`);
     return L.join('\n');
   }
 
@@ -1748,13 +1748,13 @@
   function printItems(keys, title) {
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const foot = `<div class="print-foot">Clinical decision support only – not a substitute for clinical judgement; check the linked sources before use. ` +
-      `Cancer Predisposition Differential · ${esc(SITE_URL)} · information checked ${esc(DATA_CHECKED)} · printed ${esc(today)}</div>`;
+      `Cancer Family History Navigator · ${esc(SITE_URL)} · information checked ${esc(DATA_CHECKED)} · printed ${esc(today)}</div>`;
     // A table footer repeats at the bottom of every printed page in all major browsers.
     const framed = html => `<section class="print-page"><table class="print-frame"><tfoot><tr><td>${foot}</td></tr></tfoot>` +
       `<tbody><tr><td>${html}</td></tr></tbody></table></section>`;
     const pages = keys.map(k => { const [t, id] = k.split(':'); return framed(t === 'syn' ? synPage(COND[id], true) : genePage(id, true)); });
     const contents = keys.length > 1 ? framed(`<div class="print-contents${keys.length > 12 ? ' long' : ''}">
-        <h1>Cancer Predisposition Differential</h1><h2>${esc(title)}</h2>
+        <h1>Cancer Family History Navigator</h1><h2>${esc(title)}</h2>
         <p>Information checked ${esc(DATA_CHECKED)} · printed ${esc(today)} · ${keys.length} items</p>
         <ol>${keys.map(k => `<li>${esc(itemName(k))}</li>`).join('')}</ol></div>`) : '';
     $('#print-area').innerHTML = contents + pages.join('');

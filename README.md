@@ -1,4 +1,4 @@
-# Cancer Predisposition Differential
+# Cancer Family History Navigator
 
 A static GitHub Pages tool for clinical genetics. Enter cancers (site, histology,
 age, markers) across a family to get a ranked differential of germline cancer

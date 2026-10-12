@@ -1,5 +1,5 @@
 /*
- * Knowledge base for the cancer predisposition differential tool.
+ * Knowledge base for the Cancer Family History Navigator.
  *
  * SITES      – tumour sites / findings, their histologies and which marker
  *              fields apply.

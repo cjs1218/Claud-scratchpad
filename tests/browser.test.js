@@ -1029,6 +1029,8 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/Modified Amsterdam criteria not met \(3 of 4\)/.test(amsN) && /✗ at least one diagnosed under 50/.test(amsN), 'near miss shows which criterion is missing');
 
   console.log('Appearance');
+  await page.goto(BASE);
+  check(/^Cancer Family History Navigator/.test(await page.title()) && /^Cancer Family History Navigator/.test(await page.textContent('h1')), 'site is named Cancer Family History Navigator (tab title and banner)');
   await page.goto(BASE + '#syndrome=lynch_msh2'); await page.waitForSelector('#syn-detail h2');
   await page.evaluate(() => window.scrollTo(0, 2000));
   await page.locator('#syn-list a[href="#syndrome=men2"]').click();

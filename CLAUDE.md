@@ -1,4 +1,4 @@
-# Cancer Predisposition Differential
+# Cancer Family History Navigator
 
 Static GitHub Pages app (no build). Clinical content lives in `js/data.js`; see README.md.
 Run `npm run test:fast` after editing data or logic, and `npm test` (adds the browser tests) before pushing; tests live in `tests/`
