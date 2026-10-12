@@ -70,7 +70,10 @@
   const isBreast = d => d.site === 'breast';
   const isMale = p => p.sex === 'M';
   const dxs = p => p.dx.filter(d => d.site && d.hist);
-  const histText = d => `${SITES[d.site].label}: ${(SITES[d.site].hist.find(h => h[0] === d.hist) || [, d.hist])[1]}${d.site === 'breast' && d.grade ? `, grade ${d.grade}` : ''}${d.site === 'ovary' && d.ovgrade ? `, ${d.ovgrade} grade` : ''}${age(d) !== null ? `, age ${age(d)}` : ''}`;
+  const both = d => d.side === 'both';                       // both sides (bilateral)
+  const bothOrMulti = d => d.side === 'both' || d.side === 'multi';
+  const nTumours = d => (+d.count > 1 ? +d.count : both(d) ? 2 : 1);
+  const histText = d => `${SITES[d.site].label}: ${(SITES[d.site].hist.find(h => h[0] === d.hist) || [, d.hist])[1]}${d.site === 'breast' && d.grade ? `, grade ${d.grade}` : ''}${d.site === 'ovary' && d.ovgrade ? `, ${d.ovgrade} grade` : ''}${age(d) !== null ? `, age ${age(d)}` : ''}${d.side === 'both' ? `; both sides${d.age2 !== '' && d.age2 != null ? `, second at ${d.age2}` : ''}` : d.side === 'multi' ? '; multifocal' : ''}${+d.count > 1 && d.site !== 'polyps' ? `; ${d.count} tumours` : ''}`;
 
   /* ---- Manchester score (combined, BRCA1, BRCA2) for a person being considered for testing ----
    * manchesterDetail records every step (rows counted, pathology adjustments, what was not counted) for the
@@ -113,11 +116,17 @@
         if (age(d) === null) { excluded.push({ p, d, why: 'no age at diagnosis entered' }); continue; }
         const id = mssRow(p, d);
         if (!id) { excluded.push({ p, d, why: d.site === 'ovary' ? 'non-epithelial or mucinous ovarian tumours are not scored' : 'pancreatic neuroendocrine tumours are not scored' }); continue; }
-        // Bilateral breast cancer scores as two primaries (local practice).
-        const k = isBreast(d) && !isMale(p) && d.bilat ? 2 : 1;
-        const [, , p1, p2] = MSS_ROW[id];
-        rows.push({ p, d, id, k, b1: k * p1, b2: k * p2 });
-        b1 += k * p1; b2 += k * p2;
+        // Breast cancer in both breasts scores as two primaries, the second at its own age (or the first age if not given).
+        const tumours = [{ d, id, second: false }];
+        if (isBreast(d) && !isMale(p) && both(d)) {
+          const d2 = { ...d, age: d.age2 !== '' && d.age2 != null ? d.age2 : d.age };
+          tumours.push({ d: d2, id: mssRow(p, d2), second: true, ageGiven: d.age2 !== '' && d.age2 != null });
+        }
+        for (const t of tumours) {
+          const [, , p1, p2] = MSS_ROW[t.id];
+          rows.push({ p, d: t.d, id: t.id, second: t.second, ageGiven: t.ageGiven, b1: p1, b2: p2 });
+          b1 += p1; b2 += p2;
+        }
       }
     }
     // Pathology adjustment for the tested person's own tumour (BRCA1 score).
@@ -220,7 +229,7 @@
         const r = [];
         brd.forEach(d => {
           if (lt(d, 40)) r.push(`breast cancer under 40 (${histText(d)})`);
-          if (d.bilat && lt(d, 60)) r.push(`bilateral breast cancer under 60 (${histText(d)})`);
+          if (both(d) && lt(d, 60)) r.push(`bilateral breast cancer under 60 (${histText(d)})`);
           if (PRED.tnbc(d) && lt(d, 60)) r.push(`triple-negative breast cancer under 60 (${histText(d)})`);
           if (isMale(p)) r.push(`male breast cancer (${histText(d)})`);
           if (lt(d, 45) && relDx(p, x => isBreast(x) && lt(x, 45), 1).length) r.push('breast cancer under 45 with a first-degree relative with breast cancer under 45');
@@ -359,7 +368,7 @@
       D.forEach(d => {
         if (is(d, 'pituitary') && lt(d, 20)) r217.push(`pituitary adenoma under 20 (${histText(d)})`);
         else if (is(d, 'pituitary') && lt(d, 30)) r217.push(`pituitary adenoma under 30 – qualifies if macroadenoma (${histText(d)})`);
-        if (is(d, 'parathyroid', 'adenoma') && lt(d, 35) && d.bilat) r217.push(`multiglandular parathyroid disease under 35 (${histText(d)})`);
+        if (is(d, 'parathyroid', 'adenoma') && lt(d, 35) && d.side === 'multi') r217.push(`multiglandular parathyroid disease under 35 (${histText(d)})`);
       });
       if (new Set(men1.map(d => d.site)).size >= 2) r217.push('two or more MEN1-related endocrine abnormalities');
       if (men1.length && (D.some(d => is(d, 'cns', 'meningioma')) || D.some(d => is(d, 'feature', 'tsc_skin')))) r217.push('MEN1-related endocrine abnormality with a non-endocrine MEN1 tumour');
@@ -377,7 +386,7 @@
       D.forEach(d => {
         if (is(d, 'adrenal', 'phaeo') && lt(d, 60)) r223.push(`phaeochromocytoma under 60 (${histText(d)})`);
         if (is(d, 'ppgl')) r223.push(`paraganglioma (${histText(d)})`);
-        if (is(d, 'adrenal', 'phaeo') && d.bilat) r223.push('bilateral phaeochromocytoma');
+        if (is(d, 'adrenal', 'phaeo') && both(d)) r223.push('bilateral phaeochromocytoma');
       });
       if (D.some(d => is(d, 'adrenal', 'phaeo')) && D.some(RENAL)) r223.push('phaeochromocytoma and renal cell cancer');
       if (D.some(PPGL) && relDx(p, x => PPGL(x) || is(x, 'sarcoma', 'gist'), 3).length) r223.push('PPGL with a relative with PPGL or GIST');
@@ -386,7 +395,7 @@
       D.filter(RENAL).forEach(d => {
         if (le(d, 46)) r224.push(`renal cancer at 46 or under (${histText(d)})`);
         if (['fhrcc', 'sdhrcc'].includes(d.hist)) r224.push(`FH- or SDH-deficient renal cancer (${histText(d)})`);
-        if (d.bilat) r224.push('bilateral or multifocal renal cancer');
+        if (bothOrMulti(d)) r224.push(`${both(d) ? 'bilateral' : 'multifocal'} renal cancer`);
         if (relDx(p, x => RENAL(x) && lt(x, 60) && lt(d, 60), 1).length || relDx(p, x => RENAL(x) && lt(x, 50) && lt(d, 50), 2).filter(x => degree(p, x.p) === 2).length) r224.push('renal cancer with a first-degree relative (both under 60) or second-degree relative (both under 50) with renal cancer');
         if (D.some(RENAL_SYN)) r224.push('renal cancer with a syndromic feature');
       });
@@ -419,13 +428,13 @@
       if (dgc.some(d => lt(d, 70)) && ilc.some(d => lt(d, 70))) r215.push('diffuse gastric cancer and lobular breast cancer, both under 70');
       if (dgc.length && (relDx(p, x => is(x, 'stomach', 'diffuse'), 2).length || relDx(p, x => is(x, 'breast', 'ilc') && lt(x, 70), 2).length)) r215.push('diffuse gastric cancer with a first/second-degree relative with diffuse gastric cancer or lobular breast cancer under 70');
       if (ilc.length && relDx(p, x => is(x, 'stomach', 'diffuse') && lt(x, 70), 2).length) r215.push('lobular breast cancer with a first/second-degree relative with diffuse gastric cancer under 70');
-      if (ilc.some(d => d.bilat && lt(d, 70))) r215.push('bilateral lobular breast cancer under 70');
+      if (ilc.some(d => both(d) && lt(d, 70))) r215.push('bilateral lobular breast cancer under 70');
       if (ilc.some(d => lt(d, 50)) && relDx(p, x => is(x, 'breast', 'ilc') && lt(x, 50), 2).length) r215.push('two lobular breast cancers under 50 in the family');
       if (r215.length) add(p, 'R215', [...new Set(r215)]);
       if (D.some(d => is(d, 'eye', 'rb'))) add(p, 'R219', ['retinoblastoma']);
       const r221 = [];
       D.forEach(d => {
-        if (is(d, 'cns', 'vs') && d.bilat) r221.push('bilateral vestibular schwannoma');
+        if (is(d, 'cns', 'vs') && both(d)) r221.push('bilateral vestibular schwannoma');
         if (is(d, 'cns', 'schwannoma') && lt(d, 30)) r221.push(`schwannoma under 30 (${histText(d)})`);
         if (is(d, 'cns', 'meningioma') && lt(d, 20)) r221.push(`meningioma under 20 (${histText(d)})`);
         if (is(d, 'cns', 'meningioma_cc')) r221.push('clear cell meningioma');
@@ -442,7 +451,7 @@
         if (met.length) add(p, test, [...new Set(met)]);
         else if (maybe.length) add(p, test, [...new Set(maybe)], { possible: true });
       };
-      const count = (pred) => D.filter(pred).reduce((n, d) => n + (+d.count > 1 ? +d.count : d.bilat ? 2 : 1), 0);
+      const count = (pred) => D.filter(pred).reduce((n, d) => n + nTumours(d), 0);
       const people1 = (pred, maxDeg) => new Set(relDx(p, pred, maxDeg).map(x => x.p));
 
       /* R414 – APC-associated polyposis (children / young adults before colonoscopy; GAPPS at any age) */
@@ -450,7 +459,7 @@
         const met = [], maybe = [];
         const apcF = d => is(d, 'feature', 'chrpe|osteomas|gapps') || is(d, 'sarcoma', 'desmoid') || is(d, 'thyroid', 'cmv') || is(d, 'liver', 'hepatoblastoma') || is(d, 'cns', 'medullo_wnt');
         D.forEach(d => {
-          if (is(d, 'feature', 'chrpe')) (d.bilat ? met : maybe).push(d.bilat ? 'multifocal or bilateral CHRPE' : 'CHRPE – check multifocal or bilateral, assessed by an experienced ophthalmologist');
+          if (is(d, 'feature', 'chrpe')) (bothOrMulti(d) ? met : maybe).push(bothOrMulti(d) ? 'multifocal or bilateral CHRPE' : 'CHRPE – check multifocal or bilateral, assessed by an experienced ophthalmologist');
           if (is(d, 'sarcoma', 'desmoid')) met.push(`desmoid tumour (CTNNB1 wild-type where tested) (${histText(d)})`);
           if (is(d, 'thyroid', 'cmv')) met.push(`cribriform-morular variant papillary thyroid cancer (${histText(d)})`);
           if (is(d, 'liver', 'hepatoblastoma')) met.push(`hepatoblastoma (${histText(d)})`);
@@ -480,7 +489,7 @@
           if (nU30 >= 2) met.push('≥2 melanomas (or in situ) under 30');
           if (M.some(d => lt(d, 30)) && relDx(p, d => mel(d) && lt(d, 30), 2).length) met.push('melanoma under 30 with a first/second-degree relative with melanoma under 30');
           if (n >= 3) met.push(`≥3 melanomas (or in situ) (${n})`);
-          const fam = relDx(p, mel, 2).reduce((k, x) => k + (x.d.bilat ? 2 : 1), 0);
+          const fam = relDx(p, mel, 2).reduce((k, x) => k + nTumours(x.d), 0);
           if (n < 3 && n + fam >= 3) met.push(`${n + fam} melanomas across the patient and first/second-degree relatives`);
           const panc1 = relDx(p, d => is(d, 'pancreas', 'pdac|acinar|nos') && lt(d, 60), 1).length;
           if (n >= 2 && panc1) met.push('≥2 melanomas with a first-degree relative with pancreatic cancer under 60');
@@ -566,14 +575,14 @@
         D.filter(d => is(d, 'kidney', 'wilms')).forEach(d => {
           const r = [];
           if (lt(d, 2)) r.push('under 2');
-          if (d.bilat) r.push('bilateral or multifocal');
+          if (bothOrMulti(d)) r.push(both(d) ? 'bilateral' : 'multifocal');
           if (relDx(p, x => is(x, 'kidney', 'wilms'), 9).length) r.push('family history of Wilms tumour');
           if (D.some(x => is(x, 'feature', 'gu_anom'))) r.push('genital anomaly or gonadoblastoma');
           if (r.length) met.push(`Wilms tumour – ${r.join(', ')}`);
           else maybe.push('Wilms tumour – qualifies with unexplained proteinuria or renal failure, nephrogenic rests or another listed feature');
         });
         D.filter(d => is(d, 'nb')).forEach(d => {
-          if (d.bilat) met.push('bilateral or multiple neuroblastoma');
+          if (bothOrMulti(d)) met.push('bilateral or multiple neuroblastoma');
           else if (relDx(p, x => is(x, 'nb'), 3).length) met.push('neuroblastoma with a relative (up to third-degree) with neuroblastoma');
           else if (D.some(x => is(x, 'feature', 'cchs')) || relDx(p, x => is(x, 'feature', 'cchs'), 3).length) met.push('neuroblastoma with Hirschsprung disease or congenital hypoventilation in the patient or family');
           else maybe.push('neuroblastoma – qualifies with Hirschsprung disease or congenital hypoventilation in the patient or family');
@@ -678,7 +687,7 @@
       [/^vestibular schwannoma with/, 'Unilateral vestibular schwannoma and non-intradermal'], [/^meningioma with/, 'Meningioma AND one or more']],
     R222: [[/./, 'Clinical diagnosis of NF1']],
     R223: [[/^phaeochromocytoma under 60/, 'Phaeochromocytoma <60'], [/^paraganglioma/, 'Any paraganglioma'], [/^bilateral/, 'Bilateral phaeochromocytoma'], [/renal cell/, 'Phaeochromocytoma and renal cell'], [/relative/, 'AND ≥1 relative']],
-    R224: [[/at 46/, 'Renal cancer (≤ 46'], [/FH- or SDH/, 'FH deficient/HLRCC'], [/bilateral/, 'Bilateral/multifocal renal'], [/relative/, 'A renal cancer AND first degree relative'], [/syndromic/, 'Renal tumour and features of inherited']],
+    R224: [[/at 46/, 'Renal cancer (≤ 46'], [/FH- or SDH/, 'FH deficient/HLRCC'], [/bilateral|multifocal/, 'Bilateral/multifocal renal'], [/relative/, 'A renal cancer AND first degree relative'], [/syndromic/, 'Renal tumour and features of inherited']],
     R225: [[/^haemangioblastoma/, 'Cerebellar OR spinal haemangioblastoma'], [/^endolymphatic/, 'Retinal angioma, spinal or endolymphatic'], [/two or more/, '≥2 VHL-related tumours'], [/first-degree/, '≥1 VHL-related tumour and a first']],
     R226: [[/./, 'Testing of individual (proband) affected with parathyroid carcinoma']],
     R254: [[/under 18/, '≥1 melanoma < 18'], [/^≥2 melanomas \(or in situ\) under 30/, '≥2 melanomas and/or melanomas in situ age <30'], [/^melanoma under 30 with/, 'One melanoma <30 years AND'], [/^≥3 melanomas/, '≥3 melanoma and/or'],
@@ -713,7 +722,7 @@
         const at = `at ${age(d)}`;
         if (isBreast(d) && by(d, 40, 44)) near(p, 'R208', `breast cancer ${at} – the age criterion is under 40`, 'Breast cancer (age <40');
         if (isBreast(d) && PRED.tnbc(d) && by(d, 60, 64)) near(p, 'R208', `triple-negative breast cancer ${at} – the criterion is under 60`, 'Triple negative breast cancer');
-        if (isBreast(d) && d.bilat && by(d, 60, 64)) near(p, 'R208', `bilateral breast cancer ${at} – the criterion is under 60`, 'Bilateral breast cancer');
+        if (isBreast(d) && both(d) && by(d, 60, 64)) near(p, 'R208', `bilateral breast cancer ${at} – the criterion is under 60`, 'Bilateral breast cancer');
         if (isBreast(d) && by(d, 31, 35)) near(p, 'R216', `breast cancer ${at} – the LFS criterion is 30 or under`, 'Breast cancer (≤ 30');
         if ((CRC_EC(d) || is(d, 'smallbowel')) && by(d, 40, 44)) near(p, 'R211', `${SITES[d.site].label.split(' ')[0].toLowerCase()} cancer ${at} – the criterion is under 40`, is(d, 'smallbowel') ? 'Any small bowel cancer' : 'Any colorectal cancer OR endometrial');
         if (LYNCH_SITES(d) && !['pancreas', 'prostate', 'stomach'].includes(d.site) && by(d, 50, 54)) near(p, 'R210', `Lynch-related cancer ${at} – tumour testing criterion is under 50`, 'Any lynch-related cancer');

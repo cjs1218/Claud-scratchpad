@@ -12,7 +12,7 @@
 
   let uid = 0;
   const nextId = () => ++uid;
-  const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', grade: '', ovgrade: '', mmr: '', meth: '', braf: '', count: '', bilat: false });
+  const newDx = () => ({ id: nextId(), site: '', hist: '', age: '', er: '', pr: '', her2: '', grade: '', ovgrade: '', mmr: '', meth: '', braf: '', count: '', side: '', age2: '' });
   const newPerson = (rel) => ({ id: nextId(), rel, sex: REL[rel].sex, ageNow: '', deceased: false, ageDeath: '', adopted: false, dx: [newDx()] });
 
   const state = { people: [newPerson('proband')], mode: 'balanced', tab: 'assess', treeOpen: true, treeSyn: null, ancestry: '', expanded: new Set(), compareView: null };
@@ -41,6 +41,7 @@
       if (ks.length) t.dataset.tip = ks.map(k => `${k} = ${ABBREVIATIONS[k]}`).join('\n'); else delete t.dataset.tip;
     });
   }
+  const sideLabel = (d, v) => (SIDE_LABELS[d.site] || SIDE_LABELS.default)[v] || SIDE_LABELS.default[v];
   const histLabel = (site, hist) => (SITES[site].hist.find(h => h[0] === hist) || [, hist])[1];
 
   /* ---------------- Scoring ---------------- */
@@ -79,7 +80,9 @@
         modNotes.push(`${PRED_LABEL[pred]} ×${f}`);
       }
     }
-    if (dx.bilat) { mult *= 1.3; modNotes.push('bilateral / multiple ×1.3'); }
+    if (dx.side === 'both') { mult *= 1.3; modNotes.push('both sides ×1.3'); }
+    else if (dx.side === 'multi') { mult *= 1.15; modNotes.push(`${sideLabel(dx, 'multi').toLowerCase()} ×1.15`); }
+    if (isCounted(dx) && +dx.count > 1) { mult *= 1.3; modNotes.push(`${dx.count} tumours ×1.3`); }
     return { ...best, value: best.value * mult, modNotes };
   }
 
@@ -151,7 +154,9 @@
     if (dx.meth) extra.push(`MLH1 methylation ${dx.meth === 'yes' ? 'present' : 'absent'}`);
     if (dx.braf) extra.push(`BRAF V600E ${dx.braf === 'yes' ? 'present' : 'absent'}`);
     if (dx.site === 'polyps' && dx.count !== '') extra.push(`n=${dx.count}`);
-    if (dx.bilat) extra.push('bilateral / multiple');
+    if (dx.side === 'both') extra.push(`${sideLabel(dx, 'both').toLowerCase()}${has(dx.age2) ? `, second at ${dx.age2}` : ''}`);
+    else if (dx.side === 'multi') extra.push(sideLabel(dx, 'multi').toLowerCase());
+    if (isCounted(dx) && +dx.count > 1) extra.push(`${dx.count} tumours`);
     if (extra.length) t += ` (${extra.join(', ')})`;
     if (dx.age !== '') t += `, age ${dx.age}`;
     return t;
@@ -268,6 +273,17 @@
     return ks.length ? `<p class="abbr-hint">${ks.map(k => `<strong>${k}</strong> = ${esc(ABBREVIATIONS[k])}`).join(' · ')}</p>` : '';
   }
 
+  // Side for paired organs (with the age of the second cancer when both sides), number for tumours that are counted.
+  function sideCountHtml(dx) {
+    let h = '';
+    const opts = sideOptions(dx);
+    if (opts) {
+      h += `<label class="mk">Side<select data-f="side">${optionList(['', ...opts].map(v => [v, sideLabel(dx, v)]), dx.side)}</select></label>`;
+      if (dx.side === 'both') h += `<label class="mk">Age at second${dx.site === 'breast' ? ' breast' : ''} cancer<input type="number" min="0" max="120" inputmode="numeric" data-f="age2" value="${esc(dx.age2)}" placeholder="Age"></label>`;
+    }
+    if (isCounted(dx)) h += `<label class="mk">Number<input type="number" min="1" inputmode="numeric" data-f="count" value="${esc(dx.count)}" placeholder="1"></label>`;
+    return h;
+  }
   function renderDx(p, dx) {
     const siteOpts = Object.entries(SITES).map(([k, s]) => [k, s.label]);
     const site = SITES[dx.site];
@@ -291,7 +307,7 @@
         <button type="button" class="icon-btn" data-act="rm-dx" title="Remove">×</button>
       </div>
       ${abbrHint(dx)}
-      ${site ? `<div class="dx-markers">${markers}<label class="mk chk"><input type="checkbox" data-f="bilat"${dx.bilat ? ' checked' : ''}>Bilateral / multifocal / multiple primaries</label></div>` : ''}
+      ${site ? `<div class="dx-markers">${markers}${sideCountHtml(dx)}</div>` : ''}
     </div>`;
   }
 
@@ -348,6 +364,14 @@
     if (dx) {
       dx[f] = val;
       if (f === 'site') { Object.assign(dx, { ...newDx(), id: dx.id, site: val, age: dx.age }); renderFamily(); }
+      if (f === 'side') { if (val !== 'both') dx.age2 = ''; renderFamily(); }
+      if (f === 'hist') {
+        if (!sideOptions(dx)) { dx.side = ''; dx.age2 = ''; }
+        if (!isCounted(dx) && dx.site !== 'polyps') dx.count = '';
+        // Show or hide the Side / Number boxes when the histology changes which apply.
+        const box = el.closest('.dx');
+        if (!!box.querySelector('[data-f=side]') !== !!sideOptions(dx) || (!!box.querySelector('[data-f=count]') !== (isCounted(dx) || dx.site === 'polyps'))) { renderFamily(); renderResults(); return; }
+      }
       if (f === 'hist') {
         const box = el.closest('.dx'), old = box.querySelector('.abbr-hint');
         if (old) old.remove();
@@ -408,7 +432,14 @@
       dx: (p.dx || []).map(d => {
         const site = SITES[d.site] ? d.site : '';
         const hist = site && SITES[site].hist.some(h => h[0] === d.hist) ? d.hist : '';
-        return { ...newDx(), ...Object.fromEntries(Object.entries(d).filter(([k]) => k in newDx() && k !== 'id')), site, hist };
+        const nd = { ...newDx(), ...Object.fromEntries(Object.entries(d).filter(([k]) => k in newDx() && k !== 'id')), site, hist };
+        // Older files had one "bilateral / multifocal / multiple" tick: both sides for paired organs, 2 for counted tumours.
+        if (d.bilat && !nd.side && !nd.count) {
+          const opts = sideOptions(nd);
+          if (opts) nd.side = opts.includes('both') ? 'both' : 'multi';
+          else if (isCounted(nd)) nd.count = '2';
+        }
+        return nd;
       })
     }));
     if (!people.some(p => p.rel === 'proband')) people.unshift(newPerson('proband'));
@@ -842,16 +873,19 @@
     document.querySelectorAll('[data-mss-for]').forEach(el => {
       const p = state.people.find(x => x.id === +el.dataset.mssFor);
       const show = p && p.dx.some(d => d.site === 'breast' || (d.site === 'ovary' && d.hist));
-      if (!show) { el.innerHTML = ''; return; }
+      if (!show) { el.innerHTML = ''; el.dataset.html = ''; return; }
       const s = manchesterScore(p, state.people);
-      el.innerHTML = `<button type="button" class="mss-link" data-mss="${p.id}" title="Show how the Manchester score was calculated">Manchester score ${s.combined} (BRCA1 ${s.b1}, BRCA2 ${s.b2})</button>`;
+      const html = `<button type="button" class="mss-link" data-mss="${p.id}" title="Show how the Manchester score was calculated">Manchester score ${s.combined} (BRCA1 ${s.b1}, BRCA2 ${s.b2})</button>`;
+      // Only replace when it changes, so a click that starts as a field loses focus still lands on the same button.
+      if (el.dataset.html !== html) { el.innerHTML = html; el.dataset.html = html; }
     });
     const m = eligByPerson();
     document.querySelectorAll('[data-elig-for]').forEach(el => {
       const e = m.get(+el.dataset.eligFor) || { meets: [], maybe: [] };
       const chip = (c, cls, extra) => testBtn(c.replace('*', ''), `code-sm ${cls}`, c, `${c.endsWith('*') ? ' – tumour testing first' : ''}${extra}`);
-      el.innerHTML = [e.meets.length ? `Meets criteria: ${e.meets.map(c => chip(c, 'elig-code', '')).join(' ')}` : '',
+      const html = [e.meets.length ? `Meets criteria: ${e.meets.map(c => chip(c, 'elig-code', '')).join(' ')}` : '',
         e.maybe.length ? `<span class="maybe">May meet: ${e.maybe.map(c => chip(c, 'elig-code maybe-code', ' – check an unrecorded detail')).join(' ')}</span>` : ''].filter(Boolean).join(' · ');
+      if (el.dataset.html !== html) { el.innerHTML = html; el.dataset.html = html; }
     });
   }
 
@@ -939,7 +973,7 @@
     const dxLabel = d => abbrHtml(`${SITES[d.site].label}: ${histLabel(d.site, d.hist)}${d.age !== '' && d.age != null ? `, age ${d.age}` : ''}`);
     const rowLabel = id => (MSS_TABLE.find(r => r[0] === id) || [])[1];
     const threshold = m.combined >= 15 || m.b1 >= 10 || m.b2 >= 10;
-    const rows = m.rows.map(r => `<tr><td>${esc(personLabel(r.p))}</td><td>${dxLabel(r.d)}${r.k > 1 ? ' <span class="elig-tag">bilateral – counted twice</span>' : ''}</td><td>${esc(rowLabel(r.id))}</td><td class="num">${r.b1}</td><td class="num">${r.b2}</td></tr>`).join('');
+    const rows = m.rows.map(r => `<tr><td>${esc(personLabel(r.p))}</td><td>${dxLabel(r.d)}${r.second ? ` <span class="elig-tag">second breast cancer${r.ageGiven ? '' : ' – age of second not given, first age used'}</span>` : ''}</td><td>${esc(rowLabel(r.id))}</td><td class="num">${r.b1}</td><td class="num">${r.b2}</td></tr>`).join('');
     const adj = m.adj.map(a => `<tr class="mss-adj"><td>${esc(personLabel(person))}</td><td>${a.d ? dxLabel(a.d) : ''}</td><td>Pathology: ${abbrHtml(a.label)}</td><td class="num">${a.b1 > 0 ? '+' : ''}${a.b1}</td><td class="num">${a.b2 ? `+${a.b2}` : '–'}</td></tr>`).join('');
     const used = new Set(m.rows.map(r => r.id)), usedAdj = new Set(m.adj.map(a => a.id));
     return `<header class="crit-head">

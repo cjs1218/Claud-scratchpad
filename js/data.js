@@ -169,6 +169,31 @@ const MARKER_OPTIONS = {
 };
 
 /*
+ * Side and number. Paired organs get a "Side" choice (both sides asks the age of the second cancer);
+ * tumours that criteria count get a "Number" box. [histologies ('*' = any), side options].
+ */
+const LATERALITY = {
+  breast: ['*', ['one', 'both', 'multi']],
+  kidney: ['*', ['one', 'both', 'multi']],
+  adrenal: ['*', ['one', 'both']],
+  ovary: ['*', ['one', 'both']],
+  eye: ['*', ['one', 'both', 'multi']],
+  nb: ['*', ['one', 'both', 'multi']],
+  cns: ['vs', ['one', 'both']],
+  feature: ['chrpe', ['one', 'both', 'multi']],
+  parathyroid: ['adenoma', ['one', 'multi']]
+};
+const SIDE_LABELS = {
+  default: { '': 'Unknown', one: 'One side', both: 'Both sides', multi: 'Multifocal (one side)' },
+  parathyroid: { '': 'Unknown', one: 'Single gland', multi: 'Multiglandular' },
+  nb: { '': 'Unknown', one: 'Single', both: 'Bilateral', multi: 'Multiple' },
+  eye: { '': 'Unknown', one: 'One eye', both: 'Both eyes', multi: 'Multifocal (one eye)' }
+};
+const COUNTED = { skin: '*', sarcoma: '*', feature: 'bimt|cutleio|pilomatrixoma', cns: 'schwannoma|meningioma|meningioma_cc' };
+const sideOptions = d => { const l = LATERALITY[d.site]; return l && (l[0] === '*' || l[0].split('|').includes(d.hist)) ? l[1] : null; };
+const isCounted = d => !!COUNTED[d.site] && (COUNTED[d.site] === '*' || COUNTED[d.site].split('|').includes(d.hist));
+
+/*
  * Abbreviations used in cancer sites, histologies, markers and conditions. Wherever they appear on screen
  * they can be clicked (or tapped / Enter) to show the full term.
  */
