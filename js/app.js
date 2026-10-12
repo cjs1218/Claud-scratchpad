@@ -201,9 +201,21 @@
   const phenoLinks = c => REFS[c.id].omim.map(m => link(`${omimId(m)} ${OMIM_TITLES[m]}`, REF_LINKS.omim(m))).join('; ');
   const geneMimLink = g => link(`${g} *${GENE_MIM[g]}`, REF_LINKS.omim(GENE_MIM[g]));
 
+  // GeNotes (NHS England Genomics Education Programme) pages for one or more conditions, without duplicates.
+  function genotesHtml(ids) {
+    const seen = new Set(), items = [];
+    for (const id of ids) for (const [t, path] of GENOTES[id] || []) if (!seen.has(path)) { seen.add(path); items.push([t, path]); }
+    if (!items.length) return '';
+    const hub = items.filter(([, p]) => p.startsWith('knowledge-hub/')), clinic = items.filter(([, p]) => !p.startsWith('knowledge-hub/'));
+    return `<h4>GeNotes (NHS England Genomics Education)</h4>
+      <ul>${hub.map(([t, p]) => `<li>${link(t, GENOTES_BASE + p)} <span class="muted small">Knowledge Hub</span></li>`).join('')}
+        ${clinic.map(([t, p]) => `<li>${link(t, GENOTES_BASE + p)} <span class="muted small">In the Clinic</span></li>`).join('')}</ul>`;
+  }
+
   function sourcesHtml(c) {
     const pheno = phenoLinks(c);
     return `<div class="sources">${guidanceHtml(SOURCES[c.id] || {})}
+      ${genotesHtml([c.id])}
       <h4>References</h4>
       <ul><li>GeneReviews: ${grLinks(c)}</li>
         ${pheno ? `<li>OMIM phenotype: ${pheno}</li>` : ''}
@@ -1108,6 +1120,7 @@
       ${testsDetail(uniq(cs.flatMap(c => c.tests)))}
       <h3 id="jump-guidance">Guidance and leaflets</h3>
       <div class="sources">${guidanceHtml(src)}
+        ${genotesHtml(cs.map(c => c.id))}
         <h4>References</h4>
         <ul>${cs.map(c => { const ph = phenoLinks(c); return `<li><strong>${esc(c.name)}</strong> – GeneReviews: ${grLinks(c)}${ph ? `; OMIM: ${ph}` : ''}</li>`; }).join('')}
           <li>OMIM gene: ${geneMimLink(g)}</li></ul>

@@ -1615,6 +1615,7 @@ const SOURCE_DATES = [
   ['Associations, strengths and ages', 'Reviewed against GeneReviews and UKCGG', '11 Oct 2026'],
   ['AACR childhood CNS tumour update (Clin Cancer Res 2024;30:2342)', 'CNS associations and testing pointers', '11 Oct 2026'],
   ['Manchester NF1 review checklist', 'v18, January 2019 (NF1 surveillance)', '11 Oct 2026'],
+  ['GeNotes links', 'NHS England Genomics Education Programme GeNotes: Knowledge Hub pages and In the Clinic pathways for 62 conditions (titles from the live pages)', '12 Oct 2026'],
   ['US guidance pass', 'NCCN (JNCCN publications), ACMG, ACG, USMSTF, ATA, Endocrine Society, AACR and consensus papers: supporting citations, US differences noted (UK guidance takes priority), additions where UK guidance is silent', '12 Oct 2026'],
   ['Association evidence review', 'Each association sourced to UKCGG / BSG / NICE, ERN and other European guidance, GeneReviews, ClinGen gene–disease validity and peer-reviewed risk studies (DOIs checked via Crossref); variant notes; CanVar-UK links', '11 Oct 2026'],
   ['Suggested surveillance', 'UKCGG / BSG first, then ERN GENTURIS, EHTG, SIOPE, then AACR, consensus guidelines and GeneReviews summaries', '11 Oct 2026']
@@ -2821,6 +2822,296 @@ const CANVAR_GENES = [
   'SMARCB1', 'SMARCE1', 'STK11', 'SUFU', 'TERT', 'TMEM127', 'TP53', 'TSC1', 'TSC2', 'VHL', 'WRN', 'WT1', 'XPA',
   'XPC'
 ];
+
+/*
+ * GeNotes (NHS England Genomics Education Programme, "Genomic notes for clinicians"): Knowledge Hub pages and
+ * In the Clinic pathways relevant to each condition. [page title, path under GENOTES_BASE]; titles taken from the live pages.
+ */
+const GENOTES_BASE = 'https://www.genomicseducation.hee.nhs.uk/genotes/';
+const GENOTES = {
+  brca1: [
+    ['BRCA1 and BRCA2-associated cancer risk', 'knowledge-hub/brca1-and-brca2/'],
+    ['Presentation: Patient with a relative who has a pathogenic BRCA variant', 'in-the-clinic/presentation-patient-with-a-relative-who-has-a-pathogenic-brca-variant/'],
+    ['Results: Patient with breast cancer and a constitutional (germline) BRCA1 or BRCA2 variant', 'in-the-clinic/results-patient-with-breast-cancer-and-a-constitutional-germline-brca1-or-brca2-variant/'],
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/']
+  ],
+  brca2: [
+    ['BRCA1 and BRCA2-associated cancer risk', 'knowledge-hub/brca1-and-brca2/'],
+    ['Presentation: Patient with a relative who has a pathogenic BRCA variant', 'in-the-clinic/presentation-patient-with-a-relative-who-has-a-pathogenic-brca-variant/'],
+    ['Results: Patient with breast cancer and a constitutional (germline) BRCA1 or BRCA2 variant', 'in-the-clinic/results-patient-with-breast-cancer-and-a-constitutional-germline-brca1-or-brca2-variant/'],
+    ['Presentation: Patient with male breast cancer', 'in-the-clinic/presentation-patient-with-male-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/']
+  ],
+  palb2: [
+    ['PALB2', 'knowledge-hub/palb2/'],
+    ['Results: Patient with breast cancer and a constitutional (germline) PALB2 variant', 'in-the-clinic/results-patient-with-breast-cancer-and-a-constitutional-germline-palb2-variant/'],
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/']
+  ],
+  atm: [
+    ['ATM-associated cancer risk', 'knowledge-hub/atm-associated-cancer-risk/'],
+    ['Results: Patient with breast cancer and a constitutional (germline) pathogenic ATM variant', 'in-the-clinic/results-patient-with-breast-cancer-and-a-constitutional-germline-pathogenic-atm-variant/'],
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/']
+  ],
+  chek2: [
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/']
+  ],
+  bard1: [
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/']
+  ],
+  rad51c: [
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/'],
+    ['Presentation: Patient with ovarian cancer', 'in-the-clinic/presentation-patient-with-ovarian-cancer/']
+  ],
+  rad51d: [
+    ['Presentation: Patient with a family history of breast cancer', 'in-the-clinic/presentation-patient-with-a-family-history-of-breast-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/'],
+    ['Presentation: Patient with ovarian cancer', 'in-the-clinic/presentation-patient-with-ovarian-cancer/']
+  ],
+  brip1: [
+    ['Presentation: Patient with ovarian cancer', 'in-the-clinic/presentation-patient-with-ovarian-cancer/'],
+    ['Presentation: Patient with a family history of breast and/or ovarian cancer', 'in-the-clinic/patient-with-a-family-history-of-breast-and-or-ovarian-cancer/']
+  ],
+  lynch_mlh1: [
+    ['Lynch syndrome', 'knowledge-hub/lynch-syndrome/'],
+    ['Mismatch repair deficiency and microsatellite instability', 'knowledge-hub/mismatch-repair-deficiency-and-microsatellite-instability/'],
+    ['Presentation: Patient with suspected Lynch syndrome', 'in-the-clinic/presentation-patient-with-suspected-lynch-syndrome/'],
+    ['Presentation: Patient with a genetic diagnosis of Lynch syndrome', 'in-the-clinic/presentation-patient-with-a-genetic-diagnosis-of-lynch-syndrome/']
+  ],
+  lynch_msh2: [
+    ['Lynch syndrome', 'knowledge-hub/lynch-syndrome/'],
+    ['Mismatch repair deficiency and microsatellite instability', 'knowledge-hub/mismatch-repair-deficiency-and-microsatellite-instability/'],
+    ['Presentation: Patient with suspected Lynch syndrome', 'in-the-clinic/presentation-patient-with-suspected-lynch-syndrome/'],
+    ['Presentation: Patient with a genetic diagnosis of Lynch syndrome', 'in-the-clinic/presentation-patient-with-a-genetic-diagnosis-of-lynch-syndrome/']
+  ],
+  lynch_msh6: [
+    ['Lynch syndrome', 'knowledge-hub/lynch-syndrome/'],
+    ['Mismatch repair deficiency and microsatellite instability', 'knowledge-hub/mismatch-repair-deficiency-and-microsatellite-instability/'],
+    ['Presentation: Patient with suspected Lynch syndrome', 'in-the-clinic/presentation-patient-with-suspected-lynch-syndrome/'],
+    ['Presentation: Patient with a genetic diagnosis of Lynch syndrome', 'in-the-clinic/presentation-patient-with-a-genetic-diagnosis-of-lynch-syndrome/']
+  ],
+  lynch_pms2: [
+    ['Lynch syndrome', 'knowledge-hub/lynch-syndrome/'],
+    ['Mismatch repair deficiency and microsatellite instability', 'knowledge-hub/mismatch-repair-deficiency-and-microsatellite-instability/'],
+    ['Presentation: Patient with suspected Lynch syndrome', 'in-the-clinic/presentation-patient-with-suspected-lynch-syndrome/'],
+    ['Presentation: Patient with a genetic diagnosis of Lynch syndrome', 'in-the-clinic/presentation-patient-with-a-genetic-diagnosis-of-lynch-syndrome/']
+  ],
+  cmmrd: [
+    ['Mismatch repair deficiency and microsatellite instability', 'knowledge-hub/mismatch-repair-deficiency-and-microsatellite-instability/'],
+    ['Lynch syndrome', 'knowledge-hub/lynch-syndrome/']
+  ],
+  fap: [
+    ['Familial adenomatous polyposis', 'knowledge-hub/familial-adenomatous-polyposis/'],
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  map: [
+    ['MUTYH-associated polyposis', 'knowledge-hub/mutyh-associated-polyposis/'],
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  nthl1: [
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  ppap: [
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  mbd4: [
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  jps_smad4: [
+    ['Juvenile polyposis syndrome', 'knowledge-hub/juvenile-polyposis-syndrome/'],
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  jps_bmpr1a: [
+    ['Juvenile polyposis syndrome', 'knowledge-hub/juvenile-polyposis-syndrome/'],
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  hmps: [
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  rnf43: [
+    ['Serrated polyposis syndrome', 'knowledge-hub/serrated-polyposis-syndrome/'],
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  pjs: [
+    ['Peutz-Jeghers syndrome', 'knowledge-hub/peutz-jeghers-syndrome/'],
+    ['Presentation: Patient with polyposis', 'in-the-clinic/presentation-patient-with-polyposis/'],
+    ['Presentation: Person with a family history of polyposis', 'in-the-clinic/presentation-person-with-a-family-history-of-polyposis/']
+  ],
+  phts: [
+    ['PTEN syndrome', 'knowledge-hub/pten-syndrome/'],
+    ['Presentation: Clinical suspicion of PTEN hamartoma tumour syndrome', 'in-the-clinic/presentation-clinical-suspicion-of-pten-hamartoma-tumour-syndrome/']
+  ],
+  hdgc: [
+    ['Hereditary diffuse gastric cancer syndrome (CDH1-related)', 'knowledge-hub/hereditary-diffuse-gastric-cancer-syndrome-cdh1-related/'],
+    ['Presentation: Patient with diffuse gastric cancer', 'in-the-clinic/presentation-patient-with-diffuse-gastic-cancer/'],
+    ['Presentation: Patient with lobular breast cancer and a strong family history of diffuse gastric cancer', 'in-the-clinic/presentation-patient-with-lobular-breast-cancer-and-a-strong-family-history-of-diffuse-gastric-cancer/']
+  ],
+  ctnna1: [
+    ['Hereditary diffuse gastric cancer syndrome (CDH1-related)', 'knowledge-hub/hereditary-diffuse-gastric-cancer-syndrome-cdh1-related/'],
+    ['Presentation: Patient with diffuse gastric cancer', 'in-the-clinic/presentation-patient-with-diffuse-gastic-cancer/']
+  ],
+  lfs: [
+    ['Heritable TP53-related cancer syndromes', 'knowledge-hub/heritable-tp53-related-cancer-syndromes/'],
+    ['Adrenocortical carcinoma', 'knowledge-hub/adrenocortical-carcinoma/']
+  ],
+  men1: [
+    ['Multiple endocrine neoplasia type 1', 'knowledge-hub/multiple-endocrine-neoplasia-type-1/'],
+    ['Endocrine neoplasia', 'knowledge-hub/endocrine-neoplasia/'],
+    ['Presentation: Patient with possible multiple endocrine neoplasia type 1', 'in-the-clinic/presentation-patient-with-possible-multiple-endocrine-neoplasia-type-1/'],
+    ['Presentation: Patient with endocrine neoplasia', 'in-the-clinic/presentation-patient-with-endocrine-neoplasia/']
+  ],
+  men4: [
+    ['Multiple endocrine neoplasia type 4', 'knowledge-hub/multiple-endocrine-neoplasia-type-4/'],
+    ['Endocrine neoplasia', 'knowledge-hub/endocrine-neoplasia/'],
+    ['Presentation: Patient with endocrine neoplasia', 'in-the-clinic/presentation-patient-with-endocrine-neoplasia/']
+  ],
+  men2: [
+    ['Multiple endocrine neoplasia type 2', 'knowledge-hub/multiple-endocrine-neoplasia-type-2/'],
+    ['Endocrine neoplasia', 'knowledge-hub/endocrine-neoplasia/'],
+    ['Presentation: Patient with medullary thyroid carcinoma', 'in-the-clinic/presentation-patient-with-medullary-thyroid-carcinoma/'],
+    ['Presentation: Patient with endocrine neoplasia', 'in-the-clinic/presentation-patient-with-endocrine-neoplasia/']
+  ],
+  hptjt: [
+    ['Familial hyperparathyroidism', 'knowledge-hub/familial-hyperparathyroidism/'],
+    ['Parathyroid carcinoma', 'knowledge-hub/parathyroid-carcinoma/'],
+    ['Presentation: Patient with parathyroid carcinoma', 'in-the-clinic/presentation-patient-with-parathyroid-carcinoma/'],
+    ['Presentation: Patient with possible familial hyperparathyroidism', 'in-the-clinic/presentation-patient-with-possible-familial-hyperparathyroidism/']
+  ],
+  fipa: [
+    ['Pituitary adenoma', 'knowledge-hub/pituitary-adenoma/'],
+    ['Endocrine neoplasia', 'knowledge-hub/endocrine-neoplasia/']
+  ],
+  carney: [
+    ['Carney complex', 'knowledge-hub/carney-complex/']
+  ],
+  mas: [
+    ['McCune-Albright syndrome', 'knowledge-hub/mccune-albright-syndrome/']
+  ],
+  vhl: [
+    ['Renal cancer', 'knowledge-hub/renal-cancer/'],
+    ['Presentation: Patient with renal cell cancer', 'in-the-clinic/presentation-patient-with-renal-cell-cancer/'],
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  sdhb: [
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  sdhd: [
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  sdhc: [
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  sdha: [
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  sdhaf2: [
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  tmem127: [
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  max: [
+    ['Inherited phaeochromocytoma and paraganglioma', 'knowledge-hub/inherited-phaeochromocytoma-and-paraganglioma/'],
+    ['Presentation: Patient with phaeochromocytoma or extra-adrenal paraganglioma', 'in-the-clinic/presentation-patient-with-phaeochromocytoma-or-extra-adrenal-paraganglioma/']
+  ],
+  hlrcc: [
+    ['Fumarate hydratase tumour predisposition syndrome (including hereditary leiomyomatosis and renal cell cancer)', 'knowledge-hub/fumarate-hydratase-tumour-predisposition-syndrome-including-hereditary-leiomyomatosis-and-renal-cell-cancer/'],
+    ['Renal cancer', 'knowledge-hub/renal-cancer/'],
+    ['Presentation: Patient with renal cell cancer', 'in-the-clinic/presentation-patient-with-renal-cell-cancer/'],
+    ['Presentation: Patient with multiple benign skin tumours with a suspected genetic cause', 'in-the-clinic/presentation-patient-with-multiple-benign-skin-tumours-with-a-suspected-genetic-cause/']
+  ],
+  bhd: [
+    ['Birt-Hogg-Dubé syndrome', 'knowledge-hub/birt-hogg-dube-syndrome/'],
+    ['Renal cancer', 'knowledge-hub/renal-cancer/'],
+    ['Presentation: Patient with renal cell cancer', 'in-the-clinic/presentation-patient-with-renal-cell-cancer/'],
+    ['Presentation: Patient with multiple benign skin tumours with a suspected genetic cause', 'in-the-clinic/presentation-patient-with-multiple-benign-skin-tumours-with-a-suspected-genetic-cause/']
+  ],
+  hprc: [
+    ['Renal cancer', 'knowledge-hub/renal-cancer/'],
+    ['Presentation: Patient with renal cell cancer', 'in-the-clinic/presentation-patient-with-renal-cell-cancer/']
+  ],
+  tsc: [
+    ['Tuberous sclerosis complex', 'knowledge-hub/tuberous-sclerosis-complex/']
+  ],
+  bap1: [
+    ['Presentation: Patient with uveal melanoma', 'in-the-clinic/presentation-patient-with-uveal-melanoma/'],
+    ['Presentation: Patient with renal cell cancer', 'in-the-clinic/presentation-patient-with-renal-cell-cancer/']
+  ],
+  cdkn2a: [
+    ['Presentation: Patient with cutaneous melanoma', 'in-the-clinic/presentation-patient-with-cutaneous-melanoma/'],
+    ['Presentation: Patient with a family history of skin cancer', 'in-the-clinic/patient-with-a-family-history-of-skin-cancer/'],
+    ['Pancreatic cancer', 'knowledge-hub/pancreatic-cancer/']
+  ],
+  cdk4: [
+    ['Presentation: Patient with cutaneous melanoma', 'in-the-clinic/presentation-patient-with-cutaneous-melanoma/'],
+    ['Presentation: Patient with a family history of skin cancer', 'in-the-clinic/patient-with-a-family-history-of-skin-cancer/']
+  ],
+  pot1: [
+    ['Presentation: Patient with cutaneous melanoma', 'in-the-clinic/presentation-patient-with-cutaneous-melanoma/'],
+    ['Presentation: Patient with a family history of skin cancer', 'in-the-clinic/patient-with-a-family-history-of-skin-cancer/']
+  ],
+  gorlin: [
+    ['Gorlin syndrome', 'knowledge-hub/gorlin-syndrome/']
+  ],
+  sufu: [
+    ['Gorlin syndrome', 'knowledge-hub/gorlin-syndrome/']
+  ],
+  xp: [
+    ['Xeroderma pigmentosum', 'knowledge-hub/xeroderma-pigmentosum/']
+  ],
+  nf1: [
+    ['Neurofibromatosis type 1', 'knowledge-hub/neurofibromatosis-type-1/'],
+    ['RASopathies', 'knowledge-hub/rasopathies/'],
+    ['Presentation: Patient with neurofibromatosis type 1', 'in-the-clinic/presentation-patient-with-neurofibromatosis-type-1/']
+  ],
+  noonan: [
+    ['RASopathies', 'knowledge-hub/rasopathies/']
+  ],
+  cbl: [
+    ['RASopathies', 'knowledge-hub/rasopathies/']
+  ],
+  costello: [
+    ['RASopathies', 'knowledge-hub/rasopathies/']
+  ],
+  bws: [
+    ['Beckwith-Wiedemann syndrome', 'knowledge-hub/beckwith-wiedemann-syndrome/']
+  ],
+  sotos: [
+    ['Sotos syndrome', 'knowledge-hub/sotos-syndrome/']
+  ],
+  fanconi: [
+    ['Fanconi anaemia', 'knowledge-hub/fanconi-anaemia/'],
+    ['Presentation: Clinical suspicion of Fanconi anaemia', 'in-the-clinic/presentation-clinical-suspicion-of-fanconi-anaemia/']
+  ],
+  nbs: [
+    ['Nijmegen breakage syndrome', 'knowledge-hub/nijmegen-breakage-syndrome/']
+  ],
+  at: [
+    ['Ataxia telangiectasia', 'knowledge-hub/ataxia-telangiectasia/']
+  ]
+};
 
 const REF_LINKS = {
   clingen: g => `https://search.clinicalgenome.org/kb/genes/${CLINGEN_HGNC[g]}`,

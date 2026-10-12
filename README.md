@@ -47,6 +47,7 @@ Everything clinical lives in `js/data.js`:
   "Risk and evidence" column on syndrome pages.
 - **VARIANT_NOTES** – genotype–phenotype notes per condition (`[text, sources]`), information only (not scored).
 - **ABBREVIATIONS** – abbreviations in cancer types / histologies / markers; click-to-expand wherever they appear.
+- **GENOTES** – GeNotes (NHS England Genomics Education Programme) Knowledge Hub pages and In the Clinic pathways per condition (`[title, path]` under `GENOTES_BASE`), shown with each syndrome's guidance and on gene pages.
 - **NICPR_IN_SCOPE** – genes treated as fully in scope (RAD51C and the Lynch genes): no NICPR scope warnings are shown, while `NICPR` itself stays as published.
 - **LAST_REVIEWED** – date each syndrome was last reviewed (YYYY-MM-DD); shown on syndrome and gene pages, summaries and printouts, and flagged when over 12 months old.
 - **SURVEILLANCE** – suggested surveillance per condition: UK first (UKCGG gene guidelines, BSG 2019),
