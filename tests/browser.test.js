@@ -1033,6 +1033,14 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const amsN = await page.locator('#results .ams').textContent();
   check(/Modified Amsterdam criteria not met \(3 of 4\)/.test(amsN) && /✗ at least one diagnosed under 50/.test(amsN), 'near miss shows which criterion is missing');
 
+  console.log('How syndromes are ranked');
+  await page.goto(BASE + '#syndrome=vhl'); await page.waitForSelector('#syn-detail h2');
+  check(/yield:/i.test(await page.getAttribute('#syn-detail .tier', 'title') || ''), 'strength labels explain the definition on hover');
+  await page.locator('#syn-detail [data-goto-ranking]').first().click(); await page.waitForTimeout(400);
+  const rk = await page.textContent('#ranking');
+  check(await page.evaluate(() => location.hash) === '#sources' && /How syndromes are ranked/.test(rk) && /About 10–50% have the syndrome/.test(rk) && /second-degree ×0\.6/.test(rk), '"How strength is defined" opens the ranking definitions on the Sources tab');
+  check(await page.evaluate(() => { const r = document.querySelector('#ranking h2').getBoundingClientRect(), bar = document.querySelector('.tabbar').getBoundingClientRect(); return r.top >= bar.bottom - 1 && r.top < innerHeight; }), 'the ranking heading is not hidden under the tab bar');
+
   console.log('Disclaimer');
   await page.goto(BASE);
   const discTxt = await page.textContent('#disclaimer');

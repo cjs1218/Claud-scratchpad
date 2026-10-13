@@ -16,6 +16,22 @@
 
 const TIER = { H: 10, S: 6, M: 3, W: 1 };
 const TIER_LABEL = { H: 'hallmark', S: 'strong', M: 'moderate', W: 'weak' };
+/*
+ * How each rule's strength is assigned (shown on the Sources tab and as hover text
+ * on the strength labels). Two measures; a rule takes the higher of the two, but
+ * hallmark always needs the first (or a defining feature present in most carriers).
+ *  yield – of people with this tumour/feature (within the rule's histology, marker
+ *          and age limits), the proportion with the syndrome
+ *  risk  – the chance a carrier develops it (lifetime, or childhood for childhood tumours)
+ */
+const TIER_DEFS = {
+  H: { yield: 'Pathognomonic or near-pathognomonic (about half or more have the syndrome), or a major diagnostic criterion rare outside it',
+       risk: 'Not enough on its own – except a defining feature present in most carriers and uncommon otherwise (e.g. >100 adenomas in FAP, multiple café-au-lait macules in NF1)' },
+  S: { yield: 'About 10–50% have the syndrome', risk: 'Lifetime risk about 20% or more, or relative risk about 10 or more' },
+  M: { yield: 'About 2–10% have the syndrome', risk: 'Lifetime risk about 5–20%, or relative risk about 2–10' },
+  W: { yield: 'Under about 2%, or unknown', risk: 'Lifetime risk under about 5%, relative risk under about 2, or reported only in case reports or small series' }
+};
+const TIER_AUDIT = ''; // date all rules were last checked against TIER_DEFS (set once the audit is complete)
 
 const MMR_MARKERS = ['mmr', 'meth', 'braf'];
 

@@ -696,3 +696,11 @@ body.compact-head .notice-strip .disc-long { display: none; }
   .print-legal h3, .foot-legal .foot-title { font-size: 0.8rem; margin: 0 0 2px; }
   .foot-legal { break-inside: avoid; }
 }
+
+/* How syndromes are ranked (Sources tab) */
+.ranking { scroll-margin-top: 80px; margin: 18px 0; padding-top: 12px; border-top: 1px solid var(--border); }
+.ranking:focus { outline: none; }
+.ranking-table { border-collapse: collapse; width: 100%; }
+.ranking-table th, .ranking-table td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+.ranking-table td:nth-child(2) { text-align: center; }
+.tier-legend .link-btn { text-decoration: underline; cursor: pointer; }

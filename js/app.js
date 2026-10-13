@@ -550,7 +550,7 @@
 
   function evidenceLine(ev) {
     const { person, dx, s } = ev;
-    const bits = [`<span class="tier tier-${s.tier}">${TIER_LABEL[s.tier]}</span>`];
+    const bits = [`<span class="tier tier-${s.tier}" title="${esc(tierTitle(s.tier))}">${TIER_LABEL[s.tier]}</span>`];
     const notes = [...s.notes, ...s.modNotes];
     return `<li>${bits.join('')} <strong>${esc(personLabel(person))}</strong> — ${abbrHtml(dxText(dx, person))}${notes.length ? ` <span class="muted">· ${esc(notes.join('; '))}</span>` : ''}</li>`;
   }
@@ -558,7 +558,7 @@
   function associationsHtml(cond) {
     const order = { H: 0, S: 1, M: 2, W: 3 };
     return cond.rules.map(ruleText).sort((a, b) => order[a.tier] - order[b.tier])
-      .map(r => `<li><span class="tier tier-${r.tier}">${TIER_LABEL[r.tier]}</span> ${abbrHtml(r.text)}</li>`).join('');
+      .map(r => `<li><span class="tier tier-${r.tier}" title="${esc(tierTitle(r.tier))}">${TIER_LABEL[r.tier]}</span> ${abbrHtml(r.text)}</li>`).join('');
   }
 
   // One plain-language line on why a syndrome scored where it did.
@@ -610,7 +610,8 @@
       ${i >= 3 ? `<button type="button" class="link-btn small" data-collapse="${c.id}">Show less ▴</button>` : ''}
     </article>`;
   }
-  const TIER_LEGEND = `<p class="tier-legend small">Strength: ${['H', 'S', 'M', 'W'].map(t => `<span class="tier tier-${t}">${TIER_LABEL[t]}</span>`).join(' ')}</p>`;
+  const tierTitle = t => `${TIER_LABEL[t][0].toUpperCase() + TIER_LABEL[t].slice(1)} (${TIER[t]} points) – yield: ${TIER_DEFS[t].yield}; carrier risk: ${TIER_DEFS[t].risk}`;
+  const TIER_LEGEND = `<p class="tier-legend small">Strength: ${['H', 'S', 'M', 'W'].map(t => `<span class="tier tier-${t}" title="${esc(tierTitle(t))}">${TIER_LABEL[t]}</span>`).join(' ')} <button type="button" class="link-btn" data-goto-ranking>How strength is defined</button></p>`;
 
   function testsSummary(shown) {
     const map = new Map();
@@ -1458,7 +1459,7 @@
     const rows = [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).map(([site, hist, tier, early, pred, maxAge, src, risk, usDiff]) => {
       const h = hist === '*' ? 'Any type' : hist.split('|').map(x => histLabel(site, x)).join('; ');
       return `<tr><td data-label="Site">${abbrHtml(SITES[site].label)}</td><td data-label="Histology / type">${abbrHtml(h)}</td>
-        <td data-label="Strength"><span class="tier tier-${tier}">${TIER_LABEL[tier]}</span></td>
+        <td data-label="Strength"><span class="tier tier-${tier}" title="${esc(tierTitle(tier))}">${TIER_LABEL[tier]}</span></td>
         ${(() => { const notes = [early != null ? `Early onset ≤${early}` : '', maxAge != null ? `Only ≤${maxAge}` : '', pred ? abbrHtml(PRED_LABEL[pred]) : ''].filter(Boolean);
           return `<td data-label="Age / condition"${notes.length ? '' : ' class="na"'}>${notes.length ? notes.map(n => `<span class="ac-note">${n}</span>`).join('') : '–'}</td>`; })()}
         ${hasEv ? `<td class="ev" data-label="Risk and evidence"><div>${risk ? `<span class="ev-risk">${esc(risk)}</span>` : ''}<span class="ev-src">${evLinks(src)}</span>${usDiff ? `<span class="ev-diff"><strong>US differs:</strong> ${esc(usDiff)}</span>` : ''}</div></td>` : ''}</tr>`;
@@ -1511,10 +1512,45 @@
       <div class="table-wrap"><table class="syn-table dates"><thead><tr><th>Source</th><th>Version</th><th>Checked</th></tr></thead>
       <tbody>${SOURCE_DATES.map(([src, ver, d]) => `<tr><td>${esc(src)}</td><td>${esc(ver)}</td><td>${esc(d)}</td></tr>`).join('')}</tbody></table></div>`;
   }
+  // "How syndromes are ranked": strength definitions and the scoring steps (Sources tab).
+  function rankingHtml() {
+    const rows = ['H', 'S', 'M', 'W'].map(t => `<tr><td><span class="tier tier-${t}">${TIER_LABEL[t]}</span></td><td>${TIER[t]}</td>
+      <td>${esc(TIER_DEFS[t].yield)}</td><td>${esc(TIER_DEFS[t].risk)}</td></tr>`).join('');
+    return `<section class="ranking" id="ranking" tabindex="-1">
+      <h2>How syndromes are ranked</h2>
+      <p class="small">Each syndrome has rules linking it to tumours and clinical features, sometimes limited by histology, a tumour marker
+        (e.g. triple-negative, MSH2 loss) or age. Every rule has a strength, judged on two measures – the rule takes the higher of the two,
+        but hallmark needs the first (or a defining feature):</p>
+      <ul class="small">
+        <li><strong>Yield</strong> – of people with this tumour or feature, how many have the syndrome?</li>
+        <li><strong>Carrier risk</strong> – how likely is a carrier to develop it (lifetime, or in childhood for childhood tumours)?</li>
+      </ul>
+      <div class="table-wrap"><table class="ranking-table small"><thead><tr><th>Strength</th><th>Points</th><th>Yield</th><th>Carrier risk</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+      <p class="small">Figures come from each rule's cited sources (UK guidance first, then European guidance, GeneReviews, ClinGen and
+        peer-reviewed studies), shown with the risk figure on every syndrome page. Where the evidence is thin, the lower strength is used.
+        ${TIER_AUDIT ? `All rules were checked against these definitions on ${esc(TIER_AUDIT)}. ` : ''}These are editorial weightings for ranking a differential,
+        not a validated scoring system.</p>
+      <h3>From strengths to a ranked list</h3>
+      <ol class="small">
+        <li>For each cancer or finding, the best-matching rule for each syndrome gives its points.</li>
+        <li>Early onset: ×1.5 at or below the rule's early-onset age, ×2 if 15 or more years younger. A rule limited to an age (“only ≤”)
+          does not apply above it.</li>
+        <li>Tumour markers and other details adjust the points (e.g. MLH1 loss explained by methylation ×0.2 for Lynch MLH1; both sides
+          ×1.3; several tumours ×1.3).</li>
+        <li>Relatedness to the proband: first-degree and the proband ×1, second-degree ×0.6, third-degree ×0.35, more distant ×0.2.</li>
+        <li>Dominant conditions: the stronger parental side counts fully and the other side ×0.3. Recessive conditions: only the proband and
+          brothers and sisters count fully; other relatives ×0.2.</li>
+        <li>Each further supporting cancer adds 20% (up to five), and syndromes are listed by total. Scores are relative, not probabilities.</li>
+        <li>Narrow, Balanced and Wide set how far down the list to show.</li>
+      </ol>
+    </section>`;
+  }
   function renderSources() {
     const ev = Object.entries(EVIDENCE).sort((a, b) => a[1][1].localeCompare(b[1][1]));
     $('#sources-page').innerHTML = `${sourcesTableHtml('h2')}
       <p class="muted small">Each syndrome also shows the date its own content was last reviewed.</p>
+      ${rankingHtml()}
       <h3>Evidence for tumour associations</h3>
       <p class="small">Each association on a syndrome page names its sources: UK guidance (UKCGG, BSG, NICE), European guidance,
         GeneReviews, ${link('ClinGen gene–disease validity', 'https://search.clinicalgenome.org/kb/gene-validity')}, and the
@@ -1583,7 +1619,7 @@
       </dl>
       <h3 id="jump-cancers">Cancers and histology</h3>
       ${cancersTable(c)}
-      <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. “Only ≤”: the association only applies at or below this age.</p>
+      <p class="muted small">Strength: hallmark 10, strong 6, moderate 3, weak 1 points. Early onset: ×1.5 at or below the age shown, ×2 if 15+ years below. “Only ≤”: the association only applies at or below this age. <button type="button" class="link-btn" data-goto-ranking>How strength is defined</button></p>
       ${mods.length ? `<p class="small"><strong>Score modifiers:</strong> ${esc(mods.join('; '))}</p>` : ''}
       ${variantHtml(c)}
       <h3 id="jump-tests">Test Directory tests</h3>
@@ -1655,7 +1691,7 @@
       if (!cur || TIER_ORDER[r[2]] < TIER_ORDER[cur[2]]) rows.get(k).cells[side] = r;
     }
     const best = x => Math.min(...x.cells.filter(Boolean).map(r => TIER_ORDER[r[2]]));
-    const cell = r => r ? `<span class="tier tier-${r[2]}">${TIER_LABEL[r[2]]}</span>${r[3] != null ? ` <span class="muted small">early ≤${r[3]}</span>` : ''}${r[5] != null ? ` <span class="muted small">only ≤${r[5]}</span>` : ''}` : '<span class="muted">–</span>';
+    const cell = r => r ? `<span class="tier tier-${r[2]}" title="${esc(tierTitle(r[2]))}">${TIER_LABEL[r[2]]}</span>${r[3] != null ? ` <span class="muted small">early ≤${r[3]}</span>` : ''}${r[5] != null ? ` <span class="muted small">only ≤${r[5]}</span>` : ''}` : '<span class="muted">–</span>';
     const list = [...rows.values()].sort((x, y) => best(x) - best(y) || SITES[x.r[0]].label.localeCompare(SITES[y.r[0]].label));
     const shared = list.filter(x => x.cells[0] && x.cells[1]).length;
     return `<div class="syn-head"><div><h2>Compare syndromes</h2>
@@ -1821,7 +1857,7 @@
     out.innerHTML = pointersHtml(ptrs, 'Testing pointers') + rows.map(({ c, rules }) => `<article class="result compact">
       <h3><a href="#syndrome=${c.id}">${esc(c.name)}</a></h3>
       <div class="genes">${geneChips(c.genes)}</div>
-      <ul class="assoc">${rules.map(r => { const t = ruleText(r); return `<li><span class="tier tier-${t.tier}">${TIER_LABEL[t.tier]}</span> ${abbrHtml(t.text)}</li>`; }).join('')}</ul>
+      <ul class="assoc">${rules.map(r => { const t = ruleText(r); return `<li><span class="tier tier-${t.tier}" title="${esc(tierTitle(t.tier))}">${TIER_LABEL[t.tier]}</span> ${abbrHtml(t.text)}</li>`; }).join('')}</ul>
     </article>`).join('') || '<div class="empty">No associations recorded.</div>';
   }
 
@@ -1920,6 +1956,12 @@
       const np = newPerson('unset');
       state.people.push(np); state.openPeople.clear();
       renderFamily(); renderResults(); focusPerson(np.id);
+    });
+    // "How strength is defined": open the Sources tab at the ranking section.
+    document.addEventListener('click', e => {
+      if (!(e.target.closest && e.target.closest('[data-goto-ranking]'))) return;
+      const go = () => { const r = $('#ranking'); if (r) { r.scrollIntoView({ block: 'start' }); r.focus({ preventScroll: true }); } };
+      if (location.hash !== '#sources') { location.hash = 'sources'; setTimeout(go, 50); } else go();
     });
     // "Disclaimer" links in the notice strip scroll to the footer section (without changing the page's #route).
     document.querySelectorAll('.disc-link').forEach(a => a.addEventListener('click', e => {
