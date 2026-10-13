@@ -150,7 +150,9 @@ the disclaimer, site address, information-checked date and print date. Links: `#
 Per cancer, the best-matching rule for each condition gives a base weight, adjusted
 for age, markers and bilaterality, then by relatedness (1st degree ×1, 2nd ×0.6,
 3rd ×0.35). For dominant conditions only the stronger parental side counts fully;
-for recessive conditions only the proband and siblings count fully. Several
+for recessive conditions only the proband and siblings count (cancers in parents or other relatives
+do not support a recessive syndrome; `adSites` marks sites with dominant inheritance, e.g. MBD4 uveal melanoma); for
+mosaic (not inherited) conditions only the best-scoring person counts. Several
 matching cancers add a bonus. Narrow / Balanced / Wide set the cutoff relative
 to the top score.
 

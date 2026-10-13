@@ -94,7 +94,11 @@
   function scoreFamily() {
     const results = [];
     for (const cond of CONDITIONS) {
+      // Recessive: only the proband and full brothers and sisters can share the genotype, so cancers in parents
+      // or other relatives do not support it. Mosaic (not inherited): only the affected person counts.
       const recessive = cond.inh.startsWith('AR');
+      const mosaic = /mosaic/i.test(cond.inh);
+      const perPerson = new Map(), perStrong = new Map();
       const sides = { core: 0, M: 0, P: 0, unknown: 0 };
       const evidence = [];
       let strongCount = 0, hasStrong = false;
@@ -104,19 +108,24 @@
           if (!dx.site || !dx.hist) continue;
           const s = scoreDx(cond, dx, p);
           if (!s || s.value <= 0) continue;
-          let rf = REL_FACTOR[rel.degree];
-          if (recessive && !(rel.degree === 0 || rel.side === 'core')) rf *= 0.2;
+          const sibship = rel.degree === 0 || rel.side === 'core';
+          if (recessive && !sibship && !(cond.adSites || []).includes(dx.site)) continue;
+          const rf = REL_FACTOR[rel.degree];
           const v = s.value * rf;
+          perPerson.set(p, (perPerson.get(p) || 0) + v);
           const side = ['core', 'core2', 'child'].includes(rel.side) ? 'core' : rel.side;
           sides[side] += v;
-          if (TIER[s.tier] >= TIER.M && s.value >= TIER.M * 0.5) strongCount++;
+          if (TIER[s.tier] >= TIER.M && s.value >= TIER.M * 0.5) { strongCount++; perStrong.set(p, (perStrong.get(p) || 0) + 1); }
           if ((s.tier === 'H' || s.tier === 'S') && s.value >= TIER.M) hasStrong = true;
           evidence.push({ person: p, dx, s, v });
         }
       }
       if (!evidence.length) continue;
-      let total = recessive
-        ? sides.core + sides.M + sides.P + sides.unknown
+      // Mosaic: the best-scoring person only, with the bonus from that person's own matches.
+      const best = mosaic ? [...perPerson.entries()].sort((a, b) => b[1] - a[1])[0][0] : null;
+      if (mosaic) strongCount = perStrong.get(best) || 0;
+      let total = mosaic ? perPerson.get(best)
+        : recessive ? sides.core + sides.M + sides.P + sides.unknown
         : sides.core + Math.max(sides.M, sides.P) + 0.3 * Math.min(sides.M, sides.P) + sides.unknown;
       total *= 1 + 0.2 * Math.min(Math.max(strongCount - 1, 0), 5);
       evidence.sort((a, b) => b.v - a.v);
@@ -1564,7 +1573,8 @@
           ×1.3; several tumours ×1.3).</li>
         <li>Relatedness to the proband: first-degree and the proband ×1, second-degree ×0.6, third-degree ×0.35, more distant ×0.2.</li>
         <li>Dominant conditions: the stronger parental side counts fully and the other side ×0.3. Recessive conditions: only the proband and
-          brothers and sisters count fully; other relatives ×0.2.</li>
+          their brothers and sisters count – cancers in parents or other relatives do not support a recessive syndrome. Mosaic
+          (not inherited) conditions: only the affected person counts.</li>
         <li>Each further supporting cancer adds 20% (up to five), and syndromes are listed by total. Scores are relative, not probabilities.</li>
         <li>Exact ties are listed with the commoner syndrome first.</li>
         <li>If nothing in the family is a hallmark or strong match, a “No strong pattern” note says the list is possibilities only.</li>

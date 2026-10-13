@@ -190,3 +190,4 @@ benchmark tests (`tests/benchmarks.json`) with their expected top syndrome, Test
 | ELP1 SHH medulloblastoma: Strong from age 3 (to 20), Moderate under 3 | ELP1 medulloblastoma is mainly in children aged 3–16; infant SHH medulloblastoma is mostly SUFU or PTCH1. |
 | Exact ties ordered by rough syndrome frequency (`FREQ_BAND`) | Ties were in data order; the commoner syndrome is now listed first. Used only for ordering. |
 | "No strong pattern" note when nothing is a hallmark or strong match | A list of 3-point matches was presented like a confident differential. |
+| Recessive syndromes: only the proband and brothers and sisters count (relatives were counted at ×0.2 and added to the multiple-match bonus); mosaic conditions: only the affected person counts | In the BRCA example NTHL1 and Bloom syndrome were ranked above ATM and CHEK2 because the mother's, aunt's and father's cancers counted. A recessive condition is not expected to affect several generations. |

@@ -1074,6 +1074,24 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(!bad.length, `benchmark: ${f.name}${bad.length ? ' – ' + bad.join('; ') : ''}`);
   }
 
+  console.log('Recessive and mosaic conditions');
+  await page.goto(BASE); await loadEx(page, 'brca'); await page.click('[data-mode=wide]'); await page.waitForSelector('#results .result');
+  {
+    const ids = await page.$$eval('#results .result', a => a.map(x => x.dataset.cond));
+    const ar = await page.evaluate(() => CONDITIONS.filter(c => c.inh.startsWith('AR')).map(c => c.id));
+    const firstAr = ids.findIndex(id => ar.includes(id));
+    check(firstAr > ids.indexOf('atm') && firstAr > ids.indexOf('chek2'), `BRCA example: recessive syndromes rank below ATM and CHEK2 (first recessive ${ids[firstAr]} at ${firstAr + 1})`);
+    const nthl1 = page.locator('#results .result[data-cond=nthl1]');
+    check(/ match in 1 person/.test(await nthl1.textContent()), 'recessive: cancers in parents and other relatives are not counted (NTHL1 only from the proband)');
+  }
+  await page.click('[data-mode=balanced]');
+  {
+    const fd = n => JSON.stringify({ people: [['proband', 'F', [{ site: 'feature', hist: 'fibrous_dysplasia', age: '12' }]], ...(n > 1 ? [['mother', 'F', [{ site: 'feature', hist: 'fibrous_dysplasia', age: '40' }]]] : [])].map(([rel, sex, dx], i) => ({ id: i + 1, rel, sex, dx })) });
+    const pts = async n => { await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fd(n)) }); await page.waitForTimeout(200); return (await page.locator('#results .result[data-cond=mas]').textContent()).match(/([\d.]+) points/)[1]; };
+    const one = await pts(1), two = await pts(2);
+    check(one === two, `mosaic (McCune–Albright): a relative with the same feature does not add to the score (${one} vs ${two})`);
+  }
+
   console.log('How syndromes are ranked');
   await page.goto(BASE + '#syndrome=vhl'); await page.waitForSelector('#syn-detail h2');
   check(/yield:/i.test(await page.getAttribute('#syn-detail .tier', 'title') || ''), 'strength labels explain the definition on hover');

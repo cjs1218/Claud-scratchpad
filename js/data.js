@@ -585,7 +585,7 @@ const CONDITIONS = [
       ['cns', 'hgg', 'W', null, null, null, ['palles2022ppap', 'us:acg_gi', 'us:aacr_brain'], 'Brain tumours in 9/105 POLE carriers (glioblastomas at 30-52) and 1/27 POLD1'],
       ['ovary', '*', 'W', null, null, null, ['palles2022ppap'], 'Ovarian cancer in 5/43 POLE females (median 45), none in POLD1']
     ] },
-  { id: 'mbd4', name: 'MBD4-associated neoplasia syndrome', genes: ['MBD4'], inh: 'AR (AD for uveal melanoma)',
+  { id: 'mbd4', name: 'MBD4-associated neoplasia syndrome', genes: ['MBD4'], inh: 'AR (AD for uveal melanoma)', adSites: ['eye'],
     note: 'Biallelic MBD4: early AML/MDS and adenomatous polyposis. Heterozygous: uveal melanoma.', tests: ['R211','R347'],
     rules: [
       ['heme', 'aml|mds', 'S', 40, null, null, ['gr:NBK624097', 'palles2022mbd4', 'clingen:MBD4'], 'AML in 16/21 biallelic carriers, median 35 (27-55), 13/16 before 40; MDS preceded AML in 2'],
