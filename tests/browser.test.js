@@ -590,6 +590,16 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/Mother/.test(el) && /R207/.test(el), 'mother flagged for R207 (high-grade serous ovarian)');
   check(await page.evaluate(() => !!document.querySelector('#ped-host #ped') && !document.querySelector('#results #ped') && (document.getElementById('add-person').compareDocumentPosition(document.getElementById('ped')) & Node.DOCUMENT_POSITION_FOLLOWING)), 'family tree sits under the family form, not in the results');
   check(await page.evaluate(() => { const e = document.querySelector('#results .elig'), r = document.querySelector('#results .result'); return !!(e.compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'results column: Test Directory criteria first, then the differential');
+  {
+    const more = page.locator('#results details.more-results');
+    const total = await page.locator('#results .result').count();
+    check(total > 5 && await more.count() === 1 && !(await more.evaluate(d => d.open)) && (await more.locator('.result').count()) === total - 5 && new RegExp(`Show ${total - 5} more lower-scoring`).test(await more.locator('summary').textContent()), 'results after the first five are folded under "Show N more"');
+    await more.locator('summary').click();
+    check(await more.evaluate(d => d.open) && await more.locator('.result').first().isVisible() && /Hide the/.test(await more.locator('summary').innerText()), '"Show N more" opens the lower-scoring syndromes');
+    await page.locator('#ancestry').selectOption('ashkenazi'); await page.locator('#ancestry').selectOption('');
+    check(await page.locator('#results details.more-results').evaluate(d => d.open), 'it stays open when the results update');
+    await page.locator('#results details.more-results > summary').click();
+  }
   check(await page.evaluate(() => { const t = document.querySelector('#results details.tests-compact'); return !!t && !t.open && /All Test Directory tests for these syndromes \(\d+\)/.test(t.querySelector('summary').textContent); }), 'full list of Test Directory tests is collapsed at the end');
   check(await page.evaluate(() => { const f = document.querySelector('#family').getBoundingClientRect(), r = document.querySelector('#results').getBoundingClientRect(), t = document.querySelector('#ped').getBoundingClientRect(); return f.left < r.left && Math.abs(t.left - f.left) < 40 && t.top > f.top; }), 'wide screen: family and tree on the left, criteria and differential on the right');
   await page.click('#copy');

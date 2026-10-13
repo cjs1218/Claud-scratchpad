@@ -590,7 +590,7 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
 
 /* One-page clinic summary (Print summary): family table, tree, eligibility, top three syndromes */
 @media print {
-  body.print-brief #results .result:nth-of-type(n+4),
+  body.print-brief #results > .result:nth-of-type(n+4), body.print-brief #results .more-results,
   body.print-brief #results .result .evidence, body.print-brief #results .result details, body.print-brief #results .result .note,
   body.print-brief #results .result .syn-open, body.print-brief #results .result .tests-line, body.print-brief #results .result .bar,
   body.print-brief #results .result .bar-label, body.print-brief #results .result .tree-tag, body.print-brief #results .tier-legend,
@@ -712,3 +712,9 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .ped-host:not(:empty) { margin-top: 18px; padding-top: 14px; border-top: 2px solid var(--border); }
 .tests-compact > summary { cursor: pointer; list-style-position: inside; }
 .tests-compact > summary h2 { display: inline; font-size: 1.05rem; }
+
+/* Lower-scoring syndromes folded under "Show N more" */
+.more-results { margin: 6px 0 14px; }
+.more-results > summary { cursor: pointer; color: var(--accent); font-weight: 600; padding: 8px 0; }
+.more-results > summary .when-open, .more-results[open] > summary .when-closed { display: none; }
+.more-results[open] > summary .when-open { display: inline; }

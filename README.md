@@ -121,7 +121,7 @@ what was not counted and why, and the scoring table with the rows used highlight
 ## Family tree
 
 Layout: the family form and the family tree under it are on the left; the Test Directory criteria met and the
-ranked differential are on the right, with the full list of Test Directory tests collapsed at the end (codes in the
+ranked differential are on the right (syndromes after the first five folded under "Show N more"), with the full list of Test Directory tests collapsed at the end (codes in the
 differential open their criteria). Phones show one column in the same order. Printouts keep the order family table,
 criteria, tree, syndromes.
 

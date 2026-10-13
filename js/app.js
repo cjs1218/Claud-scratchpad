@@ -1002,6 +1002,8 @@
     el.classList.remove('flash'); void el.offsetWidth; if (text) el.classList.add('flash');
     clearTimeout(statusTimer); statusTimer = setTimeout(() => el.classList.remove('flash'), 1200);
   }
+  // Results after the first five are folded under "Show N more".
+  const MORE_AFTER = 5;
   // No hallmark or strong match anywhere: the list is possibilities only.
   const weakPattern = all => all.length > 0 && !all.some(r => r.hasStrong);
   const WEAK_TEXT = 'No hallmark or strong match was found, so an inherited cause is not suggested by the ranking alone – the syndromes below are possibilities only. Test Directory criteria (above) still apply.';
@@ -1037,7 +1039,11 @@
       <p class="muted small shown-note">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${weakPattern(all) ? `<div class="weak-note" role="note"><strong>No strong pattern.</strong> ${WEAK_TEXT}</div>` : ''}
       ${TIER_LEGEND}
-      ${shown.map((r, i) => resultCard(r, i, top)).join('')}
+      ${shown.slice(0, MORE_AFTER).map((r, i) => resultCard(r, i, top)).join('')}
+      ${shown.length > MORE_AFTER ? `<details class="more-results"${state.printFull || state.moreOpen ? ' open' : ''}>
+        <summary><span class="when-closed">Show ${shown.length - MORE_AFTER} more lower-scoring syndrome${shown.length - MORE_AFTER === 1 ? '' : 's'}</span><span class="when-open">Hide the ${shown.length - MORE_AFTER} lower-scoring syndrome${shown.length - MORE_AFTER === 1 ? '' : 's'}</span></summary>
+        ${shown.slice(MORE_AFTER).map((r, i) => resultCard(r, i + MORE_AFTER, top)).join('')}
+      </details>` : ''}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
       ${pointersHtml(pointersFor(familyDxs()), 'Testing pointers for the cancers entered')}
       ${renderTests(shown)}`;
@@ -2046,6 +2052,7 @@
     // Family tree: open/closed state, highlighted syndrome, downloads.
     $('#tab-assess').addEventListener('toggle', e => { if (e.target.id === 'ped') { state.treeOpen = e.target.open; fitPedigree(); } }, true);
     $('#results').addEventListener('toggle', e => { if (e.target.matches('details.tests-compact') && !state.printFull) state.testsOpen = e.target.open; }, true);
+    $('#results').addEventListener('toggle', e => { if (e.target.matches('details.more-results') && !state.printFull) state.moreOpen = e.target.open; }, true);
     window.addEventListener('resize', fitPedigree);
     $('#tab-assess').addEventListener('change', e => { if (e.target.id === 'ped-syn') { state.treeSyn = e.target.value; renderResults(); } });
     $('#tab-assess').addEventListener('click', e => {
