@@ -1758,7 +1758,9 @@
         <h1>Cancer Family History Navigator</h1><h2>${esc(title)}</h2>
         <p>Information checked ${esc(DATA_CHECKED)} · printed ${esc(today)} · ${keys.length} items</p>
         <ol>${keys.map(k => `<li>${esc(itemName(k))}</li>`).join('')}</ol></div>`) : '';
-    $('#print-area').innerHTML = contents + pages.join('');
+    // The full disclaimer (from the page footer) ends every printout.
+    const legal = `<section class="print-legal"><h3>Disclaimer</h3><p>${esc($('#disclaimer p').textContent.replace(/\s+/g, ' ').trim())}</p></section>`;
+    $('#print-area').innerHTML = contents + pages.join('') + legal;
     document.body.classList.add('printing');
     window.print();
   }

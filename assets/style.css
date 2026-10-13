@@ -596,7 +596,7 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
   body.print-brief #results .result .bar-label, body.print-brief #results .result .tree-tag, body.print-brief #results .tier-legend,
   body.print-brief #results .pointers, body.print-brief #results > .link-btn, body.print-brief .tests-compact > p,
   body.print-brief .tests-compact li:not(.tr-family), body.print-brief .tr-for, body.print-brief .elig > p.small.muted,
-  body.print-brief .site-foot, body.print-brief .ped-tools, body.print-brief .shown-note, body.print-brief .ped-legend span.muted, body.print-brief .elig-maybe h4 + p, body.print-brief .lede, body.print-brief .disc-long, body.print-brief .ams-list { display: none !important; }
+  body.print-brief .site-foot > :not(.foot-legal), body.print-brief .ped-tools, body.print-brief .shown-note, body.print-brief .ped-legend span.muted, body.print-brief .elig-maybe h4 + p, body.print-brief .lede, body.print-brief .disc-long, body.print-brief .ams-list { display: none !important; }
   body.print-brief .disc-short { display: block !important; }
   body.print-brief #results .result { padding: 4px 8px; margin: 0 0 4px; break-inside: avoid; }
   body.print-brief #results .result .why { margin: 2px 0 0; }
@@ -690,3 +690,9 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .foot-legal p { max-width: 80ch; }
 .foot-legal:focus { outline: none; }
 .foot-legal:focus-visible { outline: 3px solid var(--focus); }
+.print-legal { display: none; }
+@media print {
+  .print-legal { display: block; break-inside: avoid; font-size: 0.72rem; color: #333; border-top: 1px solid #ccc; margin-top: 10px; padding-top: 4px; }
+  .print-legal h3, .foot-legal .foot-title { font-size: 0.8rem; margin: 0 0 2px; }
+  .foot-legal { break-inside: avoid; }
+}
