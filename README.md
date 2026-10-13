@@ -30,6 +30,8 @@ Everything clinical lives in `js/data.js`:
   A rule is `[site, histology, tier, earlyAge, predicate, maxAge]`:
   - histology `'*'` matches any type; `'a|b'` matches either
   - tier `H` hallmark (10), `S` strong (6), `M` moderate (3), `W` weak (1)
+    – assigned by the definitions in `TIER_DEFS` (yield and carrier risk; shown on the Sources tab). The last full check
+      (`TIER_AUDIT`) and items for clinical review are in [docs/tier-audit.md](docs/tier-audit.md).
   - `earlyAge`: age at or below this ×1.5, 15+ years below ×2
   - `predicate`: a key in `PRED` (e.g. `tnbc`, `msh2`, `n100`)
   - `maxAge`: rule only applies at or below this age

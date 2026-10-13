@@ -1529,7 +1529,9 @@
         <tbody>${rows}</tbody></table></div>
       <p class="small">Figures come from each rule's cited sources (UK guidance first, then European guidance, GeneReviews, ClinGen and
         peer-reviewed studies), shown with the risk figure on every syndrome page. Where the evidence is thin, the lower strength is used.
-        ${TIER_AUDIT ? `All rules were checked against these definitions on ${esc(TIER_AUDIT)}. ` : ''}These are editorial weightings for ranking a differential,
+        In a syndrome usually recognised by its non-cancer features (polyposis, pigmentation, growth or skin), a common adult cancer on its
+        own is at most moderate.
+        ${TIER_AUDIT ? `All rules were checked against these definitions on ${esc(TIER_AUDIT)} (AI-assisted; ${link('audit report and items for clinical review', 'https://github.com/cjs1218/Claud-scratchpad/blob/main/docs/tier-audit.md')}). ` : ''}These are editorial weightings for ranking a differential,
         not a validated scoring system.</p>
       <h3>From strengths to a ranked list</h3>
       <ol class="small">

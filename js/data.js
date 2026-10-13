@@ -31,7 +31,7 @@ const TIER_DEFS = {
   M: { yield: 'About 2–10% have the syndrome', risk: 'Lifetime risk about 5–20%, or relative risk about 2–10' },
   W: { yield: 'Under about 2%, or unknown', risk: 'Lifetime risk under about 5%, relative risk under about 2, or reported only in case reports or small series' }
 };
-const TIER_AUDIT = ''; // date all rules were last checked against TIER_DEFS (set once the audit is complete)
+const TIER_AUDIT = '13 Oct 2026'; // date all rules were last checked against TIER_DEFS
 
 const MMR_MARKERS = ['mmr', 'meth', 'braf'];
 
@@ -343,9 +343,9 @@ const CONDITIONS = [
   { id: 'brca1', name: 'Hereditary breast and ovarian cancer (BRCA1)', genes: ['BRCA1'], inh: 'AD',
     tests: ['R208','R207','R444','R367'],
     rules: [
-      ['breast', '*', 'H', 60, 'tnbc', null, ['ukcgg:brca1', 'gr:NBK1247', 'dorling2021'], 'BRCA1 tumours mostly triple negative; PTV OR higher for ER-negative disease (BCAC)'],
-      ['breast', 'medullary|metaplastic', 'H', 50, null, null, ['gr:NBK1247'], 'Excess of medullary histology; overlaps basal-like (GeneReviews)'],
-      ['ovary', 'hgsc', 'H', 60, null, null, ['ukcgg:brca1', 'kuchenbaecker2017', 'gr:NBK1247', 'nccn_bop2021'], 'Tubo-ovarian ~44% by 80; 8% by 50, 20% by 60 (UKCGG/Kuchenbaecker 2017)'],
+      ['breast', '*', 'S', 60, 'tnbc', null, ['ukcgg:brca1', 'gr:NBK1247', 'dorling2021'], 'BRCA1 tumours mostly triple negative; PTV OR higher for ER-negative disease (BCAC)'],
+      ['breast', 'medullary|metaplastic', 'S', 50, null, null, ['gr:NBK1247'], 'Excess of medullary histology; overlaps basal-like (GeneReviews)'],
+      ['ovary', 'hgsc', 'S', 60, null, null, ['ukcgg:brca1', 'kuchenbaecker2017', 'gr:NBK1247', 'nccn_bop2021'], 'Tubo-ovarian ~44% by 80; 8% by 50, 20% by 60 (UKCGG/Kuchenbaecker 2017)'],
       ['breast', '*', 'S', 45, null, null, ['ukcgg:brca1', 'kuchenbaecker2017', 'hu2021', 'gr:NBK1247', 'nccn_bop2021'], 'Female breast ~72% by 80; 24% by 40, 43% by 50 (UKCGG/Kuchenbaecker 2017); OR 7.62 (CARRIERS)'],
       ['ovary', 'endometrioid|clearcell|nos', 'M', null, null, null, ['ukcgg:brca1', 'gr:NBK1247'], 'Tubo-ovarian ~44% by 80, predominantly high-grade serous'],
       ['breast', '*', 'M', 60, 'male', null, ['ukcgg:brca1', 'li2022', 'gr:NBK1247'], 'Male breast 0.4% by 80; RR 4.30 (Li 2022)'],
@@ -357,10 +357,10 @@ const CONDITIONS = [
   { id: 'brca2', name: 'Hereditary breast and ovarian cancer (BRCA2)', genes: ['BRCA2'], inh: 'AD',
     tests: ['R208','R207','R430','R444','R367'],
     rules: [
-      ['breast', '*', 'H', null, 'male', null, ['ukcgg:brca2', 'li2022', 'gr:NBK1247'], 'Male breast ~4% by 80 (UKCGG); RR 44.0 (Li 2022)'],
-      ['ovary', 'hgsc', 'H', 60, null, null, ['ukcgg:brca2', 'kuchenbaecker2017', 'gr:NBK1247', 'nccn_bop2021'], 'Tubo-ovarian ~17% by 80 (likely underestimate >70); <0.5% by 40, 1-2% by 50 (UKCGG)'],
+      ['breast', '*', 'S', null, 'male', null, ['ukcgg:brca2', 'li2022', 'gr:NBK1247'], 'Male breast ~4% by 80 (UKCGG); RR 44.0 (Li 2022)'],
+      ['ovary', 'hgsc', 'S', 60, null, null, ['ukcgg:brca2', 'kuchenbaecker2017', 'gr:NBK1247', 'nccn_bop2021'], 'Tubo-ovarian ~17% by 80 (likely underestimate >70); <0.5% by 40, 1-2% by 50 (UKCGG)'],
       ['breast', '*', 'S', 45, null, null, ['ukcgg:brca2', 'kuchenbaecker2017', 'hu2021', 'gr:NBK1247', 'nccn_bop2021'], 'Female breast ~69% by 80; 13% by 40, 35% by 50 (UKCGG/Kuchenbaecker 2017); OR 5.23 (CARRIERS)'],
-      ['pancreas', 'pdac', 'S', 60, null, null, ['ukcgg:brca2', 'li2022', 'gr:NBK1247', 'nccn_bop2021', 'us:acg_gi'], 'Pancreatic: male ~4-5%, female ~2% by 80 (UKCGG); RR 3.34 overall, 4.92 below 65 (Li 2022)'],
+      ['pancreas', 'pdac', 'M', 60, null, null, ['ukcgg:brca2', 'li2022', 'gr:NBK1247', 'nccn_bop2021', 'us:acg_gi'], 'Pancreatic: male ~4-5%, female ~2% by 80 (UKCGG); RR 3.34 overall, 4.92 below 65 (Li 2022)'],
       ['prostate', 'adeno|ductal', 'S', 60, null, null, ['ukcgg:brca2', 'li2022', 'gr:NBK1247', 'nccn_bop2021'], 'Prostate 27% by 80 (Li 2022); 41% by 85 screening-adjusted (Nyberg 2020) [UKCGG]; RR 3.10 below 65'],
       ['prostate', 'highrisk', 'S', 65, null, null, ['gr:NBK1247', 'ukcgg:brca2', 'li2022'], 'BRCA2 prostate cancer more often high grade/stage; annual PSA from 40 (UKCGG)'],
       ['ovary', 'endometrioid|clearcell|nos', 'M', null, null, null, ['ukcgg:brca2', 'gr:NBK1247'], 'Tubo-ovarian ~17% by 80, predominantly high-grade serous'],
@@ -408,7 +408,7 @@ const CONDITIONS = [
   { id: 'rad51d', name: 'RAD51D-related ovarian/breast cancer predisposition', genes: ['RAD51D'], inh: 'AD',
     tests: ['R207','R208'],
     rules: [
-      ['ovary', 'hgsc', 'S', null, null, null, ['ukcgg:rad51d', 'ukcgg:hanson', 'yang2020rad51'], 'Tubo-ovarian ~13% by 80, RR 7.6; up to 32-36% with 2 FDRs; risk mostly after 50 (Yang 2020; UKCGG)'],
+      ['ovary', 'hgsc', 'M', null, null, null, ['ukcgg:rad51d', 'ukcgg:hanson', 'yang2020rad51'], 'Tubo-ovarian ~13% by 80, RR 7.6; up to 32-36% with 2 FDRs; risk mostly after 50 (Yang 2020; UKCGG)'],
       ['ovary', 'endometrioid|nos', 'M', null, null, null, ['ukcgg:rad51d', 'yang2020rad51'], 'Tubo-ovarian ~13% by 80 (histotype not separated)'],
       ['breast', '*', 'M', 60, 'tnbc', null, ['ukcgg:rad51d', 'ukcgg:hanson', 'hu2021', 'dorling2021'], 'Association strongest with ER-negative/triple-negative BC (CARRIERS ER-neg OR RAD51C 2.19, RAD51D 3.93, via Hanson)'],
       ['breast', '*', 'M', null, null, null, ['ukcgg:rad51d', 'ukcgg:hanson', 'yang2020rad51', 'dorling2021'], 'Female breast ~20% by 80, RR 1.83 (Yang 2020); BCAC OR 1.8']
@@ -416,7 +416,7 @@ const CONDITIONS = [
   { id: 'rad51c', name: 'RAD51C-related ovarian/breast cancer predisposition', genes: ['RAD51C'], inh: 'AD',
     tests: ['R207','R208'],
     rules: [
-      ['ovary', 'hgsc', 'S', null, null, null, ['ukcgg:rad51c', 'ukcgg:hanson', 'yang2020rad51'], 'Tubo-ovarian ~11% by 80, RR 7.55; up to 32-36% with 2 FDRs; risk mostly after 50 (Yang 2020; UKCGG)'],
+      ['ovary', 'hgsc', 'M', null, null, null, ['ukcgg:rad51c', 'ukcgg:hanson', 'yang2020rad51'], 'Tubo-ovarian ~11% by 80, RR 7.55; up to 32-36% with 2 FDRs; risk mostly after 50 (Yang 2020; UKCGG)'],
       ['ovary', 'endometrioid|nos', 'M', null, null, null, ['ukcgg:rad51c', 'yang2020rad51'], 'Tubo-ovarian ~11% by 80 (histotype not separated)'],
       ['breast', '*', 'M', 60, 'tnbc', null, ['ukcgg:rad51c', 'ukcgg:hanson', 'hu2021', 'dorling2021'], 'Association strongest with ER-negative/triple-negative BC (CARRIERS ER-neg OR RAD51C 2.19, RAD51D 3.93, via Hanson)'],
       ['breast', '*', 'M', null, null, null, ['ukcgg:rad51c', 'ukcgg:hanson', 'yang2020rad51', 'dorling2021'], 'Female breast ~21% by 80, RR 1.99 (Yang 2020); BCAC OR 1.93']
@@ -448,7 +448,7 @@ const CONDITIONS = [
   { id: 'lynch_msh2', name: 'Lynch syndrome (MSH2 / EPCAM)', genes: ['MSH2', 'EPCAM'], inh: 'AD',
     tests: ['R210','R211'],
     rules: [
-      ['skin', 'sebaceous', 'H', null, null, null, ['ukcgg:msh2', 'gr:NBK1211', 'us:usmstf_lynch'], 'No reliable risk estimate; MSH2 is the commonest gene in Lynch-associated sebaceous carcinoma (Cook 2023, via GeneReviews)'],
+      ['skin', 'sebaceous', 'S', null, null, null, ['ukcgg:msh2', 'gr:NBK1211', 'us:usmstf_lynch'], 'No reliable risk estimate; MSH2 is the commonest gene in Lynch-associated sebaceous carcinoma (Cook 2023, via GeneReviews)'],
       ['colorectal', '*', 'S', 50, null, null, ['ukcgg:msh2', 'plsd2023', 'gr:NBK1211', 'clingen:MSH2', 'clingen:EPCAM', 'kempers2011', 'us:usmstf_lynch', 'us:acg_gi'], 'Colorectal ~56% (M) / 43% (F) by 75 (PLSD, UKCGG v5); EPCAM 3\' deletion ~75% by 70, mean age 43 (Kempers 2011)'],
       ['uterus', 'endometrioid|serous|clearcell|carcinosarcoma|nos', 'S', 50, null, null, ['ukcgg:msh2', 'plsd2023', 'gr:NBK1211', 'us:usmstf_lynch'], 'Endometrial ~44% by 75 (UKCGG v5); median age 52; much lower for EPCAM-only deletions'],
       ['smallbowel', 'adeno', 'S', 50, null, null, ['ukcgg:msh2', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Small bowel ~7% (M) / 4% (F) by 75 vs <1% (UKCGG v5)'],
@@ -484,8 +484,8 @@ const CONDITIONS = [
   { id: 'cmmrd', name: 'Constitutional mismatch repair deficiency (biallelic MMR)', inh: 'AR',
     genes: ['MLH1', 'MSH2', 'MSH6', 'PMS2', 'EPCAM'], tests: ['R210','R211'],
     rules: [
-      ['cns', 'hgg', 'H', 25, null, null, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'Malignant brain tumours in ~55%, most often high-grade glioma (ERN 2024)'],
-      ['colorectal', '*', 'H', 25, null, 35, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'CRC and other LS tumours in ~50% (ERN 2024)'],
+      ['cns', 'hgg', 'S', 25, null, null, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'Malignant brain tumours in ~55%, most often high-grade glioma (ERN 2024)'],
+      ['colorectal', '*', 'S', 25, null, 35, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'CRC and other LS tumours in ~50% (ERN 2024)'],
       ['smallbowel', '*', 'S', 25, null, 35, ['eu:ern_cmmrd'], 'Small bowel cancer is part of the LS spectrum scored in C4CMMRD'],
       ['heme', 'all|lymphoma', 'S', 18, null, null, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'Haematological malignancy in ~40%, most often T-cell lymphoblastic lymphoma (ERN 2024)'],
       ['polyps', 'adenoma', 'S', 20, 'n10', 30, ['eu:ern_cmmrd'], 'Adenomas or (oligo-)polyposis in most patients during the second decade (ERN 2024)'],
@@ -501,7 +501,7 @@ const CONDITIONS = [
   { id: 'fap', name: 'Familial adenomatous polyposis (APC)', genes: ['APC'], inh: 'AD', tests: ['R211','R414'],
     rules: [
       ['polyps', 'adenoma', 'H', 30, 'n100', null, ['ukcgg:apc', 'gr:NBK1345', 'clingen:APC', 'us:acg_gi'], 'Classical FAP: >100 adenomas, 95% have polyps by 35 (UKCGG)'],
-      ['sarcoma', 'desmoid', 'H', null, null, null, ['ukcgg:apc', 'ukcgg:bsg', 'gr:NBK1345', 'us:acg_gi', 'us:aacr_gi'], 'Desmoids in ~15% (UKCGG; 10-30% GeneReviews); >800x population risk; >=7.5% of desmoid fibromatoses occur in FAP'],
+      ['sarcoma', 'desmoid', 'S', null, null, null, ['ukcgg:apc', 'ukcgg:bsg', 'gr:NBK1345', 'us:acg_gi', 'us:aacr_gi'], 'Desmoids in ~15% (UKCGG; 10-30% GeneReviews); >800x population risk; >=7.5% of desmoid fibromatoses occur in FAP'],
       ['thyroid', 'cmv', 'H', null, null, null, ['ukcgg:apc', 'eu:ehtg_fap', 'gr:NBK1345', 'us:acg_gi', 'us:aacr_gi'], 'Thyroid cancer 1.5-12% lifetime, mostly cribriform-morular PTC, strong female excess (EHTG 2024)'],
       ['feature', 'gapps', 'H', null, null, null, ['gr:NBK1345', 'eu:ehtg_fap', 'clingen:APC', 'us:aacr_gi'], 'GAPPS: proximal fundic gland polyposis, gastric cancer 13-25% lifetime (GeneReviews)'],
       ['polyps', 'adenoma', 'S', 30, 'n20', null, ['gr:NBK1345', 'eu:ehtg_fap', 'us:acg_gi'], 'Attenuated FAP: average ~30 adenomas; CRC risk ~70% by 80 (GeneReviews)'],
@@ -511,9 +511,9 @@ const CONDITIONS = [
       ['feature', 'osteomas', 'S', null, null, null, ['gr:NBK1345', 'eu:ehtg_fap', 'us:acg_gi'], 'Osteomas 60-80%; dental anomalies 30-75% vs 1-2% population (GeneReviews)'],
       ['polyps', 'adenoma', 'M', 30, 'n10', null, ['ukcgg:bsg', 'gr:NBK1345', 'us:acg_gi'], 'APC or biallelic MUTYH variants in 9% of people with 10-19 adenomas (BSG)'],
       ['colorectal', '*', 'M', 40, null, null, ['ukcgg:apc', 'gr:NBK1345', 'eu:ehtg_fap', 'us:acg_gi'], 'Near 100% untreated in classical FAP, mean age 39; 3-10% under surveillance (UKCGG)'],
-      ['smallbowel', 'adeno', 'M', null, null, null, ['ukcgg:apc', 'gr:NBK1345', 'eu:ehtg_fap', 'us:acg_gi'], 'Duodenal cancer 5-10% lifetime without surveillance (UKCGG); small bowel 4-12% (GeneReviews)'],
+      ['smallbowel', 'adeno', 'S', null, null, null, ['ukcgg:apc', 'gr:NBK1345', 'eu:ehtg_fap', 'us:acg_gi'], 'Duodenal cancer 5-10% lifetime without surveillance (UKCGG); small bowel 4-12% (GeneReviews)'],
       ['stomach', 'intestinal|nos', 'M', null, null, null, ['ukcgg:apc', 'eu:ehtg_fap', 'gr:NBK1345', 'clingen:APC', 'us:acg_gi'], 'GAPPS (APC promoter 1B): gastric cancer 12-25% (EHTG 2024); classical FAP ~2% in Western cohorts, rising and ~10x in Japan/Korea', 'ACG 2015: gastric cancer lifetime risk ~0.6% in (western) FAP; gastric adenomas rare – lower than the M tier implies'],
-      ['feature', 'pilomatrixoma', 'M', null, null, null, ['gr:NBK1345'], 'Multiple pilomatricomas rare but reported (GeneReviews)'],
+      ['feature', 'pilomatrixoma', 'W', null, null, null, ['gr:NBK1345'], 'Multiple pilomatricomas rare but reported (GeneReviews)'],
       ['adrenal', 'acc', 'W', null, null, null, ['eu:ehtg_fap', 'gr:NBK1345'], 'Adrenal masses 7-26% (2-3x population); adrenal carcinoma rare (EHTG 2024)'],
       ['pancreas', 'pdac', 'W', null, null, null, ['eu:ehtg_fap', 'gr:NBK1345', 'us:acg_gi'], 'Pancreatic cancer RR 4.5, ~1% by 80; lifetime <2% (EHTG 2024)']
     ],
@@ -587,7 +587,7 @@ const CONDITIONS = [
     ] },
   { id: 'rnf43', name: 'Serrated polyposis (RNF43)', genes: ['RNF43'], inh: 'AD', tests: ['R211'],
     rules: [
-      ['polyps', 'serrated', 'S', null, 'n5', null, ['clingen:RNF43', 'rnf43gut2026', 'ukcgg:bsg', 'us:aacr_gi'], 'Germline RNF43 LoF in a small minority of serrated polyposis (WHO-criteria SPS)'],
+      ['polyps', 'serrated', 'M', null, 'n5', null, ['clingen:RNF43', 'rnf43gut2026', 'ukcgg:bsg', 'us:aacr_gi'], 'Germline RNF43 LoF in a small minority of serrated polyposis (WHO-criteria SPS)'],
       ['polyps', 'serrated', 'W', null, null, null, ['rnf43gut2026', 'otherpolyposis2026'], 'Population carriers often lack multiple polyps'],
       ['colorectal', '*', 'W', null, null, null, ['rnf43gut2026', 'clingen:RNF43'], 'Germline RNF43 LoF: CRC OR 2.7 overall, higher for N-terminal variants (CORGI/100kGP/UKB)']
     ] },
@@ -595,12 +595,12 @@ const CONDITIONS = [
     rules: [
       ['polyps', 'pj', 'H', null, null, null, ['eu:ehtg_pjs', 'gr:NBK1266', 'clingen:STK11', 'us:acg_gi', 'us:aacr_gi'], 'Arborising hamartomatous polyps, mainly small bowel: the sine qua non of PJS'],
       ['feature', 'pigment_pj', 'H', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi'], 'Mucocutaneous macules develop in most children before age 5'],
-      ['ovary', 'sctat', 'H', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi', 'us:aacr_gi'], 'Ovarian (mostly SCTAT) 10-21% lifetime, mean 28 (GeneReviews)'],
-      ['cervix', 'gastric', 'H', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi'], 'Cervix 10-23% lifetime, mostly minimal deviation (gastric-type) adenocarcinoma'],
+      ['ovary', 'sctat', 'S', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi', 'us:aacr_gi'], 'Ovarian (mostly SCTAT) 10-21% lifetime, mean 28 (GeneReviews)'],
+      ['cervix', 'gastric', 'S', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi'], 'Cervix 10-23% lifetime, mostly minimal deviation (gastric-type) adenocarcinoma'],
       ['testis', 'lccsct', 'S', null, null, null, ['gr:NBK1266', 'us:acg_gi', 'us:aacr_gi'], 'Large cell calcifying Sertoli cell tumour ~9%, age 6-9 (GeneReviews)'],
       ['pancreas', 'pdac', 'S', 50, null, null, ['eu:ehtg_pjs', 'gr:NBK1266', 'us:acg_gi'], 'PDAC lifetime 11-55%, mean 41-52; surveillance from 40 (EHTG/CAPS)'],
       ['breast', '*', 'S', 50, null, null, ['eu:ehtg_pjs', 'gr:NBK1266', 'us:acg_gi', 'us:aacr_gi'], 'Breast 19-54% lifetime; 11-24% by 50; mean age 37-45; MRI from 25'],
-      ['smallbowel', '*', 'M', null, null, null, ['gr:NBK1266', 'ukcgg:bsg', 'us:acg_gi'], 'Small bowel cancer 10-14% lifetime, mean 37-42 (GeneReviews)'],
+      ['smallbowel', '*', 'S', null, null, null, ['gr:NBK1266', 'ukcgg:bsg', 'us:acg_gi'], 'Small bowel cancer 10-14% lifetime, mean 37-42 (GeneReviews)'],
       ['stomach', '*', 'M', 50, null, null, ['gr:NBK1266', 'ukcgg:bsg', 'us:acg_gi'], 'Gastric 24-29% lifetime, mean 30-40 (GeneReviews)'],
       ['colorectal', '*', 'M', 50, null, null, ['gr:NBK1266', 'ukcgg:bsg', 'us:acg_gi'], 'CRC 39% lifetime, mean 42-46; luminal GI cancer 1/9/15/33/57% at 30/40/50/60/70 (BSG, Hearle)'],
       ['lung', '*', 'W', null, null, null, ['gr:NBK1266', 'us:acg_gi'], 'Lung 7-17% lifetime vs 6.9% population; avoid smoking']
@@ -608,7 +608,7 @@ const CONDITIONS = [
     mods: [['breast', 'tnbc', 0.5]] },
   { id: 'phts', name: 'PTEN hamartoma tumour syndrome (Cowden)', genes: ['PTEN'], inh: 'AD', tests: ['R213'],
     rules: [
-      ['thyroid', 'follicular', 'H', null, null, null, ['ukcgg:pten', 'gr:NBK1488', 'us:phts_consensus', 'us:aacr_pten_dicer1_tsc'], 'Thyroid cancer 6-38% lifetime, usually follicular, median 37 (UKCGG)'],
+      ['thyroid', 'follicular', 'S', null, null, null, ['ukcgg:pten', 'gr:NBK1488', 'us:phts_consensus', 'us:aacr_pten_dicer1_tsc'], 'Thyroid cancer 6-38% lifetime, usually follicular, median 37 (UKCGG)'],
       ['feature', 'macrocephaly', 'H', null, null, null, ['gr:NBK1488', 'ukcgg:pten', 'us:aacr_pten_dicer1_tsc'], 'Macrocephaly in 94%'],
       ['feature', 'trichilemmoma', 'H', null, null, null, ['gr:NBK1488', 'us:aacr_pten_dicer1_tsc'], 'Skin/mucosal lesions in 99% by 4th decade (trichilemmomas, oral papillomatosis, acral keratoses)'],
       ['feature', 'lld', 'H', null, null, null, ['gr:NBK1488', 'ukcgg:pten', 'us:aacr_brain'], 'Lhermitte-Duclos disease: rare but pathognomonic'],
@@ -626,7 +626,7 @@ const CONDITIONS = [
     ] },
   { id: 'hdgc', name: 'Hereditary diffuse gastric cancer (CDH1)', genes: ['CDH1'], inh: 'AD', tests: ['R215'],
     rules: [
-      ['stomach', 'diffuse', 'H', 50, null, null, ['ukcgg:cdh1', 'eu:igclc_hdgc', 'gr:NBK1139', 'clingen:CDH1', 'us:acg_gi', 'us:aacr_gi'], 'DGC by 80: 70% M / 56% F (2010-criteria families); 42% M / 33% F (broader ascertainment); mean onset 42-49'],
+      ['stomach', 'diffuse', 'S', 50, null, null, ['ukcgg:cdh1', 'eu:igclc_hdgc', 'gr:NBK1139', 'clingen:CDH1', 'us:acg_gi', 'us:aacr_gi'], 'DGC by 80: 70% M / 56% F (2010-criteria families); 42% M / 33% F (broader ascertainment); mean onset 42-49'],
       ['breast', 'ilc', 'S', 50, null, null, ['ukcgg:cdh1', 'eu:igclc_hdgc', 'gr:NBK1139', 'us:acg_gi'], 'Lobular breast 42-55% lifetime by 80 (UKCGG); mean onset 45-54'],
       ['feature', 'cleft', 'M', null, null, null, ['eu:igclc_hdgc', 'gr:NBK1139'], 'Cleft lip/palate in >=1 member of 19% of CDH1 families'],
       ['colorectal', 'mucinous', 'W', null, null, null, ['gr:NBK1139', 'eu:igclc_hdgc', 'us:acg_gi'], 'CRC in 9.9% of US CDH1 carriers (3.8% signet ring), <2% in European families; IGCLC finds no strong evidence and no extra CRC screening']
@@ -645,11 +645,11 @@ const CONDITIONS = [
   /* ---------- Multi-cancer / Li–Fraumeni ---------- */
   { id: 'lfs', name: 'Li–Fraumeni syndrome (TP53)', genes: ['TP53'], inh: 'AD', tests: ['R216','R456','R457'],
     rules: [
-      ['breast', '*', 'H', 30, null, 30, ['eu:ern_lfs', 'ukcgg:tp53', 'gr:NBK1311'], 'TP53 PV in 3.8-7.7% of women with breast cancer <31 (ERN)'],
-      ['breast', '*', 'H', 35, 'her2pos', 39, ['gr:NBK1311']],
+      ['breast', '*', 'S', 30, null, 30, ['eu:ern_lfs', 'ukcgg:tp53', 'gr:NBK1311'], 'TP53 PV in 3.8-7.7% of women with breast cancer <31 (ERN)'],
+      ['breast', '*', 'S', 35, 'her2pos', 39, ['gr:NBK1311']],
       ['adrenal', 'acc', 'H', null, null, null, ['eu:ern_lfs', 'ukcgg:tp53', 'gr:NBK1311'], 'ACC in 6-13% of carriers; TP53 PV in 50-80% of childhood ACC (ERN)'],
       ['cns', 'cpc', 'H', null, null, null, ['eu:ern_lfs', 'gr:NBK1311', 'us:aacr_brain'], 'TP53 PV in 50-80% of choroid plexus carcinoma (ERN)'],
-      ['sarcoma', 'rms', 'H', null, null, 5, ['eu:ern_lfs', 'gr:NBK1311'], 'TP53 PV in up to 73% of embryonal anaplastic RMS (ERN)'],
+      ['sarcoma', 'rms', 'S', null, null, 5, ['eu:ern_lfs', 'gr:NBK1311'], 'TP53 PV in up to 73% of embryonal anaplastic RMS (ERN)'],
       ['heme', 'all_hypo', 'H', null, null, null, ['eu:ern_lfs', 'gr:NBK1311']],
       ['breast', '*', 'S', 35, null, null, ['ukcgg:tp53', 'eu:ern_lfs', 'gr:NBK1311', 'fortuno2024'], 'Female breast ~63% by 50 (Fortuno 2024); 80-90% lifetime (GeneReviews)'],
       ['sarcoma', 'rms', 'S', 18, null, null, ['gr:NBK1311', 'eu:ern_lfs']],
@@ -673,8 +673,8 @@ const CONDITIONS = [
   /* ---------- Endocrine ---------- */
   { id: 'men1', name: 'Multiple endocrine neoplasia type 1 (MEN1)', genes: ['MEN1'], inh: 'AD', tests: ['R217','R151'],
     rules: [
-      ['net', 'gastrinoma', 'H', null, null, null, ['gr:NBK1538'], 'Gastrinoma ~40%; >90% duodenal; ZES usually <40'],
-      ['net', 'thymic', 'H', null, null, null, ['gr:NBK1538', 'us:endo_men1'], 'Thymic/bronchial/gastric carcinoid 3-10%; thymic M:F 20:1'],
+      ['net', 'gastrinoma', 'S', null, null, null, ['gr:NBK1538'], 'Gastrinoma ~40%; >90% duodenal; ZES usually <40'],
+      ['net', 'thymic', 'S', null, null, null, ['gr:NBK1538', 'us:endo_men1'], 'Thymic/bronchial/gastric carcinoid 3-10%; thymic M:F 20:1'],
       ['parathyroid', 'adenoma', 'S', 35, null, null, ['gr:NBK1538', 'us:endo_men1'], 'PHPT first feature in 90%; essentially all hypercalcaemic by 50'],
       ['pituitary', 'gh|other', 'S', 30, null, null, ['gr:NBK1538', 'us:endo_men1'], 'Pituitary adenoma 15-55%'],
       ['pancreas', 'pnet', 'S', 50, null, null, ['gr:NBK1538', 'us:endo_men1'], 'Non-functioning pNET ~34% by 50; up to 55% on EUS'],
@@ -702,8 +702,8 @@ const CONDITIONS = [
     ] },
   { id: 'hptjt', name: 'Hyperparathyroidism–jaw tumour syndrome (CDC73)', genes: ['CDC73'], inh: 'AD', tests: ['R226','R151','R217'],
     rules: [
-      ['parathyroid', 'carcinoma', 'H', null, null, null, ['gr:NBK3789', 'clingen:CDC73'], 'Parathyroid carcinoma in 10-15% (up to 23-31% in recent series); germline CDC73 in 20-29% of apparently sporadic PC'],
-      ['feature', 'jaw', 'H', null, null, null, ['gr:NBK3789'], 'Ossifying fibroma 11-40%'],
+      ['parathyroid', 'carcinoma', 'S', null, null, null, ['gr:NBK3789', 'clingen:CDC73'], 'Parathyroid carcinoma in 10-15% (up to 23-31% in recent series); germline CDC73 in 20-29% of apparently sporadic PC'],
+      ['feature', 'jaw', 'S', null, null, null, ['gr:NBK3789'], 'Ossifying fibroma 11-40%'],
       ['parathyroid', 'adenoma', 'S', 35, null, null, ['gr:NBK3789'], 'PHPT penetrance 8% at 25, 53% at 50, 75% at 70 (van der Tuin 2017)'],
       ['kidney', 'wilms|papillary1|nos', 'W', null, null, null, ['gr:NBK3789']],
       ['uterus', '*', 'W', null, null, null, ['gr:NBK3789']],
@@ -711,12 +711,12 @@ const CONDITIONS = [
     ] },
   { id: 'fipa', name: 'Familial isolated pituitary adenoma (AIP)', genes: ['AIP'], inh: 'AD', tests: ['R217'],
     rules: [
-      ['pituitary', 'gh', 'H', 30, null, null, ['gr:NBK97965'], 'Acromegaly in ~80% of AIP-FIPA, gigantism in ~1/3; AIP PV in ~20% of simplex childhood GH adenomas; median age at diagnosis 23'],
+      ['pituitary', 'gh', 'S', 30, null, null, ['gr:NBK97965'], 'Acromegaly in ~80% of AIP-FIPA, gigantism in ~1/3; AIP PV in ~20% of simplex childhood GH adenomas; median age at diagnosis 23'],
       ['pituitary', 'other', 'M', 30, null, null, ['gr:NBK97965'], 'Prolactinoma ~10%, NF-PitNET 8%']
     ] },
   { id: 'carney', name: 'Carney complex (PRKAR1A)', genes: ['PRKAR1A'], inh: 'AD', tests: ['R156','R160'],
     rules: [
-      ['feature', 'cardiac_myxoma', 'H', null, null, null, ['gr:NBK1286', 'us:carney_nih']],
+      ['feature', 'cardiac_myxoma', 'S', null, null, null, ['gr:NBK1286', 'us:carney_nih']],
       ['feature', 'ppnad', 'H', null, null, null, ['gr:NBK1286']],
       ['feature', 'pigment_carney', 'S', null, null, null, ['gr:NBK1286', 'us:carney_nih']],
       ['testis', 'lccsct', 'S', null, null, null, ['gr:NBK1286', 'us:carney_nih'], 'LCCSCT in 1/3 of males at presentation; most adult males'],
@@ -747,7 +747,7 @@ const CONDITIONS = [
       ['adrenal', 'phaeo', 'S', 40, null, null, ['gr:NBK1463'], 'High risk in VHL type 2 (missense) families; low in type 1'],
       ['ppgl', 'ta', 'M', null, null, null, ['gr:NBK1463']],
       ['pancreas', 'pnet', 'M', null, null, null, ['gr:NBK1463'], 'Pancreatic NET in 5-17% (GeneReviews)'],
-      ['feature', 'epididymal', 'M', null, null, null, ['gr:NBK1463']],
+      ['feature', 'epididymal', 'S', null, null, null, ['gr:NBK1463']],
       ['feature', 'renal_cysts', 'M', null, null, null, ['gr:NBK1463']]
     ] },
   { id: 'sdhb', name: 'Hereditary PPGL (SDHB)', genes: ['SDHB'], inh: 'AD', tests: ['R223','R224','R363'],
@@ -764,7 +764,7 @@ const CONDITIONS = [
     note: 'Tumours almost exclusively when inherited from the father (maternal imprinting).',
     tests: ['R223','R363'],
     rules: [
-      ['ppgl', 'hn', 'H', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548', 'andrews2018', 'us:endo_ppgl'], 'PPGL/HNPGL penetrance ~43% by 60 in non-index paternally inherited carriers (Andrews 2018); ~75% have multifocal tumours'],
+      ['ppgl', 'hn', 'S', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548', 'andrews2018', 'us:endo_ppgl'], 'PPGL/HNPGL penetrance ~43% by 60 in non-index paternally inherited carriers (Andrews 2018); ~75% have multifocal tumours'],
       ['ppgl', 'ta', 'M', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548']],
       ['adrenal', 'phaeo', 'M', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548']],
       ['sarcoma', 'gist', 'M', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548', 'aacr_vhl_ppgl2017']],
@@ -783,7 +783,7 @@ const CONDITIONS = [
     ] },
   { id: 'sdha', name: 'Hereditary PPGL (SDHA)', genes: ['SDHA'], inh: 'AD (low penetrance)', tests: ['R223','R363'],
     rules: [
-      ['sarcoma', 'gist', 'S', null, null, null, ['ukcgg:sdha', 'eu:sdhx_consensus', 'gr:NBK1548', 'aacr_vhl_ppgl2017'], 'SDHx variants are found in ~15% of adult and 85% of childhood GIST, mostly germline SDHA (SDHx consensus)'],
+      ['sarcoma', 'gist', 'M', null, null, null, ['ukcgg:sdha', 'eu:sdhx_consensus', 'gr:NBK1548', 'aacr_vhl_ppgl2017'], 'SDHx variants are found in ~15% of adult and 85% of childhood GIST, mostly germline SDHA (SDHx consensus)'],
       ['ppgl', '*', 'M', null, null, null, ['ukcgg:sdha', 'gr:NBK1548', 'bausch2017', 'aacr_vhl_ppgl2017'], 'Penetrance ~10% by 70 in non-index carriers (10-13% lifetime)'],
       ['kidney', 'sdhrcc', 'M', null, null, null, ['ukcgg:sdha', 'nccn_insights_kidney2021', 'aacr_vhl_ppgl2017']],
       ['adrenal', 'phaeo', 'W', null, null, null, ['ukcgg:sdha', 'gr:NBK1548', 'bausch2017']],
@@ -817,7 +817,7 @@ const CONDITIONS = [
     ] },
   { id: 'bhd', name: 'Birt–Hogg–Dubé syndrome (FLCN)', genes: ['FLCN'], inh: 'AD', tests: ['R224','R190','R230'],
     rules: [
-      ['kidney', 'chromophobe', 'H', 50, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522', 'nccn_insights_kidney2021'], 'Lifetime renal cancer ~15-30%, mean onset ~50 (UKCGG); median age 46 (ERN)'],
+      ['kidney', 'chromophobe', 'S', 50, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522', 'nccn_insights_kidney2021'], 'Lifetime renal cancer ~15-30%, mean onset ~50 (UKCGG); median age 46 (ERN)'],
       ['feature', 'fibrofolliculoma', 'H', null, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522'], '~40% by 30, nearly complete by 70 (UKCGG)'],
       ['feature', 'lungcysts', 'S', null, null, null, ['ukcgg:flcn', 'eu:ern_bhd'], 'Lung cysts ~75-85% lifetime; pneumothorax ~30% (UKCGG), 24-48% (ERN), median ~34 y'],
       ['kidney', 'ccrcc', 'M', 50, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522']],
@@ -826,7 +826,7 @@ const CONDITIONS = [
   { id: 'hprc', name: 'Hereditary papillary renal carcinoma (MET)', genes: ['MET'], inh: 'AD',
     note: 'Activating MET variants.', tests: ['R224'],
     rules: [
-      ['kidney', 'papillary1', 'H', 45, null, null, ['ukcgg:met', 'clingen:MET', 'schmidt2004', 'nccn_insights_kidney2021'], 'Penetrance almost complete by 80 under surveillance; median age at renal cancer 43 (UKCGG); 46-63 in three families (Schmidt 2004)']
+      ['kidney', 'papillary1', 'S', 45, null, null, ['ukcgg:met', 'clingen:MET', 'schmidt2004', 'nccn_insights_kidney2021'], 'Penetrance almost complete by 80 under surveillance; median age at renal cancer 43 (UKCGG); 46-63 in three families (Schmidt 2004)']
     ] },
   { id: 'tsc', name: 'Tuberous sclerosis complex (TSC1 / TSC2)', genes: ['TSC1', 'TSC2'], inh: 'AD', tests: ['R228','R224'],
     rules: [
@@ -841,7 +841,7 @@ const CONDITIONS = [
     ] },
   { id: 'bap1', name: 'BAP1 tumour predisposition syndrome', genes: ['BAP1'], inh: 'AD', tests: ['R422','R224','R254'],
     rules: [
-      ['eye', 'uveal', 'H', 40, null, null, ['ukcgg:bap1', 'eu:bap1_eu', 'gr:NBK390611', 'us:aacr_brain'], 'Lifetime ~25%, mean age 50s, range 15-80 (UKCGG)'],
+      ['eye', 'uveal', 'S', 40, null, null, ['ukcgg:bap1', 'eu:bap1_eu', 'gr:NBK390611', 'us:aacr_brain'], 'Lifetime ~25%, mean age 50s, range 15-80 (UKCGG)'],
       ['feature', 'bimt', 'H', null, null, null, ['ukcgg:bap1', 'eu:bap1_eu', 'gr:NBK390611', 'us:aacr_brain'], 'BIMT in up to 72% of carriers'],
       ['meso', '*', 'S', 60, null, null, ['ukcgg:bap1', 'eu:bap1_eu', 'gr:NBK390611', 'us:aacr_brain'], 'Lifetime ~20% (15-25%); median onset 55-58 vs 68-72 sporadic'],
       ['skin', 'melanoma', 'S', null, null, null, ['ukcgg:bap1', 'eu:bap1_eu', 'gr:NBK390611', 'us:aacr_brain'], 'Lifetime ~20%, mean age 40s-50s (UKCGG)'],
@@ -858,7 +858,7 @@ const CONDITIONS = [
     rules: [
       ['skin', 'melanoma', 'S', 40, null, null, ['gr:NBK616232', 'clingen:CDKN2A', 'us:aacr_brain'], 'Lifetime melanoma 28-76%; median onset ~40 y vs mid-60s sporadic (GeneReviews)'],
       ['pancreas', 'pdac', 'S', 60, null, null, ['gr:NBK616232', 'clingen:CDKN2A', 'us:aacr_brain'], 'Lifetime pancreatic cancer ~15-20% (~12-fold); mean onset 65-71 y (GeneReviews)'],
-      ['cns', 'hgg', 'M', null, null, null, ['gr:NBK616232', 'us:aacr_brain'], 'Nervous system tumour risk \'elevated\' with p14ARF-disrupting variants; no figure (GeneReviews Table 2)'],
+      ['cns', 'hgg', 'W', null, null, null, ['gr:NBK616232', 'us:aacr_brain'], 'Nervous system tumour risk \'elevated\' with p14ARF-disrupting variants; no figure (GeneReviews Table 2)'],
       ['eye', 'uveal', 'W', null, null, null, ['gr:NBK616232']],
       ['headneck', 'scc', 'W', null, null, null, ['gr:NBK616232']],
       ['cns', 'lgg', 'W', null, null, null, ['gr:NBK616232']],
@@ -886,7 +886,7 @@ const CONDITIONS = [
       ['feature', 'palmarpits', 'H', null, null, null, ['gr:NBK1151', 'eu:bcns_eu']],
       ['feature', 'falx', 'H', null, null, null, ['gr:NBK1151'], 'Falx calcification in 90% by age 30'],
       ['skin', 'bcc', 'S', 30, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'clingen:PTCH1', 'us:aacr_brain'], 'Median first BCC 33 y; cumulative BCC ~13% by 20 and 76-80% by 50 (Manchester, SIOPE)'],
-      ['cns', 'medullo_shh', 'S', 5, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Medulloblastoma ~0.4-2.4% in PTCH1 carriers (SIOPE 0.37%; BAD 1.2-2.4%); peak age 1-2 y'],
+      ['cns', 'medullo_shh', 'M', 5, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Medulloblastoma ~0.4-2.4% in PTCH1 carriers (SIOPE 0.37%; BAD 1.2-2.4%); peak age 1-2 y'],
       ['feature', 'cardiac_fibroma', 'S', null, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Cardiac fibroma in 1-5% of NBCCS, usually congenital/infancy'],
       ['ovary', 'fibroma', 'M', null, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Ovarian fibroma in ~20% of females (6-60%), often bilateral and calcified, ages 16-45'],
       ['cns', 'meningioma', 'W', null, null, null, ['eu:siope_gorlin', 'gr:NBK1151', 'us:aacr_brain'], 'Meningioma ~2% in PTCH1-related NBCCS (vs 11-30% SUFU)'],
@@ -895,7 +895,7 @@ const CONDITIONS = [
     ] },
   { id: 'sufu', name: 'SUFU-related predisposition (Gorlin spectrum)', genes: ['SUFU'], inh: 'AD', tests: ['R214','R456'],
     rules: [
-      ['cns', 'medullo_shh', 'H', 3, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain', 'clingen:SUFU'], 'Medulloblastoma penetrance ~7-9.2% (SIOPE), up to 33% in NBCCS series; almost all under 3 y'],
+      ['cns', 'medullo_shh', 'S', 3, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain', 'clingen:SUFU'], 'Medulloblastoma penetrance ~7-9.2% (SIOPE), up to 33% in NBCCS series; almost all under 3 y'],
       ['cns', 'meningioma', 'S', null, null, null, ['gr:NBK1151', 'eu:siope_gorlin', 'us:aacr_brain'], 'Meningioma in 11-30% of SUFU-related NBCCS (vs ~2% PTCH1); 4/9 SUFU carriers in Manchester cohort'],
       ['skin', 'bcc', 'M', 40, null, null, ['eu:siope_gorlin', 'us:aacr_brain'], 'BCC risk much lower than PTCH1: 1/34 adult carrier relatives (median age 51) had BCC'],
       ['ovary', 'fibroma', 'M', null, null, null, ['eu:siope_gorlin', 'gr:NBK1151', 'us:aacr_brain'], 'Ovarian fibroma 3/7 female SUFU carriers vs 4/68 PTCH1 (Manchester)'],
@@ -904,7 +904,7 @@ const CONDITIONS = [
   { id: 'xp', name: 'Xeroderma pigmentosum',
     genes: ['XPA', 'XPC', 'ERCC2', 'ERCC3', 'ERCC4', 'ERCC5', 'DDB2', 'POLH'], inh: 'AR', tests: ['R227'],
     rules: [
-      ['skin', 'bcc|scc|melanoma', 'H', null, null, 20, ['gr:NBK1397'], 'Skin cancer within the first decade without UV protection'],
+      ['skin', 'bcc|scc|melanoma', 'S', null, null, 20, ['gr:NBK1397'], 'Skin cancer within the first decade without UV protection'],
       ['feature', 'photosens', 'H', null, null, null, ['gr:NBK1397'], 'Freckle-like lesions on sun-exposed skin 100%; acute sunburn ~60%'],
       ['skin', 'bcc|scc|melanoma', 'S', 30, null, null, ['gr:NBK1397', 'clingen:XPC'], 'NMSC >10,000-fold (median onset 9 y); melanoma >2,000-fold (median 22 y) under age 20 (Bradford 2011, via GeneReviews)'],
       ['headneck', 'scc', 'M', 30, null, null, ['gr:NBK1397']],
@@ -921,7 +921,7 @@ const CONDITIONS = [
       ['cns', 'lgg', 'S', 20, null, null, ['eu:ern_nf1', 'us:aacr_ras'], 'Non-OPG glioma in ~4-5% of NF1; most LGG in childhood'],
       ['sarcoma', 'gist', 'S', null, null, null, ['eu:ern_nf1', 'us:aacr_ras', 'gr:NBK1109'], '~200-fold increased GIST risk; mean age ~53, often multiple, small bowel, KIT/PDGFRA wild-type'],
       ['heme', 'jmml', 'S', null, null, null, ['eu:ern_nf1', 'gr:NBK1109', 'us:aacr_ras'], 'JMML hundreds of times more frequent in NF1, but absolute risk <1%'],
-      ['net', 'duodenal_som', 'M', null, null, null, ['gr:NBK1109']],
+      ['net', 'duodenal_som', 'S', null, null, null, ['gr:NBK1109']],
       ['cns', 'hgg', 'M', null, null, null, ['eu:ern_nf1', 'us:aacr_ras']],
       ['adrenal', 'phaeo', 'M', null, null, null, ['eu:ern_nf1', 'us:aacr_ras'], 'PPGL in 1-5% of adults with NF1, median 40-50 y; 12% malignant'],
       ['breast', '*', 'M', 50, null, null, ['eu:ern_nf1', 'gr:NBK1109', 'us:aacr_ras'], 'Excess breast cancer confined to women aged 30-50; more often ER-/HER2+; annual MRI from 30 (ERN)', 'AACR 2024: breast screening (mammography, consider MRI) discussed from about age 30, earlier than UK practice'],
@@ -982,12 +982,12 @@ const CONDITIONS = [
     ] },
   { id: 'elp1', name: 'ELP1-associated SHH medulloblastoma', genes: ['ELP1'], inh: 'AD', tests: ['R456'],
     rules: [
-      ['cns', 'medullo_shh', 'M', 15, null, 20, ['waszak2020', 'us:aacr_brain'], 'Germline ELP1 LoF in 14.4% (29/202) of paediatric SHH-MB; median age 6.3 y; absent in 51 adult SHH-MB; absolute risk considered low']
+      ['cns', 'medullo_shh', 'S', 15, null, 20, ['waszak2020', 'us:aacr_brain'], 'Germline ELP1 LoF in 14.4% (29/202) of paediatric SHH-MB; median age 6.3 y; absent in 51 adult SHH-MB; absolute risk considered low']
     ],
     note: '14–21% of SHH medulloblastoma in older children (median 6.3 years), with somatic 9q loss. Absolute medulloblastoma risk in carriers is low.' },
   { id: 'gpr161', name: 'GPR161-associated SHH medulloblastoma', genes: ['GPR161'], inh: 'AD', tests: ['R456'],
     rules: [
-      ['cns', 'medullo_shh', 'S', 3, null, null, ['begemann2020', 'us:aacr_brain', 'clingen:GPR161'], 'Up to 5% of infant SHH-MB; median age 1.5 y; absolute risk considered low'],
+      ['cns', 'medullo_shh', 'M', 3, null, null, ['begemann2020', 'us:aacr_brain', 'clingen:GPR161'], 'Up to 5% of infant SHH-MB; median age 1.5 y; absolute risk considered low'],
       ['skin', 'bcc', 'W', null, null, null, ['us:aacr_brain', 'begemann2020']],
       ['cns', 'meningioma', 'W', null, null, null, ['us:aacr_brain', 'begemann2020']]
     ],
@@ -1038,7 +1038,7 @@ const CONDITIONS = [
   { id: 'mulibrey', name: 'Mulibrey nanism (TRIM37)', genes: ['TRIM37'], inh: 'AR', tests: ['R456'],
     rules: [
       ['kidney', 'wilms', 'M', null, null, null, ['gr:NBK1294', 'us:aacr_bws', 'clingen:TRIM37'], 'Wilms ~6-8% (GeneReviews/AACR 2024)'],
-      ['feature', 'microcephaly', 'M', null, null, null, ['us:aacr_bws', 'gr:NBK1294']]
+      ['feature', 'microcephaly', 'S', null, null, null, ['us:aacr_bws', 'gr:NBK1294']]
     ] },
   { id: 'mva', name: 'Mosaic variegated aneuploidy (BUB1B / CEP57 / TRIP13)', genes: ['BUB1B', 'CEP57', 'TRIP13'],
     inh: 'AR', tests: ['R456','R457'],
@@ -1062,8 +1062,8 @@ const CONDITIONS = [
   { id: 'sgbs', name: 'Simpson–Golabi–Behmel syndrome (GPC3)', genes: ['GPC3'], inh: 'XL', tests: ['R456','R27'],
     rules: [
       ['feature', 'overgrowth', 'S', null, null, null, ['gr:NBK1219', 'us:aacr_bws']],
-      ['kidney', 'wilms', 'M', null, null, null, ['gr:NBK1219', 'us:aacr_bws', 'gr:NBK1294'], 'Wilms 5.1% (AACR 2024); 4-9% (GeneReviews)'],
-      ['liver', 'hepatoblastoma', 'M', null, null, null, ['gr:NBK1219', 'us:aacr_bws'], 'HB 5.1% (AACR 2024); overall tumour risk 15.8% (GeneReviews)'],
+      ['kidney', 'wilms', 'S', null, null, null, ['gr:NBK1219', 'us:aacr_bws', 'gr:NBK1294'], 'Wilms 5.1% (AACR 2024); 4-9% (GeneReviews)'],
+      ['liver', 'hepatoblastoma', 'S', null, null, null, ['gr:NBK1219', 'us:aacr_bws'], 'HB 5.1% (AACR 2024); overall tumour risk 15.8% (GeneReviews)'],
       ['nb', '*', 'W', null, null, null, ['gr:NBK1219', 'gr:NBK1294', 'us:aacr_bws'], null, 'AACR: tumours other than HB and WT each <1% in 189 reported SGBS cases']
     ] },
   { id: 'sotos', name: 'Sotos syndrome (NSD1)', genes: ['NSD1'], inh: 'AD', tests: ['R27'],
@@ -1082,7 +1082,7 @@ const CONDITIONS = [
     ] },
   { id: 'alk', name: 'Familial neuroblastoma (ALK)', genes: ['ALK'], inh: 'AD', tests: ['R456'],
     rules: [
-      ['nb', '*', 'H', 2, null, null, ['gr:NBK24599', 'us:aacr_nb', 'clingen:ALK'], 'Penetrance ~50%; 98% of neuroblastic tumours by age 10 (GeneReviews)']
+      ['nb', '*', 'S', 2, null, null, ['gr:NBK24599', 'us:aacr_nb', 'clingen:ALK'], 'Penetrance ~50%; 98% of neuroblastic tumours by age 10 (GeneReviews)']
     ] },
   { id: 'phox2b', name: 'PHOX2B-related neuroblastoma / CCHS', genes: ['PHOX2B'], inh: 'AD', tests: ['R456','R333'],
     rules: [
@@ -1103,7 +1103,7 @@ const CONDITIONS = [
     ] },
   { id: 'cbl', name: 'CBL syndrome', genes: ['CBL'], inh: 'AD', tests: ['R27','R456','R457'],
     rules: [
-      ['heme', 'jmml', 'H', null, null, null, ['us:aacr_ras', 'clingen:CBL', 'niemeyer2010', 'us:aacr_heme']],
+      ['heme', 'jmml', 'S', null, null, null, ['us:aacr_ras', 'clingen:CBL', 'niemeyer2010', 'us:aacr_heme']],
       ['feature', 'rasopathy', 'M', null, null, null, ['us:aacr_ras', 'niemeyer2010']]
     ] },
   { id: 'costello', name: 'Costello syndrome (HRAS)', genes: ['HRAS'], inh: 'AD', tests: ['R27','R456','R457'],
@@ -1152,10 +1152,10 @@ const CONDITIONS = [
     tests: ['R260','R258','R229'],
     rules: [
       ['feature', 'fa_anom', 'H', null, null, null, ['gr:NBK1401', 'us:aacr_gid'], 'Physical abnormalities in ~60-75%'],
-      ['headneck', 'scc', 'H', 40, null, null, ['gr:NBK1401', 'alter2018', 'us:aacr_gid'], 'HNSCC 500-1000x population; typically age 20-40 (GeneReviews)'],
+      ['headneck', 'scc', 'S', 40, null, null, ['gr:NBK1401', 'alter2018', 'us:aacr_gid'], 'HNSCC 500-1000x population; typically age 20-40 (GeneReviews)'],
       ['feature', 'bmf', 'S', null, null, null, ['gr:NBK1401', 'us:aacr_gid'], 'Severe BMF ~70% by 50 (AACR 2024)'],
       ['heme', 'aml|mds', 'S', 20, null, null, ['gr:NBK1401', 'us:aacr_gid', 'who2022', 'us:aacr_heme'], 'MDS/AML cumulative incidence ~35% by 40; RR MDS ~6000x, AML ~700x (GeneReviews)'],
-      ['oesophagus', 'scc', 'M', 40, null, null, ['gr:NBK1401', 'alter2018']],
+      ['oesophagus', 'scc', 'S', 40, null, null, ['gr:NBK1401', 'alter2018']],
       ['cns', 'medullo_nos|medullo_shh', 'M', 5, null, null, ['gr:NBK1401', 'us:aacr_gid', 'us:aacr_brain'], 'FA-D1/FA-N: embryonal tumours in 10-33%, usually before 5 y'],
       ['kidney', 'wilms', 'M', 5, null, null, ['gr:NBK1401', 'us:aacr_gid']],
       ['liver', 'hcc', 'W', null, null, null, ['gr:NBK1401'], 'Mainly with androgen therapy'],
@@ -1194,8 +1194,8 @@ const CONDITIONS = [
       ['heme', 'lymphoma|aml|all', 'S', 25, null, null, ['gr:NBK1398', 'us:aacr_gid', 'us:aacr_heme'], 'Any cancer 52% by 30 and 82.5% by 40; haematological ~1/3 of tumours; registry median ages AML 18, ALL 15, lymphoma 23'],
       ['feature', 'microcephaly', 'S', null, null, null, ['gr:NBK1398']],
       ['colorectal', '*', 'M', 35, null, null, ['gr:NBK1398', 'us:aacr_gid'], '30 CRC in registry, median 36 y (range 16-49)'],
-      ['kidney', 'wilms', 'M', null, null, null, ['gr:NBK1398', 'us:aacr_gid'], 'Wilms ~3% (9 in registry, median age 3)'],
-      ['headneck', 'scc', 'M', 40, null, null, ['gr:NBK1398', 'us:aacr_gid'], '28 oropharyngeal cancers in registry, median ages 31-39.5'],
+      ['kidney', 'wilms', 'S', null, null, null, ['gr:NBK1398', 'us:aacr_gid'], 'Wilms ~3% (9 in registry, median age 3)'],
+      ['headneck', 'scc', 'S', 40, null, null, ['gr:NBK1398', 'us:aacr_gid'], '28 oropharyngeal cancers in registry, median ages 31-39.5'],
       ['breast', '*', 'M', 40, null, null, ['gr:NBK1398', 'us:aacr_gid'], '29 breast cancers in registry, median 32 y (range 18-52)'],
       ['skin', 'bcc|scc', 'M', 40, null, null, ['gr:NBK1398', 'us:aacr_gid'], '18 BCC (median 32) and 8 SCC (median 35) in registry'],
       ['stomach', '*', 'W', null, null, null, ['gr:NBK1398'], '7 gastric cancers in registry, median 27 y'],

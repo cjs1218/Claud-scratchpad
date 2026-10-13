@@ -473,7 +473,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.locator('#results .result').nth(3).locator('[data-collapse]').click();
   check(await page.locator('#results .result').nth(3).evaluate(el => el.classList.contains('compact')), 'Show less collapses it again');
   const firstTxt = await cards.nth(0).textContent();
-  check(/54\.0 points/.test(firstTxt) && /top match/.test(firstTxt) && /Why here:.*hallmark.*match/i.test(firstTxt), 'score bar labelled, with a why-ranked line');
+  check(/\d+\.\d points/.test(firstTxt) && /top match/.test(firstTxt) && /Why here:.*strong.*match/i.test(firstTxt), 'score bar labelled, with a why-ranked line');
   check(/\d+% of top/.test(await cards.nth(1).locator('.bar-label').textContent()), 'second result shows % of top');
   check(await cards.nth(0).locator('.tests-line .code-sm').count() >= 2 && await cards.nth(0).locator('.tests').count() === 0, 'tests shown as one compact line');
   check(await page.locator('#results .tier-legend .tier').count() === 4, 'strength legend shown with pills');

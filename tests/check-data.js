@@ -96,6 +96,7 @@ const covered = new Set(d.CONDITIONS.flatMap(c => c.genes));
 for (const g of d.NICPR.genes) if (!covered.has(g)) e(`NICPR gene ${g} not covered by any condition`);
 for (const g of [...d.NICPR.biallelic, ...d.NICPR.susceptibilityOnly, ...d.NICPR.nonTruncatingAgreed, ...d.NICPR.addedSince2025])
   if (!d.NICPR.genes.includes(g)) e(`NICPR annotation gene ${g} not on list`);
+for (const t of ['H', 'S', 'M', 'W']) if (!d.TIER_DEFS[t] || !d.TIER_DEFS[t].yield || !d.TIER_DEFS[t].risk) e(`TIER_DEFS ${t} needs yield and risk`);
 // Two-step relationship list: every relationship (bar proband/unset) reachable exactly once, and only real ids used.
 const kindIds = d.REL_KINDS.flatMap(([k, , sides]) => sides ? Object.values(sides).map(v => v[0]) : [k]);
 for (const id of kindIds) if (!d.RELATIONS.some(r => r[0] === id)) e(`REL_KINDS id ${id} is not in RELATIONS`);
