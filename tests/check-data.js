@@ -97,6 +97,8 @@ for (const g of d.NICPR.genes) if (!covered.has(g)) e(`NICPR gene ${g} not cover
 for (const g of [...d.NICPR.biallelic, ...d.NICPR.susceptibilityOnly, ...d.NICPR.nonTruncatingAgreed, ...d.NICPR.addedSince2025])
   if (!d.NICPR.genes.includes(g)) e(`NICPR annotation gene ${g} not on list`);
 for (const t of ['H', 'S', 'M', 'W']) if (!d.TIER_DEFS[t] || !d.TIER_DEFS[t].yield || !d.TIER_DEFS[t].risk) e(`TIER_DEFS ${t} needs yield and risk`);
+for (const [id, src] of Object.entries(d.SOURCES)) for (const k of src.ukl || []) if (!d.UKCGG_LEAFLETS[k]) e(`SOURCES ${id}: unknown UKCGG leaflet ${k}`);
+for (const [k, [t, u]] of Object.entries(d.UKCGG_LEAFLETS)) if (!t || !/^https:\/\/www\.ukcgg\.org\/media\//.test(u)) e(`UKCGG_LEAFLETS ${k}: needs a label and a ukcgg.org/media URL`);
 // Two-step relationship list: every relationship (bar proband/unset) reachable exactly once, and only real ids used.
 const kindIds = d.REL_KINDS.flatMap(([k, , sides]) => sides ? Object.values(sides).map(v => v[0]) : [k]);
 for (const id of kindIds) if (!d.RELATIONS.some(r => r[0] === id)) e(`REL_KINDS id ${id} is not in RELATIONS`);

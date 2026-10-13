@@ -39,6 +39,7 @@ Everything clinical lives in `js/data.js`:
   (e.g. MLH1 loss explained by methylation ×0.2 for Lynch MLH1).
 - **TESTS** – Rare and Inherited Disease Test Directory v9.1 codes, PanelApp panels and
   condensed criteria (Part XI unless `part` names another chapter, e.g. `'IV'` Endocrinology).
+- **UKCGG_LEAFLETS** – UKCGG patient information leaflets (gene leaflets, chemoprevention, reproductive options), listed per condition with `ukl` in SOURCES; `UKCGG_GENERAL` ones show for every condition.
 - **EG / GUIDES / EU_GUIDES / US_GUIDES / SOURCES** – East Genomics leaflets (direct links), UKCGG / NICE
   guidance, European guidelines (ERN GENTURIS, ESMO, ESGE, EHTG/ESCP, ESE, SIOPE) and US / international
   guidelines (NCCN, ACMG, ACG, USMSTF, ATA, Endocrine Society, AACR) per condition.

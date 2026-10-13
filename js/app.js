@@ -233,6 +233,8 @@
     const eu = list(src.eu, EU_GUIDES), us = list(src.us, US_GUIDES);
     return `<h4>East Genomics patient information</h4>
       <ul>${(src.eg || []).map(leafletLi).join('') || `<li class="muted">No condition-specific leaflet – general leaflets below, or see the ${link('A-Z index', EG_AZ)}</li>${EG_GENERAL.map(leafletLi).join('')}`}</ul>
+      <h4>UKCGG patient information</h4>
+      <ul>${[...(src.ukl || []), ...UKCGG_GENERAL].map(k => `<li>${link(UKCGG_LEAFLETS[k][0], UKCGG_LEAFLETS[k][1])}</li>`).join('')}</ul>
       <h4>UK guidance</h4>
       <ul>${list(src.guide, GUIDES) || `<li class="muted">No UKCGG gene-specific guideline – see ${link('UKCGG leaflets and guidelines', REF_LINKS.ukcgg)}</li>`}</ul>
       ${eu ? `<h4>European guidance</h4><ul>${eu}</ul>` : ''}
@@ -1770,6 +1772,7 @@
     sec('EUROPEAN GUIDANCE', src.eu, EU_GUIDES);
     sec('US AND INTERNATIONAL GUIDANCE', src.us, US_GUIDES);
     if (src.eg) { L.push('', 'EAST GENOMICS LEAFLETS'); src.eg.forEach(k => L.push(`- ${EG[k].label} ${EG[k].url}`)); }
+    if (src.ukl) { L.push('', 'UKCGG PATIENT INFORMATION'); src.ukl.forEach(k => L.push(`- ${UKCGG_LEAFLETS[k][0]} ${UKCGG_LEAFLETS[k][1]}`)); }
     L.push('', `Information checked: ${DATA_CHECKED}`, `Source: Cancer Family History Navigator – ${itemUrl(`syn:${c.id}`)}`);
     return L.join('\n');
   }

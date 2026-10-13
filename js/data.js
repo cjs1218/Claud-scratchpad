@@ -1715,18 +1715,18 @@ const NICPR = {
  * When each information source was last pulled and checked (shown on every syndrome and gene page).
  * Update the matching entry whenever a source is re-checked.
  */
-const DATA_CHECKED = '12 October 2026';
+const DATA_CHECKED = '13 October 2026';
 const SOURCE_DATES = [
   ['NHS Genomic Test Directory eligibility criteria', 'v9.1, 20 May 2026', '11 Oct 2026'],
   ['PanelApp panels', 'Panel IDs and green gene lists (PanelApp API)', '12 Oct 2026'],
   ['NICPR gene list', 'Appendix 1, June 2026', '11 Oct 2026'],
   ['GeneReviews chapters', 'NCBI GeneReviews mapping files', '11 Oct 2026'],
   ['OMIM entries', 'mim2gene.txt and NCBI Gene → OMIM gene map', '11 Oct 2026'],
-  ['UKCGG and NICE guidance', 'UKCGG leaflets and guidelines page', '11 Oct 2026'],
+  ['UKCGG and NICE guidance', 'UKCGG leaflets and guidelines page (guidelines and patient leaflets)', '13 Oct 2026'],
   ['European guidelines', 'ERN GENTURIS lists, Crossref', '11 Oct 2026'],
   ['US and international guidelines', 'NCCN, Crossref', '11 Oct 2026'],
   ['East Genomics patient leaflets', 'East Genomics A-Z index', '11 Oct 2026'],
-  ['Associations, strengths and ages', 'Reviewed against GeneReviews and UKCGG', '11 Oct 2026'],
+  ['Associations, strengths and ages', 'Reviewed against GeneReviews and UKCGG; strengths checked against the yield / carrier-risk definitions', '13 Oct 2026'],
   ['AACR childhood CNS tumour update (Clin Cancer Res 2024;30:2342)', 'CNS associations and testing pointers', '11 Oct 2026'],
   ['Manchester NF1 review checklist', 'v18, January 2019 (NF1 surveillance)', '11 Oct 2026'],
   ['GeNotes links', 'NHS England Genomics Education Programme GeNotes: Knowledge Hub pages and In the Clinic pathways for 62 conditions (titles from the live pages)', '12 Oct 2026'],
@@ -1896,6 +1896,29 @@ const EG = {
 };
 const EG_GENERAL = ['cancer_diag', 'cancer_genetics'];
 
+/*
+ * UKCGG patient information leaflets (ukcgg.org leaflets and guidelines page,
+ * checked 13 Oct 2026). Listed per condition with `ukl` in SOURCES; UKCGG_GENERAL
+ * leaflets apply to every condition.
+ */
+const UKCGG_MEDIA = 'https://www.ukcgg.org/media/';
+const UKCGG_LEAFLETS = {
+  ankrd26: ['ANKRD26 – patient information (2026)', UKCGG_MEDIA + '12428/ankrd26-patient-information_may2026.pdf'],
+  cebpa: ['CEBPA – patient information (2026)', UKCGG_MEDIA + '12429/cebpa-patient-information_may2026.pdf'],
+  ddx41: ['DDX41 – patient information (2026)', UKCGG_MEDIA + '12430/ddx41-patient-information_may2026.pdf'],
+  etv6: ['ETV6 – patient information (2026)', UKCGG_MEDIA + '12431/etv6-patient-information_may2026.pdf'],
+  gata2: ['GATA2 – patient information (2026)', UKCGG_MEDIA + '12432/gata2-patient-information_may2026.pdf'],
+  runx1: ['RUNX1 – patient information (2026)', UKCGG_MEDIA + '12433/runx1-patient-information_may2026.pdf'],
+  palb2: ['Information for PALB2 carriers and their families (2021)', UKCGG_MEDIA + '12664/information-for-palb2-carriers-and-their-families-v1-nov2021.pdf'],
+  pot1: ['POT1 – patient information leaflet (2025)', UKCGG_MEDIA + '12814/pot1-patient-information-leaflet_june-2025.pdf'],
+  chemo_pre_high: ['Risk-reducing medication (chemoprevention) – premenopausal women at high risk of breast cancer (2023)', UKCGG_MEDIA + '12660/24-update-leaflet-for-premenopausal-women-at-high-risk-of-breast-cancer-nov-2023.pdf'],
+  chemo_post_high: ['Risk-reducing medication (chemoprevention) – postmenopausal women at high risk of breast cancer (2023)', UKCGG_MEDIA + '12423/24-update-leaflet-for-postmenopausal-women-high-risk-nov-2023_final.pdf'],
+  chemo_pre_mod: ['Risk-reducing medication (chemoprevention) – premenopausal women at moderate risk of breast cancer (2023)', UKCGG_MEDIA + '12424/24-update-leaflet-for-premenopausal-women-at-moderate-risk-of-breast-cancer-nov-2023.pdf'],
+  chemo_post_mod: ['Risk-reducing medication (chemoprevention) – postmenopausal women at moderate risk of breast cancer (2023)', UKCGG_MEDIA + '12425/24-update-leaflet-for-postmenopausal-women-moderate-risk-nov-2023_final.pdf'],
+  repro: ['Reproductive options for cancer susceptibility gene variants (UKCGG / BSGM)', UKCGG_MEDIA + '12292/pnd-and-pgt-for-cancer-susceptibility-variants-patient-leaflet.pdf']
+};
+const UKCGG_GENERAL = ['repro'];
+
 /* UK guidance (UKCGG gene-specific guidelines and national guidance). */
 const GUIDES = {
   mangen_nf1: ['Manchester Centre for Genomic Medicine NF1 review guidelines and checklist (v18, 2019)', 'https://www.mangen.co.uk/wp-content/uploads/2019/01/NF1_review_checklist_.pdf'],
@@ -2015,14 +2038,14 @@ const US_GUIDES = {
 
 /* Per-condition East Genomics leaflets (`eg`), UK (`guide`), European (`eu`) and US (`us`) guidance. */
 const SOURCES = {
-  brca1: { eg: ['brca1', 'brca_r444', 'breast_ovarian', 'ovarian', 'pancreatic', 'prostate_brca'], guide: ['brca1', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
-  brca2: { eg: ['brca2', 'brca_r444', 'breast_ovarian', 'ovarian', 'pancreatic', 'prostate_r430', 'prostate_brca', 'prostate'], guide: ['brca2', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp', 'aacr_brain'] },
-  palb2: { eg: ['palb2', 'brca_r444', 'breast_ovarian', 'pancreatic'], guide: ['palb2', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp', 'acmg_palb2', 'aacr_brain'] },
-  atm: { eg: ['atm', 'breast_ovarian', 'pancreatic', 'prostate_r430'], guide: ['atm', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
-  chek2: { eg: ['chek2', 'breast_ovarian'], guide: ['chek2', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
-  bard1: { eg: ['breast_ovarian'], guide: ['bard1', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
-  rad51d: { eg: ['rad51d', 'ovarian', 'breast_ovarian'], guide: ['rad51d', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
-  rad51c: { eg: ['rad51c', 'ovarian', 'breast_ovarian'], guide: ['rad51c', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
+  brca1: { ukl: ['chemo_pre_high', 'chemo_post_high'], eg: ['brca1', 'brca_r444', 'breast_ovarian', 'ovarian', 'pancreatic', 'prostate_brca'], guide: ['brca1', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
+  brca2: { ukl: ['chemo_pre_high', 'chemo_post_high'], eg: ['brca2', 'brca_r444', 'breast_ovarian', 'ovarian', 'pancreatic', 'prostate_r430', 'prostate_brca', 'prostate'], guide: ['brca2', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp', 'aacr_brain'] },
+  palb2: { ukl: ['palb2', 'chemo_pre_high', 'chemo_post_high'], eg: ['palb2', 'brca_r444', 'breast_ovarian', 'pancreatic'], guide: ['palb2', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp', 'acmg_palb2', 'aacr_brain'] },
+  atm: { ukl: ['chemo_pre_mod', 'chemo_post_mod'], eg: ['atm', 'breast_ovarian', 'pancreatic', 'prostate_r430'], guide: ['atm', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
+  chek2: { ukl: ['chemo_pre_mod', 'chemo_post_mod'], eg: ['chek2', 'breast_ovarian'], guide: ['chek2', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
+  bard1: { ukl: ['chemo_pre_mod', 'chemo_post_mod'], eg: ['breast_ovarian'], guide: ['bard1', 'cg164'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
+  rad51d: { ukl: ['chemo_pre_mod', 'chemo_post_mod'], eg: ['rad51d', 'ovarian', 'breast_ovarian'], guide: ['rad51d', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
+  rad51c: { ukl: ['chemo_pre_mod', 'chemo_post_mod'], eg: ['rad51c', 'ovarian', 'breast_ovarian'], guide: ['rad51c', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
   brip1: { eg: ['brip1', 'ovarian'], guide: ['brip1', 'hanson'], eu: ['esmo_hboc', 'emqn_hboc'], us: ['nccn_bopp'] },
   lynch_mlh1: { eg: ['lynch', 'lynch_aspirin', 'bowel'], guide: ['mlh1', 'dg27', 'dg42'], eu: ['ehtg_lynch', 'esge_lynch', 'manchester_lynch'], us: ['nccn_ceeg', 'usmstf_lynch', 'acg_gi'] },
   lynch_msh2: { eg: ['lynch', 'lynch_aspirin', 'bowel'], guide: ['msh2', 'dg27', 'dg42'], eu: ['ehtg_lynch', 'esge_lynch', 'manchester_lynch'], us: ['nccn_ceeg', 'usmstf_lynch', 'acg_gi'] },
@@ -2038,10 +2061,10 @@ const SOURCES = {
   jps_bmpr1a: { eg: ['bowel'], guide: ['bmpr1a', 'bsg'], eu: ['esge_polyposis'], us: ['usmstf_hamartoma', 'nccn_ceeg', 'acg_gi', 'aacr_gi'] },
   hmps: { eg: ['bowel'], guide: ['bsg'], eu: ['esge_polyposis'], us: ['usmstf_hamartoma'] },
   rnf43: { eg: ['bowel'], guide: ['bsg'], eu: ['esge_polyposis'], us: ['nccn_ceeg'] },
-  pjs: { eg: ['bowel', 'pancreatic'], guide: ['bsg'], eu: ['ehtg_pjs', 'esge_polyposis'], us: ['usmstf_hamartoma', 'nccn_ceeg', 'acg_gi', 'aacr_gi'] },
-  phts: { eg: ['pten'], guide: ['pten'], eu: ['ern_phts', 'esge_polyposis'], us: ['phts_consensus', 'nccn_bopp', 'usmstf_hamartoma', 'aacr_pten_dicer1_tsc', 'aacr_brain'] },
-  hdgc: { guide: ['cdh1'], eu: ['igclc_hdgc'], us: ['nccn_ceeg', 'nccn_bopp', 'acg_gi'] },
-  lfs: { eg: ['lfs'], guide: ['tp53'], eu: ['ern_lfs'], us: ['nccn_bopp', 'aacr_lfs', 'aacr_brain'] },
+  pjs: { ukl: ['chemo_pre_high', 'chemo_post_high'], eg: ['bowel', 'pancreatic'], guide: ['bsg'], eu: ['ehtg_pjs', 'esge_polyposis'], us: ['usmstf_hamartoma', 'nccn_ceeg', 'acg_gi', 'aacr_gi'] },
+  phts: { ukl: ['chemo_pre_high', 'chemo_post_high'], eg: ['pten'], guide: ['pten'], eu: ['ern_phts', 'esge_polyposis'], us: ['phts_consensus', 'nccn_bopp', 'usmstf_hamartoma', 'aacr_pten_dicer1_tsc', 'aacr_brain'] },
+  hdgc: { ukl: ['chemo_pre_high', 'chemo_post_high'], guide: ['cdh1'], eu: ['igclc_hdgc'], us: ['nccn_ceeg', 'nccn_bopp', 'acg_gi'] },
+  lfs: { ukl: ['chemo_pre_high', 'chemo_post_high'], eg: ['lfs'], guide: ['tp53'], eu: ['ern_lfs'], us: ['nccn_bopp', 'aacr_lfs', 'aacr_brain'] },
   men2: { eg: ['ppgl'], us: ['ata_men2', 'aacr_endo'] },
   carney: { eg: ['carney'], us: ['carney_nih', 'aacr_endo'] },
   vhl: { eg: ['ppgl'], eu: ['vhl_eu', 'ppgl_children'], us: ['vhl_consensus', 'aacr_vhl', 'endo_ppgl', 'aacr_brain'] },
@@ -2058,17 +2081,17 @@ const SOURCES = {
   bap1: { eg: ['bap1', 'melanoma'], guide: ['bap1'], eu: ['bap1_eu'], us: ['aacr_brain'] },
   cdkn2a: { eg: ['melanoma', 'pancreatic'], us: ['nccn_bopp', 'aacr_brain'] },
   cdk4: { eg: ['melanoma'] },
-  pot1: { eg: ['melanoma'], guide: ['pot1'], us: ['aacr_brain'] },
+  pot1: { ukl: ['pot1'], eg: ['melanoma'], guide: ['pot1'], us: ['aacr_brain'] },
   nf1: { eg: ['nf1'], guide: ['mangen_nf1'], eu: ['ern_nf1', 'nf1_criteria'], us: ['aacr_ras', 'aacr_brain'] },
   dicer1: { eg: ['dicer1'], guide: ['dicer1'], eu: ['siope_dicer1'], us: ['aacr_dicer1', 'aacr_pten_dicer1_tsc', 'aacr_brain'] },
   kit: { eg: ['gist'], eu: ['esmo_gist'] },
   pdgfra: { eg: ['gist'], eu: ['esmo_gist'] },
-  cebpa: { guide: ['cebpa'], us: ['aacr_heme'] },
-  runx1: { guide: ['runx1'], us: ['aacr_heme'] },
-  gata2: { guide: ['gata2'], us: ['aacr_heme'] },
-  ddx41: { guide: ['ddx41'], us: ['aacr_heme'] },
-  etv6: { guide: ['etv6'], us: ['aacr_heme'] },
-  ankrd26: { guide: ['ankrd26'], us: ['aacr_heme'] },
+  cebpa: { ukl: ['cebpa'], guide: ['cebpa'], us: ['aacr_heme'] },
+  runx1: { ukl: ['runx1'], guide: ['runx1'], us: ['aacr_heme'] },
+  gata2: { ukl: ['gata2'], guide: ['gata2'], us: ['aacr_heme'] },
+  ddx41: { ukl: ['ddx41'], guide: ['ddx41'], us: ['aacr_heme'] },
+  etv6: { ukl: ['etv6'], guide: ['etv6'], us: ['aacr_heme'] },
+  ankrd26: { ukl: ['ankrd26'], guide: ['ankrd26'], us: ['aacr_heme'] },
   ctnna1: { eu: ['igclc_hdgc'], us: ['nccn_ceeg'] },
   gorlin: { eu: ['bcns_eu', 'siope_gorlin'], us: ['aacr_brain'] },
   sufu: { eu: ['bcns_eu', 'siope_gorlin'], us: ['aacr_brain'] },
