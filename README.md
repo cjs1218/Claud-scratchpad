@@ -125,7 +125,7 @@ ranked differential are on the right, with the full list of Test Directory tests
 differential open their criteria). Phones show one column in the same order. Printouts keep the order family table,
 criteria, tree, syndromes.
 
-Above the differential, a pedigree is drawn from the relatives entered (standard symbols: square male,
+Under the family form, a pedigree is drawn from the relatives entered (standard symbols: square male,
 circle female, diamond sex not given, arrow for the proband). Relatives needed to connect the family but not
 entered (parents, grandparents, partners, an aunt for a cousin) are drawn faintly. People whose cancers score for
 the highlighted syndrome are filled blue, other cancers grey. The top result is highlighted by default; pick
