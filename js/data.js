@@ -440,7 +440,7 @@ const CONDITIONS = [
       ['urothelial', '*', 'M', null, null, null, ['ukcgg:mlh1', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Bladder ~6%/5% and ureter/kidney ~5%/3% (M/F) by 75 vs ~1% (UKCGG v5)'],
       ['biliary', '*', 'M', null, null, null, ['ukcgg:mlh1', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Bile duct/gallbladder ~4% (M) / 2% (F) by 75 vs <1% (UKCGG v5)'],
       ['skin', 'sebaceous', 'M', null, null, null, ['ukcgg:mlh1', 'gr:NBK1211', 'us:usmstf_lynch'], 'No reliable risk estimate (UKCGG v5)'],
-      ['pancreas', 'pdac', 'W', null, null, null, ['ukcgg:mlh1', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Pancreas ~3-4% by 75 vs ~1% (UKCGG v5); 0.4% by 70 in Dutch prospective cohort (GeneReviews)', 'USMSTF/ACG: 8.6–10.7-fold pancreatic cancer risk in 2 cohorts (≈3.7% by 70), not confirmed where histology was validated; ACG lists pancreas among LS cancers; no screening advised'],
+      ['pancreas', 'pdac', 'M', null, null, null, ['ukcgg:mlh1', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Pancreas ~3-4% by 75 vs ~1% (UKCGG v5); 0.4% by 70 in Dutch prospective cohort (GeneReviews)', 'USMSTF/ACG: 8.6–10.7-fold pancreatic cancer risk in 2 cohorts (≈3.7% by 70), not confirmed where histology was validated; ACG lists pancreas among LS cancers; no screening advised'],
       ['prostate', '*', 'W', null, null, null, ['ukcgg:mlh1', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Prostate ~16% by 75 vs 9% population (UKCGG v5) - under 2-fold'],
       ['polyps', 'adenoma', 'W', 40, null, null, ['gr:NBK1211', 'ukcgg:bsg'], 'No risk figure; adenomas are the CRC precursor targeted by colonoscopy']
     ],
@@ -459,7 +459,7 @@ const CONDITIONS = [
       ['adrenal', 'acc', 'M', null, null, null, ['gr:NBK1211'], 'Lynch is found in ~2.5-3% of ACC; under 1% of carriers develop it, mostly MSH2 (GeneReviews)'],
       ['prostate', '*', 'M', null, null, null, ['ukcgg:msh2', 'plsd2023', 'plsd2020', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Prostate ~24% by 75 vs 9% (UKCGG v5); PLSD 2023 abstract 39.7% at 75'],
       ['cns', 'hgg', 'M', null, null, null, ['ukcgg:msh2', 'gr:NBK1211', 'plsd2020', 'us:usmstf_lynch', 'us:acg_gi'], 'Brain ~7% (M) / 2% (F) by 75 vs ~1% (UKCGG v5); glioblastoma is the commonest subtype'],
-      ['pancreas', 'pdac', 'W', null, null, null, ['ukcgg:msh2', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Pancreas ~3-4% by 75 vs ~1% (UKCGG v5); 1.3% by 70 (Dutch cohort, GeneReviews)', 'USMSTF/ACG: 8.6–10.7-fold pancreatic cancer risk in 2 cohorts (≈3.7% by 70), not confirmed where histology was validated; ACG lists pancreas among LS cancers; no screening advised'],
+      ['pancreas', 'pdac', 'M', null, null, null, ['ukcgg:msh2', 'gr:NBK1211', 'us:usmstf_lynch', 'us:acg_gi'], 'Pancreas ~3-4% by 75 vs ~1% (UKCGG v5); 1.3% by 70 (Dutch cohort, GeneReviews)', 'USMSTF/ACG: 8.6–10.7-fold pancreatic cancer risk in 2 cohorts (≈3.7% by 70), not confirmed where histology was validated; ACG lists pancreas among LS cancers; no screening advised'],
       ['polyps', 'adenoma', 'W', 40, null, null, ['gr:NBK1211', 'ukcgg:bsg'], 'No risk figure']
     ],
     mods: LYNCH_MODS.MSH2 },
@@ -647,7 +647,8 @@ const CONDITIONS = [
     rules: [
       ['breast', '*', 'S', 30, null, 30, ['eu:ern_lfs', 'ukcgg:tp53', 'gr:NBK1311'], 'TP53 PV in 3.8-7.7% of women with breast cancer <31 (ERN)'],
       ['breast', '*', 'S', 35, 'her2pos', 39, ['gr:NBK1311']],
-      ['adrenal', 'acc', 'H', null, null, null, ['eu:ern_lfs', 'ukcgg:tp53', 'gr:NBK1311'], 'ACC in 6-13% of carriers; TP53 PV in 50-80% of childhood ACC (ERN)'],
+      ['adrenal', 'acc', 'H', null, null, 18, ['eu:ern_lfs', 'ukcgg:tp53', 'gr:NBK1311'], 'ACC in 6-13% of carriers; TP53 PV in 50-80% of childhood ACC (ERN)'],
+      ['adrenal', 'acc', 'M', null, null, null, ['eu:ern_lfs', 'ukcgg:tp53', 'gr:NBK1311'], 'Adult ACC: TP53 PV in a small minority (~4-6%); still a Chompret criterion at any age'],
       ['cns', 'cpc', 'H', null, null, null, ['eu:ern_lfs', 'gr:NBK1311', 'us:aacr_brain'], 'TP53 PV in 50-80% of choroid plexus carcinoma (ERN)'],
       ['sarcoma', 'rms', 'S', null, null, 5, ['eu:ern_lfs', 'gr:NBK1311'], 'TP53 PV in up to 73% of embryonal anaplastic RMS (ERN)'],
       ['heme', 'all_hypo', 'H', null, null, null, ['eu:ern_lfs', 'gr:NBK1311']],
@@ -655,9 +656,10 @@ const CONDITIONS = [
       ['sarcoma', 'rms', 'S', 18, null, null, ['gr:NBK1311', 'eu:ern_lfs']],
       ['sarcoma', 'osteo', 'S', 30, null, null, ['gr:NBK1311', 'eu:ern_lfs', 'ukcgg:tp53'], 'Bone cancer by 70: 5% women, 11% men (Mai 2016 via GR); up to 16% of LFS cancers'],
       ['sarcoma', 'sts|lms|angiosarcoma', 'S', 46, null, null, ['eu:ern_lfs', 'gr:NBK1311', 'ukcgg:tp53'], 'STS cumulative incidence 15% women, 22% men (Mai 2016 via GR); 17-27% of LFS cancers'],
-      ['cns', 'hgg|lgg', 'S', 46, null, null, ['gr:NBK1311', 'eu:ern_lfs', 'ukcgg:tp53', 'us:aacr_brain'], 'CNS tumours by 70: 6% women, 19% men (Mai 2016 via GR); 9-14% of LFS cancers'],
+      ['cns', 'hgg', 'S', 46, null, null, ['gr:NBK1311', 'eu:ern_lfs', 'ukcgg:tp53', 'us:aacr_brain'], 'CNS tumours by 70: 6% women, 19% men (Mai 2016 via GR); 9-14% of LFS cancers'],
+      ['cns', 'lgg', 'M', 46, null, null, ['gr:NBK1311', 'us:aacr_brain'], 'Low-grade glioma much less clearly linked than high-grade glioma'],
       ['cns', 'medullo_shh', 'S', null, null, 18, ['eu:ern_lfs', 'gr:NBK1311', 'us:aacr_brain']],
-      ['breast', 'phyllodes', 'S', null, null, null, ['gr:NBK1311']],
+      ['breast', 'phyllodes', 'M', null, null, null, ['gr:NBK1311']],
       ['heme', 'aml|mds', 'M', 40, null, null, ['gr:NBK1311'], 'Leukaemia ~4% of carriers (Bougeard 2015 via GR); often therapy-related'],
       ['uterus', 'lms', 'W', 46, null, null, ['gr:NBK1311']],
       ['lung', 'adeno', 'W', 46, null, null, ['gr:NBK1311', 'fortuno2024']],
@@ -707,7 +709,7 @@ const CONDITIONS = [
       ['parathyroid', 'adenoma', 'S', 35, null, null, ['gr:NBK3789'], 'PHPT penetrance 8% at 25, 53% at 50, 75% at 70 (van der Tuin 2017)'],
       ['kidney', 'wilms|papillary1|nos', 'W', null, null, null, ['gr:NBK3789']],
       ['uterus', '*', 'W', null, null, null, ['gr:NBK3789']],
-      ['feature', 'renal_cysts', 'W', null, null, null, ['gr:NBK3789'], 'Kidney lesions 15-20%']
+      ['feature', 'renal_cysts', 'M', null, null, null, ['gr:NBK3789'], 'Kidney lesions 15-20%']
     ] },
   { id: 'fipa', name: 'Familial isolated pituitary adenoma (AIP)', genes: ['AIP'], inh: 'AD', tests: ['R217'],
     rules: [
@@ -767,7 +769,7 @@ const CONDITIONS = [
       ['ppgl', 'hn', 'S', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548', 'andrews2018', 'us:endo_ppgl'], 'PPGL/HNPGL penetrance ~43% by 60 in non-index paternally inherited carriers (Andrews 2018); ~75% have multifocal tumours'],
       ['ppgl', 'ta', 'M', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548']],
       ['adrenal', 'phaeo', 'M', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548']],
-      ['sarcoma', 'gist', 'M', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548', 'aacr_vhl_ppgl2017']],
+      ['sarcoma', 'gist', 'W', null, null, null, ['ukcgg:sdhd', 'gr:NBK1548', 'aacr_vhl_ppgl2017']],
       ['kidney', 'sdhrcc', 'M', null, null, null, ['ukcgg:sdhd', 'eu:sdhx_consensus', 'nccn_insights_kidney2021', 'aacr_vhl_ppgl2017'], 'RCC in ~2-3% of SDHx carriers (SDHx consensus)'],
       ['pituitary', '*', 'W', null, null, null, ['ukcgg:sdhd', 'andrews2018']],
       ['kidney', 'ccrcc|nos', 'W', null, null, null, ['gr:NBK1548', 'ukcgg:sdhd']]
@@ -820,7 +822,7 @@ const CONDITIONS = [
       ['kidney', 'chromophobe', 'S', 50, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522', 'nccn_insights_kidney2021'], 'Lifetime renal cancer ~15-30%, mean onset ~50 (UKCGG); median age 46 (ERN)'],
       ['feature', 'fibrofolliculoma', 'H', null, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522'], '~40% by 30, nearly complete by 70 (UKCGG)'],
       ['feature', 'lungcysts', 'S', null, null, null, ['ukcgg:flcn', 'eu:ern_bhd'], 'Lung cysts ~75-85% lifetime; pneumothorax ~30% (UKCGG), 24-48% (ERN), median ~34 y'],
-      ['kidney', 'ccrcc', 'M', 50, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522']],
+      ['kidney', 'ccrcc', 'W', 50, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522']],
       ['kidney', 'papillary1|nos', 'W', null, null, null, ['ukcgg:flcn', 'eu:ern_bhd', 'gr:NBK1522']]
     ] },
   { id: 'hprc', name: 'Hereditary papillary renal carcinoma (MET)', genes: ['MET'], inh: 'AD',
@@ -884,10 +886,11 @@ const CONDITIONS = [
       ['skin', 'bcc', 'H', null, null, 20, ['eu:bcns_eu', 'eu:siope_gorlin'], 'BCC before 20 is a major diagnostic criterion; ~12-13% by age 20'],
       ['feature', 'okc', 'H', null, null, null, ['eu:siope_gorlin', 'gr:NBK1151', 'us:aacr_brain'], 'Jaw keratocysts in 75-89% (PTCH1 only)'],
       ['feature', 'palmarpits', 'H', null, null, null, ['gr:NBK1151', 'eu:bcns_eu']],
-      ['feature', 'falx', 'H', null, null, null, ['gr:NBK1151'], 'Falx calcification in 90% by age 30'],
+      ['feature', 'falx', 'H', null, null, 20, ['gr:NBK1151'], 'Falx calcification in 90% by age 30; a major criterion when lamellar or under 20'],
+      ['feature', 'falx', 'M', null, null, null, ['gr:NBK1151'], 'Falx calcification is common in older adults; less specific after 20'],
       ['skin', 'bcc', 'S', 30, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'clingen:PTCH1', 'us:aacr_brain'], 'Median first BCC 33 y; cumulative BCC ~13% by 20 and 76-80% by 50 (Manchester, SIOPE)'],
       ['cns', 'medullo_shh', 'M', 5, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Medulloblastoma ~0.4-2.4% in PTCH1 carriers (SIOPE 0.37%; BAD 1.2-2.4%); peak age 1-2 y'],
-      ['feature', 'cardiac_fibroma', 'S', null, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Cardiac fibroma in 1-5% of NBCCS, usually congenital/infancy'],
+      ['feature', 'cardiac_fibroma', 'M', null, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Cardiac fibroma in 1-5% of NBCCS, usually congenital/infancy'],
       ['ovary', 'fibroma', 'M', null, null, null, ['eu:siope_gorlin', 'eu:bcns_eu', 'gr:NBK1151', 'us:aacr_brain'], 'Ovarian fibroma in ~20% of females (6-60%), often bilateral and calcified, ages 16-45'],
       ['cns', 'meningioma', 'W', null, null, null, ['eu:siope_gorlin', 'gr:NBK1151', 'us:aacr_brain'], 'Meningioma ~2% in PTCH1-related NBCCS (vs 11-30% SUFU)'],
       ['feature', 'macrocephaly', 'W', null, null, null, ['gr:NBK1151', 'eu:bcns_eu'], 'Macrocephaly ~50% (BAD)'],
@@ -950,7 +953,7 @@ const CONDITIONS = [
   { id: 'lztr1', name: 'LZTR1-related schwannomatosis', genes: ['LZTR1'], inh: 'AD',
     note: 'Biallelic LZTR1 also causes autosomal recessive Noonan syndrome.', tests: ['R221'],
     rules: [
-      ['cns', 'schwannoma', 'S', null, null, null, ['eu:ern_schwann', 'us:aacr_schwann', 'gr:NBK487394', 'clingen:LZTR1'], 'Peripheral (90%) and spinal (75%) schwannomas; low penetrance; onset 2nd-4th decade'],
+      ['cns', 'schwannoma', 'M', null, null, null, ['eu:ern_schwann', 'us:aacr_schwann', 'gr:NBK487394', 'clingen:LZTR1'], 'Peripheral (90%) and spinal (75%) schwannomas; low penetrance; onset 2nd-4th decade'],
       ['cns', 'vs', 'M', null, null, null, ['eu:ern_schwann', 'us:aacr_schwann'], 'Unilateral VS in ~10% of LZTR1-schwannomatosis'],
       ['cns', 'meningioma', 'W', null, null, null, ['us:aacr_brain', 'us:aacr_schwann'], null, 'AACR schwannomatosis 2025: meningioma not reported in LZTR1-SWN (AACR brain 2024 does list LZTR1 with meningioma)'],
       ['feature', 'rasopathy', 'W', null, null, null, ['us:aacr_schwann', 'clingen:LZTR1', 'us:aacr_ras'], 'LZTR1 accounts for ~8% of Noonan syndrome']
@@ -965,7 +968,8 @@ const CONDITIONS = [
     ] },
   { id: 'smarce1', name: 'SMARCE1: familial clear cell meningioma', genes: ['SMARCE1'], inh: 'AD', tests: ['R221'],
     rules: [
-      ['cns', 'meningioma_cc', 'H', null, null, null, ['us:aacr_brain', 'smith2013', 'clingen:SMARCE1'], 'Clear cell meningioma, median age 17.5 y (range 2-72); up to 60% recurrence'],
+      ['cns', 'meningioma_cc', 'H', null, null, 25, ['us:aacr_brain', 'smith2013', 'clingen:SMARCE1'], 'Clear cell meningioma, median age 17.5 y (range 2-72); up to 60% recurrence'],
+      ['cns', 'meningioma_cc', 'M', null, null, null, ['us:aacr_brain', 'smith2013', 'clingen:SMARCE1'], 'Adult clear cell meningioma: germline yield lower and not well defined'],
       ['cns', 'meningioma', 'M', 30, null, null, ['smith2013', 'us:aacr_brain'], 'Familial multiple spinal meningiomas (clear cell subtype)']
     ] },
   { id: 'dgcr8', name: 'DGCR8-related familial schwannomatosis with multinodular goitre', genes: ['DGCR8'], inh: 'AD',
@@ -1123,12 +1127,12 @@ const CONDITIONS = [
     ] },
   { id: 'pdgfra', name: 'PDGFRA-mutant syndrome (familial GIST / IFPs)', genes: ['PDGFRA'], inh: 'AD', tests: ['R363'],
     rules: [
-      ['feature', 'ifp', 'H', null, null, null, ['gr:NBK625142']],
+      ['feature', 'ifp', 'S', null, null, null, ['gr:NBK625142']],
       ['sarcoma', 'gist', 'M', 50, null, null, ['gr:NBK625142', 'clingen:PDGFRA', 'nccn_gist_taskforce2010'], 'Penetrance reduced compared with KIT (GeneReviews)']
     ] },
   { id: 'pdgfrb', name: 'Infantile myofibromatosis (PDGFRB)', genes: ['PDGFRB'], inh: 'AD', tests: ['R89'],
     rules: [
-      ['feature', 'myofibroma', 'H', null, null, null, ['cheung2013', 'martignetti2013']]
+      ['feature', 'myofibroma', 'S', null, null, null, ['cheung2013', 'martignetti2013']]
     ] },
 
   { id: 'tbxt', name: 'Familial chordoma (TBXT duplication)', genes: ['TBXT'], inh: 'AD', notOnNicpr: true,
@@ -1220,7 +1224,7 @@ const CONDITIONS = [
   /* ---------- Haematological ---------- */
   { id: 'cebpa', name: 'Familial AML with germline CEBPA', genes: ['CEBPA'], inh: 'AD', tests: ['R347'],
     rules: [
-      ['heme', 'aml', 'H', 50, null, null, ['ukcgg:cebpa', 'gr:NBK47457', 'us:aacr_heme', 'who2022', 'clingen:CEBPA'], 'Lifetime AML ~80% (N-terminal) vs ~50% (other variants); median onset 24.5 y (UKCGG)']
+      ['heme', 'aml', 'S', 50, null, null, ['ukcgg:cebpa', 'gr:NBK47457', 'us:aacr_heme', 'who2022', 'clingen:CEBPA'], 'Lifetime AML ~80% (N-terminal) vs ~50% (other variants); median onset 24.5 y (UKCGG)']
     ] },
   { id: 'runx1', name: 'RUNX1 familial platelet disorder with myeloid malignancy', genes: ['RUNX1'], inh: 'AD',
     tests: ['R347','R90'],
@@ -1249,7 +1253,7 @@ const CONDITIONS = [
     ] },
   { id: 'ankrd26', name: 'ANKRD26-related thrombocytopenia', genes: ['ANKRD26'], inh: 'AD', tests: ['R90','R347'],
     rules: [
-      ['feature', 'thrombocytopenia', 'H', null, null, null, ['ukcgg:ankrd26', 'gr:NBK507664', 'clingen:ANKRD26', 'us:aacr_heme'], 'Penetrance for thrombocytopenia complete'],
+      ['feature', 'thrombocytopenia', 'S', null, null, null, ['ukcgg:ankrd26', 'gr:NBK507664', 'clingen:ANKRD26', 'us:aacr_heme'], 'Penetrance for thrombocytopenia complete'],
       ['heme', 'aml|mds', 'M', null, null, null, ['ukcgg:ankrd26', 'gr:NBK507664', 'us:aacr_heme', 'who2022'], '4.9% AML, 2.2% MDS in 222 carriers; ~24-fold AML risk'],
       ['heme', 'other', 'W', null, null, null, ['ukcgg:ankrd26', 'us:aacr_heme'], 'CML 1.3% of 222 carriers'],
       ['heme', 'cll', 'W', null, null, null, ['us:aacr_heme'], 'CLL reported; absolute risk not established']

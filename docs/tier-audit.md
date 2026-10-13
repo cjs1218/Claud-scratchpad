@@ -86,90 +86,90 @@ Not applied: a common adult cancer in a syndrome usually recognised by its non-c
 | MBD4-associated neoplasia syndrome | GI polyps: >=10 adenomas | Moderate → Strong | Polyps in 19/19 biallelic carriers scoped (5-130, mostly adenomatous) |
 | Juvenile polyposis (BMPR1A) | Colorectal (early 45) | Moderate → Strong | Lifetime CRC 39-68% in JPS (GeneReviews), median ~44 |
 
-## For clinical review (81)
+## Borderline items – decisions (81)
 
-Borderline items left unchanged; a reviewer suggested the tier shown ("?" = uncertain).
+These were listed for clinical review; the team asked for them to be decided under the same definitions (13 Oct 2026). Where the evidence was thin, the current strength was kept (the definitions prefer the lower strength when uncertain, and the principle above applies to common cancers). Four rules were split by age or histology rather than moved as a whole.
 
-| Syndrome | Rule | Current | Suggested | Note |
+| Syndrome | Rule | Was | Note | Decision |
 |---|---|---|---|---|
-| Neurofibromatosis type 1 (NF1) | Brain / CNS: Optic pathway glioma | Hallmark | Hallmark | Hallmark kept as OPG is an NF1 diagnostic criterion, but most series put yield below 50%; Strong would also be defensible. |
-| Neurofibromatosis type 1 (NF1) | Sarcoma / soft tissue: Malignant peripheral nerve sheath tumour | Hallmark | Hallmark | Yield sits at the S/H boundary (~half of MPNST in NF1, higher <25 y); keep but confirm. |
-| Neurofibromatosis type 1 (NF1) | Sarcoma / soft tissue: Rhabdomyosarcoma | Moderate | Moderate | RR may exceed 10, which would make it Strong; absolute risk is small. |
-| PTEN hamartoma tumour syndrome (Cowden) | Thyroid: Multinodular goitre (benign) | Moderate | Moderate | Literal axis B gives Strong, but MNG is a minor criterion and very common in the general population. |
-| PTEN hamartoma tumour syndrome (Cowden) | Uterus (endometrium / myometrium): Endometrioid / Other / unknown | Moderate | Moderate | Upper estimates meet Strong; UK range lower, so kept. |
-| PTEN hamartoma tumour syndrome (Cowden) | Kidney: Clear cell RCC / Papillary RCC (type 1 / classic) / Chromophobe / oncocytoma / hybrid oncocytic / Other / unknown | Moderate | Moderate | SIR >10 in Tan 2012 would make this Strong; UK lower bound 2%. |
-| PTEN hamartoma tumour syndrome (Cowden) | Colorectal: any | Moderate | Moderate | At the M/S boundary. |
-| PTEN hamartoma tumour syndrome (Cowden) | GI polyps: Mixed polyposis / Juvenile polyps | Moderate | Moderate | Axis B could give Strong, but overlaps rule 5 (already Strong). |
-| NTHL1 tumour syndrome (biallelic NTHL1) | GI polyps: Adenomas | Moderate | Moderate | Axis B may be Strong, but data come from polyposis-ascertained cases. |
-| NTHL1 tumour syndrome (biallelic NTHL1) | Colorectal: any | Moderate | Moderate | May merit Strong as for MUTYH-associated polyposis; unquantified penetrance. |
-| NTHL1 tumour syndrome (biallelic NTHL1) | Breast: any | Moderate | Moderate | Small biased series; could be Strong if confirmed. |
-| Bloom syndrome (biallelic BLM) | Skin: Basal cell carcinoma / Squamous cell carcinoma | Moderate | Moderate | Early-onset BCC/SCC implies RR >10 but BCC is common; consider Strong. |
-| Bloom syndrome (biallelic BLM) | Stomach: any | Weak | Weak | Early-age gastric cancer in ~2.5% of registry implies high RR; small numbers; consider Moderate. |
-| Bloom syndrome (biallelic BLM) | Oesophagus: any | Weak | Weak | As for gastric; consider Moderate. |
-| McCune–Albright syndrome (GNAS, usually mosaic) | Breast: any | Weak | Weak | Cohort RR ~3-4 would be Moderate; source evidence limited. |
-| Familial GIST (KIT) | Other tumours & clinical features: Spotty skin pigmentation / blue naevi | Weak | Weak | May be Moderate/Strong on axis B; frequency poorly quantified. |
-| Ollier disease / Maffucci syndrome (post-zygotic IDH1 / IDH2) | Brain / CNS: High-grade glioma / glioblastoma / Low-grade glioma / pilocytic astrocytoma | Moderate | Moderate | Evidence is case-series level (axis B Weak), but RR likely high. |
-| Hereditary PPGL (SDHD) | Sarcoma / soft tissue: Gastrointestinal stromal tumour (GIST) | Moderate | Moderate | Could be Weak unless restricted to SDH-deficient GIST. |
-| PHOX2B-related neuroblastoma / CCHS | Other tumours & clinical features: Congenital central hypoventilation / Hirschsprung | Hallmark | Hallmark | Hallmark right for CCHS; isolated Hirschsprung would be at most Moderate (consider splitting). |
-| BAP1 tumour predisposition syndrome | Other tumours & clinical features: BAP1-inactivated melanocytic tumours | Hallmark | Hallmark | Exception applies; consider requiring multiple BIMTs. |
-| Lynch syndrome (MLH1) | Pancreas: Ductal adenocarcinoma | Weak | Weak | Inconsistent estimates; UK figure alone would be Moderate. |
-| Familial AML with germline CEBPA | Haematological: Acute myeloid leukaemia (early 50) | Hallmark | Strong | Axis A does not support Hallmark. It stays Hallmark only if the defining-feature exception is read to cover a malignancy (AML in most carriers, rare in the population). Clinician to decide. |
-| SMARCB1: rhabdoid tumour predisposition / schwannomatosis | Kidney: Malignant rhabdoid tumour / extracranial MRT (rules 1-2) | Hallmark | Hallmark | Hallmark rests on the defining-feature exception applied to rhabdoid tumours as a group. Split by site, kidney and extracranial MRT would each be Strong. AT/RT (rule 0) is stronger. |
-| Lynch syndrome (MSH2 / EPCAM) | Prostate: any | Moderate | Moderate | For a common cancer the lifetime-risk cut-off overstates the tier. Keep Moderate, but the definitions literally give Strong. |
-| Lynch syndrome (MSH2 / EPCAM) | Pancreas: Ductal adenocarcinoma | Weak | Moderate | RR of 2-10 would give Moderate, but absolute risk is under 5%, so the evidence is mixed. |
-| Polymerase proofreading-associated polyposis (POLE / POLD1) | Colorectal: any | Moderate | Strong | Ascertained data would give Strong on axis B, but ascertainment bias and the lack of population penetrance estimates argue for keeping Moderate. |
-| Serrated polyposis (RNF43) | Colorectal: any | Weak | Moderate | An OR of 2-10 would be Moderate, but it comes from a single recent study. |
-| Multiple endocrine neoplasia type 1 (MEN1) | Breast: any | Weak | Moderate | RR is in the Moderate band, but absolute excess risk is small, it rests on a single cohort, and the breast cancer is not in the MEN1 criteria. |
-| Multiple endocrine neoplasia type 1 (MEN1) | Brain / CNS: Meningioma | Weak | Moderate | Lifetime ~8% would literally be Moderate, but the figure is screening-detected prevalence. |
-| Hereditary breast and ovarian cancer (BRCA2) | Stomach: any | Weak | Weak | RR would be Moderate, but inconsistent evidence and the UK position support keeping Weak. |
-| RAD51D-related ovarian/breast cancer predisposition | Ovary / fallopian tube / peritoneum: High-grade serous | Strong | Strong | By definitions sits on the M/S boundary (RR 7.6 vs 10; lifetime 13% vs 20%); UK practice treats it as a high-impact ovarian gene – keep S. |
-| RAD51D-related ovarian/breast cancer predisposition | Breast: any | Moderate | Moderate | Lifetime figure hits 20% only because baseline is ~11%; RR 1.8 is Weak – consider W. |
-| Familial adenomatous polyposis (APC) | Thyroid: Cribriform-morular variant papillary | Hallmark | Hallmark | Yield straddles 50%; acceptable as Hallmark-type indication for APC testing but could be S. |
-| Familial adenomatous polyposis (APC) | Stomach: Intestinal type / Other / unknown | Moderate | Moderate | UK/Western data suggest W for classical FAP; M justified only by GAPPS/Asian data. |
-| Peutz–Jeghers syndrome (STK11) | Lung: any | Weak | Weak | Inconsistent evidence – keep W. |
-| Multiple endocrine neoplasia type 2 (RET) | Parathyroid: Adenoma / primary hyperparathyroidism | Moderate | Moderate | Lifetime >=20% in MEN2A could argue S, but overall RET carriers lower. |
-| Carney complex (PRKAR1A) | Other tumours & clinical features: PPNAD / ACTH-independent Cushing | Hallmark | Hallmark | PPNAD alone justifies H, but label includes "ACTH-independent Cushing", which is mostly adrenal adenoma (low yield) – consider narrowing label. |
-| Carney complex (PRKAR1A) | Other tumours & clinical features: Spotty skin pigmentation / blue naevi | Strong | Strong | Could qualify for the defining-feature exception (H). |
-| Hereditary PPGL (SDHC) | Kidney: SDH-deficient RCC | Moderate | Moderate | Yield for SDHC specifically may reach ~10% (S); depends on SDHx split. |
-| Tuberous sclerosis complex (TSC1 / TSC2) | Kidney: Angiomyolipoma | Hallmark | Hallmark | Fits defining-feature exception (major criterion, most carriers), but single sporadic AML is not rare. |
-| Tuberous sclerosis complex (TSC1 / TSC2) | Other tumours & clinical features: Lung cysts / spontaneous pneumothorax | Moderate | Moderate | Female carrier risk would give S; mixed-sex rule kept M. |
-| Xeroderma pigmentosum | Head and neck: Squamous cell carcinoma | Moderate | Moderate | RR suggests S; small series. |
-| Xeroderma pigmentosum | Thyroid: Papillary | Moderate | Moderate | RR suggests S but small numbers – could equally be W. |
-| SMARCE1: familial clear cell meningioma | Brain / CNS: Clear cell meningioma | Hallmark | Hallmark | No age restriction; adult CCM yield probably <50% – consider S or age limit. |
-| DICER1 tumour predisposition | Cervix: Embryonal rhabdomyosarcoma | Hallmark | Hallmark | Germline yield not clearly >=50%. |
-| DICER1 tumour predisposition | Other tumours & clinical features: Childhood lung cysts / ciliary body medulloepithelioma / nasal chondromesenchymal hamartoma / gynandroblastoma | Hallmark | Hallmark | Bundled feature includes low-yield "childhood lung cysts" – consider splitting. |
-| DICER1 tumour predisposition | Thyroid: Follicular / Papillary | Moderate | Moderate | RR >10 argues S; absolute risk low and partly post-chemo. |
-| PDGFRA-mutant syndrome (familial GIST / IFPs) | Other tumours & clinical features: Inflammatory fibroid polyps | Hallmark | Hallmark | Hallmark only defensible for multiple IFPs – consider restricting. |
-| Fanconi anaemia (biallelic FANC genes) | Other tumours & clinical features: Radial ray anomalies / short stature (Fanconi-type) | Hallmark | Hallmark | Borderline for defining-feature exception. |
-| Fanconi anaemia (biallelic FANC genes) | Skin: Basal cell carcinoma / Squamous cell carcinoma | Weak | Weak | Could be M/S by RR. |
-| ANKRD26-related thrombocytopenia | Other tumours & clinical features: Familial thrombocytopenia / platelet dysfunction | Hallmark | Hallmark | Defining feature in ~all carriers but shared with RUNX1/ETV6 etc. |
-| ANKRD26-related thrombocytopenia | Haematological: Acute myeloid leukaemia / Myelodysplastic syndrome | Moderate | Moderate | RR >10 argues S, but from a single small series. |
-| LZTR1-related schwannomatosis | Brain / CNS: Non-vestibular schwannoma | Strong | Strong | Single schwannoma yield may be M. |
-| von Hippel–Lindau disease (VHL) | Other: Endolymphatic sac tumour | Hallmark | Hallmark | Hallmark rests on yield near 50% and on being a VHL diagnostic lesion; the defining-feature exception does not apply (low carrier frequency). Kept, but worth a clinician's look. |
-| SMARCA4: rhabdoid tumour predisposition 2 / SCCOHT | Ovary: SCCOHT | Hallmark | Hallmark | Germline yield sits just below the ~50% Hallmark line; the recorded risk text describes somatic loss, not germline yield. |
-| MUTYH-associated polyposis (biallelic MUTYH) | GI polyps: Adenomas >100 (n100) | Moderate | S? | Both axes are near the Strong boundary. Possibly kept at M deliberately because the n10 rule (S) also fires. |
-| MUTYH-associated polyposis (biallelic MUTYH) | Small bowel / duodenum: Adenocarcinoma | Moderate | S? | The relative-risk criterion (RR >=10) would give Strong, but the absolute risk is low. Kept at M. |
-| Juvenile polyposis (SMAD4) / JP-HHT | GI polyps: Juvenile polyps (any number) | Moderate | S? | Strict axis B gives Strong, but any single juvenile polyp is non-specific and the n5 rule already scores Hallmark. |
-| von Hippel–Lindau disease (VHL) | Other: Multiple renal / pancreatic cysts | Moderate | S? | Axis B suggests Strong, but the feature is non-specific. Note that hptjt i5 scores the same feature W (kidney lesions 15-20%, which would be axis B M). |
-| Hyperparathyroidism–jaw tumour syndrome (CDC73) | Other: Multiple renal / pancreatic cysts | Weak | M? | Axis B falls in the Moderate band, but the lesions are mainly simple cysts and non-specific. |
-| POT1 tumour predisposition | Skin: Cutaneous melanoma (early 40) | Moderate | W? | The UKCGG figures give Weak on both axes; family-based studies suggest higher risk. Kept at M pending a clinician's view. |
-| POT1 tumour predisposition | Brain / CNS: Glioma | Moderate | W? | The definitions prefer the lower tier when figures are unknown, but the association is consistent in familial glioma kindreds. |
-| MEN4 (CDKN1B) | Parathyroid: PHPT (and i1 pituitary) | Moderate | Moderate | Taken at face value, axis B would give Strong, but penetrance is unknown because of ascertainment bias, so M is kept. |
-| BRIP1-related ovarian cancer predisposition (heterozygous) | Ovary: High-grade serous | Moderate | Moderate | Only one study reaches the RR >=10 threshold; UK lifetime figures support M. |
-| Juvenile polyposis (SMAD4) / JP-HHT | GI polyps: Juvenile polyps >5 (n5) | Hallmark | Hallmark | Hallmark holds only through the defining-feature exception (a JPS diagnostic criterion present in most carriers and rare otherwise). Kept. |
-| Li–Fraumeni syndrome (TP53) | Adrenocortical carcinoma (any age) | Hallmark | Hallmark | Chompret criterion irrespective of age, but adult ACC yield is low; consider maxAge 18 for Hallmark with an adult ACC Strong rule. |
-| Li–Fraumeni syndrome (TP53) | Low-hypodiploid ALL | Hallmark | Hallmark | Yield sits at the Hallmark threshold; kept. |
-| Li–Fraumeni syndrome (TP53) | Osteosarcoma (early 30) | Strong | Moderate | Both axes are Moderate on figures, but it is a core LFS/Chompret tumour; clinician view. |
-| Li–Fraumeni syndrome (TP53) | CNS HGG/LGG (early 46) | Strong | Moderate | LGG in particular is weakly linked; consider HGG-only Strong. |
-| Li–Fraumeni syndrome (TP53) | Malignant phyllodes | Strong | Moderate | Association real but figures thin; Strong looks generous. |
-| MBD4-associated neoplasia syndrome | Colorectal (early 45) | Moderate | Strong | Axis B sits at the 20% boundary. |
-| MBD4-associated neoplasia syndrome | Uveal melanoma | Moderate | Strong | RR straddles 10; ClinGen Moderate. |
-| MBD4-associated neoplasia syndrome | Schwannoma | Weak | Moderate | Listed by GeneReviews; small series. |
-| Juvenile polyposis (BMPR1A) | Juvenile polyps (any number) | Moderate | Moderate | Literal axis B would give Strong; feature-frequency artefact. |
-| Birt–Hogg–Dubé syndrome (FLCN) | Clear cell RCC (early 50) | Moderate | Weak | Both axes probably Weak. |
-| Gorlin syndrome / naevoid BCC syndrome (PTCH1) | Falx calcification | Hallmark | Hallmark | Defining feature but not rare in older adults; Hallmark apt only if lamellar/<20 y. |
-| Gorlin syndrome / naevoid BCC syndrome (PTCH1) | Cardiac fibroma | Strong | Moderate | Both axes look Moderate at best. |
-| Gorlin syndrome / naevoid BCC syndrome (PTCH1) | Macrocephaly | Weak | Weak | Literal axis B gives Strong; nonspecific feature - also applies to sotos 1. |
-| Hereditary retinoblastoma (RB1) | Soft tissue sarcoma | Moderate | Strong | RR criterion gives Strong; largely radiation-related. |
-| Hereditary retinoblastoma (RB1) | Cutaneous melanoma | Moderate | Strong | RR >=10 literally gives Strong. |
-| Infantile myofibromatosis (PDGFRB) | Infantile myofibromatosis | Hallmark | Hallmark | Hallmark appropriate only for multicentric/familial disease. |
+| Neurofibromatosis type 1 (NF1) | Brain / CNS: Optic pathway glioma | Hallmark | Hallmark kept as OPG is an NF1 diagnostic criterion, but most series put yield below 50%; Strong would also be defensible. | Kept |
+| Neurofibromatosis type 1 (NF1) | Sarcoma / soft tissue: Malignant peripheral nerve sheath tumour | Hallmark | Yield sits at the S/H boundary (~half of MPNST in NF1, higher <25 y); keep but confirm. | Kept |
+| Neurofibromatosis type 1 (NF1) | Sarcoma / soft tissue: Rhabdomyosarcoma | Moderate | RR may exceed 10, which would make it Strong; absolute risk is small. | Kept |
+| PTEN hamartoma tumour syndrome (Cowden) | Thyroid: Multinodular goitre (benign) | Moderate | Literal axis B gives Strong, but MNG is a minor criterion and very common in the general population. | Kept |
+| PTEN hamartoma tumour syndrome (Cowden) | Uterus (endometrium / myometrium): Endometrioid / Other / unknown | Moderate | Upper estimates meet Strong; UK range lower, so kept. | Kept |
+| PTEN hamartoma tumour syndrome (Cowden) | Kidney: Clear cell RCC / Papillary RCC (type 1 / classic) / Chromophobe / oncocytoma / hybrid oncocytic / Other / unknown | Moderate | SIR >10 in Tan 2012 would make this Strong; UK lower bound 2%. | Kept |
+| PTEN hamartoma tumour syndrome (Cowden) | Colorectal: any | Moderate | At the M/S boundary. | Kept |
+| PTEN hamartoma tumour syndrome (Cowden) | GI polyps: Mixed polyposis / Juvenile polyps | Moderate | Axis B could give Strong, but overlaps rule 5 (already Strong). | Kept |
+| NTHL1 tumour syndrome (biallelic NTHL1) | GI polyps: Adenomas | Moderate | Axis B may be Strong, but data come from polyposis-ascertained cases. | Kept |
+| NTHL1 tumour syndrome (biallelic NTHL1) | Colorectal: any | Moderate | May merit Strong as for MUTYH-associated polyposis; unquantified penetrance. | Kept |
+| NTHL1 tumour syndrome (biallelic NTHL1) | Breast: any | Moderate | Small biased series; could be Strong if confirmed. | Kept |
+| Bloom syndrome (biallelic BLM) | Skin: Basal cell carcinoma / Squamous cell carcinoma | Moderate | Early-onset BCC/SCC implies RR >10 but BCC is common; consider Strong. | Kept |
+| Bloom syndrome (biallelic BLM) | Stomach: any | Weak | Early-age gastric cancer in ~2.5% of registry implies high RR; small numbers; consider Moderate. | Kept |
+| Bloom syndrome (biallelic BLM) | Oesophagus: any | Weak | As for gastric; consider Moderate. | Kept |
+| McCune–Albright syndrome (GNAS, usually mosaic) | Breast: any | Weak | Cohort RR ~3-4 would be Moderate; source evidence limited. | Kept |
+| Familial GIST (KIT) | Other tumours & clinical features: Spotty skin pigmentation / blue naevi | Weak | May be Moderate/Strong on axis B; frequency poorly quantified. | Kept |
+| Ollier disease / Maffucci syndrome (post-zygotic IDH1 / IDH2) | Brain / CNS: High-grade glioma / glioblastoma / Low-grade glioma / pilocytic astrocytoma | Moderate | Evidence is case-series level (axis B Weak), but RR likely high. | Kept |
+| Hereditary PPGL (SDHD) | Sarcoma / soft tissue: Gastrointestinal stromal tumour (GIST) | Moderate | Could be Weak unless restricted to SDH-deficient GIST. | Changed to Weak – any GIST; SDH-deficient GIST is where the yield lies |
+| PHOX2B-related neuroblastoma / CCHS | Other tumours & clinical features: Congenital central hypoventilation / Hirschsprung | Hallmark | Hallmark right for CCHS; isolated Hirschsprung would be at most Moderate (consider splitting). | Kept |
+| BAP1 tumour predisposition syndrome | Other tumours & clinical features: BAP1-inactivated melanocytic tumours | Hallmark | Exception applies; consider requiring multiple BIMTs. | Kept |
+| Lynch syndrome (MLH1) | Pancreas: Ductal adenocarcinoma | Weak | Inconsistent estimates; UK figure alone would be Moderate. | Changed to Moderate – UK figure (~3-4% vs ~1%, RR ~3) is in the Moderate band |
+| Familial AML with germline CEBPA | Haematological: Acute myeloid leukaemia (early 50) | Hallmark | Axis A does not support Hallmark. It stays Hallmark only if the defining-feature exception is read to cover a malignancy (AML in most carriers, rare in the population). Clinician to decide. | Changed to Strong – AML yield is low; carrier risk keeps it Strong |
+| SMARCB1: rhabdoid tumour predisposition / schwannomatosis | Kidney: Malignant rhabdoid tumour / extracranial MRT (rules 1-2) | Hallmark | Hallmark rests on the defining-feature exception applied to rhabdoid tumours as a group. Split by site, kidney and extracranial MRT would each be Strong. AT/RT (rule 0) is stronger. | Kept |
+| Lynch syndrome (MSH2 / EPCAM) | Prostate: any | Moderate | For a common cancer the lifetime-risk cut-off overstates the tier. Keep Moderate, but the definitions literally give Strong. | Kept |
+| Lynch syndrome (MSH2 / EPCAM) | Pancreas: Ductal adenocarcinoma | Weak | RR of 2-10 would give Moderate, but absolute risk is under 5%, so the evidence is mixed. | Changed to Moderate – as for MLH1 |
+| Polymerase proofreading-associated polyposis (POLE / POLD1) | Colorectal: any | Moderate | Ascertained data would give Strong on axis B, but ascertainment bias and the lack of population penetrance estimates argue for keeping Moderate. | Kept |
+| Serrated polyposis (RNF43) | Colorectal: any | Weak | An OR of 2-10 would be Moderate, but it comes from a single recent study. | Kept |
+| Multiple endocrine neoplasia type 1 (MEN1) | Breast: any | Weak | RR is in the Moderate band, but absolute excess risk is small, it rests on a single cohort, and the breast cancer is not in the MEN1 criteria. | Kept |
+| Multiple endocrine neoplasia type 1 (MEN1) | Brain / CNS: Meningioma | Weak | Lifetime ~8% would literally be Moderate, but the figure is screening-detected prevalence. | Kept |
+| Hereditary breast and ovarian cancer (BRCA2) | Stomach: any | Weak | RR would be Moderate, but inconsistent evidence and the UK position support keeping Weak. | Kept |
+| RAD51D-related ovarian/breast cancer predisposition | Ovary / fallopian tube / peritoneum: High-grade serous | Strong | By definitions sits on the M/S boundary (RR 7.6 vs 10; lifetime 13% vs 20%); UK practice treats it as a high-impact ovarian gene – keep S. | Changed to Moderate in the audit (consistent with RAD51C) |
+| RAD51D-related ovarian/breast cancer predisposition | Breast: any | Moderate | Lifetime figure hits 20% only because baseline is ~11%; RR 1.8 is Weak – consider W. | Kept |
+| Familial adenomatous polyposis (APC) | Thyroid: Cribriform-morular variant papillary | Hallmark | Yield straddles 50%; acceptable as Hallmark-type indication for APC testing but could be S. | Kept |
+| Familial adenomatous polyposis (APC) | Stomach: Intestinal type / Other / unknown | Moderate | UK/Western data suggest W for classical FAP; M justified only by GAPPS/Asian data. | Kept |
+| Peutz–Jeghers syndrome (STK11) | Lung: any | Weak | Inconsistent evidence – keep W. | Kept |
+| Multiple endocrine neoplasia type 2 (RET) | Parathyroid: Adenoma / primary hyperparathyroidism | Moderate | Lifetime >=20% in MEN2A could argue S, but overall RET carriers lower. | Kept |
+| Carney complex (PRKAR1A) | Other tumours & clinical features: PPNAD / ACTH-independent Cushing | Hallmark | PPNAD alone justifies H, but label includes "ACTH-independent Cushing", which is mostly adrenal adenoma (low yield) – consider narrowing label. | Kept |
+| Carney complex (PRKAR1A) | Other tumours & clinical features: Spotty skin pigmentation / blue naevi | Strong | Could qualify for the defining-feature exception (H). | Kept |
+| Hereditary PPGL (SDHC) | Kidney: SDH-deficient RCC | Moderate | Yield for SDHC specifically may reach ~10% (S); depends on SDHx split. | Kept |
+| Tuberous sclerosis complex (TSC1 / TSC2) | Kidney: Angiomyolipoma | Hallmark | Fits defining-feature exception (major criterion, most carriers), but single sporadic AML is not rare. | Kept |
+| Tuberous sclerosis complex (TSC1 / TSC2) | Other tumours & clinical features: Lung cysts / spontaneous pneumothorax | Moderate | Female carrier risk would give S; mixed-sex rule kept M. | Kept |
+| Xeroderma pigmentosum | Head and neck: Squamous cell carcinoma | Moderate | RR suggests S; small series. | Kept |
+| Xeroderma pigmentosum | Thyroid: Papillary | Moderate | RR suggests S but small numbers – could equally be W. | Kept |
+| SMARCE1: familial clear cell meningioma | Brain / CNS: Clear cell meningioma | Hallmark | No age restriction; adult CCM yield probably <50% – consider S or age limit. | Split – Hallmark up to 25; Moderate in older adults |
+| DICER1 tumour predisposition | Cervix: Embryonal rhabdomyosarcoma | Hallmark | Germline yield not clearly >=50%. | Kept |
+| DICER1 tumour predisposition | Other tumours & clinical features: Childhood lung cysts / ciliary body medulloepithelioma / nasal chondromesenchymal hamartoma / gynandroblastoma | Hallmark | Bundled feature includes low-yield "childhood lung cysts" – consider splitting. | Kept |
+| DICER1 tumour predisposition | Thyroid: Follicular / Papillary | Moderate | RR >10 argues S; absolute risk low and partly post-chemo. | Kept |
+| PDGFRA-mutant syndrome (familial GIST / IFPs) | Other tumours & clinical features: Inflammatory fibroid polyps | Hallmark | Hallmark only defensible for multiple IFPs – consider restricting. | Changed to Strong – a single inflammatory fibroid polyp is mostly sporadic |
+| Fanconi anaemia (biallelic FANC genes) | Other tumours & clinical features: Radial ray anomalies / short stature (Fanconi-type) | Hallmark | Borderline for defining-feature exception. | Kept |
+| Fanconi anaemia (biallelic FANC genes) | Skin: Basal cell carcinoma / Squamous cell carcinoma | Weak | Could be M/S by RR. | Kept |
+| ANKRD26-related thrombocytopenia | Other tumours & clinical features: Familial thrombocytopenia / platelet dysfunction | Hallmark | Defining feature in ~all carriers but shared with RUNX1/ETV6 etc. | Changed to Strong – thrombocytopenia is shared with RUNX1/ETV6 (ETV6 is Strong) |
+| ANKRD26-related thrombocytopenia | Haematological: Acute myeloid leukaemia / Myelodysplastic syndrome | Moderate | RR >10 argues S, but from a single small series. | Kept |
+| LZTR1-related schwannomatosis | Brain / CNS: Non-vestibular schwannoma | Strong | Single schwannoma yield may be M. | Changed to Moderate – single schwannoma, low penetrance |
+| von Hippel–Lindau disease (VHL) | Other: Endolymphatic sac tumour | Hallmark | Hallmark rests on yield near 50% and on being a VHL diagnostic lesion; the defining-feature exception does not apply (low carrier frequency). Kept, but worth a clinician's look. | Kept |
+| SMARCA4: rhabdoid tumour predisposition 2 / SCCOHT | Ovary: SCCOHT | Hallmark | Germline yield sits just below the ~50% Hallmark line; the recorded risk text describes somatic loss, not germline yield. | Kept |
+| MUTYH-associated polyposis (biallelic MUTYH) | GI polyps: Adenomas >100 (n100) | Moderate | Both axes are near the Strong boundary. Possibly kept at M deliberately because the n10 rule (S) also fires. | Kept |
+| MUTYH-associated polyposis (biallelic MUTYH) | Small bowel / duodenum: Adenocarcinoma | Moderate | The relative-risk criterion (RR >=10) would give Strong, but the absolute risk is low. Kept at M. | Kept |
+| Juvenile polyposis (SMAD4) / JP-HHT | GI polyps: Juvenile polyps (any number) | Moderate | Strict axis B gives Strong, but any single juvenile polyp is non-specific and the n5 rule already scores Hallmark. | Kept |
+| von Hippel–Lindau disease (VHL) | Other: Multiple renal / pancreatic cysts | Moderate | Axis B suggests Strong, but the feature is non-specific. Note that hptjt i5 scores the same feature W (kidney lesions 15-20%, which would be axis B M). | Kept |
+| Hyperparathyroidism–jaw tumour syndrome (CDC73) | Other: Multiple renal / pancreatic cysts | Weak | Axis B falls in the Moderate band, but the lesions are mainly simple cysts and non-specific. | Changed to Moderate – consistent with VHL cysts (Moderate) |
+| POT1 tumour predisposition | Skin: Cutaneous melanoma (early 40) | Moderate | The UKCGG figures give Weak on both axes; family-based studies suggest higher risk. Kept at M pending a clinician's view. | Kept |
+| POT1 tumour predisposition | Brain / CNS: Glioma | Moderate | The definitions prefer the lower tier when figures are unknown, but the association is consistent in familial glioma kindreds. | Kept |
+| MEN4 (CDKN1B) | Parathyroid: PHPT (and i1 pituitary) | Moderate | Taken at face value, axis B would give Strong, but penetrance is unknown because of ascertainment bias, so M is kept. | Kept |
+| BRIP1-related ovarian cancer predisposition (heterozygous) | Ovary: High-grade serous | Moderate | Only one study reaches the RR >=10 threshold; UK lifetime figures support M. | Kept |
+| Juvenile polyposis (SMAD4) / JP-HHT | GI polyps: Juvenile polyps >5 (n5) | Hallmark | Hallmark holds only through the defining-feature exception (a JPS diagnostic criterion present in most carriers and rare otherwise). Kept. | Kept |
+| Li–Fraumeni syndrome (TP53) | Adrenocortical carcinoma (any age) | Hallmark | Chompret criterion irrespective of age, but adult ACC yield is low; consider maxAge 18 for Hallmark with an adult ACC Strong rule. | Split – Hallmark up to 18; Moderate in adults |
+| Li–Fraumeni syndrome (TP53) | Low-hypodiploid ALL | Hallmark | Yield sits at the Hallmark threshold; kept. | Kept |
+| Li–Fraumeni syndrome (TP53) | Osteosarcoma (early 30) | Strong | Both axes are Moderate on figures, but it is a core LFS/Chompret tumour; clinician view. | Kept |
+| Li–Fraumeni syndrome (TP53) | CNS HGG/LGG (early 46) | Strong | LGG in particular is weakly linked; consider HGG-only Strong. | Split – high-grade glioma Strong; low-grade glioma Moderate |
+| Li–Fraumeni syndrome (TP53) | Malignant phyllodes | Strong | Association real but figures thin; Strong looks generous. | Changed to Moderate – association real, figures thin |
+| MBD4-associated neoplasia syndrome | Colorectal (early 45) | Moderate | Axis B sits at the 20% boundary. | Kept |
+| MBD4-associated neoplasia syndrome | Uveal melanoma | Moderate | RR straddles 10; ClinGen Moderate. | Kept |
+| MBD4-associated neoplasia syndrome | Schwannoma | Weak | Listed by GeneReviews; small series. | Kept |
+| Juvenile polyposis (BMPR1A) | Juvenile polyps (any number) | Moderate | Literal axis B would give Strong; feature-frequency artefact. | Kept |
+| Birt–Hogg–Dubé syndrome (FLCN) | Clear cell RCC (early 50) | Moderate | Both axes probably Weak. | Changed to Weak – BHD renal tumours are mostly chromophobe/hybrid |
+| Gorlin syndrome / naevoid BCC syndrome (PTCH1) | Falx calcification | Hallmark | Defining feature but not rare in older adults; Hallmark apt only if lamellar/<20 y. | Split – Hallmark up to 20; Moderate after |
+| Gorlin syndrome / naevoid BCC syndrome (PTCH1) | Cardiac fibroma | Strong | Both axes look Moderate at best. | Changed to Moderate – 1-5% of carriers; low yield |
+| Gorlin syndrome / naevoid BCC syndrome (PTCH1) | Macrocephaly | Weak | Literal axis B gives Strong; nonspecific feature - also applies to sotos 1. | Kept |
+| Hereditary retinoblastoma (RB1) | Soft tissue sarcoma | Moderate | RR criterion gives Strong; largely radiation-related. | Kept |
+| Hereditary retinoblastoma (RB1) | Cutaneous melanoma | Moderate | RR >=10 literally gives Strong. | Kept |
+| Infantile myofibromatosis (PDGFRB) | Infantile myofibromatosis | Hallmark | Hallmark appropriate only for multicentric/familial disease. | Changed to Strong – solitary infantile myofibromatosis is mostly sporadic |
