@@ -1042,6 +1042,25 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const amsN = await page.locator('#results .ams').textContent();
   check(/Modified Amsterdam criteria not met \(3 of 4\)/.test(amsN) && /✗ at least one diagnosed under 50/.test(amsN), 'near miss shows which criterion is missing');
 
+  console.log('Benchmark families (tests/benchmarks.json)');
+  await page.goto(BASE);
+  for (const f of require('./benchmarks.json')) {
+    const data = JSON.stringify({ people: f.people.map(([rel, sex, dx], i) => ({ id: i + 1, rel, sex, dx })) });
+    await page.setInputFiles('#open-family', { name: 'benchmark.json', mimeType: 'application/json', buffer: Buffer.from(data) });
+    await page.waitForFunction(() => document.querySelector('#results .result'));
+    const ids = await page.$$eval('#results .result', a => a.map(x => x.dataset.cond));
+    const weak = await page.locator('#results .weak-note').count() > 0;
+    const met = await page.evaluate(() => [...document.querySelectorAll('#results .elig > .elig-people > li')]
+      .filter(li => /^Proband/.test(li.querySelector('.elig-who').textContent)).flatMap(li => [...li.querySelectorAll('[data-test]')].map(b => b.dataset.test)));
+    const bad = [];
+    if (f.top && !f.top.includes(ids[0])) bad.push(`first is ${ids[0]}, expected ${f.top.join(' or ')}`);
+    for (const id of f.top3 || []) if (!ids.slice(0, 3).includes(id)) bad.push(`${id} not in top 3 (${ids.slice(0, 3).join(', ')})`);
+    for (const id of f.notTop3 || []) if (ids.slice(0, 3).includes(id)) bad.push(`${id} should not be in top 3`);
+    if (!!f.weak !== weak) bad.push(f.weak ? 'expected the "No strong pattern" note' : 'unexpected "No strong pattern" note');
+    for (const t of f.meets || []) if (!met.includes(t)) bad.push(`proband does not meet ${t}`);
+    check(!bad.length, `benchmark: ${f.name}${bad.length ? ' – ' + bad.join('; ') : ''}`);
+  }
+
   console.log('How syndromes are ranked');
   await page.goto(BASE + '#syndrome=vhl'); await page.waitForSelector('#syn-detail h2');
   check(/yield:/i.test(await page.getAttribute('#syn-detail .tier', 'title') || ''), 'strength labels explain the definition on hover');

@@ -704,3 +704,6 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .ranking-table th, .ranking-table td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
 .ranking-table td:nth-child(2) { text-align: center; }
 .tier-legend .link-btn { text-decoration: underline; cursor: pointer; }
+
+/* No strong pattern note above the ranked list */
+.weak-note { border-left: 4px solid var(--warn-edge); background: var(--warn-bg); color: var(--warn-fg); padding: 8px 10px; border-radius: 6px; margin: 8px 0; font-size: .92em; }

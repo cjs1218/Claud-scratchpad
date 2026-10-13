@@ -99,6 +99,17 @@ for (const g of [...d.NICPR.biallelic, ...d.NICPR.susceptibilityOnly, ...d.NICPR
 for (const t of ['H', 'S', 'M', 'W']) if (!d.TIER_DEFS[t] || !d.TIER_DEFS[t].yield || !d.TIER_DEFS[t].risk) e(`TIER_DEFS ${t} needs yield and risk`);
 for (const [id, src] of Object.entries(d.SOURCES)) for (const k of src.ukl || []) if (!d.UKCGG_LEAFLETS[k]) e(`SOURCES ${id}: unknown UKCGG leaflet ${k}`);
 for (const [k, [t, u]] of Object.entries(d.UKCGG_LEAFLETS)) if (!t || !/^https:\/\/www\.ukcgg\.org\/media\//.test(u)) e(`UKCGG_LEAFLETS ${k}: needs a label and a ukcgg.org/media URL`);
+// Common adult cancers in syndromes recognised by non-cancer features: at most moderate unless limited to age 40 or under.
+for (const id of d.NONCANCER_RECOGNISED) {
+  const c = d.CONDITIONS.find(x => x.id === id);
+  if (!c) { e(`NONCANCER_RECOGNISED: unknown condition ${id}`); continue; }
+  c.rules.forEach(r => {
+    const hs = d.COMMON_ADULT_CANCERS[r[0]];
+    if (hs == null || !'HS'.includes(r[2]) || (r[5] != null && r[5] <= 40)) return;
+    if (r[1] === '*' || hs === '*' || r[1].split('|').some(h => hs.split('|').includes(h))) e(`${id}: ${r[0]}/${r[1]} is ${r[2]} – a common adult cancer in a syndrome recognised by non-cancer features is at most moderate (or limit it to age 40 or under)`);
+  });
+}
+for (const c of d.CONDITIONS) if (![1, 2, 3, 4].includes(d.FREQ_BAND[c.id])) e(`FREQ_BAND: ${c.id} needs a band 1-4`);
 // Two-step relationship list: every relationship (bar proband/unset) reachable exactly once, and only real ids used.
 const kindIds = d.REL_KINDS.flatMap(([k, , sides]) => sides ? Object.values(sides).map(v => v[0]) : [k]);
 for (const id of kindIds) if (!d.RELATIONS.some(r => r[0] === id)) e(`REL_KINDS id ${id} is not in RELATIONS`);

@@ -39,6 +39,8 @@ Everything clinical lives in `js/data.js`:
   (e.g. MLH1 loss explained by methylation ×0.2 for Lynch MLH1).
 - **TESTS** – Rare and Inherited Disease Test Directory v9.1 codes, PanelApp panels and
   condensed criteria (Part XI unless `part` names another chapter, e.g. `'IV'` Endocrinology).
+- **NONCANCER_RECOGNISED / COMMON_ADULT_CANCERS** – in syndromes recognised by non-cancer features, a common adult cancer is at most moderate unless limited to age 40 or under (checked by `tests/check-data.js`).
+- **FREQ_BAND** – rough frequency of each syndrome (1 commonest – 4 rarest), used only to order exact ties.
 - **UKCGG_LEAFLETS** – UKCGG patient information leaflets (gene leaflets, chemoprevention, reproductive options), listed per condition with `ukl` in SOURCES; `UKCGG_GENERAL` ones show for every condition.
 - **EG / GUIDES / EU_GUIDES / US_GUIDES / SOURCES** – East Genomics leaflets (direct links), UKCGG / NICE
   guidance, European guidelines (ERN GENTURIS, ESMO, ESGE, EHTG/ESCP, ESE, SIOPE) and US / international
@@ -160,6 +162,7 @@ npm run test:fast           # the Node-only checks (seconds)
 npm run test:live           # browser tests against the published site
 ```
 
+- `tests/benchmarks.json` – typical families with the expected top syndrome, Test Directory tests and whether the "No strong pattern" note shows; run by the browser tests. Add one whenever a ranking problem is fixed.
 - `tests/check-data.js` – every rule's site/histology/predicate/test exists, NICPR genes covered.
 - `tests/eligibility.test.js` – Test Directory criteria, Manchester score, modified Amsterdam, relationships.
 - `tests/criteria.test.js` – every eligibility reason links to a line of the verbatim criteria (random families).

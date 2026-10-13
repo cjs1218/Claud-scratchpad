@@ -173,3 +173,20 @@ These were listed for clinical review; the team asked for them to be decided und
 | Hereditary retinoblastoma (RB1) | Soft tissue sarcoma | Moderate | RR criterion gives Strong; largely radiation-related. | Kept |
 | Hereditary retinoblastoma (RB1) | Cutaneous melanoma | Moderate | RR >=10 literally gives Strong. | Kept |
 | Infantile myofibromatosis (PDGFRB) | Infantile myofibromatosis | Hallmark | Hallmark appropriate only for multicentric/familial disease. | Changed to Strong – solitary infantile myofibromatosis is mostly sporadic |
+
+## Follow-up – ranking review (13 October 2026)
+
+Typical families were run through the ranking and the problems found were fixed; 25 of these families are now
+benchmark tests (`tests/benchmarks.json`) with their expected top syndrome, Test Directory tests and whether the
+"No strong pattern" note should show.
+
+| Change | Why |
+|---|---|
+| PJS breast and pancreatic cancer, PTEN breast cancer, Gorlin basal cell carcinoma (any age), XP skin cancer (any age), tylosis oesophageal cancer: Strong → Moderate | The audit principle (a common adult cancer in a syndrome recognised by its non-cancer features is at most Moderate) was applied to existing rules, not only to proposed upgrades. PJS and PTEN were tying with or outranking BRCA1/2 for breast-only families and for isolated pancreatic cancer. Now checked automatically (`NONCANCER_RECOGNISED`, `COMMON_ADULT_CANCERS`). |
+| Bloom, Fanconi and dyskeratosis congenita head-and-neck / oesophageal SCC: Strong only up to 40; Costello bladder cancer: only up to 20 | Characteristic only in the young; otherwise every adult with these common cancers scored a rare syndrome as Strong. |
+| PALB2 breast cancer early-onset age 50 → 45 | Aligned with BRCA1/BRCA2, so PALB2 no longer outranks BRCA2 for the same breast cancer. |
+| Li-Fraumeni breast cancer: Strong up to 45, Moderate after | TP53 is found in very few women with breast cancer after 45; LFS was tying with BRCA for later-onset breast families. |
+| Male breast cancer: men use the male-specific rule where a syndrome has one | BRCA1's general breast rule was applying to men and tying with BRCA2. |
+| ELP1 SHH medulloblastoma: Strong from age 3 (to 20), Moderate under 3 | ELP1 medulloblastoma is mainly in children aged 3–16; infant SHH medulloblastoma is mostly SUFU or PTCH1. |
+| Exact ties ordered by rough syndrome frequency (`FREQ_BAND`) | Ties were in data order; the commoner syndrome is now listed first. Used only for ordering. |
+| "No strong pattern" note when nothing is a hallmark or strong match | A list of 3-point matches was presented like a confident differential. |

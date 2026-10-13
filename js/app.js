@@ -69,7 +69,10 @@
 
   function scoreDx(cond, dx, person) {
     let best = null;
+    // Where a syndrome has a male-specific rule for this site (e.g. male breast cancer), men use only that rule.
+    const maleOnly = person.sex === 'M' && cond.rules.some(r => r[0] === dx.site && r[4] === 'male');
     for (const rule of cond.rules) {
+      if (maleOnly && rule[0] === dx.site && rule[4] !== 'male') continue;
       const m = matchRule(rule, dx, person);
       if (m && (!best || m.value > best.value)) best = m;
     }
@@ -119,7 +122,8 @@
       evidence.sort((a, b) => b.v - a.v);
       results.push({ cond, score: total, evidence, hasStrong });
     }
-    results.sort((a, b) => b.score - a.score);
+    // Exact ties: the commoner syndrome first (FREQ_BAND), then data order.
+    results.sort((a, b) => (Math.abs(b.score - a.score) > 1e-9 ? b.score - a.score : (FREQ_BAND[a.cond.id] || 4) - (FREQ_BAND[b.cond.id] || 4)));
     return results;
   }
 
@@ -998,6 +1002,9 @@
     el.classList.remove('flash'); void el.offsetWidth; if (text) el.classList.add('flash');
     clearTimeout(statusTimer); statusTimer = setTimeout(() => el.classList.remove('flash'), 1200);
   }
+  // No hallmark or strong match anywhere: the list is possibilities only.
+  const weakPattern = all => all.length > 0 && !all.some(r => r.hasStrong);
+  const WEAK_TEXT = 'No hallmark or strong match was found, so an inherited cause is not suggested by the ranking alone – the syndromes below are possibilities only. Test Directory criteria (above) still apply.';
   function renderResults() {
     const all = scoreFamily();
     const { shown, hidden, top } = filterByMode(all);
@@ -1027,6 +1034,7 @@
       ${eligibilityHtml()}
       ${pedigreeHtml(shown)}
       <p class="muted small shown-note">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
+      ${weakPattern(all) ? `<div class="weak-note" role="note"><strong>No strong pattern.</strong> ${WEAK_TEXT}</div>` : ''}
       ${TIER_LEGEND}
       ${shown.map((r, i) => resultCard(r, i, top)).join('')}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
@@ -1333,6 +1341,7 @@
     const mb = eligibilityList(true);
     if (mb.length) { lines.push('', 'MAY MEET TEST DIRECTORY CRITERIA – CHECK'); mb.forEach(eLine); }
     lines.push('', `DIFFERENTIAL (${MODES[state.mode].label.toLowerCase()} search)`);
+    if (weakPattern(scoreFamily())) lines.push(`No strong pattern: ${WEAK_TEXT}`);
     lastShown.forEach((r, i) => lines.push(`${i + 1}. ${r.cond.name} [${r.cond.genes.join(', ')}] – score ${r.score.toFixed(1)}`));
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {
@@ -1546,6 +1555,8 @@
         <li>Dominant conditions: the stronger parental side counts fully and the other side ×0.3. Recessive conditions: only the proband and
           brothers and sisters count fully; other relatives ×0.2.</li>
         <li>Each further supporting cancer adds 20% (up to five), and syndromes are listed by total. Scores are relative, not probabilities.</li>
+        <li>Exact ties are listed with the commoner syndrome first.</li>
+        <li>If nothing in the family is a hallmark or strong match, a “No strong pattern” note says the list is possibilities only.</li>
         <li>Narrow, Balanced and Wide set how far down the list to show.</li>
       </ol>
     </section>`;
