@@ -598,7 +598,11 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(await more.evaluate(d => d.open) && await more.locator('.result').first().isVisible() && /Hide the/.test(await more.locator('summary').innerText()), '"Show N more" opens the lower-scoring syndromes');
     await page.locator('#ancestry').selectOption('ashkenazi'); await page.locator('#ancestry').selectOption('');
     check(await page.locator('#results details.more-results').evaluate(d => d.open), 'it stays open when the results update');
+    await page.evaluate(() => { window.dispatchEvent(new Event('beforeprint')); window.dispatchEvent(new Event('afterprint')); });
+    check(await page.locator('#results details.more-results').evaluate(d => d.open), 'printing does not change it');
     await page.locator('#results details.more-results > summary').click();
+    await page.evaluate(() => { window.dispatchEvent(new Event('beforeprint')); window.dispatchEvent(new Event('afterprint')); });
+    check(!(await page.locator('#results details.more-results').evaluate(d => d.open)), 'closed stays closed after printing (print opens it only on paper)');
   }
   check(await page.evaluate(() => { const t = document.querySelector('#results details.tests-compact'); return !!t && !t.open && /All Test Directory tests for these syndromes \(\d+\)/.test(t.querySelector('summary').textContent); }), 'full list of Test Directory tests is collapsed at the end');
   check(await page.evaluate(() => { const f = document.querySelector('#family').getBoundingClientRect(), r = document.querySelector('#results').getBoundingClientRect(), t = document.querySelector('#ped').getBoundingClientRect(); return f.left < r.left && Math.abs(t.left - f.left) < 40 && t.top > f.top; }), 'wide screen: family and tree on the left, criteria and differential on the right');

@@ -1020,12 +1020,19 @@
   const weakPattern = all => all.length > 0 && !all.some(r => r.hasStrong);
   const WEAK_TEXT = 'No hallmark or strong match was found, so an inherited cause is not suggested by the ranking alone – the syndromes below are possibilities only. Test Directory criteria (above) still apply.';
   function renderResults() {
+    // Keep folded sections as the user left them (read from the page, so it does not depend on toggle-event timing).
+    if (!$('#results').dataset.print) {
+      const more = document.querySelector('#results details.more-results'), tests = document.querySelector('#results details.tests-compact');
+      if (more) state.moreOpen = more.open;
+      if (tests) state.testsOpen = tests.open;
+    }
     const all = scoreFamily();
     const { shown, hidden, top } = filterByMode(all);
     lastShown = shown;
     document.querySelectorAll('[data-mode]').forEach(b => { b.classList.toggle('active', b.dataset.mode === state.mode); if (b.closest('.segmented')) b.setAttribute('aria-pressed', b.dataset.mode === state.mode); });
     $('#mode-hint').textContent = MODES[state.mode].hint;
     const out = $('#results');
+    out.dataset.print = state.printFull ? '1' : '';
     document.body.classList.toggle('compact-head', familyDxs().length > 0);
     $('#compare-top').hidden = shown.length < 2;
     remember();
@@ -2066,8 +2073,6 @@
     $('#print-brief').addEventListener('click', () => { document.body.classList.add('print-brief'); window.print(); setTimeout(() => document.body.classList.remove('print-brief'), 1000); });
     // Family tree: open/closed state, highlighted syndrome, downloads.
     $('#tab-assess').addEventListener('toggle', e => { if (e.target.id === 'ped') { state.treeOpen = e.target.open; fitPedigree(); } }, true);
-    $('#results').addEventListener('toggle', e => { if (e.target.matches('details.tests-compact') && !state.printFull) state.testsOpen = e.target.open; }, true);
-    $('#results').addEventListener('toggle', e => { if (e.target.matches('details.more-results') && !state.printFull) state.moreOpen = e.target.open; }, true);
     window.addEventListener('resize', fitPedigree);
     $('#tab-assess').addEventListener('change', e => { if (e.target.id === 'ped-syn') { state.treeSyn = e.target.value; renderResults(); } });
     $('#tab-assess').addEventListener('click', e => {
