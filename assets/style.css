@@ -673,7 +673,7 @@ body.compact-head .notice-strip .disc-long { display: none; }
 
 /* Example families menu and note */
 .ex-wrap { position: relative; display: inline-block; }
-.ex-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; min-width: 240px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.15); padding: 4px; display: flex; flex-direction: column; }
+.ex-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; min-width: 240px; max-width: calc(100vw - 16px); background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.15); padding: 4px; display: flex; flex-direction: column; }
 .ex-menu[hidden] { display: none; }
 .ex-item { text-align: left; background: none; border: 0; padding: 7px 10px; border-radius: 6px; font: inherit; color: inherit; cursor: pointer; }
 .ex-item:hover, .ex-item:focus-visible { background: var(--accent-soft); }

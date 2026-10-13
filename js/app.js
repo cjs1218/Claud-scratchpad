@@ -1889,6 +1889,13 @@
     const m = $('#example-menu'), b = $('#example');
     if (open && !m.innerHTML) m.innerHTML = exampleButtons();
     m.hidden = !open; b.setAttribute('aria-expanded', String(open));
+    // Keep the menu on screen (on a phone the button can sit near the left edge).
+    if (open) {
+      m.style.right = '0'; m.style.left = 'auto';
+      const r = m.getBoundingClientRect(), pad = 8;
+      if (r.left < pad) m.style.right = `${r.left - pad}px`;
+      else if (r.right > innerWidth - pad) m.style.right = `${r.right - (innerWidth - pad)}px`;
+    }
     if (open) m.querySelector('.ex-item').focus();
   }
 
