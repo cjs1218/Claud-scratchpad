@@ -1081,6 +1081,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     const ar = await page.evaluate(() => CONDITIONS.filter(c => c.inh.startsWith('AR')).map(c => c.id));
     const firstAr = ids.findIndex(id => ar.includes(id));
     check(firstAr > ids.indexOf('atm') && firstAr > ids.indexOf('chek2'), `BRCA example: recessive syndromes rank below ATM and CHEK2 (first recessive ${ids[firstAr]} at ${firstAr + 1})`);
+    check(/rarer syndrome ×0\.9/.test(await page.locator('#results .result[data-cond=rad51d]').textContent()) && !/rarer syndrome/.test(await page.locator('#results .result[data-cond=brca1]').textContent()), 'light weighting by how common: shown on rarer syndromes, not on BRCA1');
     const nthl1 = page.locator('#results .result[data-cond=nthl1]');
     check(/ match in 1 person/.test(await nthl1.textContent()), 'recessive: cancers in parents and other relatives are not counted (NTHL1 only from the proband)');
   }

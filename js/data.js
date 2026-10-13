@@ -33,10 +33,11 @@ const TIER_DEFS = {
 };
 /*
  * Rough population frequency of each syndrome (affected genotype; biallelic for
- * recessive conditions), used ONLY to order exact ties in the ranking – the
- * commoner syndrome is listed first. Not shown as a figure.
+ * recessive conditions). Used as a light weighting (FREQ_WEIGHT) so that, with
+ * similar evidence, the commoner syndrome ranks higher, and to order exact ties.
  * 1: about 1 in 1,000 or commoner; 2: 1 in 1,000–10,000; 3: 1 in 10,000–100,000; 4: rarer.
  */
+const FREQ_WEIGHT = { 1: 1, 2: 0.9, 3: 0.8, 4: 0.7 };
 const FREQ_BAND = {
   brca1: 1, brca2: 1, palb2: 1, atm: 1, chek2: 1, bard1: 2, rad51d: 2, rad51c: 2,
   brip1: 1, lynch_mlh1: 1, lynch_msh2: 2, lynch_msh6: 1, lynch_pms2: 1, cmmrd: 4, fap: 2, map: 3,

@@ -40,7 +40,7 @@ Everything clinical lives in `js/data.js`:
 - **TESTS** – Rare and Inherited Disease Test Directory v9.1 codes, PanelApp panels and
   condensed criteria (Part XI unless `part` names another chapter, e.g. `'IV'` Endocrinology).
 - **NONCANCER_RECOGNISED / COMMON_ADULT_CANCERS** – in syndromes recognised by non-cancer features, a common adult cancer is at most moderate unless limited to age 40 or under (checked by `tests/check-data.js`).
-- **FREQ_BAND** – rough frequency of each syndrome (1 commonest – 4 rarest), used only to order exact ties.
+- **FREQ_BAND / FREQ_WEIGHT** – rough frequency of each syndrome (1 commonest – 4 rarest) and the light weighting it gives the total score (×1, ×0.9, ×0.8, ×0.7); also orders exact ties.
 - **UKCGG_LEAFLETS** – UKCGG patient information leaflets (gene leaflets, chemoprevention, reproductive options), listed per condition with `ukl` in SOURCES; `UKCGG_GENERAL` ones show for every condition.
 - **EG / GUIDES / EU_GUIDES / US_GUIDES / SOURCES** – East Genomics leaflets (direct links), UKCGG / NICE
   guidance, European guidelines (ERN GENTURIS, ESMO, ESGE, EHTG/ESCP, ESE, SIOPE) and US / international

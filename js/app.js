@@ -128,6 +128,8 @@
         : recessive ? sides.core + sides.M + sides.P + sides.unknown
         : sides.core + Math.max(sides.M, sides.P) + 0.3 * Math.min(sides.M, sides.P) + sides.unknown;
       total *= 1 + 0.2 * Math.min(Math.max(strongCount - 1, 0), 5);
+      // Light weighting by how common the syndrome is (FREQ_WEIGHT).
+      total *= FREQ_WEIGHT[FREQ_BAND[cond.id] || 4];
       evidence.sort((a, b) => b.v - a.v);
       results.push({ cond, score: total, evidence, hasStrong });
     }
@@ -585,7 +587,8 @@
     const sides = [...new Set(r.evidence.map(e => REL[e.person.rel].side))];
     const sideTxt = sides.includes('M') && sides.includes('P') ? 'both sides of the family' : sides.includes('M') ? 'maternal side' : sides.includes('P') ? 'paternal side' : 'proband and close relatives';
     const early = r.evidence.filter(e => e.s.notes.some(x => /early onset/.test(x))).length;
-    return `${tiers.join(' + ')} match${r.evidence.length > 1 ? 'es' : ''} in ${people} ${people > 1 ? 'people' : 'person'}, ${sideTxt}${early ? `; early onset in ${early}` : ''}.`;
+    const fw = FREQ_WEIGHT[FREQ_BAND[r.cond.id] || 4];
+    return `${tiers.join(' + ')} match${r.evidence.length > 1 ? 'es' : ''} in ${people} ${people > 1 ? 'people' : 'person'}, ${sideTxt}${early ? `; early onset in ${early}` : ''}${fw < 1 ? `; rarer syndrome ×${fw}` : ''}.`;
   }
   const founderNote = c => state.ancestry === 'ashkenazi' ? (VARIANT_NOTES[c.id] || []).filter(([t]) => /Ashkenazi/.test(t)) : [];
 
@@ -1576,7 +1579,9 @@
           their brothers and sisters count – cancers in parents or other relatives do not support a recessive syndrome. Mosaic
           (not inherited) conditions: only the affected person counts.</li>
         <li>Each further supporting cancer adds 20% (up to five), and syndromes are listed by total. Scores are relative, not probabilities.</li>
-        <li>Exact ties are listed with the commoner syndrome first.</li>
+        <li>A light weighting by how common the syndrome is: ×1 for the commonest (about 1 in 1,000 or commoner, e.g. BRCA1/2,
+          CHEK2, ATM, Lynch MSH6/PMS2), ×0.9, ×0.8, and ×0.7 for the rarest (rarer than about 1 in 100,000). With similar evidence
+          the commoner syndrome ranks higher; a hallmark finding still outweighs it. Exact ties list the commoner syndrome first.</li>
         <li>If nothing in the family is a hallmark or strong match, a “No strong pattern” note says the list is possibilities only.</li>
         <li>Narrow, Balanced and Wide set how far down the list to show.</li>
       </ol>
