@@ -1919,6 +1919,10 @@
       state.people.push(np); state.openPeople.clear();
       renderFamily(); renderResults(); focusPerson(np.id);
     });
+    // "Disclaimer" links in the notice strip scroll to the footer section (without changing the page's #route).
+    document.querySelectorAll('.disc-link').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault(); const d = $('#disclaimer'); d.scrollIntoView({ behavior: 'smooth', block: 'start' }); d.focus({ preventScroll: true });
+    }));
     $('#example').addEventListener('click', () => setExampleMenu($('#example-menu').hidden));
     document.addEventListener('click', e => {
       const t = e.target.closest && e.target.closest('[data-load-example]');

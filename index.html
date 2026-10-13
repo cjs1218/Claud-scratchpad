@@ -7,7 +7,7 @@
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#005eb8">
-  <link rel="stylesheet" href="assets/style.css?v=20261013-2">
+  <link rel="stylesheet" href="assets/style.css?v=20261013-3">
 </head>
 <body>
   <header class="site-head">
@@ -30,10 +30,10 @@
   </header>
   <div class="notice-strip">
     <div class="wrap">
-      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser.</p>
+      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser. <a href="#disclaimer" class="disc-link">Disclaimer</a></p>
       <p class="disclaimer stale" id="stale-note" hidden></p>
       <p class="disclaimer disc-long"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only. Not a validated medical device and not a substitute for clinical
-        judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this browser or is stored.</p>
+        judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this browser or is stored. <a href="#disclaimer" class="disc-link">Read the full disclaimer</a></p>
     </div>
   </div>
   <div class="tabbar">
@@ -163,15 +163,23 @@
       </dl>
       <p class="foot-disclaimer">Clinical decision support only. Scores are relative, not probabilities, and do not replace clinical judgement,
         risk models such as CanRisk, or specialist advice. Nothing you enter leaves this browser.</p>
+      <section class="foot-legal" id="disclaimer" tabindex="-1" aria-labelledby="disclaimer-title">
+        <h2 class="foot-title" id="disclaimer-title">Disclaimer</h2>
+        <p>All versions of the Cancer Family History Navigator Database (CND) may contain programming errors and editorial mistakes and
+          omissions in the database contents. The authors of the CND, and/or their employers shall not be liable for any damages of any kind,
+          including consequential or incidental damages, arising from the use of this program (CND). This program (CND) is made available
+          "as is" and without warranties as to completeness, correctness of data and views expressed within, performance or any other
+          warranties whether expressed or implied. The contents of the program (CND) do not reflect official policy of the author's employers.</p>
+      </section>
       <p class="foot-code"><a href="https://github.com/cjs1218/Claud-scratchpad" target="_blank" rel="noopener"><svg class="gh-mark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> Source code on GitHub</a> – open source; read how the ranking and data work.</p>
     </footer>
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261013-2"></script>
-  <script src="js/panels.js?v=20261013-2"></script>
-  <script src="js/criteria.js?v=20261013-2"></script>
-  <script src="js/eligibility.js?v=20261013-2"></script>
-  <script src="js/app.js?v=20261013-2"></script>
+  <script src="js/data.js?v=20261013-3"></script>
+  <script src="js/panels.js?v=20261013-3"></script>
+  <script src="js/criteria.js?v=20261013-3"></script>
+  <script src="js/eligibility.js?v=20261013-3"></script>
+  <script src="js/app.js?v=20261013-3"></script>
 </body>
 </html>

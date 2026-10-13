@@ -683,3 +683,10 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .example-note[hidden] { display: none; }
 .example-note p { margin: 0; flex: 1; }
 @media print { .example-note, .ex-menu { display: none !important; } }
+
+/* Full disclaimer (footer) and its link in the notice strip */
+.disc-link { color: inherit; font-weight: 600; white-space: nowrap; }
+.foot-legal { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
+.foot-legal p { max-width: 80ch; }
+.foot-legal:focus { outline: none; }
+.foot-legal:focus-visible { outline: 3px solid var(--focus); }

@@ -1030,6 +1030,13 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const amsN = await page.locator('#results .ams').textContent();
   check(/Modified Amsterdam criteria not met \(3 of 4\)/.test(amsN) && /✗ at least one diagnosed under 50/.test(amsN), 'near miss shows which criterion is missing');
 
+  console.log('Disclaimer');
+  await page.goto(BASE);
+  const discTxt = await page.textContent('#disclaimer');
+  check(/All versions of the Cancer Family History Navigator Database \(CND\) may contain programming errors/.test(discTxt) && /"as is"/.test(discTxt) && /do not reflect official policy of the author's employers/.test(discTxt), 'full disclaimer is in the footer');
+  await page.locator('.disc-link:visible').first().click(); await page.waitForTimeout(800);
+  check(await page.evaluate(() => { const r = document.querySelector('#disclaimer').getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }) && await page.evaluate(() => location.hash) === '', 'the Disclaimer link in the notice strip scrolls to it without changing the page');
+
   console.log('Example families');
   await page.goto(BASE);
   await page.click('#example');
