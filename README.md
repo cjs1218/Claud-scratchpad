@@ -79,6 +79,10 @@ Everything clinical lives in `js/data.js`:
 Relatives with at least one cancer entered fold into a one-line card (cancers, criteria tags and Manchester score);
 click a card to edit it and **Done** to fold it again. Loading a family or adding a relative folds the others.
 
+**Load example** opens a menu of fictional, clear-cut example families (BRCA, Lynch MSH2, PTEN, BAP1, Li-Fraumeni,
+FAP, MUTYH, VHL, SDHB), each with a short caption. They live in `EXAMPLES` in `js/data.js`; each names the syndrome
+that should rank first (`top`) and the R code the proband should meet (`test`), which the browser tests check.
+
 The relationship is chosen in two steps: a short list (Grandmother, Aunt, First cousin…), then the side of the
 family where it matters (e.g. mother's mother or father's mother). Both map onto the relationship ids in `RELATIONS`
 (`REL_KINDS` in `js/data.js`), so saved family files are unchanged; until the side is chosen the relative isn't counted.

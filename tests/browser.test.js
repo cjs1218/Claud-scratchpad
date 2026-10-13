@@ -28,6 +28,8 @@ async function chooseRel(person, rel) {
   await person.locator('select[data-f=relKind]').selectOption(k);
   if (side) await person.locator('select[data-f=relSide]').selectOption(side);
 }
+// "Load example" opens a menu of example families; the BRCA family is the default.
+async function loadEx(page, id = 'brca') { await page.click('#example'); await page.click(`#example-menu [data-load-example=${id}]`); }
 async function addRelative(page, rel, sex, dxs) {
   await page.click('#add-person');
   const n = await page.locator('#family .person').count();
@@ -54,7 +56,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   console.log('Tabs');
   const shown = () => page.evaluate(() => ['tab-assess', 'tab-browse', 'tab-sources'].filter(id => getComputedStyle(document.getElementById(id)).display !== 'none'));
   check(JSON.stringify(await shown()) === '["tab-assess"]', 'only Family assessment visible on load');
-  await page.click('#example'); await openAll(page);
+  await loadEx(page); await openAll(page);
   await page.click('.tabs [data-tab=browse]');
   check(JSON.stringify(await shown()) === '["tab-browse"]', 'Syndromes tab replaces (not below) Family assessment');
   check(/^#syndromes?/.test(new URL(page.url()).hash), `address holds the Syndromes tab (${new URL(page.url()).hash})`);
@@ -73,7 +75,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.goto(BASE);
 
   console.log('Example family (TNBC 38, mother HGSC 52)');
-  await page.click('#example'); await openAll(page);
+  await loadEx(page); await openAll(page);
   let names = await topNames(page);
   check(/BRCA1/.test(names[0]), `top result is BRCA1 (got "${names[0]}")`);
   const first = page.locator('#results .result').first();
@@ -350,12 +352,12 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
 
   console.log('Assessment links to syndrome page');
   await page.goto(BASE);
-  await page.click('#example'); await openAll(page);
+  await loadEx(page); await openAll(page);
   await page.locator('#results .syn-open').first().click();
   check(/BRCA1/.test(await page.textContent('#syn-detail h2')), '"Open syndrome page" opens BRCA1');
 
   console.log('Family tree');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#ped svg');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#ped svg');
   check(await page.evaluate(() => document.getElementById('ped').open) && await page.locator('#ped').evaluate(el => el.compareDocumentPosition(document.querySelector('#results .result')) & Node.DOCUMENT_POSITION_FOLLOWING), 'family tree shown, open, above the results');
   check(await page.locator('#ped [data-person]').count() === 4 && await page.locator('#ped .ped-person.implied').count() === 2, 'tree: 4 entered people plus 2 implied grandparents');
   check(await page.locator('#ped .ped-arrow').count() === 1 && await page.locator('#ped circle').count() >= 4 && await page.locator('#ped rect.ped-sym').count() >= 2, 'tree: pedigree symbols and proband arrow');
@@ -386,7 +388,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check((await page.evaluate(() => document.querySelector('#ped-wrap svg').getBoundingClientRect().width)) <= (await page.evaluate(() => document.getElementById('ped-wrap').clientWidth)) + 1, 'tree fits its panel (desktop)');
 
   console.log('Proband arrow and abbreviations');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#ped svg');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#ped svg');
   const arr = await page.evaluate(() => {
     const nums = d => d.match(/-?[\d.]+/g).map(Number);
     const shaft = nums(document.querySelector('#ped .ped-arrow').getAttribute('d'));
@@ -461,7 +463,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/Recessive FANCM cancer syndrome/.test(await page.textContent('#syn-detail h2')) && /Nynäs 2025/.test(await page.locator('#syn-detail').textContent()), 'FANCM syndrome page renders with its source');
 
   console.log('Usability batch');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .result');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .result');
   const cards = page.locator('#results .result');
   const nCards = await cards.count();
   check(nCards >= 4 && await cards.nth(0).locator('.evidence').count() === 1 && await cards.nth(2).locator('.evidence').count() === 1 && await cards.nth(3).evaluate(el => el.classList.contains('compact')) && await cards.nth(3).locator('.evidence').count() === 0, 'top three results in full, the rest compact');
@@ -540,7 +542,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.locator('#family .person').count() === 1, 'unticking forgets it');
 
   console.log('Printed assessment');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .result.compact');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .result.compact');
   await page.click('#ped > summary');
   await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
   await page.emulateMedia({ media: 'print' });
@@ -566,12 +568,12 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.locator('#syn-detail a[href="https://www.genomicseducation.hee.nhs.uk/genotes/knowledge-hub/lynch-syndrome/"]').count() === 1 && await page.locator('#syn-detail a[href*="genotes/in-the-clinic/presentation-patient-with-suspected-lynch-syndrome/"]').count() === 1, 'Lynch page links GeNotes Knowledge Hub and In the Clinic');
   await page.goto(BASE + '#gene=RET'); await page.waitForSelector('#syn-detail h2');
   check(await page.locator('#syn-detail a[href*="genotes/knowledge-hub/multiple-endocrine-neoplasia-type-2/"]').count() === 1, 'gene page links GeNotes');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .result');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .result');
   await page.locator('#results .result').first().locator('summary', { hasText: 'Leaflets' }).click();
   check(await page.locator('#results .result').first().locator('a[href*="genotes/knowledge-hub/brca1-and-brca2/"]').count() === 1, 'result card sources include GeNotes');
 
   console.log('Test eligibility');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .elig');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .elig');
   const el = await page.locator('#results .elig').textContent();
   check(/Meets Test Directory criteria now/.test(el) && /Proband/.test(el) && /R208/.test(el) && /breast cancer under 40/.test(el) && /triple-negative breast cancer under 60/.test(el) && /Manchester score 31/.test(el), 'proband flagged for R208 (under 40, TNBC, Manchester 31)');
   check(/Mother/.test(el) && /R207/.test(el), 'mother flagged for R207 (high-grade serous ovarian)');
@@ -600,7 +602,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/No one in the family as entered meets/.test(await page.locator('#results .elig').textContent()), 'says when no checked criteria are met');
 
   console.log('Eligibility tags in tree and form');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .elig');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .elig');
   await page.evaluate(() => { document.getElementById('ped').open = true; });
   await page.waitForTimeout(200);
   check(await page.locator('#ped-wrap .ped-elig-ring').count() >= 2 && /Meets R208/.test(await page.locator('#ped-wrap svg').textContent()), 'family tree badges people who meet criteria');
@@ -614,7 +616,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(dec.lfs === 0 && dec.lms === 'W' && dec.mva === 'S' && /DKC1/.test(dec.tbd) && /TINF2/.test(dec.tbd) && /SAMD9\b/.test(dec.samd.replace('SAMD9L', '')), `decision changes applied (${JSON.stringify(dec)})`);
 
   console.log('Smaller usability items');
-  await page.goto(BASE); await page.click('#example');
+  await page.goto(BASE); await loadEx(page);
   check(/Balanced: up to 15 syndromes/.test(await page.textContent('#mode-hint')) && await page.getAttribute('[data-mode=balanced]', 'aria-pressed') === 'true', 'search breadth explained, current mode pressed');
   await page.click('.segmented [data-mode=narrow]');
   check(/Narrow: only the strongest matches/.test(await page.textContent('#mode-hint')), 'hint changes with the mode');
@@ -653,7 +655,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.evaluate(() => relDegree({ rel: 'proband' }, { rel: 'm_ggp' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'gniece' }) === 3 && relDegree({ rel: 'proband' }, { rel: 'm_cousin_child' }) === 4), 'degrees of relationship for the new relatives');
 
   console.log('Print summary');
-  await page.goto(BASE); await page.click('#example');
+  await page.goto(BASE); await loadEx(page);
   check(await page.isVisible('#print-brief') && /Print summary/.test(await page.textContent('#print-brief')), 'Print summary button next to Print');
   await page.evaluate(() => { document.body.classList.add('print-brief'); window.dispatchEvent(new Event('beforeprint')); });
   await page.emulateMedia({ media: 'print' });
@@ -665,8 +667,8 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
 
   console.log('Review batch: relationship default, large trees, search, quick start');
   await page.goto(BASE); await page.click('#clear');
-  check(/How to use/.test(await page.textContent('#results')) && await page.locator('#results [data-load-example]').count() === 1, 'empty results show a quick-start guide with an example link');
-  await page.click('#results [data-load-example]'); await page.waitForSelector('#results .elig');
+  check(/How to use/.test(await page.textContent('#results')) && await page.locator('#results [data-load-example]').count() === await page.evaluate(() => EXAMPLES.length), 'empty results show a quick-start guide with the example families');
+  await page.click('#results [data-load-example=brca]'); await page.waitForSelector('#results .elig');
   check(await page.locator('#family .person').count() === 4, 'quick-start example link loads the example');
   await page.click('#add-person');
   const newRel = page.locator('#family .person').last().locator('select[data-f=relKind]');
@@ -736,7 +738,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const uncle = saved2.people.find(p => p.rel === 'm_uncle'), cz = saved2.people.filter(p => p.rel === 'm_cousin');
   check(cz.some(c => c.parentId === uncle.id), 'the link is saved in the family file');
   // Adding a maternal cousin to the example family: the maternal aunt can be chosen as the parent
-  await page.click('#example');
+  await loadEx(page);
   await page.click('#add-person');
   await chooseRel(page.locator('#family .person').last(), 'm_cousin');
   await page.locator('#family .person').last().locator('select[data-f=parentId]').selectOption({ label: 'Maternal aunt' });
@@ -747,7 +749,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/child of Maternal aunt/.test(await page.locator('#family .person').last().textContent()), 'example family: a new maternal cousin can be made the maternal aunt\'s child');
 
   console.log('Entry checks');
-  await page.goto(BASE); await page.click('#example');
+  await page.goto(BASE); await loadEx(page);
   check(await page.locator('#family .person-warn li').count() === 0, 'no warnings for the example family');
   await page.click('#clear');
   await page.setInputFiles('#open-family', { name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ app: 'cancer-predisposition-differential', version: 1, people: [
@@ -774,7 +776,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.keyboard.press('Escape');
 
   console.log('Folded relatives');
-  await page.goto(BASE); await page.click('#example');
+  await page.goto(BASE); await loadEx(page);
   check(await page.locator('#family .person.collapsed').count() === 4 && await page.locator('#family select[data-f=site]').count() === 0, 'example family loads as four one-line cards');
   const card = page.locator('#family .person').nth(1);
   check(/Mother/.test(await card.textContent()) && /High-grade serous/.test(await card.textContent()) && /age 52/.test(await card.textContent()) && /R207/.test(await card.locator('.person-elig').textContent()) && await card.locator('.person-mss button').count() === 1, 'card shows the cancers, criteria tags and Manchester score');
@@ -796,7 +798,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.locator('#family .person').count() === 4, 'relatives can be removed from the folded card');
 
   console.log('Shorter results');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .elig');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .elig');
   check(await page.locator('#results article.test').count() === 0 && await page.locator('#results .test-rows li').count() >= 3, 'tests shown as a compact list, not full criteria cards');
   const r208row = await page.locator('#results .test-rows li', { has: page.locator('button[data-test=R208]') }).textContent();
   check(/Meets now: Proband \(F\), Mother, Maternal aunt/.test(r208row) && /For Hereditary breast and ovarian cancer/.test(r208row), 'test row says who meets it now and which syndromes it covers');
@@ -813,7 +815,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.keyboard.press('Escape');
 
   console.log('Criteria panel');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .elig');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .elig');
   await page.locator('#results .elig button.test-link[data-test=R208]').first().click();
   await page.waitForSelector('#crit-dialog[open]');
   const cd = await page.locator('#crit-dialog').textContent();
@@ -860,7 +862,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.click('#crit-dialog [data-close]');
 
   console.log('Manchester score breakdown');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .elig');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .elig');
   await page.locator('#results .elig button.mss-link').first().click();
   await page.waitForSelector('#crit-dialog[open]');
   let mt = await page.locator('#crit-dialog').textContent();
@@ -895,7 +897,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.keyboard.press('Escape');
 
   console.log('Tumour grade');
-  await page.goto(BASE); await page.click('#example'); await openAll(page); await page.waitForSelector('#results .elig');
+  await page.goto(BASE); await loadEx(page); await openAll(page); await page.waitForSelector('#results .elig');
   check(await page.locator('#family .person').first().locator('select[data-f=grade] option').allTextContents().then(o => o.join('|')) === 'Unknown|1 (low)|2 (intermediate)|3 (high)', 'breast cancers have a grade box');
   check(await page.locator('#family .person').nth(1).locator('select[data-f=ovgrade]').count() === 0, 'no ovarian grade box for high-grade serous (grade is in the type)');
   await page.locator('#family .person').nth(1).locator('select[data-f=hist]').selectOption('endometrioid');
@@ -1028,6 +1030,29 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const amsN = await page.locator('#results .ams').textContent();
   check(/Modified Amsterdam criteria not met \(3 of 4\)/.test(amsN) && /✗ at least one diagnosed under 50/.test(amsN), 'near miss shows which criterion is missing');
 
+  console.log('Example families');
+  await page.goto(BASE);
+  await page.click('#example');
+  check(await page.getAttribute('#example', 'aria-expanded') === 'true' && await page.locator('#example-menu .ex-item').count() >= 9, 'Load example opens a menu of example families');
+  check(await page.evaluate(() => document.activeElement.classList.contains('ex-item')), 'focus moves into the menu');
+  await page.keyboard.press('ArrowDown');
+  check(await page.evaluate(() => document.activeElement.dataset.loadExample) === 'lynch_msh2', 'arrow keys move through the menu');
+  await page.keyboard.press('Escape');
+  check(await page.isHidden('#example-menu') && await page.evaluate(() => document.activeElement.id) === 'example', 'Escape closes the menu and returns focus');
+  await page.click('#example'); await page.mouse.click(5, 300);
+  check(await page.isHidden('#example-menu'), 'clicking elsewhere closes the menu');
+  for (const ex of await page.evaluate(() => EXAMPLES.map(e => ({ id: e.id, top: e.top, test: e.test, label: e.label })))) {
+    await loadEx(page, ex.id); await page.waitForSelector('#results .result');
+    check(await page.locator('#results .result').first().getAttribute('data-cond') === ex.top, `example ${ex.id}: ${ex.top} ranks first`);
+    const met = await page.evaluate(t => [...document.querySelectorAll('#results .elig > .elig-people > li')].some(li => /^Proband/.test(li.querySelector('.elig-who').textContent) && li.textContent.includes(t)), ex.test);
+    check(met, `example ${ex.id}: the proband meets ${ex.test}`);
+    check(await page.isVisible('#example-note') && (await page.textContent('#example-note')).includes(ex.label), `example ${ex.id}: caption shown`);
+  }
+  await page.click('[data-act=close-example-note]');
+  check(await page.isHidden('#example-note'), 'the example note can be closed');
+  await loadEx(page, 'pten'); await page.click('#clear');
+  check(await page.isHidden('#example-note'), 'clearing the family removes the example note');
+
   console.log('Appearance');
   await page.goto(BASE);
   check(/^Cancer Family History Navigator/.test(await page.title()) && /^Cancer Family History Navigator/.test(await page.textContent('h1')), 'site is named Cancer Family History Navigator (tab title and banner)');
@@ -1050,7 +1075,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/128 genes from the NICPR gene list/.test(foot) && /103 conditions/.test(foot) && /Information checked 12 October 2026/.test(foot) && /ClinGen/.test(foot) && await page.locator('.site-foot a[href="#sources"]').count() === 1, 'footer describes current sources with live counts and date');
   check(await page.locator('.site-foot a[href="https://github.com/cjs1218/Claud-scratchpad"] svg').count() === 1, 'GitHub link with logo in footer');
   check(await page.evaluate(() => getComputedStyle(document.querySelector('.site-head')).backgroundColor) === 'rgb(0, 94, 184)', 'NHS blue header');
-  await page.click('[data-tab=assess]'); await page.click('#example'); await openAll(page);
+  await page.click('[data-tab=assess]'); await loadEx(page); await openAll(page);
   const hs = page.locator('#family select[data-f=hist]').first();
   check(await hs.evaluate(el => el.scrollWidth <= el.clientWidth + 2 || el.clientWidth > 380), 'histology select wide enough for long names');
 
@@ -1059,7 +1084,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const synOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   check(synOverflow <= 0, `no horizontal scroll on syndrome page at 375px (overflow ${synOverflow}px)`);
   await page.click('[data-tab=browse]'); await page.waitForSelector('#syn-detail h2');
-  await page.click('[data-tab=assess]'); await page.click('#example'); await openAll(page); await page.evaluate(() => window.scrollTo(0, 0));
+  await page.click('[data-tab=assess]'); await loadEx(page); await openAll(page); await page.evaluate(() => window.scrollTo(0, 0));
   await page.locator('#family input[data-f=age]').first().focus(); await page.waitForTimeout(100);
   check(!(await page.isVisible('#to-results')), 'phone: See results button hides while typing in the form');
   await page.evaluate(() => document.activeElement.blur()); await page.waitForTimeout(100);
@@ -1084,7 +1109,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(!(await page.isVisible('.lede-long')) && await page.isVisible('.disc-short'), 'phone: slim header with short disclaimer once a family is entered');
   check(await page.evaluate(() => [...document.querySelectorAll('.tabs button')].every(b => b.getBoundingClientRect().height < 50)), 'phone: tab labels stay on one line');
   await page.click('[data-tab=assess]');
-  await page.click('#example'); await openAll(page);
+  await loadEx(page); await openAll(page);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   check(overflow <= 0, `no horizontal scroll at 375px (overflow ${overflow}px)`);
 

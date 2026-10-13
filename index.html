@@ -7,7 +7,7 @@
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#005eb8">
-  <link rel="stylesheet" href="assets/style.css?v=20261012-48">
+  <link rel="stylesheet" href="assets/style.css?v=20261013-1">
 </head>
 <body>
   <header class="site-head">
@@ -50,7 +50,10 @@
         <div class="panel-head">
           <h2>Family history</h2>
           <div class="actions">
-            <button type="button" id="example" class="btn-ghost">Load example</button>
+            <div class="ex-wrap">
+              <button type="button" id="example" class="btn-ghost" aria-haspopup="true" aria-expanded="false" aria-controls="example-menu">Load example <span aria-hidden="true">▾</span></button>
+              <div id="example-menu" class="ex-menu" hidden></div>
+            </div>
             <button type="button" id="clear" class="btn-ghost">Clear</button>
           </div>
         </div>
@@ -94,6 +97,7 @@
         </div>
         <p class="mode-hint small muted" id="mode-hint"></p>
         <p class="results-status" id="results-status" role="status" aria-live="polite"></p>
+        <div id="example-note" class="example-note" role="note" hidden></div>
         <div id="results"></div>
       </section>
     </div>
@@ -164,10 +168,10 @@
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261012-48"></script>
-  <script src="js/panels.js?v=20261012-48"></script>
-  <script src="js/criteria.js?v=20261012-48"></script>
-  <script src="js/eligibility.js?v=20261012-48"></script>
-  <script src="js/app.js?v=20261012-48"></script>
+  <script src="js/data.js?v=20261013-1"></script>
+  <script src="js/panels.js?v=20261013-1"></script>
+  <script src="js/criteria.js?v=20261013-1"></script>
+  <script src="js/eligibility.js?v=20261013-1"></script>
+  <script src="js/app.js?v=20261013-1"></script>
 </body>
 </html>

@@ -26,7 +26,7 @@ let BASE = process.argv[2];
       if (v.length) { fails += v.length; console.log(`FAIL ${scheme} ${label}\n  ${v.join('\n  ')}`); } else console.log(`  ok   ${scheme} ${label}`);
     };
     await page.goto(BASE); await run('empty form');
-    await page.click('#example'); await page.waitForSelector('#results .elig'); await run('example results');
+    await page.click('#example'); await run('example menu'); await page.click('#example-menu [data-load-example=brca]'); await page.waitForSelector('#results .elig'); await run('example results');
     await page.locator('#family .person-open').first().click(); await run('relative open for editing');
     await page.locator('#results button.test-link[data-test=R208]').first().click(); await page.waitForSelector('#crit-dialog[open]'); await run('criteria pop-up');
     await page.keyboard.press('Escape');

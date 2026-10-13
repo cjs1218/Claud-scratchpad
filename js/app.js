@@ -504,6 +504,7 @@
   // Family files stay on the user's own computer.
   const familyData = () => ({ app: 'cancer-predisposition-differential', version: 1, ancestry: state.ancestry, people: state.people });
   function loadFamily(data) {
+    showExampleNote(null);
     if (!data || !Array.isArray(data.people)) throw new Error('not a family file');
     const src = data.people.filter(p => REL[p.rel]);
     const people = src.map(p => ({
@@ -1013,7 +1014,7 @@
           <li><strong>Add relatives</strong> with their cancers. Finished relatives fold into one-line cards.</li>
           <li><strong>Read the results</strong> – who meets Test Directory criteria, the family tree and the ranked syndromes. Click any test code (e.g. <span class="code-sm">R208</span>) or Manchester score for the detail.</li>
         </ol>
-        <p><button type="button" class="btn-ghost" data-load-example>Load an example family</button> <span class="muted small">Nothing you enter leaves this browser.</span></p>
+        <p>Or load an example family: <span class="ex-quick">${exampleButtons()}</span></p><p class="muted small">Nothing you enter leaves this browser.</p>
       </div>`;
       updateToResults();
       return;
@@ -1866,17 +1867,29 @@
 
   /* ---------------- Example & setup ---------------- */
 
-  function loadExample() {
-    const mk = (rel, sex, dxs) => ({ ...newPerson(rel), sex, dx: dxs.map(d => ({ ...newDx(), ...d })) });
-    state.people = [
-      mk('proband', 'F', [{ site: 'breast', hist: 'idc', age: '38', er: 'neg', pr: 'neg', her2: 'neg' }]),
-      mk('mother', 'F', [{ site: 'ovary', hist: 'hgsc', age: '52' }]),
-      mk('m_aunt', 'F', [{ site: 'breast', hist: 'idc', age: '46' }]),
-      mk('father', 'M', [{ site: 'colorectal', hist: 'adeno', age: '68', mmr: 'intact' }])
-    ];
+  // Example families (EXAMPLES in data.js), chosen from the "Load example" menu.
+  function loadExample(exId) {
+    const ex = EXAMPLES.find(e => e.id === exId) || EXAMPLES[0];
+    state.people = ex.people.map(([rel, sex, dxs, extra]) => ({ ...newPerson(rel), sex, ...(extra || {}), dx: (dxs.length ? dxs : [{}]).map(d => ({ ...newDx(), ...d })) }));
+    state.ancestry = ex.ancestry || ''; $('#ancestry').value = state.ancestry;
     state.openPeople.clear();
     renderFamily();
     renderResults();
+    showExampleNote(ex);
+  }
+  function showExampleNote(ex) {
+    const n = $('#example-note');
+    if (!ex) { n.hidden = true; n.innerHTML = ''; return; }
+    n.innerHTML = `<p><strong>Example – ${esc(ex.label)}:</strong> ${abbrHtml(ex.caption)} <span class="muted">(fictional family)</span></p>
+      <button type="button" class="icon-btn" data-act="close-example-note" title="Hide this note" aria-label="Hide example note">×</button>`;
+    n.hidden = false;
+  }
+  function exampleButtons() { return EXAMPLES.map(e => `<button type="button" class="ex-item" data-load-example="${e.id}">${esc(e.label)}</button>`).join(''); }
+  function setExampleMenu(open) {
+    const m = $('#example-menu'), b = $('#example');
+    if (open && !m.innerHTML) m.innerHTML = exampleButtons();
+    m.hidden = !open; b.setAttribute('aria-expanded', String(open));
+    if (open) m.querySelector('.ex-item').focus();
   }
 
   function setTab(tab) {
@@ -1899,11 +1912,21 @@
       state.people.push(np); state.openPeople.clear();
       renderFamily(); renderResults(); focusPerson(np.id);
     });
-    $('#example').addEventListener('click', loadExample);
-    document.addEventListener('click', e => { if (e.target.closest && e.target.closest('[data-load-example]')) loadExample(); });
+    $('#example').addEventListener('click', () => setExampleMenu($('#example-menu').hidden));
+    document.addEventListener('click', e => {
+      const t = e.target.closest && e.target.closest('[data-load-example]');
+      if (t) { setExampleMenu(false); loadExample(t.dataset.loadExample); return; }
+      if (e.target.closest && e.target.closest('[data-act=close-example-note]')) { showExampleNote(null); return; }
+      if (!$('#example-menu').hidden && !e.target.closest('.ex-wrap')) setExampleMenu(false);
+    });
+    $('#example-menu').addEventListener('keydown', e => {
+      const items = [...$('#example-menu').querySelectorAll('.ex-item')], i = items.indexOf(document.activeElement);
+      if (e.key === 'Escape') { setExampleMenu(false); $('#example').focus(); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus(); }
+    });
     $('#clear').addEventListener('click', () => {
       const before = JSON.stringify(state.people);
-      state.people = [newPerson('proband')]; state.expanded.clear(); state.openPeople.clear(); renderFamily(); renderResults();
+      state.people = [newPerson('proband')]; state.expanded.clear(); state.openPeople.clear(); renderFamily(); renderResults(); showExampleNote(null);
       offerUndo('Family cleared.', before);
     });
     // Find-a-cancer list, family files, remember-on-device, ancestry.

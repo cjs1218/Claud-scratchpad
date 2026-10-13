@@ -1759,6 +1759,72 @@ const REL_KINDS = [
   ['cousin_child', "First cousin's child", { m: ['m_cousin_child', "Mother's side (maternal)"], p: ['p_cousin_child', "Father's side (paternal)"] }],
   ['other', 'Other relative', { m: ['m_other', "Mother's side (maternal)"], p: ['p_other', "Father's side (paternal)"], u: ['other', 'Side not known'] }]
 ];
+/*
+ * Example families for the "Load example" menu: classic, clear-cut pictures
+ * for demonstration and teaching (fictional). Each person is
+ * [relationship, sex, [cancers], extra fields]; `top` is the condition expected
+ * first and `test` the R code the proband should meet (checked in tests/).
+ */
+const EXAMPLES = [
+  { id: 'brca', label: 'BRCA (breast and ovarian)', top: 'brca1', test: 'R208',
+    caption: 'Triple-negative breast cancer at 38, mother with high-grade serous ovarian cancer, maternal aunt with breast cancer at 46.',
+    people: [
+      ['proband', 'F', [{ site: 'breast', hist: 'idc', age: '38', er: 'neg', pr: 'neg', her2: 'neg' }]],
+      ['mother', 'F', [{ site: 'ovary', hist: 'hgsc', age: '52' }]],
+      ['m_aunt', 'F', [{ site: 'breast', hist: 'idc', age: '46' }]],
+      ['father', 'M', [{ site: 'colorectal', hist: 'adeno', age: '68', mmr: 'intact' }]]] },
+  { id: 'lynch_msh2', label: 'Lynch syndrome (MSH2)', top: 'lynch_msh2', test: 'R210',
+    caption: 'Amsterdam-positive family: bowel cancer at 42 with MSH2/MSH6 loss, endometrial cancer in the mother and upper tract urothelial cancer in an uncle.',
+    people: [
+      ['proband', 'F', [{ site: 'colorectal', hist: 'adeno', age: '42', mmr: 'msh2' }]],
+      ['mother', 'F', [{ site: 'uterus', hist: 'endometrioid', age: '49', mmr: 'msh2' }]],
+      ['m_uncle', 'M', [{ site: 'urothelial', hist: 'upper', age: '56' }]],
+      ['m_gf', 'M', [{ site: 'colorectal', hist: 'adeno', age: '61' }], { deceased: true, ageDeath: '63' }]] },
+  { id: 'pten', label: 'PTEN hamartoma tumour syndrome', top: 'phts', test: 'R213',
+    caption: 'Macrocephaly with breast cancer at 36 and trichilemmomas; mother with follicular thyroid and endometrial cancer.',
+    people: [
+      ['proband', 'F', [{ site: 'breast', hist: 'idc', age: '36', er: 'pos', pr: 'pos', her2: 'neg' }, { site: 'feature', hist: 'macrocephaly' }, { site: 'feature', hist: 'trichilemmoma', age: '30' }]],
+      ['mother', 'F', [{ site: 'thyroid', hist: 'follicular', age: '41' }, { site: 'uterus', hist: 'endometrioid', age: '52' }]],
+      ['brother', 'M', [{ site: 'feature', hist: 'macrocephaly' }]]] },
+  { id: 'bap1', label: 'BAP1 tumour predisposition', top: 'bap1', test: 'R422',
+    caption: 'Uveal melanoma at 38, father with mesothelioma (no asbestos exposure known) and a paternal aunt with clear cell renal cancer.',
+    people: [
+      ['proband', 'M', [{ site: 'eye', hist: 'uveal', age: '38' }]],
+      ['father', 'M', [{ site: 'meso', hist: 'pleural', age: '57' }], { deceased: true, ageDeath: '58' }],
+      ['p_aunt', 'F', [{ site: 'kidney', hist: 'ccrcc', age: '51' }]]] },
+  { id: 'lfs', label: 'Li-Fraumeni syndrome (TP53)', top: 'lfs', test: 'R216',
+    caption: 'Classic Li-Fraumeni: osteosarcoma at 15, mother with HER2-positive breast cancer at 31, maternal aunt with adrenocortical carcinoma in childhood.',
+    people: [
+      ['proband', 'M', [{ site: 'sarcoma', hist: 'osteo', age: '15' }]],
+      ['mother', 'F', [{ site: 'breast', hist: 'idc', age: '31', er: 'pos', pr: 'neg', her2: 'pos' }]],
+      ['m_aunt', 'F', [{ site: 'adrenal', hist: 'acc', age: '3' }]],
+      ['m_gm', 'F', [{ site: 'cns', hist: 'hgg', age: '44' }], { deceased: true, ageDeath: '45' }]] },
+  { id: 'fap', label: 'Familial adenomatous polyposis (APC)', top: 'fap', test: 'R211',
+    caption: 'Over 100 adenomas at 24 with CHRPE; mother with bowel cancer at 39 and a maternal uncle with a desmoid tumour.',
+    people: [
+      ['proband', 'M', [{ site: 'polyps', hist: 'adenoma', age: '24', count: '150' }, { site: 'feature', hist: 'chrpe' }]],
+      ['mother', 'F', [{ site: 'colorectal', hist: 'adeno', age: '39' }]],
+      ['m_uncle', 'M', [{ site: 'sarcoma', hist: 'desmoid', age: '33' }]]] },
+  { id: 'mutyh', label: 'MUTYH-associated polyposis', top: 'map', test: 'R211',
+    caption: 'Recessive pattern: about 40 adenomas and bowel cancer at 53, a brother with about 25 adenomas; parents unaffected.',
+    people: [
+      ['proband', 'M', [{ site: 'polyps', hist: 'adenoma', age: '53', count: '40' }, { site: 'colorectal', hist: 'adeno', age: '53', mmr: 'intact' }]],
+      ['brother', 'M', [{ site: 'polyps', hist: 'adenoma', age: '50', count: '25' }]],
+      ['mother', 'F', [], { ageNow: '80' }],
+      ['father', 'M', [], { ageNow: '82' }]] },
+  { id: 'vhl', label: 'von Hippel–Lindau syndrome', top: 'vhl', test: 'R225',
+    caption: 'Cerebellar haemangioblastoma at 26; mother with phaeochromocytoma and clear cell renal cancer, maternal uncle with a pancreatic NET.',
+    people: [
+      ['proband', 'F', [{ site: 'cns', hist: 'hb', age: '26' }]],
+      ['mother', 'F', [{ site: 'adrenal', hist: 'phaeo', age: '29' }, { site: 'kidney', hist: 'ccrcc', age: '44', side: 'both' }]],
+      ['m_uncle', 'M', [{ site: 'pancreas', hist: 'pnet', age: '40' }]]] },
+  { id: 'sdhb', label: 'SDHB paraganglioma', top: 'sdhb', test: 'R223',
+    caption: 'Abdominal (extra-adrenal) paraganglioma at 31; father with SDH-deficient renal cancer and a paternal aunt with an SDH-deficient GIST.',
+    people: [
+      ['proband', 'M', [{ site: 'ppgl', hist: 'ta', age: '31' }]],
+      ['father', 'M', [{ site: 'kidney', hist: 'sdhrcc', age: '47' }]],
+      ['p_aunt', 'F', [{ site: 'sarcoma', hist: 'gist', age: '35' }]]] }
+];
 /* [kind, side] for a RELATIONS id ('' side for kinds without one). */
 function relParts(rel) {
   for (const [k, , sides] of REL_KINDS) {
