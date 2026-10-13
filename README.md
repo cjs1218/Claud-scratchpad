@@ -103,7 +103,7 @@ than assuming every aunt or uncle is the parent.
 (R207, R208, R210–R219, R221–R226, R254, R347, R363–R367, R414, R422, R430, R456, R457): single-person criteria (e.g. breast cancer under 40,
 triple-negative under 60, high-grade ovarian), family patterns (e.g. modified Amsterdam, LFS, renal, PPGL), the
 pathology-adjusted Manchester score (GeNotes table, Evans 2004/2017) and unaffected relatives when no affected relative
-is alive. Results appear in a "Meets Test Directory criteria now" box above the family tree, in the copied summary
+is alive. Results appear in a "Meets Test Directory criteria now" box at the top of the results column, in the copied summary
 and in the printout. Deceased relatives are flagged as needing stored DNA or tissue. Criteria that fit apart from a detail
 the form does not record are listed as "may meet – check"; others (tumour grade, CanRisk, Wimmer score) are not assessed.
 
@@ -119,6 +119,11 @@ what was not counted and why, and the scoring table with the rows used highlight
 `js/eligibility.js`).
 
 ## Family tree
+
+Layout: the family form and the family tree under it are on the left; the Test Directory criteria met and the
+ranked differential are on the right, with the full list of Test Directory tests collapsed at the end (codes in the
+differential open their criteria). Phones show one column in the same order. Printouts keep the order family table,
+criteria, tree, syndromes.
 
 Above the differential, a pedigree is drawn from the relatives entered (standard symbols: square male,
 circle female, diamond sex not given, arrow for the proband). Relatives needed to connect the family but not

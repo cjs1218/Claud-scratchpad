@@ -635,8 +635,8 @@
     if (!list.length) return '';
     const elig = checkEligibility(state.people, state.ancestry);
     const who = (key, possible) => [...new Set(elig.filter(o => o.test === key && !!o.possible === possible).map(o => personLabel(o.person)))];
-    return `<section class="tests-compact">
-      <h2>Test Directory tests for these syndromes</h2>
+    return `<details class="tests-compact"${state.printFull || state.testsOpen ? ' open' : ''}>
+      <summary><h2>All Test Directory tests for these syndromes (${list.length})</h2></summary>
       <p class="muted small">Click a code for the exact criteria, who in the family meets them and the genes tested.</p>
       <ul class="test-rows">${list.map(([key, info]) => {
         const t = TESTS[key], meets = who(key, false), maybe = who(key, true);
@@ -646,7 +646,7 @@
           <span class="tr-for small muted">For ${esc(conds.slice(0, 3).join('; '))}${conds.length > 3 ? ` and ${conds.length - 3} more` : ''}</span></li>`;
       }).join('')}</ul>
       <p class="muted small">Unaffected individuals with no living affected relative: ${testBtn('R404')} ${esc(TESTS.R404.name)}. For deceased probands, stored DNA or tissue is needed with no living affected relative, after cancer genetics MDT. ${link(TD_VERSION, TD_URL)}.</p>
-    </section>`;
+    </details>`;
   }
 
   /* ---------------- Family tree (pedigree) ----------------
@@ -1026,13 +1026,14 @@
         </ol>
         <p>Or load an example family: <span class="ex-quick">${exampleButtons()}</span></p><p class="muted small">Nothing you enter leaves this browser.</p>
       </div>`;
+      $('#ped-host').innerHTML = '';
       updateToResults();
       return;
     }
     out.innerHTML = `
       ${familyTableHtml()}
       ${eligibilityHtml()}
-      ${pedigreeHtml(shown)}
+      ${state.printFull ? pedigreeHtml(shown) : ''}
       <p class="muted small shown-note">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${weakPattern(all) ? `<div class="weak-note" role="note"><strong>No strong pattern.</strong> ${WEAK_TEXT}</div>` : ''}
       ${TIER_LEGEND}
@@ -1040,6 +1041,8 @@
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
       ${pointersHtml(pointersFor(familyDxs()), 'Testing pointers for the cancers entered')}
       ${renderTests(shown)}`;
+    // The family tree sits under the family form on screen (in the results when printing, so it prints in order).
+    $('#ped-host').innerHTML = state.printFull ? '' : pedigreeHtml(shown);
     fitPedigree();
     updateToResults();
     updateFormTags();
@@ -2041,10 +2044,11 @@
     // One-page clinic summary: the same printout with only the essentials (see body.print-brief in style.css).
     $('#print-brief').addEventListener('click', () => { document.body.classList.add('print-brief'); window.print(); setTimeout(() => document.body.classList.remove('print-brief'), 1000); });
     // Family tree: open/closed state, highlighted syndrome, downloads.
-    $('#results').addEventListener('toggle', e => { if (e.target.id === 'ped') { state.treeOpen = e.target.open; fitPedigree(); } }, true);
+    $('#tab-assess').addEventListener('toggle', e => { if (e.target.id === 'ped') { state.treeOpen = e.target.open; fitPedigree(); } }, true);
+    $('#results').addEventListener('toggle', e => { if (e.target.matches('details.tests-compact') && !state.printFull) state.testsOpen = e.target.open; }, true);
     window.addEventListener('resize', fitPedigree);
-    $('#results').addEventListener('change', e => { if (e.target.id === 'ped-syn') { state.treeSyn = e.target.value; renderResults(); } });
-    $('#results').addEventListener('click', e => {
+    $('#tab-assess').addEventListener('change', e => { if (e.target.id === 'ped-syn') { state.treeSyn = e.target.value; renderResults(); } });
+    $('#tab-assess').addEventListener('click', e => {
       const dl = e.target.closest('[data-ped-dl]');
       if (dl) { pedigreeExport(dl.dataset.pedDl); return; }
       const fit = e.target.closest('[data-ped-fit]');
