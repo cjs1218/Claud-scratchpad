@@ -1299,7 +1299,9 @@
   function updateToResults() {
     const btn = $('#to-results'), res = $('#results');
     const n = lastShown.length;
-    const below = res.getBoundingClientRect().top > window.innerHeight - 40;
+    // Hide as soon as the Differential panel's heading is on screen (not only the list below it).
+    const panel = res.closest('.panel') || res;
+    const below = panel.getBoundingClientRect().top > window.innerHeight - 80;
     const typing = document.activeElement && document.activeElement.closest && document.activeElement.closest('#family') && /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
     btn.hidden = !(n && state.tab === 'assess' && window.innerWidth < 1000 && below && !typing);
     btn.textContent = `See results (${n}) ↓`;

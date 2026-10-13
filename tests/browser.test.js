@@ -1141,6 +1141,10 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.isVisible('#to-results') && /See results \(\d+\)/.test(await page.textContent('#to-results')), 'phone: floating See results button');
   await page.click('#to-results'); await page.waitForTimeout(900);
   check(!(await page.isVisible('#to-results')), 'phone: button hides once results are on screen');
+  // Differential heading on screen but the list itself still below: the button should not cover the panel header.
+  await page.evaluate(() => { const p = document.querySelector('#results').closest('.panel'); window.scrollTo(0, p.getBoundingClientRect().top + window.scrollY - innerHeight + 150); });
+  await page.waitForTimeout(300);
+  check(await page.evaluate(() => document.querySelector('#results').closest('.panel').getBoundingClientRect().top < innerHeight) && !(await page.isVisible('#to-results')), 'phone: button hides as soon as the Differential panel comes into view');
   await page.goto(BASE + '#syndrome=brca1'); await page.waitForSelector('#syn-detail h2');
   check(await page.locator('#syn-detail details.syn-fold').count() >= 3 && !(await page.locator('#syn-detail details.syn-fold#jump-surveillance').evaluate(d => d.open)), 'phone: long syndrome-page sections start folded');
   await page.locator('#syn-detail .jump [data-jump=surveillance]').click(); await page.waitForTimeout(300);
