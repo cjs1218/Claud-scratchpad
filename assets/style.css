@@ -687,7 +687,7 @@ body.compact-head .notice-strip .disc-long { display: none; }
 /* Full disclaimer (footer) and its link in the notice strip */
 .disc-link { color: inherit; font-weight: 600; white-space: nowrap; }
 .foot-legal { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
-.foot-legal p { max-width: 80ch; }
+.foot-legal p { max-width: 80ch; margin: 0 0 6px; }
 .foot-legal:focus { outline: none; }
 .foot-legal:focus-visible { outline: 3px solid var(--focus); }
 .print-legal { display: none; }

@@ -1759,7 +1759,7 @@
         <p>Information checked ${esc(DATA_CHECKED)} · printed ${esc(today)} · ${keys.length} items</p>
         <ol>${keys.map(k => `<li>${esc(itemName(k))}</li>`).join('')}</ol></div>`) : '';
     // The full disclaimer (from the page footer) ends every printout.
-    const legal = `<section class="print-legal"><h3>Disclaimer</h3><p>${esc($('#disclaimer p').textContent.replace(/\s+/g, ' ').trim())}</p></section>`;
+    const legal = `<section class="print-legal"><h3>Disclaimer</h3>${[...document.querySelectorAll('#disclaimer p')].map(x => `<p>${esc(x.textContent.replace(/\s+/g, ' ').trim())}</p>`).join('')}</section>`;
     $('#print-area').innerHTML = contents + pages.join('') + legal;
     document.body.classList.add('printing');
     window.print();
