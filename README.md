@@ -123,7 +123,9 @@ what was not counted and why, and the scoring table with the rows used highlight
 ## Test Directory tab
 
 Lists every Test Directory test the site uses (`TESTS`), searchable by R code, test name, the exact criteria text,
-genes on the PanelApp panel, and linked syndromes and their cancers (matches highlighted). Each test has its own page
+genes on the PanelApp panel, and linked syndromes and their cancers. Each word also finds related forms and UK/US spellings
+(pancreatic/pancreas, tumour/tumor, phaeo/pheo), from the start of a word. The list shows a match count and snippet for
+each test (most mentions first); the open test highlights every match in yellow, with Previous / Next. Each test has its own page
 (`#test=R208`) with the exact criteria, genes, linked syndromes and – when a family has been entered – who meets, may
 meet or nearly meets each criterion; "Met or may be met by this family" filters the list. The R-code pop-up links to it.
 

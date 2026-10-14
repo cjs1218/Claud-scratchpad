@@ -732,7 +732,12 @@ body.compact-head .notice-strip .disc-long { display: none; }
 /* Test Directory tab */
 #tests-search { flex: 1; min-width: 220px; }
 #tests-list .code { margin-right: 4px; }
-#tests-detail mark, .crit-list mark { background: #fff3a0; color: #212b32; padding: 0 1px; border-radius: 2px; }
+#tests-detail mark, .crit-list mark, .td-snip mark { background: #fff3a0; color: #212b32; padding: 0 1px; border-radius: 2px; }
 .gene.gene-hit { outline: 2px solid var(--warn-edge); }
 #tests-detail .crit-head { border-bottom: 1px solid var(--border); margin-bottom: 8px; }
 .crit-list li.crit-sub { font-weight: 700; margin-top: 8px; }
+.td-snip { display: block; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.td-find { position: sticky; top: 56px; z-index: 2; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; background: var(--card); border-bottom: 1px solid var(--border); padding: 6px 0; margin-bottom: 8px; }
+.td-find .td-count { margin-right: auto; }
+#tests-detail mark.current { background: #ffb81c; outline: 2px solid #b35c00; }
+.syn-list a[aria-current] .td-snip { color: inherit; }

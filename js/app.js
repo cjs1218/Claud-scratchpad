@@ -1161,7 +1161,7 @@
   const KIND = { met: ['Meets now', '✓'], maybe: ['May meet – check', '?'], near: ['Near miss', '–'] };
   function criteriaHtml(code, page = false, q = '') {
     const t = TESTS[code], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA[code] : null;
-    const hl = text => markTerms(esc(text), q);
+    const hl = text => esc(text);
     const entries = [
       ...checkEligibility(state.people, state.ancestry).filter(o => o.test === code).map(o => ({ o, kind: o.possible ? 'maybe' : 'met' })),
       ...nearMisses(state.people, state.ancestry).filter(o => o.test === code).map(o => ({ o, kind: 'near' }))];
@@ -1952,29 +1952,87 @@
   /* ---------------- Test Directory tab ---------------- */
   const TEST_CODES = Object.keys(TESTS).sort((a, b) => a.slice(1) - b.slice(1));
   const condsForTest = code => CONDITIONS.filter(c => c.tests.includes(code));
+  /*
+   * Search terms: each word also finds related forms (pancreatic → pancreas, ovarian → ovary, tumours → tumour)
+   * and UK/US spellings (tumour/tumor, phaeo/pheo, oesophageal/esophageal, haem/hem), matched from the start of a word.
+   */
+  function termPattern(word) {
+    let w = word.toLowerCase().replace(/[–—]/g, '-').replace(/[^a-z0-9\-]/g, '');
+    if (!w) return null;
+    if (/^r\d+$/.test(w)) return `\\b${w}\\b`;
+    w = w.replace(/tumor/g, 'tumour').replace(/^esoph/, 'oesoph').replace(/^hem/, 'haem').replace(/^pheo/, 'phaeo').replace(/^ped/, 'paed').replace(/iz/g, 'is');
+    for (const suf of ['ectomies', 'ectomy', 'ation', 'atic', 'ical', 'ian', 'ary', 'ic', 'al', 'es', 's', 'y']) {
+      if (w.endsWith(suf) && w.length - suf.length >= 4) { w = w.slice(0, -suf.length); break; }
+    }
+    const pat = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/-/g, '[\\s\\-–]?').replace(/our/g, 'ou?r').replace(/ae/g, 'a?e').replace(/oe/g, 'o?e').replace(/is/g, 'i[sz]');
+    return `\\b${pat}[\\w-]*`;
+  }
+  const termRegexes = q => (q || '').trim().split(/\s+/).filter(x => x.length >= 2).map(termPattern).filter(Boolean).map(p => new RegExp(p, 'gi'));
+  const anyTerm = res => res.length ? new RegExp(res.map(r => r.source).join('|'), 'gi') : null;
   // Highlight search words in already-escaped HTML text.
   function markTerms(html, q) {
-    const words = (q || '').trim().split(/\s+/).filter(w => w.length >= 2).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    if (!words.length) return html;
-    return html.replace(new RegExp(`(${words.join('|')})`, 'gi'), '<mark>$1</mark>');
+    const re = anyTerm(termRegexes(q));
+    return re ? html.replace(re, '<mark>$&</mark>') : html;
   }
-  // Everything a test can be found by: code, name, criteria text, genes, linked syndromes and their cancers.
-  const testHaystack = (() => { const cache = {}; return code => cache[code] || (cache[code] = (() => {
-    const t = TESTS[code], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA[code] : null, g = testGenes(code);
-    const conds = condsForTest(code);
-    return normSearch([code, t.name, t.genes, ...(t.criteria || []), ...(tc ? tc.items.map(x => x[2]) : []), ...(g && g.genes ? g.genes : []),
-      ...conds.flatMap(c => [c.name, ...c.genes, ...c.rules.map(r => SITES[r[0]] ? SITES[r[0]].label : '')])].join(' '));
+  // Highlight matches in every text node of an element (headings, criteria, genes, syndromes).
+  function markInElement(el, re) {
+    if (!re) return 0;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest('mark, script, style, select, option') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    const nodes = []; let n, count = 0;
+    while ((n = walker.nextNode())) nodes.push(n);
+    for (const node of nodes) {
+      const t = node.nodeValue; re.lastIndex = 0;
+      if (!re.test(t)) continue;
+      re.lastIndex = 0;
+      const frag = document.createDocumentFragment(); let last = 0, m;
+      while ((m = re.exec(t))) {
+        if (!m[0]) { re.lastIndex++; continue; }
+        frag.append(t.slice(last, m.index));
+        const mk = document.createElement('mark'); mk.textContent = m[0]; frag.append(mk); count++;
+        last = m.index + m[0].length;
+      }
+      frag.append(t.slice(last));
+      node.replaceWith(frag);
+    }
+    return count;
+  }
+  // The text a user sees for a test (name, criteria, genes), and everything it can be found by (adds linked syndromes).
+  const testText = (() => { const cache = {}; return code => cache[code] || (cache[code] = (() => {
+    const t = TESTS[code], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA[code] : null;
+    return [t.name, ...(tc ? tc.items.map(x => x[2]) : (t.criteria || []))];
   })()); })();
+  const testHaystack = (() => { const cache = {}; return code => cache[code] || (cache[code] = (() => {
+    const t = TESTS[code], g = testGenes(code), conds = condsForTest(code);
+    return [code, t.genes, ...testText(code), ...(g && g.genes ? g.genes : []),
+      ...conds.flatMap(c => [c.name, ...c.genes, ...c.rules.map(r => SITES[r[0]] ? SITES[r[0]].label : '')])].join(' \n ');
+  })()); })();
+  // Matches in the test's own text, with a short snippet around the first one.
+  function testMatches(code, res) {
+    const re = anyTerm(res); if (!re) return { n: 0 };
+    let n = 0, snip = '';
+    for (const line of testText(code)) {
+      re.lastIndex = 0; const hits = [...line.matchAll(re)];
+      if (!hits.length) continue;
+      n += hits.length;
+      if (!snip) { const i = hits[0].index, a = Math.max(0, i - 35), b = Math.min(line.length, i + hits[0][0].length + 45);
+        snip = `${a > 0 ? '…' : ''}${esc(line.slice(a, b))}${b < line.length ? '…' : ''}`; }
+    }
+    return { n, snip };
+  }
   function familyTestStatus() {
     const st = {};
     for (const o of checkEligibility(state.people, state.ancestry)) st[o.test] = o.possible ? (st[o.test] || 'maybe') : 'met';
     return st;
   }
   function testsShown() {
-    const q = normSearch($('#tests-search').value.trim()), words = q.split(/\s+/).filter(Boolean);
+    const q = $('#tests-search').value.trim(), res = termRegexes(q);
     const st = familyTestStatus(), fam = $('#tests-family').checked;
-    const exact = c => words.some(w => w.toUpperCase() === c);
-    return TEST_CODES.filter(c => words.every(w => testHaystack(c).includes(w)) && (!fam || st[c])).sort((a, b) => exact(b) - exact(a));
+    const words = q.split(/\s+/).filter(Boolean), exact = c => words.some(w => w.toUpperCase() === c);
+    const hit = c => res.every(r => { r.lastIndex = 0; return r.test(testHaystack(c)); });
+    const list = TEST_CODES.filter(c => hit(c) && (!fam || st[c]));
+    // Exact R code first, then the tests that mention the words most.
+    const count = Object.fromEntries(list.map(c => [c, testMatches(c, res).n]));
+    return list.sort((a, b) => (exact(b) - exact(a)) || (count[b] - count[a]));
   }
   function testPageExtras(code) {
     const conds = condsForTest(code), g = testGenes(code);
@@ -1985,16 +2043,40 @@
       ${other.length ? `<p class="small"><strong>Other syndromes with genes on this panel:</strong> ${other.map(c => `<a href="#syndrome=${c.id}">${esc(c.name)}</a> <span class="muted">(${esc(c.genes.filter(x => g.genes.includes(x)).join(', '))})</span>`).join(' · ')}</p>` : ''}`;
   }
   function renderTestsTab() {
-    const codes = testsShown(), st = familyTestStatus(), q = $('#tests-search').value.trim();
-    if (!codes.includes(state.test)) state.test = codes[0] || null;
+    const codes = testsShown(), st = familyTestStatus(), q = $('#tests-search').value.trim(), res = termRegexes(q);
+    // A new search opens the test that mentions it most; otherwise keep the open test while it is still listed.
+    if (q !== (state.tdQuery ?? q) || !codes.includes(state.test)) state.test = codes[0] || null;
+    state.tdQuery = q;
     const open = $('#tests-layout').classList.contains('list-open');
     $('#tests-list-toggle').textContent = open ? 'Hide list ▴' : `Browse ${codes.length} tests ▾`;
     $('#tests-list-toggle').setAttribute('aria-expanded', open);
     const badge = c => st[c] === 'met' ? ' <span class="elig-tag">met</span>' : st[c] === 'maybe' ? ' <span class="elig-tag maybe">may meet</span>' : '';
+    const snippet = c => {
+      if (!res.length || /^r\d+$/i.test(q)) return '';
+      const m = testMatches(c, res);
+      return `<span class="td-snip small">${m.n ? `${m.n} match${m.n === 1 ? '' : 'es'} – ${markTerms(m.snip, q)}` : 'found via a linked syndrome or gene'}</span>`;
+    };
     $('#tests-list').innerHTML = `<div class="print-bar"><span class="muted small">${codes.length} of ${TEST_CODES.length} tests</span></div>` +
-      (codes.length ? `<ul>${codes.map(c => `<li><a href="#test=${c}"${c === state.test ? ' aria-current="true"' : ''}><span class="code">${c}</span> ${esc(TESTS[c].name)}${badge(c)}</a></li>`).join('')}</ul>`
+      (codes.length ? `<ul>${codes.map(c => `<li><a href="#test=${c}"${c === state.test ? ' aria-current="true"' : ''}><span class="code">${c}</span> ${esc(TESTS[c].name)}${badge(c)}${snippet(c)}</a></li>`).join('')}</ul>`
         : '<div class="empty">No tests match.</div>');
-    $('#tests-detail').innerHTML = state.test ? criteriaHtml(state.test, true, q) : '<p class="muted">No tests match the search.</p>';
+    const det = $('#tests-detail');
+    det.innerHTML = state.test ? `<div class="td-find" hidden><span class="td-count small"></span>
+        <button type="button" class="btn-ghost" data-td-find="-1" aria-label="Previous match">‹ Previous</button>
+        <button type="button" class="btn-ghost" data-td-find="1" aria-label="Next match">Next ›</button></div>${criteriaHtml(state.test, true)}` : '<p class="muted">No tests match the search.</p>';
+    const n = state.test ? markInElement(det, anyTerm(res)) : 0;
+    state.tdFind = -1;
+    const bar = det.querySelector('.td-find');
+    if (bar) { bar.hidden = !res.length; bar.querySelector('.td-count').textContent = n ? `${n} match${n === 1 ? '' : 'es'} in this test` : 'No matches in this test\'s text'; bar.querySelectorAll('button').forEach(b => { b.disabled = !n; }); }
+  }
+  // Next / previous match within the open test.
+  function tdFindStep(dir) {
+    const marks = [...$('#tests-detail').querySelectorAll('mark')];
+    if (!marks.length) return;
+    marks.forEach(m => m.classList.remove('current'));
+    state.tdFind = ((state.tdFind ?? -1) + dir + marks.length) % marks.length;
+    const m = marks[state.tdFind]; m.classList.add('current');
+    m.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    $('#tests-detail .td-count').textContent = `${state.tdFind + 1} of ${marks.length} matches in this test`;
   }
 
   function route() {
@@ -2278,6 +2360,7 @@
     $('#tests-family').addEventListener('change', renderTestsTab);
     $('#tests-list-toggle').addEventListener('click', () => { $('#tests-layout').classList.toggle('list-open'); renderTestsTab(); });
     $('#tests-list').addEventListener('click', e => { if (e.target.closest('a')) $('#tests-layout').classList.remove('list-open'); });
+    $('#tests-detail').addEventListener('click', e => { const b = e.target.closest('[data-td-find]'); if (b) tdFindStep(+b.dataset.tdFind); });
     window.addEventListener('afterprint', () => { document.body.classList.remove('printing'); $('#print-area').innerHTML = ''; });
     window.addEventListener('hashchange', route);
     window.addEventListener('popstate', route);
