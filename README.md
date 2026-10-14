@@ -19,6 +19,7 @@ js/criteria.js    Test Directory testing criteria, verbatim (generated from the 
 js/panels.js      Green genes on each test's PanelApp panel (generated from the PanelApp API)
 js/eligibility.js Who in the family meets Test Directory criteria
 js/app.js         Scoring engine and UI
+test-directory-explorer/  National Genomic Test Directory Explorer (separate app; landing page only so far)
 .nojekyll         Serve files as-is (no Jekyll build)
 ```
 
