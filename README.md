@@ -213,6 +213,7 @@ test-directory-explorer/explorer.js        Search, filters and views (#R133, #ge
 test-directory-explorer/explorer.css       Styles (light/dark)
 test-directory-explorer/abbreviations.js   Meanings shown on hover/tap; per-indication meanings; words deliberately not expanded
 test-directory-explorer/criteria-format.js Clearer layout of the verbatim criteria (formatting only; the words never change)
+test-directory-explorer/corrections.js     Obvious typos and punctuation corrected in the formatted layout (each marked; PDF layout unchanged)
 test-directory-explorer/data/directory.js  Generated: indications, tests, verbatim criteria (do not edit)
 test-directory-explorer/data/panels.js     Generated: green genes on each PanelApp panel (do not edit)
 ```
@@ -225,7 +226,10 @@ Copy link and Print buttons; large PanelApp panels have a box to find a gene. Pr
 The testing criteria are shown word for word but laid out for reading: OR / AND connectors between criteria, ages and
 thresholds highlighted, lists that run together in the PDF text split into bullet points, long paragraphs broken at
 sentences, NOTE lines as notes and PMIDs linked. “Show as in the PDF” switches to the plain layout (remembered per browser).
-`tests/explorer.test.js` checks that the formatted text of every criteria line is identical to the PDF text.
+In the formatted layout, obvious typos and punctuation errors listed in `corrections.js` are corrected and marked with a
+dashed underline (hover or tap shows the PDF wording); the PDF layout always shows the original. Each correction must match
+its indication's text exactly once, spelling fixes may change at most 3 letters, and punctuation/break fixes may not change
+any letters. `tests/explorer.test.js` checks all of this, and that the rest of the text is identical to the PDF.
 
 Abbreviations are underlined with dots and show their meaning on hover, tap or keyboard focus; each indication page
 also lists the ones it uses. `tests/explorer.test.js` fails if a new directory version brings an abbreviation that is not in

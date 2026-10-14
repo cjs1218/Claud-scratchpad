@@ -5,6 +5,7 @@ const { TDX } = load(path.join(__dirname, '../test-directory-explorer/data/direc
 const { TDX_PANELS } = load(path.join(__dirname, '../test-directory-explorer/data/panels.js'));
 const { TDX_ABBR, TDX_ABBR_BY_CODE, TDX_ABBR_IGNORE } = load(path.join(__dirname, '../test-directory-explorer/abbreviations.js'));
 const { TDX_FORMAT } = load(path.join(__dirname, '../test-directory-explorer/criteria-format.js'));
+const { TDX_CORRECTIONS } = load(path.join(__dirname, '../test-directory-explorer/corrections.js'));
 let failures = 0, passes = 0;
 const check = (cond, msg) => { if (cond) { passes++; console.log('  ok  ', msg); } else { failures++; console.log('  FAIL', msg); } };
 
@@ -71,6 +72,39 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   check((f('Features such as: o Retinal angioma o Mesothelioma').match(/class="item"/g) || []).length === 2, 'a run-together “o … o …” list becomes a list');
   check(!/class="split"/.test(f('Hypotonia - with feeding difficulties')), 'a single dash in a sentence is not a list');
   check(TDX_FORMAT.isNote('NOTE: This indication is for urgent testing') && !TDX_FORMAT.isNote('Nothing noted'), 'NOTE lines are recognised');
+}
+// Corrections (formatted layout only): each one is found once in its indication and changes only what its kind allows.
+{
+  const byCode = Object.fromEntries(I.map(e => [e.code, e]));
+  const texts = e => [...(e.criteria || []).map(c => c[2]), ...(e.overlapping || []), e.pathway || ''];
+  const lev = (a, b) => { const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
+  const letters = x => x.replace(/[^A-Za-z0-9]/g, '');
+  const stale = [], wrong = [];
+  for (const [code, find, fix, kind] of TDX_CORRECTIONS) {
+    const n = byCode[code] ? texts(byCode[code]).reduce((a, t) => a + t.split(find).length - 1, 0) : 0;
+    if (n !== 1) stale.push(`${code} “${find}” (${n}×)`);
+    const ok = kind === 'spelling' ? lev(find, fix) <= 3 && lev(find, fix) > 0 : ['punctuation', 'break'].includes(kind) && letters(find) === letters(fix) && find !== fix;
+    if (!ok) wrong.push(`${code} “${find}”`);
+  }
+  check(!stale.length, `every correction matches its indication's text exactly once (${TDX_CORRECTIONS.length})${stale.length ? ' – update or remove: ' + stale.join('; ') : ''}`);
+  check(!wrong.length, `corrections stay within their kind: spelling ≤3 letters, punctuation and breaks change no letters${wrong.length ? ' – ' + wrong.join('; ') : ''}`);
+  // With its corrections, a line's formatted text equals the corrected text, and every correction is marked once.
+  const plain = html => html.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+  let bad = 0, marked = 0;
+  for (const [code, find, fix] of TDX_CORRECTIONS) {
+    const e = byCode[code]; if (!e) continue;
+    const t = texts(e).find(x => x.includes(find)); if (!t) continue;
+    const isCrit = (e.criteria || []).some(c => c[2] === t);
+    const html = (isCrit ? TDX_FORMAT.line : TDX_FORMAT.text)(t, (c, m) => `<a href="#${c}">${m}</a>`, [[find, fix]]);
+    if (plain(html) !== t.replace(find, fix)) bad++;
+    marked += /<ins class="fix"/.test(html) || fix.replace(/\n/g, ' ') === find; // a pure line break shows, unmarked
+  }
+  check(!bad && marked === TDX_CORRECTIONS.length, `corrected lines show exactly the corrected text, each correction marked (${marked})`);
+  const v = TDX_FORMAT.line('parents carry different varints OR', null, [['different varints', 'different variants']]);
+  check(/<ins class="fix" data-pdf="varints"[^>]*>variants<\/ins>/.test(v) && /join-or/.test(v), 'a corrected word is marked with the PDF wording');
+  const br = TDX_FORMAT.line('not been excluded Order of testing', null, [['excluded Order of testing', 'excluded.\nOrder of testing']]);
+  check(/excluded\.<\/ins><br class="fix-br">/.test(br), 'a run-in heading starts a new line after a full stop');
 }
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
@@ -158,6 +192,20 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#detail .crit-list.plain').count() === 0 && (await page.locator('#detail [data-layout]').innerText()) === 'Show as in the PDF', 'and can be switched back');
   await page.goto(BASE + '#R133'); await page.waitForSelector('#detail .s-crit');
   check(await page.locator('#detail .crit-list a[href="https://pubmed.ncbi.nlm.nih.gov/20172912/"]').count() === 1, 'PMIDs link to PubMed');
+  // Corrections: marked in the formatted layout, original wording in the PDF layout.
+  await page.goto(BASE + '#R249'); await page.waitForSelector('#detail .s-crit');
+  const fix = page.locator('#detail .crit-list ins.fix', { hasText: 'variants' });
+  check(await fix.count() === 1 && await fix.getAttribute('data-pdf') === 'varints', 'R249: “varints” shows corrected to “variants”, marked');
+  await fix.hover();
+  check(/the PDF has “varints”/.test(await page.locator('#abbr-tip').innerText()), 'hovering a correction shows the PDF wording');
+  check(/obvious typo or punctuation error on this page is corrected/.test(await page.locator('#detail .crit-help').innerText()), 'the page says how many corrections it has');
+  await page.click('#detail [data-layout]'); await page.waitForTimeout(100);
+  check(await page.locator('#detail ins.fix').count() === 0 && /different varints/.test(await page.locator('#detail .crit-list').innerText()), 'the PDF layout shows the original wording');
+  await page.click('#detail [data-layout]'); await page.waitForTimeout(100);
+  await page.goto(BASE + '#R33'); await page.waitForSelector('#detail .s-crit');
+  check(await page.locator('#detail .crit-list br.fix-br').count() === 1 && /excluded\.\s*\nOrder of testing/.test(await page.locator('#detail .crit-list').innerText()), 'R33: “Order of testing” starts its own line');
+  await page.goto(BASE + '#R62'); await page.waitForSelector('#detail .s-who');
+  check(/our-services\/find-service/.test(await page.locator('#detail .s-who').innerText()), 'R62: the web address broken by a line wrap is joined');
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.click('#detail [data-copy]'); await page.waitForTimeout(100);
   check(await page.evaluate(() => navigator.clipboard.readText()) === page.url(), 'Copy link copies the page address');

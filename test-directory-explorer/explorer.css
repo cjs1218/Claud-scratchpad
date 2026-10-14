@@ -154,6 +154,8 @@ b.logic { font-weight: 700; color: var(--accent-dark); }
 .crit-list .split .glyph { position: absolute; left: 0; color: transparent; width: 12px; overflow: hidden; }
 .crit-list .split .glyph::before { content: "•"; color: var(--muted); position: absolute; left: 2px; }
 .crit-list .sent { display: block; margin-top: 6px; }
+ins.fix { text-decoration: underline dashed var(--button); text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: help; }
+.crit-help ins.fix { cursor: default; }
 .crit-list .crit-note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 6px 10px; border-radius: 0 4px 4px 0; font-size: .95rem; }
 .test { border-top: 1px solid var(--border); padding: 12px 0 4px; }
 .test:first-of-type { border-top: 0; padding-top: 0; }
@@ -238,6 +240,7 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
   abbr.abbr { text-decoration: none; }
   mark { background: none; color: inherit; }
   .layout-switch, .crit-help { display: none !important; }
+  ins.fix { text-decoration: none; }
   .join { border: 1px solid #000; color: #000; background: none; }
   .thr { background: none; }
   footer { border-color: #999; }

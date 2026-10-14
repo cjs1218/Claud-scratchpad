@@ -58,7 +58,7 @@
       const t = document.createElement('template'); t.innerHTML = html; n.replaceWith(t.content);
     }
     // Keyboard users can reach the abbreviations on an indication or gene page (not inside links, which take focus themselves).
-    root.querySelectorAll('#detail abbr.abbr:not([tabindex])').forEach(a => { if (!a.closest('a, button, summary')) a.tabIndex = 0; });
+    root.querySelectorAll('#detail abbr.abbr:not([tabindex]), #detail .crit-list ins.fix:not([tabindex]), #detail .s-overlap ins.fix:not([tabindex]), #detail .s-who ins.fix:not([tabindex])').forEach(a => { if (!a.closest('a, button, summary')) a.tabIndex = 0; });
     return [...found].sort(cmp).map(k => [k, dict[k]]);
   }
 
@@ -203,12 +203,17 @@
   const FORMAT = typeof TDX_FORMAT !== 'undefined' ? TDX_FORMAT : null;
   let plainCriteria = false;
   try { plainCriteria = localStorage.getItem('tdx-criteria-layout') === 'pdf'; } catch (err) { /* storage unavailable */ }
-  const critList = items => {
+  // Obvious typos and punctuation corrected in the formatted layout (corrections.js); the PDF layout keeps the original.
+  const FIXES = {};
+  if (typeof TDX_CORRECTIONS !== 'undefined') for (const [code, find, fix] of TDX_CORRECTIONS) (FIXES[code] = FIXES[code] || []).push([find, fix]);
+  const fixesFor = (code, t) => plainCriteria || !FORMAT ? [] : (FIXES[code] || []).filter(([find]) => t.includes(find));
+  const verbatim = (code, t) => { const f = fixesFor(code, t); return f.length ? FORMAT.text(t, linkCode, f) : linkCodes(t); };
+  const critList = (items, code) => {
     if (plainCriteria || !FORMAT) return `<ul class="crit-list plain">${items.map(([lv, mk, tx]) =>
       `<li class="lv${lv}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${linkCodes(tx)}</li>`).join('')}</ul>`;
     return `<ul class="crit-list">${items.map(([lv, mk, tx]) =>
       `<li class="lv${lv}${critClass(mk, tx)}${!mk && FORMAT.isNote(tx) ? ' crit-note' : ''}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${
-        critClass(mk, tx) === ' crit-join' ? `<span class="join join-${/^and$/i.test(tx) ? 'and' : 'or'}">${esc(tx)}</span>` : FORMAT.line(tx, linkCode)}</li>`).join('')}</ul>`;
+        critClass(mk, tx) === ' crit-join' ? `<span class="join join-${/^and$/i.test(tx) ? 'and' : 'or'}">${esc(tx)}</span>` : FORMAT.line(tx, linkCode, fixesFor(code, tx))}</li>`).join('')}</ul>`;
   };
   const layoutSwitch = () => FORMAT ? `<button type="button" class="layout-switch" data-layout aria-pressed="${plainCriteria}">${plainCriteria ? 'Show formatted' : 'Show as in the PDF'}</button>` : '';
   const bulletList = xs => xs && xs.length ? `<ul>${xs.map(x => `<li>${linkCodes(x)}</li>`).join('')}</ul>` : '<p class="muted">Not stated</p>';
@@ -295,7 +300,7 @@
       ${x['Requesting Specialties'] ? `<p><strong>Requesting specialties:</strong> ${esc(x['Requesting Specialties'].join(', '))}</p>` : ''}</section>`).join('');
     const refs = REFERRERS[e.code] || [];
     const overlap = (e.overlapping && e.overlapping.length) || refs.length ? `<section class="block s-overlap"><h3>Overlapping indications</h3>
-      ${e.overlapping && e.overlapping.length ? bulletList(e.overlapping) : ''}
+      ${e.overlapping && e.overlapping.length ? `<ul>${e.overlapping.map(x => `<li>${verbatim(e.code, x)}</li>`).join('')}</ul>` : ''}
       ${refs.length ? `<p class="small"><strong>Mentioned by:</strong> ${refs.map(c => `<a href="#${c}">${c}</a> ${esc(BY_CODE[c].name)}`).join(' · ')}</p>` : ''}</section>` : '';
     $('#detail').innerHTML = `${backLink()}
       <h2 id="detail-title"><span class="code">${e.code}</span> ${esc(e.name)}</h2>
@@ -306,8 +311,9 @@
       <div class="cols">
         <div>
           <section class="block s-crit"><div class="crit-head"><h3>Testing criteria</h3>${layoutSwitch()}</div>
-            ${FORMAT && !plainCriteria ? '<p class="crit-help small muted">Same wording as the PDF, laid out for reading: <span class="join join-or">OR</span> / <span class="join join-and">AND</span> link one criterion to the next, and ages and thresholds are <span class="thr">highlighted</span>.</p>' : ''}
-            ${e.criteria ? critList(e.criteria) : '<p class="muted">Not found in the eligibility criteria document.</p>'}
+            ${FORMAT && !plainCriteria ? `<p class="crit-help small muted">Laid out for reading: <span class="join join-or">OR</span> / <span class="join join-and">AND</span> link one criterion to the next, and ages and thresholds are <span class="thr">highlighted</span>.${(FIXES[e.code] || []).length
+              ? ` ${plural(FIXES[e.code].length, 'obvious typo or punctuation error', 'obvious typos or punctuation errors')} on this page ${FIXES[e.code].length === 1 ? 'is' : 'are'} <ins class="fix">corrected</ins> (hover to see the PDF wording).` : ''}</p>` : ''}
+            ${e.criteria ? critList(e.criteria, e.code) : '<p class="muted">Not found in the eligibility criteria document.</p>'}
             ${e.page ? `<p class="small source">Quoted from the ${ext(pdfPage(e.page), `eligibility criteria ${esc(TDX.meta.criteria)}, PDF page ${e.page}`)}.</p>` : ''}
           </section>
           ${overlap}
@@ -315,7 +321,7 @@
         <div>
           <section class="block s-tests"><h3>${e.tests.length === 1 ? 'Test' : plural(e.tests.length, 'test')}</h3>${e.tests.map(testCard).join('')}</section>
           <section class="block s-who"><h3>Who can request it</h3>
-            <p><strong>Where in pathway:</strong> ${e.pathway ? esc(e.pathway) : '<span class="muted">Not stated</span>'}</p>
+            <p><strong>Where in pathway:</strong> ${e.pathway ? verbatim(e.code, e.pathway) : '<span class="muted">Not stated</span>'}</p>
             <p><strong>Requesting specialties</strong></p>${bulletList(e.specialties)}
             ${e.specialtyNotes ? `<p class="small">${e.specialtyNotes.map(esc).join('<br>')}</p>` : ''}
             <p><strong>Specialist service group:</strong> ${esc((e.serviceGroup || []).join(', ')) || '<span class="muted">Not stated</span>'}</p>
@@ -442,6 +448,8 @@
   addEventListener('beforeprint', () => { const g = $('#detail .glossary'); if (g && !g.open) { g.open = true; g.dataset.printOpened = '1'; } });
   addEventListener('afterprint', () => { const g = $('#detail .glossary[data-print-opened]'); if (g) { g.open = false; delete g.dataset.printOpened; } });
   // Abbreviation tooltip: shows at once on hover, keyboard focus or tap (tap again or press Escape to close).
+  // Corrected words use it too, to show the PDF wording.
+  const TIP_SEL = 'abbr.abbr, ins.fix[data-full]';
   const tip = document.createElement('div');
   tip.id = 'abbr-tip'; tip.setAttribute('role', 'tooltip'); tip.hidden = true;
   document.body.append(tip);
@@ -464,11 +472,11 @@
   document.addEventListener('pointermove', ev => { if (ev.pointerType === 'mouse') touching = false; }, true);
   document.addEventListener('mouseover', ev => {
     if (touching) return;
-    const el = ev.target.closest && ev.target.closest('abbr.abbr'); if (el) showTip(el); else if (tipFor) hideTip();
+    const el = ev.target.closest && ev.target.closest(TIP_SEL); if (el) showTip(el); else if (tipFor) hideTip();
   });
-  document.addEventListener('focusin', ev => { const el = ev.target.closest && ev.target.closest('abbr.abbr'); if (el) showTip(el); else if (tipFor) hideTip(); });
+  document.addEventListener('focusin', ev => { const el = ev.target.closest && ev.target.closest(TIP_SEL); if (el) showTip(el); else if (tipFor) hideTip(); });
   document.addEventListener('click', ev => {
-    const el = ev.target.closest && ev.target.closest('abbr.abbr');
+    const el = ev.target.closest && ev.target.closest(TIP_SEL);
     if (!el) { if (tipFor) hideTip(); return; }
     if (el.closest('a, button, summary, label')) return; // links keep working; hovering still shows the meaning
     ev.preventDefault();
