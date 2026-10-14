@@ -19,7 +19,7 @@ js/criteria.js    Test Directory testing criteria, verbatim (generated from the 
 js/panels.js      Green genes on each test's PanelApp panel (generated from the PanelApp API)
 js/eligibility.js Who in the family meets Test Directory criteria
 js/app.js         Scoring engine and UI
-test-directory-explorer/  National Genomic Test Directory Explorer (separate app; landing page only so far)
+test-directory-explorer/  National Genomic Test Directory Explorer (separate app: every R code; see below)
 .nojekyll         Serve files as-is (no Jekyll build)
 ```
 
@@ -188,6 +188,7 @@ npm run test:live           # browser tests against the published site
 - `tests/browser.test.js` – the app in Chromium (forms, results, pop-ups, printout, phone layout).
 - `tests/a11y.test.js` – axe accessibility check of the main views in light and dark mode (serious problems and heading order).
 - `tests/genes.test.js` – every gene page renders and its links are well formed.
+- `tests/explorer.test.js` – Explorer data (every indication has tests, criteria, specialties) and the page in Chromium (`--no-browser` for the data checks only).
 
 GitHub runs the same checks on every push (`.github/workflows/test.yml`).
 
@@ -195,4 +196,25 @@ Data updates:
 
 - `npm run update:panels` – refresh `js/panels.js` from the PanelApp API.
 - `npm run update:criteria` – rebuild `js/criteria.js` from the Test Directory PDF (needs `pdftotext`).
+- `npm run update:explorer` – rebuild the Explorer's data (below; needs `pdftotext` and Python `openpyxl`).
 - `npm run bump` – new `?v=` version on every script and style tag in `index.html`.
+
+## Test Directory Explorer
+
+`test-directory-explorer/` is a separate page covering every rare and inherited disease (R) clinical indication in the
+NHS England National Genomic Test Directory: search by R code, condition, gene or criteria wording; filter by clinical
+area, method, commissioning or requesting specialty; open an indication for its tests (target, method, optimal family
+structure, scope, PanelApp panel and green genes), verbatim testing criteria, overlapping indications, where in the
+pathway and who can request it; or open a gene to see every test that covers it.
+
+```
+test-directory-explorer/index.html         The page
+test-directory-explorer/explorer.js        Search, filters and views (#R133, #gene=BRCA1, #q=…)
+test-directory-explorer/explorer.css       Styles (light/dark)
+test-directory-explorer/data/directory.js  Generated: indications, tests, verbatim criteria (do not edit)
+test-directory-explorer/data/panels.js     Generated: green genes on each PanelApp panel (do not edit)
+```
+
+`tools/update-explorer.py` builds both data files from the directory spreadsheet, the eligibility criteria PDF and the
+PanelApp API, and lists anything it could not match. When NHS England publishes a new version, update the `XLSX` and
+`PDF` URLs at the top of the script, run `npm run update:explorer`, check its output, then `npm test` and `npm run bump`.

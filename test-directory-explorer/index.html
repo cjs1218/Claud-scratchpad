@@ -4,86 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Test Directory Explorer</title>
-  <meta name="description" content="Browse and search the NHS England National Genomic Test Directory by clinical indication, gene, panel and test method.">
+  <meta name="description" content="Search every rare and inherited disease (R) test in the NHS England National Genomic Test Directory by clinical indication, gene, method and requesting specialty, with the eligibility criteria.">
   <meta name="theme-color" content="#005eb8">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <style>
-    :root {
-      --nhs-blue: #005eb8;
-      --bg: #f0f4f5;
-      --fg: #212b32;
-      --muted: #4c6272;
-      --card: #ffffff;
-      --border: #d8dde0;
-      --accent: #005eb8;
-      --accent-soft: #e8f1fa;
-      --head-bg: #005eb8;
-      --head-fg: #ffffff;
-      --focus: #ffeb3b;
-      --focus-text: #212b32;
-      --pill-bg: #fff9c4;
-      --pill-fg: #4f3d00;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --bg: #11181d;
-        --fg: #e6ecef;
-        --muted: #a9b8c2;
-        --card: #1b252c;
-        --border: #34444f;
-        --accent: #7cb8f0;
-        --accent-soft: #1d3346;
-        --head-bg: #003a72;
-        --pill-bg: #4a3d00;
-        --pill-fg: #fff3b0;
-      }
-    }
-    :root[data-theme="dark"] {
-      --bg: #11181d; --fg: #e6ecef; --muted: #a9b8c2; --card: #1b252c; --border: #34444f;
-      --accent: #7cb8f0; --accent-soft: #1d3346; --head-bg: #003a72; --pill-bg: #4a3d00; --pill-fg: #fff3b0;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; background: var(--bg); color: var(--fg);
-      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    }
-    .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; }
-    a { color: var(--accent); }
-    :focus-visible { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px var(--focus-text); }
-    .site-head { background: var(--head-bg); color: var(--head-fg); padding: 20px 0; }
-    .site-head a { color: var(--head-fg); }
-    .head-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand h1 { margin: 0; font-size: 1.5rem; line-height: 1.2; }
-    .pill { display: inline-block; vertical-align: middle; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
-      background: var(--pill-bg); color: var(--pill-fg); font-size: .75rem; font-weight: 600; }
-    .head-link { font-size: .9rem; }
-    main { padding: 32px 0 48px; }
-    .hero h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.2; margin: 0 0 12px; }
-    .hero p { color: var(--muted); max-width: 62ch; margin: 0 0 24px; font-size: 1.1rem; }
-    .search { display: flex; gap: 8px; max-width: 640px; }
-    .search input {
-      flex: 1; min-width: 0; padding: 10px 12px; font: inherit; color: var(--fg); background: var(--card);
-      border: 2px solid var(--muted); border-radius: 4px;
-    }
-    .search button {
-      padding: 10px 18px; font: inherit; font-weight: 600; color: #fff; background: #007f3b;
-      border: 0; border-radius: 4px; box-shadow: 0 4px 0 #00401e; cursor: not-allowed; opacity: .7;
-    }
-    .hint { color: var(--muted); font-size: .9rem; margin: 8px 0 0; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin: 40px 0; padding: 0; list-style: none; }
-    .card { background: var(--card); border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 4px; padding: 18px; }
-    .card h3 { margin: 0 0 6px; font-size: 1.1rem; }
-    .card p { margin: 0; color: var(--muted); }
-    .card .soon { display: inline-block; margin-top: 10px; font-size: .8rem; font-weight: 600; color: var(--accent);
-      background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; }
-    .about { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 18px 20px; }
-    .about h2 { margin: 0 0 8px; font-size: 1.2rem; }
-    .about p { margin: 0 0 8px; }
-    .about p:last-child { margin: 0; }
-    footer { border-top: 1px solid var(--border); padding: 20px 0 32px; color: var(--muted); font-size: .9rem; }
-    @media (max-width: 480px) { .search { flex-direction: column; } }
-  </style>
+  <link rel="stylesheet" href="explorer.css?v=20261014-12">
 </head>
 <body>
   <header class="site-head">
@@ -94,62 +18,47 @@
           <g fill="none" stroke="#005eb8" stroke-width="2.2"><circle cx="14" cy="14" r="7"/><path d="M19.2 19.2l6.3 6.3"/></g>
           <path d="M10.5 14h7M14 10.5v7" stroke="#005eb8" stroke-width="2"/>
         </svg>
-        <h1>National Genomic Test Directory Explorer <span class="pill">In development</span></h1>
+        <div>
+          <h1><a href="./">National Genomic Test Directory Explorer</a> <span class="pill">In development</span></h1>
+          <p id="stats"></p>
+        </div>
       </div>
       <a class="head-link" href="../">Cancer Family History Navigator</a>
     </div>
   </header>
 
   <main class="wrap">
-    <section class="hero" aria-labelledby="hero-title">
-      <h2 id="hero-title">Find the right NHS genomic test</h2>
-      <p>Browse and search the NHS England National Genomic Test Directory for rare and inherited disease and cancer –
-        by clinical indication, gene, panel or test method – and see who is eligible.</p>
-      <form class="search" role="search" onsubmit="return false">
-        <input id="q" type="search" placeholder="e.g. R208, BRCA1, cardiomyopathy" aria-label="Search the Test Directory" disabled>
-        <button type="submit" disabled>Search</button>
+    <section id="home" aria-labelledby="home-title">
+      <h2 id="home-title" class="visually-hidden">Find a test</h2>
+      <p class="intro">Every rare and inherited disease (R) test in the NHS England National Genomic Test Directory. Search by R code,
+        condition, gene or words in the eligibility criteria, or filter by clinical area, method or requesting specialty.</p>
+      <form id="search" role="search">
+        <label for="q">Search the Test Directory</label>
+        <input id="q" type="search" placeholder="e.g. R133, cardiomyopathy, BRCA1, hearing loss" autocomplete="off">
       </form>
-      <p class="hint">Search is coming soon.</p>
+      <div id="filters">
+        <label class="check"><input type="checkbox" id="f-changed"> Changed in this version</label>
+        <button type="button" class="link" id="clear">Clear search and filters</button>
+      </div>
+      <div class="result-bar">
+        <p id="count" class="muted small" role="status" aria-live="polite"></p>
+        <p id="gene-hint" hidden></p>
+      </div>
+      <ul id="results" class="results"></ul>
     </section>
-
-    <ul class="cards" aria-label="Planned features">
-      <li class="card">
-        <h3>Clinical indications</h3>
-        <p>Browse every R and M code with its eligibility criteria, specialties and who can request it.</p>
-        <span class="soon">Coming soon</span>
-      </li>
-      <li class="card">
-        <h3>Genes</h3>
-        <p>Look up a gene and see every test and PanelApp panel that includes it.</p>
-        <span class="soon">Coming soon</span>
-      </li>
-      <li class="card">
-        <h3>Test methods</h3>
-        <p>Filter by technology – WGS, panel, MLPA, single gene, karyotype and more.</p>
-        <span class="soon">Coming soon</span>
-      </li>
-      <li class="card">
-        <h3>What changed</h3>
-        <p>Compare versions of the Directory to see added, retired and updated tests.</p>
-        <span class="soon">Coming soon</span>
-      </li>
-    </ul>
-
-    <section class="about" aria-labelledby="about-title">
-      <h2 id="about-title">About this tool</h2>
-      <p>The National Genomic Test Directory sets out which genomic tests the NHS in England commissions, the
-        technology used and the patients eligible. This explorer will present that information in a quicker,
-        searchable form.</p>
-      <p>Always check the official source:
-        <a href="https://www.england.nhs.uk/publication/national-genomic-test-directories/" target="_blank" rel="noopener">NHS England – National genomic test directories</a>.</p>
-    </section>
+    <section id="detail" hidden aria-live="polite"></section>
   </main>
 
   <footer>
     <div class="wrap">
-      <p>Clinical decision support only – not a substitute for clinical judgement. Not affiliated with NHS England.
-        <a href="https://github.com/cjs1218/Claud-scratchpad/tree/main/test-directory-explorer" target="_blank" rel="noopener">Source on GitHub</a></p>
+      <p id="version"></p>
+      <p>Clinical decision support only – not a substitute for clinical judgement or your Genomic Laboratory Hub's advice. Not affiliated with
+        NHS England; always check the <a href="https://www.england.nhs.uk/publication/national-genomic-test-directories/">official National Genomic Test Directory</a>.
+        <a href="https://github.com/cjs1218/Claud-scratchpad/tree/main/test-directory-explorer">Source on GitHub</a></p>
     </div>
   </footer>
+  <script src="data/directory.js?v=20261014-12"></script>
+  <script src="data/panels.js?v=20261014-12"></script>
+  <script src="explorer.js?v=20261014-12"></script>
 </body>
 </html>
