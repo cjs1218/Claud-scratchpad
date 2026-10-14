@@ -1180,7 +1180,7 @@
       : ['met', 'maybe', 'near'].filter(k => all.some(h => h.kind === k)).map(k => `<h4 class="hit-${k}">${KIND[k][0]}</h4><ul class="crit-hits">${all.filter(h => h.kind === k).map(who).join('')}</ul>`).join('');
     const items = tc ? `<ol class="crit-list">${tc.items.map(([lv, mk, text], i) => {
       const hs = (hits.get(i) || []).sort((a, b) => rank[a.kind] - rank[b.kind]);
-      return `<li class="lv${lv}${hs.length ? ` hit hit-${hs[0].kind}` : ''}"${hs.length ? ` id="crit-hit-${i}"` : ''}>${mk ? `<span class="crit-mk">${esc(mk)}</span> ` : ''}${hl(text)}${hs.length ? `<ul class="crit-hits">${hs.map(who).join('')}</ul>` : ''}</li>`;
+      return `<li class="lv${lv}${!mk && /:$/.test(text) ? ' crit-sub' : ''}${hs.length ? ` hit hit-${hs[0].kind}` : ''}"${hs.length ? ` id="crit-hit-${i}"` : ''}>${mk ? `<span class="crit-mk">${esc(mk)}</span> ` : ''}${hl(text)}${hs.length ? `<ul class="crit-hits">${hs.map(who).join('')}</ul>` : ''}</li>`;
     }).join('')}</ol>` : `<ul>${t.criteria.map(x => `<li>${hl(x)}</li>`).join('')}</ul><p class="small muted">Summary only – see the PDF for the exact wording.</p>`;
     return `<header class="crit-head">
         <h2><span class="code">${esc(code)}</span> ${esc(t.name)}</h2>

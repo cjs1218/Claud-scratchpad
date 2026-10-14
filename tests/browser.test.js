@@ -1121,6 +1121,12 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.uncheck('#tests-family');
   await page.goto(BASE + '#test=R216'); await page.waitForSelector('#tests-detail h2');
   check(/R216/.test(await page.textContent('#tests-detail h2')) && !(await page.isHidden('#tab-tests')), 'direct link to a test page');
+  await page.goto(BASE + '#test=R213'); await page.waitForSelector('#tests-detail h2');
+  {
+    const subs = await page.$$eval('#tests-detail .crit-list li.crit-sub', a => a.map(x => x.textContent.trim()));
+    const items = await page.$$eval('#tests-detail .crit-list li', a => a.map(x => x.textContent.replace(/^•\s*/, '').trim()));
+    check(subs.includes('Major criteria:') && subs.includes('Minor criteria:') && items.includes('Palmoplantar keratoses') && items.includes('Endometrial carcinoma') && items.includes('Breast cancer'), 'R213: major and minor criteria are separate headings, not merged into the bullets');
+  }
   await page.goto(BASE + '#test=R207'); await page.waitForSelector('#tests-detail h2');
   check(await page.locator('#tests-detail a[href="#syndrome=lynch_mlh1"]').count() >= 1 && await page.locator('#tests-detail a[href="#syndrome=palb2"]').count() >= 1, 'R207 lists Lynch syndrome and PALB2 (their genes are on the ovarian panel)');
   await page.goto(BASE + '#test=R208'); await page.waitForSelector('#tests-detail h2');

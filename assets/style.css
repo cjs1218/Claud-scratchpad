@@ -735,3 +735,4 @@ body.compact-head .notice-strip .disc-long { display: none; }
 #tests-detail mark, .crit-list mark { background: #fff3a0; color: #212b32; padding: 0 1px; border-radius: 2px; }
 .gene.gene-hit { outline: 2px solid var(--warn-edge); }
 #tests-detail .crit-head { border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.crit-list li.crit-sub { font-weight: 700; margin-top: 8px; }

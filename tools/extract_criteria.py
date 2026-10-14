@@ -35,6 +35,10 @@ for c in codes:
         if pendingBullet:
             items.append({'m': pendingBullet[0], 'ind': pendingBullet[1], 't': s}); pendingBullet = None; continue
         prev = items[-1] if items else None
+        # A capitalised line ending in a colon is a sub-heading (e.g. "Major criteria:"), never a continuation.
+        heading = bool(re.match(r'^[A-Z][^:]{0,80}:$', s)) and not (prev and re.search(r'\b(OR|AND|WITH|WITHOUT|IF|THE|OF|TO)$', prev['t']))
+        if heading:
+            items.append({'m': '', 'ind': ind, 't': s, 'head': True}); continue
         newStart = re.match(r'^(Deceased|NOTE|Note|NOTES|\*)', s)
         if prev and not newStart and prev['m'] and ind == prev['ind'] and not re.search(r'([.:;,]|\bOR|\bAND)$', prev['t']) and s not in ('OR', 'AND'):
             prev['t'] += ' ' + s; continue
@@ -44,6 +48,13 @@ for c in codes:
             items.append({'m': '', 'ind': ind, 't': s})
     inds = sorted({it['ind'] for it in items})
     lv = {v: min(n, 3) for n, v in enumerate(inds)}
-    out[c] = {'page': L[i][0], 'items': [[lv[it['ind']], it['m'], re.sub(r'\s+', ' ', it['t'])] for it in items]}
+    rows, under = [], None
+    for it in items:
+        level = lv[it['ind']]
+        if it.get('head'): under = level
+        elif under is not None and it['m'] == '•' and level <= under: level = under + 1
+        elif not it['m'] or it['m'] != '•': under = None if not it.get('head') else under
+        rows.append([min(level, 3), it['m'], re.sub(r'\s+', ' ', it['t'])])
+    out[c] = {'page': L[i][0], 'items': rows}
 json.dump(out, open(sys.argv[2], 'w'), indent=1, ensure_ascii=False)
 print(len(out), 'of', len(codes))
