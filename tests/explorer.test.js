@@ -65,7 +65,11 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check((await page.locator('#detail h2').innerText()).includes('Arrhythmogenic right ventricular cardiomyopathy'), 'Enter on an R code opens it');
   const detail = await page.locator('#detail').innerText();
   check(detail.includes('Modified Task Force Criteria') && detail.includes('R133.1') && detail.includes('Singleton') && detail.includes('Clinical Genetics'), 'indication page shows criteria, tests, family structure and specialties');
-  check(await page.locator('#detail a[href$="#page=25"]').count() === 1, 'indication page links to its PDF page');
+  const pdf = await page.locator('#detail a[href$="#page=25"]').evaluateAll(as => as.map(a => a.href));
+  check(pdf.length >= 2 && pdf.every(h => h === TDX.meta.pdfUrl + '#page=25'), 'indication page links to its page of the criteria PDF');
+  check(await page.locator('.sources a[href="https://panelapp.genomicsengland.co.uk/panels/134/"]').count() === 1, 'sources box links to the PanelApp panel');
+  check(await page.locator('.test .panel-name a[href="https://panelapp.genomicsengland.co.uk/panels/134/"]').isVisible(), 'PanelApp link is visible on the test without expanding anything');
+  check(await page.locator('.sources a[href="' + TDX.meta.xlsxUrl + '"]').count() === 1, 'sources box links to the directory spreadsheet');
   await page.click('#detail a[href="#R132"]'); await page.waitForSelector('#detail h2');
   check((await page.locator('#detail h2').innerText()).startsWith('R132'), 'overlapping indications link to each other');
   await page.goBack(); await page.waitForTimeout(100);
@@ -73,6 +77,7 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   await page.goto(BASE + '#gene=BRCA2'); await page.waitForSelector('#detail h2');
   const gene = await page.locator('#detail').innerText();
   check(gene.includes('R208.1') && gene.includes('R207.1'), 'gene page lists the tests for a gene');
+  check(await page.locator('#detail a[href="https://panelapp.genomicsengland.co.uk/panels/635/"]').count() >= 1, 'gene page links to the PanelApp panel of each test');
   await page.goto(BASE + '#R9999'); await page.waitForSelector('#detail h2');
   check((await page.locator('#detail h2').innerText()) === 'Not found', 'unknown code shows not found');
   for (const w of [390]) {

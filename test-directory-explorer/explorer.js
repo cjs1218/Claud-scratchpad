@@ -7,6 +7,7 @@
   const IND = TDX.indications;
   const BY_CODE = Object.fromEntries(IND.map(e => [e.code, e]));
   const PANELS = (typeof TDX_PANELS !== 'undefined' && TDX_PANELS.panels) || {};
+  const PANELS_DATE = typeof TDX_PANELS !== 'undefined' ? TDX_PANELS.date : '';
   const PANELAPP = id => `https://panelapp.genomicsengland.co.uk/panels/${id}/`;
   const pdfPage = p => `${TDX.meta.pdfUrl}#page=${p}`;
   const plural = (n, w, ws = w + 's') => `${n} ${n === 1 ? w : ws}`;
@@ -78,13 +79,27 @@
     if (!t.panels.length) return '';
     return t.panels.map(id => {
       const p = PANELS[id];
-      if (!p) return `<p class="small muted">Panel ${id} is no longer in PanelApp. <a href="${PANELAPP(id)}" target="_blank" rel="noopener">Try PanelApp</a></p>`;
+      if (!p) return `<p class="small muted">Panel ${id} was not found in PanelApp when this page was built. <a class="ext" href="${PANELAPP(id)}" target="_blank" rel="noopener">Try PanelApp</a></p>`;
       const ents = panelEntities(id);
       const list = p.genes.length ? `<p class="genes">${p.genes.map(g => `<a href="#gene=${encodeURIComponent(g)}">${esc(g)}</a>`).join(' ')}</p>` : '';
       const extra = [p.strs && `STRs: ${p.strs.join(', ')}`, p.regions && `Regions: ${p.regions.join(', ')}`].filter(Boolean).map(x => `<p class="small">${esc(x)}</p>`).join('');
-      return `<details class="panel"><summary>${esc(p.name)} – ${plural(ents.length, 'green entity', 'green entities')}</summary>
-        <p class="small"><a href="${PANELAPP(id)}" target="_blank" rel="noopener">PanelApp panel ${id}, version ${esc(p.version)}</a></p>${list}${extra}</details>`;
+      return `<div class="panel"><p class="panel-name"><a class="ext" href="${PANELAPP(id)}" target="_blank" rel="noopener">${esc(p.name)} on PanelApp<span class="visually-hidden"> (opens in a new tab)</span></a>
+        <span class="muted small">panel ${id} · version ${esc(p.version)} used here</span></p>
+        <details><summary>Show the ${plural(ents.length, 'green gene or locus', 'green genes and loci')}</summary>${list}${extra}</details></div>`;
     }).join('');
+  }
+  // Links to the original documents so the details can be double-checked.
+  function sourcesBox(e) {
+    const panels = [...new Set(e.tests.flatMap(t => t.panels))];
+    const links = [
+      e.page && `<li><a class="ext" href="${pdfPage(e.page)}" target="_blank" rel="noopener">Eligibility criteria ${esc(TDX.meta.criteria)} – PDF page ${e.page}</a>
+        <span class="muted small">opens at the page in most browsers</span></li>`,
+      `<li><a class="ext" href="${esc(TDX.meta.xlsxUrl)}">Test Directory spreadsheet ${esc(TDX.meta.directory)}</a> <span class="muted small">download; find ${e.code} in the “R&amp;ID indications” tab</span></li>`,
+      ...panels.map(id => `<li><a class="ext" href="${PANELAPP(id)}" target="_blank" rel="noopener">${esc(PANELS[id] ? PANELS[id].name : 'Panel ' + id)} on PanelApp</a>
+        <span class="muted small">panel ${id}${PANELS[id] ? `, gene list (version ${esc(PANELS[id].version)} used here)` : ' – not found when this page was built'}</span></li>`),
+    ].filter(Boolean);
+    return `<section class="sources" aria-labelledby="src-title"><h3 id="src-title">Check the sources</h3><ul>${links.join('')}</ul>
+      <p class="small muted">PanelApp shows the panel's current version, which may have changed since ${esc(PANELS_DATE || 'this page was built')}.</p></section>`;
   }
   function testCard(t) {
     const rows = [['Target', esc(t.target)], ['Method', esc(t.method)], ['Optimal family structure', esc(t.family)],
@@ -122,11 +137,13 @@
     $('#detail').innerHTML = `<p class="back"><a href="#${state.q ? 'q=' + encodeURIComponent(state.q) : ''}">← All clinical indications</a></p>
       <h2 id="detail-title"><span class="code">${e.code}</span> ${esc(e.name)}</h2>
       <p class="meta">${uniq([partName(e.part), e.group]).map(x => chip(x)).join(' ')} ${e.change ? chip('Changed: ' + e.change, 'changed') : ''}</p>
+      ${sourcesBox(e)}
       <div class="cols">
         <div>
           <section class="block"><h3>Testing criteria</h3>
+            ${e.page ? `<p class="small"><a class="ext" href="${pdfPage(e.page)}" target="_blank" rel="noopener">Check in the PDF (page ${e.page})<span class="visually-hidden"> (opens in a new tab)</span></a></p>` : ''}
             ${e.criteria ? critList(e.criteria) : '<p class="muted">Not found in the eligibility criteria document.</p>'}
-            ${e.page ? `<p class="small source">Quoted from the <a href="${pdfPage(e.page)}" target="_blank" rel="noopener">eligibility criteria ${esc(TDX.meta.criteria)}, page ${e.page}</a>.</p>` : ''}
+            ${e.page ? `<p class="small source">Quoted from the <a class="ext" href="${pdfPage(e.page)}" target="_blank" rel="noopener">eligibility criteria ${esc(TDX.meta.criteria)}, PDF page ${e.page}</a>.</p>` : ''}
           </section>
           ${e.overlapping && e.overlapping.length ? `<section class="block"><h3>Overlapping indications</h3>${bulletList(e.overlapping)}</section>` : ''}
         </div>
@@ -152,9 +169,10 @@
       <h2 id="detail-title">${esc(g.name)}</h2>
       <p>Tested by ${plural(tests.length, 'test')} in ${plural(new Set(tests.map(t => t.ind.code)).size, 'clinical indication')}: green on the test's PanelApp panel, or named in its target.
         <a href="https://panelapp.genomicsengland.co.uk/panels/entities/${encodeURIComponent(g.name)}" target="_blank" rel="noopener">${esc(g.name)} in PanelApp</a></p>
-      <ul class="results">${tests.map(t => `<li><a class="row" href="#${t.ind.code}">
-        <span class="row-head"><span class="code">${esc(t.id)}</span> <span class="row-name">${esc(t.ind.name)}</span></span>
-        <span class="row-meta">${esc(t.target)} ${chip(t.method)}</span></a></li>`).join('')}</ul>`;
+      <ul class="results">${tests.map(t => `<li class="row"><a class="row-head" href="#${t.ind.code}"><span class="code">${esc(t.id)}</span> <span class="row-name">${esc(t.ind.name)}</span></a>
+        <span class="row-meta">${esc(t.target)} ${chip(t.method)}</span>
+        ${t.panels.length ? `<span class="row-meta">${t.panels.map(id => `<a class="ext" href="${PANELAPP(id)}" target="_blank" rel="noopener">${esc(PANELS[id] ? PANELS[id].name : 'Panel ' + id)} on PanelApp</a>`).join(' · ')}</span>` : ''}
+        ${t.ind.page ? `<span class="row-meta"><a class="ext" href="${pdfPage(t.ind.page)}" target="_blank" rel="noopener">${esc(t.ind.code)} criteria – PDF page ${t.ind.page}</a></span>` : ''}</li>`).join('')}</ul>`;
     show('detail');
   }
   function notFound(what, gene) {
