@@ -70,9 +70,9 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('.sources a[href="https://panelapp.genomicsengland.co.uk/panels/134/"]').count() === 1, 'sources box links to the PanelApp panel');
   check(await page.locator('.test .panel-name a[href="https://panelapp.genomicsengland.co.uk/panels/134/"]').isVisible(), 'PanelApp link is visible on the test without expanding anything');
   check(await page.locator('.sources a[href="' + TDX.meta.xlsxUrl + '"]').count() === 1, 'sources box links to the directory spreadsheet');
-  await page.click('#detail a[href="#R132"]'); await page.waitForSelector('#detail h2');
+  await page.click('#detail a[href="#R132"]'); await page.waitForFunction(() => /^R132/.test(document.querySelector('#detail h2').textContent), null, { timeout: 5000 }).catch(() => {});
   check((await page.locator('#detail h2').innerText()).startsWith('R132'), 'overlapping indications link to each other');
-  await page.goBack(); await page.waitForTimeout(100);
+  await page.goBack(); await page.waitForFunction(() => /^R133/.test(document.querySelector('#detail h2').textContent), null, { timeout: 5000 }).catch(() => {});
   check((await page.locator('#detail h2').innerText()).startsWith('R133'), 'back button returns to the previous indication');
   await page.goto(BASE + '#gene=BRCA2'); await page.waitForSelector('#detail h2');
   const gene = await page.locator('#detail').innerText();
