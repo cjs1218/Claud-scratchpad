@@ -1159,8 +1159,9 @@
     ? `<button type="button" class="mss-link" data-mss="${mssPerson.id}" title="Show how the Manchester score was calculated">${abbrHtml(text)}</button>`
     : abbrHtml(text);
   const KIND = { met: ['Meets now', '✓'], maybe: ['May meet – check', '?'], near: ['Near miss', '–'] };
-  function criteriaHtml(code) {
+  function criteriaHtml(code, page = false, q = '') {
     const t = TESTS[code], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA[code] : null;
+    const hl = text => markTerms(esc(text), q);
     const entries = [
       ...checkEligibility(state.people, state.ancestry).filter(o => o.test === code).map(o => ({ o, kind: o.possible ? 'maybe' : 'met' })),
       ...nearMisses(state.people, state.ancestry).filter(o => o.test === code).map(o => ({ o, kind: 'near' }))];
@@ -1179,25 +1180,26 @@
       : ['met', 'maybe', 'near'].filter(k => all.some(h => h.kind === k)).map(k => `<h4 class="hit-${k}">${KIND[k][0]}</h4><ul class="crit-hits">${all.filter(h => h.kind === k).map(who).join('')}</ul>`).join('');
     const items = tc ? `<ol class="crit-list">${tc.items.map(([lv, mk, text], i) => {
       const hs = (hits.get(i) || []).sort((a, b) => rank[a.kind] - rank[b.kind]);
-      return `<li class="lv${lv}${hs.length ? ` hit hit-${hs[0].kind}` : ''}"${hs.length ? ` id="crit-hit-${i}"` : ''}>${mk ? `<span class="crit-mk">${esc(mk)}</span> ` : ''}${esc(text)}${hs.length ? `<ul class="crit-hits">${hs.map(who).join('')}</ul>` : ''}</li>`;
-    }).join('')}</ol>` : `<ul>${t.criteria.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="small muted">Summary only – see the PDF for the exact wording.</p>`;
+      return `<li class="lv${lv}${hs.length ? ` hit hit-${hs[0].kind}` : ''}"${hs.length ? ` id="crit-hit-${i}"` : ''}>${mk ? `<span class="crit-mk">${esc(mk)}</span> ` : ''}${hl(text)}${hs.length ? `<ul class="crit-hits">${hs.map(who).join('')}</ul>` : ''}</li>`;
+    }).join('')}</ol>` : `<ul>${t.criteria.map(x => `<li>${hl(x)}</li>`).join('')}</ul><p class="small muted">Summary only – see the PDF for the exact wording.</p>`;
     return `<header class="crit-head">
         <h2><span class="code">${esc(code)}</span> ${esc(t.name)}</h2>
-        <button type="button" class="crit-close" data-close aria-label="Close">×</button>
+        ${page ? '' : '<button type="button" class="crit-close" data-close aria-label="Close">×</button>'}
       </header>
+      ${page ? testPageExtras(code) : `<p class="small"><a href="#test=${esc(code)}" data-close>Open on the Test Directory tab →</a></p>`}
       <p class="small muted">Genes: ${esc(t.genes)}${t.panel ? ` · ${link('PanelApp ' + t.panel, PANELAPP(t.panel))}` : ''} ·
-        ${link(`Test Directory v9.1${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))}</p>
+        ${link(`Test Directory v9.1${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))}${t.part ? ` · Part ${esc(t.part)}` : ''}</p>
       <section class="crit-family"><h3>This family</h3>${summary}</section>
       <section><h3>Testing criteria${tc ? ' (exact wording)' : ''}</h3>${items}</section>
-      ${testGenesHtml(code)}
+      ${testGenesHtml(code, q)}
       <p class="small muted">Highlighted: green = met now, amber = may meet (check the detail named), grey = near miss. Judged only from what has been entered; the Test Directory always takes precedence.</p>`;
   }
-  function testGenesHtml(code) {
+  function testGenesHtml(code, q = '') {
     const g = testGenes(code), t = TESTS[code];
     if (!g) return `<section class="crit-genes"><h3>Genes tested</h3><p>${esc(t.genes)}</p></section>`;
     const extra = [g.strs ? `${g.strs} repeat expansion${g.strs > 1 ? 's' : ''}` : '', g.regions ? (Array.isArray(g.regions) ? `region${g.regions.length > 1 ? 's' : ''} ${g.regions.join(', ')}` : `${g.regions} regions`) : ''].filter(Boolean).join('; ');
     return `<section class="crit-genes"><h3>Genes tested (${g.n})</h3>
-      ${g.genes ? `<p class="crit-gene-list">${g.genes.map(x => `<span class="gene">${esc(x)}</span>`).join(' ')}</p>` : `<p>${g.n} genes – too many to list here; see ${link('PanelApp panel ' + g.panel, PANELAPP(g.panel))}.</p>`}
+      ${g.genes ? `<p class="crit-gene-list">${g.genes.map(x => `<span class="gene${q && x.toLowerCase() === q.toLowerCase() ? ' gene-hit' : ''}">${esc(x)}</span>`).join(' ')}</p>` : `<p>${g.n} genes – too many to list here; see ${link('PanelApp panel ' + g.panel, PANELAPP(g.panel))}.</p>`}
       ${extra ? `<p class="small">Also: ${esc(extra)}.</p>` : ''}
       <p class="small muted">Green (diagnostic-grade) genes on ${link(`PanelApp ${g.panel}: ${g.name} v${g.version}`, PANELAPP(g.panel))}, checked ${esc(PANEL_DATE)}. Test Directory: ${esc(t.genes)}.</p></section>`;
   }
@@ -1947,6 +1949,52 @@
    * #syndrome=<id> = a syndrome page, #gene=<symbol> = a gene page (shareable). Refresh, Back
    * and Forward follow it.
    */
+  /* ---------------- Test Directory tab ---------------- */
+  const TEST_CODES = Object.keys(TESTS).sort((a, b) => a.slice(1) - b.slice(1));
+  const condsForTest = code => CONDITIONS.filter(c => c.tests.includes(code));
+  // Highlight search words in already-escaped HTML text.
+  function markTerms(html, q) {
+    const words = (q || '').trim().split(/\s+/).filter(w => w.length >= 2).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    if (!words.length) return html;
+    return html.replace(new RegExp(`(${words.join('|')})`, 'gi'), '<mark>$1</mark>');
+  }
+  // Everything a test can be found by: code, name, criteria text, genes, linked syndromes and their cancers.
+  const testHaystack = (() => { const cache = {}; return code => cache[code] || (cache[code] = (() => {
+    const t = TESTS[code], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA[code] : null, g = testGenes(code);
+    const conds = condsForTest(code);
+    return normSearch([code, t.name, t.genes, ...(t.criteria || []), ...(tc ? tc.items.map(x => x[2]) : []), ...(g && g.genes ? g.genes : []),
+      ...conds.flatMap(c => [c.name, ...c.genes, ...c.rules.map(r => SITES[r[0]] ? SITES[r[0]].label : '')])].join(' '));
+  })()); })();
+  function familyTestStatus() {
+    const st = {};
+    for (const o of checkEligibility(state.people, state.ancestry)) st[o.test] = o.possible ? (st[o.test] || 'maybe') : 'met';
+    return st;
+  }
+  function testsShown() {
+    const q = normSearch($('#tests-search').value.trim()), words = q.split(/\s+/).filter(Boolean);
+    const st = familyTestStatus(), fam = $('#tests-family').checked;
+    const exact = c => words.some(w => w.toUpperCase() === c);
+    return TEST_CODES.filter(c => words.every(w => testHaystack(c).includes(w)) && (!fam || st[c])).sort((a, b) => exact(b) - exact(a));
+  }
+  function testPageExtras(code) {
+    const conds = condsForTest(code);
+    const auto = typeof ELIG_TESTS !== 'undefined' && ELIG_TESTS.includes(code);
+    return `<p class="small">${auto ? 'Checked automatically against the family on the Family assessment tab.' : 'Not checked automatically – compare the family with the criteria below.'}</p>
+      ${conds.length ? `<p class="small"><strong>Syndromes:</strong> ${conds.map(c => `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`).join(' · ')}</p>` : ''}`;
+  }
+  function renderTestsTab() {
+    const codes = testsShown(), st = familyTestStatus(), q = $('#tests-search').value.trim();
+    if (!codes.includes(state.test)) state.test = codes[0] || null;
+    const open = $('#tests-layout').classList.contains('list-open');
+    $('#tests-list-toggle').textContent = open ? 'Hide list ▴' : `Browse ${codes.length} tests ▾`;
+    $('#tests-list-toggle').setAttribute('aria-expanded', open);
+    const badge = c => st[c] === 'met' ? ' <span class="elig-tag">met</span>' : st[c] === 'maybe' ? ' <span class="elig-tag maybe">may meet</span>' : '';
+    $('#tests-list').innerHTML = `<div class="print-bar"><span class="muted small">${codes.length} of ${TEST_CODES.length} tests</span></div>` +
+      (codes.length ? `<ul>${codes.map(c => `<li><a href="#test=${c}"${c === state.test ? ' aria-current="true"' : ''}><span class="code">${c}</span> ${esc(TESTS[c].name)}${badge(c)}</a></li>`).join('')}</ul>`
+        : '<div class="empty">No tests match.</div>');
+    $('#tests-detail').innerHTML = state.test ? criteriaHtml(state.test, true, q) : '<p class="muted">No tests match the search.</p>';
+  }
+
   function route() {
     const cm = location.hash.match(/^#compare=(\w+),(\w+)$/);
     state.compareView = cm && COND[cm[1]] && COND[cm[2]] ? [cm[1], cm[2]] : null;
@@ -1956,6 +2004,14 @@
       if ($('#syn-detail').getBoundingClientRect().top < $('.tabbar').offsetHeight) $('#syn-detail').scrollIntoView();
       return;
     }
+    const tm = location.hash.match(/^#test=(R\d+)$/);
+    if (tm && TESTS[tm[1]]) {
+      state.test = tm[1];
+      if (!testsShown().includes(tm[1])) { $('#tests-search').value = ''; $('#tests-family').checked = false; }
+      setTab('tests');
+      return;
+    }
+    if (location.hash === '#tests') { setTab('tests'); return; }
     const m = location.hash.match(/^#(syndrome|gene)=(\w+)$/);
     const ok = m && (m[1] === 'syndrome' ? COND[m[2]] : GENES.includes(m[2]));
     if (ok) {
@@ -1971,7 +2027,10 @@
   }
 
   function goTab(tab) {
-    if (tab === 'sources') {
+    if (tab === 'tests') {
+      const want = state.test ? `#test=${state.test}` : '#tests';
+      if (location.hash !== want) location.hash = want.slice(1); else route();
+    } else if (tab === 'sources') {
       if (location.hash !== '#sources') location.hash = 'sources'; else route();
     } else if (tab === 'browse') {
       const key = currentKey();
@@ -2024,6 +2083,8 @@
     $('#tab-assess').hidden = tab !== 'assess';
     $('#tab-browse').hidden = tab !== 'browse';
     $('#tab-sources').hidden = tab !== 'sources';
+    $('#tab-tests').hidden = tab !== 'tests';
+    if (tab === 'tests') renderTestsTab();
     if (tab === 'browse') renderBrowse();
     if (tab === 'sources') renderSources();
     if (tab === 'assess') fitPedigree();
@@ -2211,6 +2272,10 @@
     $('#syn-detail').addEventListener('click', onSynAction);
     $('#syn-list').addEventListener('click', onListAction);
     $('#syn-list-toggle').addEventListener('click', () => { $('#syn-layout').classList.toggle('list-open'); renderSynList(); });
+    $('#tests-search').addEventListener('input', renderTestsTab);
+    $('#tests-family').addEventListener('change', renderTestsTab);
+    $('#tests-list-toggle').addEventListener('click', () => { $('#tests-layout').classList.toggle('list-open'); renderTestsTab(); });
+    $('#tests-list').addEventListener('click', e => { if (e.target.closest('a')) $('#tests-layout').classList.remove('list-open'); });
     window.addEventListener('afterprint', () => { document.body.classList.remove('printing'); $('#print-area').innerHTML = ''; });
     window.addEventListener('hashchange', route);
     window.addEventListener('popstate', route);

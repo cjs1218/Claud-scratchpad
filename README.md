@@ -119,6 +119,13 @@ the form) opens a breakdown: each cancer counted with its BRCA1/BRCA2 points, th
 what was not counted and why, and the scoring table with the rows used highlighted (`manchesterDetail` in
 `js/eligibility.js`).
 
+## Test Directory tab
+
+Lists every Test Directory test the site uses (`TESTS`), searchable by R code, test name, the exact criteria text,
+genes on the PanelApp panel, and linked syndromes and their cancers (matches highlighted). Each test has its own page
+(`#test=R208`) with the exact criteria, genes, linked syndromes and – when a family has been entered – who meets, may
+meet or nearly meets each criterion; "Met or may be met by this family" filters the list. The R-code pop-up links to it.
+
 ## Family tree
 
 Layout: the family form and the family tree under it are on the left; the Test Directory criteria met and the

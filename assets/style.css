@@ -104,8 +104,11 @@ h3 { font-size: 1rem; margin: 0; }
   .lede-short { display: block; font-size: 0.9rem; margin-bottom: 8px; }
   .disclaimer { font-size: 0.78rem; padding: 5px 8px; border-left-width: 4px; }
   .tabs { gap: 0; }
-  .tabs button { padding: 10px 10px; font-size: 0.95rem; flex: 1; }
+  .tabs button { padding: 10px 6px; font-size: 0.95rem; flex: 1; }
+  .tab-long { display: none; }
 }
+.tab-short { display: none; }
+@media (max-width: 600px) { .tab-short { display: inline; } }
 
 main { padding-top: 20px; padding-bottom: 40px; }
 .layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
@@ -725,3 +728,10 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .fhcc-cat { margin: 0 0 6px; }
 .fhcc ul { margin: 4px 0; padding-left: 18px; }
 .fhcc p.small { margin: 4px 0; }
+
+/* Test Directory tab */
+#tests-search { flex: 1; min-width: 220px; }
+#tests-list .code { margin-right: 4px; }
+#tests-detail mark, .crit-list mark { background: #fff3a0; color: #212b32; padding: 0 1px; border-radius: 2px; }
+.gene.gene-hit { outline: 2px solid var(--warn-edge); }
+#tests-detail .crit-head { border-bottom: 1px solid var(--border); margin-bottom: 8px; }

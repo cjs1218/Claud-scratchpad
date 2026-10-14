@@ -1099,6 +1099,32 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(/Amsterdam criteria families where MMR testing is not possible/.test(ly) && /Lynch-like syndrome/.test(ly) && /proband has had colorectal cancer/.test(ly), 'Lynch family: Amsterdam, Lynch-like and affected-proband notes');
   }
 
+  console.log('Test Directory tab');
+  await page.goto(BASE); await loadEx(page, 'brca'); await page.waitForSelector('#results .elig');
+  await page.click('[data-tab=tests]');
+  await page.waitForSelector('#tests-list li');
+  check(await page.evaluate(() => location.hash) === '#tests' && await page.locator('#tests-list li').count() === await page.evaluate(() => Object.keys(TESTS).length), 'Test Directory tab lists every test');
+  check(/Syndromes\s*Test Directory\s*Sources/.test(await page.innerText('.tabs')), 'tab sits after Syndromes');
+  const tdSearch = async q => { await page.fill('#tests-search', q); await page.waitForTimeout(100); return page.$$eval('#tests-list li .code', a => a.map(x => x.textContent)); };
+  check((await tdSearch('R215'))[0] === 'R215', 'search by R code (exact code first)');
+  check((await tdSearch('lobular')).includes('R215') && await page.locator('#tests-detail mark').count() > 0, 'search the criteria text, with matches highlighted');
+  check((await tdSearch('PALB2')).includes('R208') && await page.locator('#tests-detail .gene-hit').count() >= 0, 'search by gene on the panel');
+  check((await tdSearch('Li-Fraumeni')).includes('R216'), 'search by syndrome');
+  check((await tdSearch('ashkenazi')).includes('R208'), 'search finds ancestry criteria');
+  await tdSearch('');
+  await page.check('#tests-family'); await page.waitForTimeout(100);
+  const famCodes = await page.$$eval('#tests-list li .code', a => a.map(x => x.textContent));
+  check(famCodes.includes('R208') && famCodes.includes('R207') && famCodes.length < 15, 'filter: tests met or may be met by this family');
+  await page.locator('#tests-list a', { hasText: 'R208' }).click(); await page.waitForTimeout(150);
+  check(await page.evaluate(() => location.hash) === '#test=R208' && /Proband/.test(await page.textContent('#tests-detail .crit-family')) && await page.locator('#tests-detail .crit-list li.hit').count() > 0 && await page.locator('#tests-detail .crit-close').count() === 0, 'test page highlights who in the family meets which criterion (no close button)');
+  check(await page.locator('#tests-detail a[href="#syndrome=brca1"]').count() === 1, 'test page links its syndromes');
+  await page.uncheck('#tests-family');
+  await page.goto(BASE + '#test=R216'); await page.waitForSelector('#tests-detail h2');
+  check(/R216/.test(await page.textContent('#tests-detail h2')) && !(await page.isHidden('#tab-tests')), 'direct link to a test page');
+  await page.goto(BASE); await loadEx(page, 'brca'); await page.locator('#results [data-test=R208]').first().click();
+  await page.locator('#crit-dialog a[href="#test=R208"]').click(); await page.waitForTimeout(200);
+  check(await page.evaluate(() => location.hash) === '#test=R208' && !(await page.evaluate(() => document.querySelector('#crit-dialog').open)), 'criteria pop-up links to the test page');
+
   console.log('Recessive and mosaic conditions');
   await page.goto(BASE); await loadEx(page, 'brca'); await page.click('[data-mode=wide]'); await page.waitForSelector('#results .result');
   {
