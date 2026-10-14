@@ -125,6 +125,8 @@ for (const c of d.CONDITIONS) if (![1, 2, 3, 4].includes(d.FREQ_BAND[c.id])) e(`
     const g = TEST_GENES[code];
     if (g && g.genes && !c.genes.some(x => g.genes.includes(x) || g.genes.includes(ALIAS[x]))) e(`${c.id}: lists ${code} but none of its genes are on the ${code} panel`);
   }
+  // Gene lists come from the signed-off panel version (or are flagged as not signed off).
+  for (const [code, g] of Object.entries(TEST_GENES)) if (!g.signedOff && !g.notSignedOff) e(`panels.js ${code}: no signed-off date – rerun tools/update-panels.py`);
   for (const [code, ids] of Object.entries(d.PANEL_NOT_ROUTE)) for (const id of ids) if (!d.CONDITIONS.some(c => c.id === id)) e(`PANEL_NOT_ROUTE ${code}: unknown condition ${id}`);
 }
 // Two-step relationship list: every relationship (bar proband/unset) reachable exactly once, and only real ids used.

@@ -1755,7 +1755,7 @@ const NICPR = {
 const DATA_CHECKED = '14 October 2026';
 const SOURCE_DATES = [
   ['NHS Genomic Test Directory eligibility criteria', 'v9.1, 20 May 2026', '11 Oct 2026'],
-  ['PanelApp panels', 'Panel IDs and green gene lists (PanelApp API)', '12 Oct 2026'],
+  ['PanelApp panels', 'Signed-off panel versions and their green gene lists (PanelApp API); newer versions noted', '14 Oct 2026'],
   ['NICPR gene list', 'Appendix 1, June 2026', '11 Oct 2026'],
   ['GeneReviews chapters', 'NCBI GeneReviews mapping files', '11 Oct 2026'],
   ['OMIM entries', 'mim2gene.txt and NCBI Gene → OMIM gene map', '11 Oct 2026'],
