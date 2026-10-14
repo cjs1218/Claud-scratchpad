@@ -718,3 +718,10 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .more-results > summary { cursor: pointer; color: var(--accent); font-weight: 600; padding: 8px 0; }
 .more-results > summary .when-open, .more-results[open] > summary .when-closed { display: none; }
 .more-results[open] > summary .when-open { display: inline; }
+
+/* Bowel screening if no inherited condition is found (BSG 2019 Box 1) */
+.fhcc { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 6px; padding: 10px 12px; margin: 14px 0; }
+.fhcc h3 { margin: 0 0 6px; font-size: 1rem; }
+.fhcc-cat { margin: 0 0 6px; }
+.fhcc ul { margin: 4px 0; padding-left: 18px; }
+.fhcc p.small { margin: 4px 0; }

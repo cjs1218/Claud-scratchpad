@@ -798,6 +798,45 @@
     return out;
   }
 
+  /*
+   * Family history of colorectal cancer (FHCC) risk category, BSG/ACPGBI/UKCGG 2019 (Monahan et al., Gut) Box 1 –
+   * for when no hereditary CRC syndrome has been found. The person under assessment is the proband; only their
+   * affected relatives count. "First degree kinship": affected relatives who are FDRs of each other.
+   */
+  function fhcc(people) {
+    setPeople(people);
+    const pro = people.find(p => p.rel === 'proband');
+    const crcAge = p => { const a = (p.dx || []).filter(d => d.site === 'colorectal' && d.hist).map(d => (d.age === '' || d.age == null ? null : +d.age));
+      return a.length ? (a.some(x => x != null) ? Math.min(...a.filter(x => x != null)) : 'unknown') : undefined; };
+    const affected = people.filter(p => p !== pro && crcAge(p) !== undefined && GEN[p.rel] !== undefined);
+    const fdr = (a, b) => degree(a, b) === 1;
+    const lbl = p => `${labelOf(p)}${crcAge(p) === 'unknown' ? ' (age not given)' : ` (${crcAge(p)})`}`;
+    const proAffected = !!pro && crcAge(pro) !== undefined;
+    const unknownLinks = affected.some(a => affected.some(b => a !== b && degree(a, b) == null));
+    const out = { any: proAffected || affected.length > 0, proAffected, unknownLinks, category: 'average', reasons: [] };
+    if (!pro) return out;
+    const proFdrs = affected.filter(a => fdr(pro, a));
+    // High: a cluster (linked by first-degree kinship) of >= 3 affected, across >= 2 generations, proband FDR of one.
+    const seen = new Set();
+    for (const a of affected) {
+      if (seen.has(a)) continue;
+      const comp = [], stack = [a]; seen.add(a);
+      while (stack.length) { const x = stack.pop(); comp.push(x); for (const y of affected) if (!seen.has(y) && fdr(x, y)) { seen.add(y); stack.push(y); } }
+      if (comp.length >= 3 && new Set(comp.map(x => GEN[x.rel])).size >= 2 && comp.some(x => fdr(pro, x))) {
+        out.category = 'high'; out.reasons.push(`${comp.length} affected relatives who are first-degree relatives of each other, across ${new Set(comp.map(x => GEN[x.rel])).size} generations: ${comp.map(lbl).join(', ')}`);
+        return out;
+      }
+    }
+    const young = proFdrs.filter(a => typeof crcAge(a) === 'number' && crcAge(a) < 50);
+    if (young.length) { out.category = 'moderate'; out.reasons.push(`a first-degree relative with colorectal cancer under 50: ${young.map(lbl).join(', ')}`); return out; }
+    for (const a of affected) for (const b of affected) {
+      if (a !== b && fdr(a, b) && (fdr(pro, a) || fdr(pro, b))) {
+        out.category = 'moderate'; out.reasons.push(`two affected relatives who are first-degree relatives of each other, at least one a first-degree relative of the proband: ${lbl(a)}, ${lbl(b)}`); return out;
+      }
+    }
+    return out;
+  }
+  window.fhccCategory = fhcc;
   window.checkEligibility = check;
   window.CRIT_REF = CRIT_REF;
   window.nearMisses = (people, ancestry) => nearMisses(people, check(people, ancestry));

@@ -1078,6 +1078,27 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(!bad.length, `benchmark: ${f.name}${bad.length ? ' – ' + bad.join('; ') : ''}`);
   }
 
+  console.log('Bowel screening if no inherited condition is found (BSG 2019 Box 1)');
+  {
+    const fam = ppl => JSON.stringify({ people: ppl.map(([rel, sex, dx], i) => ({ id: i + 1, rel, sex, dx })) });
+    const crc = a => [{ site: 'colorectal', hist: 'adeno', age: String(a) }];
+    await page.goto(BASE);
+    await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', []], ['mother', 'F', crc(60)], ['m_gm', 'F', crc(70)], ['m_uncle', 'M', crc(55)]])) });
+    await page.waitForSelector('#results #fhcc');
+    const fh = await page.textContent('#results #fhcc');
+    check(/High-risk family history of colorectal cancer/.test(fh) && /5-yearly colonoscopy from age 40 until 75/.test(fh) && /across 2 generations/.test(fh) && /Box 1/.test(fh), 'high-risk family: 5-yearly colonoscopy 40–75, with the reason and source');
+    check(await page.locator('#fhcc a[href*="11962"]').count() === 1, 'links the BSG/ACPGBI/UKCGG 2019 guideline');
+    await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', []], ['father', 'M', crc(45)]])) });
+    await page.waitForTimeout(200);
+    check(/Moderate-risk/.test(await page.textContent('#results #fhcc')) && /One-off colonoscopy at age 55/.test(await page.textContent('#results #fhcc')), 'father with colorectal cancer at 45: moderate risk, one-off colonoscopy at 55');
+    await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', [{ site: 'breast', hist: 'idc', age: '40' }]]])) });
+    await page.waitForTimeout(200);
+    check(await page.locator('#results #fhcc').count() === 0, 'no section when nobody has colorectal cancer');
+    await loadEx(page, 'lynch_msh2'); await page.waitForSelector('#results #fhcc');
+    const ly = await page.textContent('#results #fhcc');
+    check(/Amsterdam criteria families where MMR testing is not possible/.test(ly) && /Lynch-like syndrome/.test(ly) && /proband has had colorectal cancer/.test(ly), 'Lynch family: Amsterdam, Lynch-like and affected-proband notes');
+  }
+
   console.log('Recessive and mosaic conditions');
   await page.goto(BASE); await loadEx(page, 'brca'); await page.click('[data-mode=wide]'); await page.waitForSelector('#results .result');
   {

@@ -31,6 +31,25 @@ for (const [a, b, e] of [['proband','m_ggp',3],['mother','m_ggp',2],['m_gm','m_g
   ok(!w.amsterdamCriteria([P('proband', 'F'), A('m_gm', 'uterus', 70), au2, other, cz2]).met, "Amsterdam: the affected aunt is not FDR of another aunt's child");
 }
 
+/* Family history of colorectal cancer categories (BSG 2019 Box 1) */
+{
+  const C = (rel, age, extra = {}) => P(rel, 'F', [{ site: 'colorectal', hist: 'adeno', age: String(age) }], extra);
+  const t = (name, ppl, exp) => { const r = w.fhccCategory([P('proband', 'F'), ...ppl]); ok(r.category === exp, `FHCC ${name}: expected ${exp} got ${r.category} (${r.reasons.join('; ')})`); };
+  t('no colorectal cancer', [P('mother', 'F', [{ site: 'breast', hist: 'idc', age: '45' }])], 'average');
+  t('mother at 45', [C('mother', 45)], 'moderate');
+  t('mother at 60 only', [C('mother', 60)], 'average');
+  t('mother 60 and maternal grandmother 70 (FDRs of each other)', [C('mother', 60), C('m_gm', 70)], 'moderate');
+  t('mother 60 and father 65 (not FDRs of each other)', [C('mother', 60), C('father', 65)], 'average');
+  t('mother 60, maternal grandmother 70, maternal uncle 55 (cluster across 2 generations)', [C('mother', 60), C('m_gm', 70), C('m_uncle', 55)], 'high');
+  t('three siblings (one generation)', [C('sister', 60), C('brother', 62), C('sister', 66)], 'moderate');
+  t('maternal aunt 60 and maternal grandmother 70 (proband not an FDR of either)', [C('m_aunt', 60), C('m_gm', 70)], 'average');
+  t('maternal aunt at 45 (second-degree)', [C('m_aunt', 45)], 'average');
+  t('father 50 exactly', [C('father', 50)], 'average');
+  const r = w.fhccCategory([P('proband', 'F'), C('m_aunt', 60), C('m_cousin', 40)]);
+  ok(r.unknownLinks && r.category === 'average', 'FHCC: cousin without a named parent – link unknown, flagged');
+  ok(w.fhccCategory([P('proband', 'F', [{ site: 'colorectal', hist: 'adeno', age: '45' }])]).proAffected, 'FHCC: affected proband flagged');
+}
+
 /* Modified Amsterdam */
 {
   const A = (rel, site, hist, age) => P(rel, 'F', [{ site, hist, age: String(age) }]);

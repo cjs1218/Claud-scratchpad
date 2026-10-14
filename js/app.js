@@ -1019,6 +1019,30 @@
   // No hallmark or strong match anywhere: the list is possibilities only.
   const weakPattern = all => all.length > 0 && !all.some(r => r.hasStrong);
   const WEAK_TEXT = 'No hallmark or strong match was found, so an inherited cause is not suggested by the ranking alone – the syndromes below are possibilities only. Test Directory criteria (above) still apply.';
+  // Bowel screening if no inherited condition is found (BSG/ACPGBI/UKCGG 2019, Box 1 and Table 1).
+  function lynchLikeRelative() {
+    return state.people.some(p => p.dx.some(d => ['msh2', 'msh6', 'pms2'].includes(d.mmr) || (d.mmr === 'mlh1' && d.meth === 'no' && d.braf !== 'yes')));
+  }
+  function fhccHtml() {
+    const f = fhccCategory(state.people);
+    if (!f.any) return '';
+    const c = FHCC.categories[f.category], g = GUIDES[FHCC.source];
+    const am = amsterdamCriteria(state.people);
+    return `<section class="fhcc" id="fhcc">
+      <h3>Bowel screening if no inherited condition is found</h3>
+      <p class="fhcc-cat fhcc-${f.category}"><strong>${esc(c.label)}</strong> – ${esc(c.offer)}</p>
+      ${f.reasons.length ? `<p class="small">Because: ${esc(f.reasons.join('; '))}.</p>` : ''}
+      ${f.proAffected ? '<p class="small muted">The proband has had colorectal cancer, so their own follow-up is as after cancer treatment; this category applies to their unaffected relatives\' assessment.</p>' : ''}
+      ${f.unknownLinks ? '<p class="small muted">Some links between affected relatives are not known (e.g. whose child a cousin is) and are not counted – use “Child of” to set them.</p>' : ''}
+      ${am.met ? `<p class="small">${esc(FHCC.amsterdam)}</p>` : ''}
+      ${lynchLikeRelative() ? `<p class="small">If an MMR-deficient tumour is unexplained after germline testing: ${esc(FHCC.lynchLike)}</p>` : ''}
+      <details class="fhcc-defs"><summary class="small">Categories (Box 1)</summary>
+        <ul class="small">${['high', 'moderate', 'average'].map(k => `<li><strong>${esc(FHCC.categories[k].label)}:</strong> ${esc(FHCC.categories[k].def)} <em>${esc(FHCC.categories[k].offer)}</em></li>`).join('')}</ul>
+      </details>
+      <ul class="small muted">${FHCC.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
+      <p class="small muted">Source: ${link(g[0], g[1])} – Box 1 and Table 1.</p>
+    </section>`;
+  }
   function renderResults() {
     // Keep folded sections as the user left them (read from the page, so it does not depend on toggle-event timing).
     if (!$('#results').dataset.print) {
@@ -1064,6 +1088,7 @@
         ${shown.slice(MORE_AFTER).map((r, i) => resultCard(r, i + MORE_AFTER, top)).join('')}
       </details>` : ''}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
+      ${fhccHtml()}
       ${pointersHtml(pointersFor(familyDxs()), 'Testing pointers for the cancers entered')}
       ${renderTests(shown)}`;
     // The family tree sits under the family form on screen (in the results when printing, so it prints in order).
@@ -1373,6 +1398,13 @@
     lines.push('', `DIFFERENTIAL (${MODES[state.mode].label.toLowerCase()} search)`);
     if (weakPattern(scoreFamily())) lines.push(`No strong pattern: ${WEAK_TEXT}`);
     lastShown.forEach((r, i) => lines.push(`${i + 1}. ${r.cond.name} [${r.cond.genes.join(', ')}] – score ${r.score.toFixed(1)}`));
+    const fh = fhccCategory(state.people);
+    if (fh.any) {
+      const c = FHCC.categories[fh.category];
+      lines.push('', 'BOWEL SCREENING IF NO INHERITED CONDITION IS FOUND (BSG/ACPGBI/UKCGG 2019, Box 1)', `- ${c.label}: ${c.offer}`);
+      if (fh.reasons.length) lines.push(`  Because: ${fh.reasons.join('; ')}`);
+      if (fh.unknownLinks) lines.push('  Some links between affected relatives are not known and are not counted.');
+    }
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {
       lines.push('', 'TESTING POINTERS (AACR 2024 childhood CNS tumour update; NHS route takes priority)');

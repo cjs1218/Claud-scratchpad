@@ -1752,7 +1752,7 @@ const NICPR = {
  * When each information source was last pulled and checked (shown on every syndrome and gene page).
  * Update the matching entry whenever a source is re-checked.
  */
-const DATA_CHECKED = '13 October 2026';
+const DATA_CHECKED = '14 October 2026';
 const SOURCE_DATES = [
   ['NHS Genomic Test Directory eligibility criteria', 'v9.1, 20 May 2026', '11 Oct 2026'],
   ['PanelApp panels', 'Panel IDs and green gene lists (PanelApp API)', '12 Oct 2026'],
@@ -1769,7 +1769,8 @@ const SOURCE_DATES = [
   ['GeNotes links', 'NHS England Genomics Education Programme GeNotes: Knowledge Hub pages and In the Clinic pathways for 62 conditions (titles from the live pages)', '12 Oct 2026'],
   ['US guidance pass', 'NCCN (JNCCN publications), ACMG, ACG, USMSTF, ATA, Endocrine Society, AACR and consensus papers: supporting citations, US differences noted (UK guidance takes priority), additions where UK guidance is silent', '12 Oct 2026'],
   ['Association evidence review', 'Each association sourced to UKCGG / BSG / NICE, ERN and other European guidance, GeneReviews, ClinGen gene–disease validity and peer-reviewed risk studies (DOIs checked via Crossref); variant notes; CanVar-UK links', '11 Oct 2026'],
-  ['Suggested surveillance', 'UKCGG / BSG first, then ERN GENTURIS, EHTG, SIOPE, then AACR, consensus guidelines and GeneReviews summaries', '11 Oct 2026']
+  ['Suggested surveillance', 'UKCGG / BSG first, then ERN GENTURIS, EHTG, SIOPE, then AACR, consensus guidelines and GeneReviews summaries', '11 Oct 2026'],
+  ['Bowel screening without a known syndrome', 'BSG/ACPGBI/UKCGG 2019 hereditary colorectal cancer guidelines, Box 1 and Table 1', '14 Oct 2026']
 ];
 
 /* Relationship to proband: degree of relatedness, side of family, default sex. */
@@ -1932,6 +1933,33 @@ const EG = {
   cancer_genetics: { label: 'Cancer and genetics', url: EG_AZ + 'cancer-and-genetics-patient-information-leaflet/' }
 };
 const EG_GENERAL = ['cancer_diag', 'cancer_genetics'];
+
+/*
+ * Family history of colorectal cancer without a known hereditary syndrome: risk categories (Box 1) and
+ * surveillance (Table 1) from the BSG/ACPGBI/UKCGG 2019 guidelines (Monahan et al., Gut 2019;69:411-444,
+ * GUIDES.bsg). The category is worked out in eligibility.js (fhccCategory).
+ */
+const FHCC = {
+  source: 'bsg',
+  categories: {
+    high: { label: 'High-risk family history of colorectal cancer',
+      def: 'A cluster of at least three affected first-degree relatives with colorectal cancer at any age, across at least two generations, of whom the person is a first-degree relative of at least one.',
+      offer: '5-yearly colonoscopy from age 40 until 75.' },
+    moderate: { label: 'Moderate-risk family history of colorectal cancer',
+      def: 'One first-degree relative with colorectal cancer under 50, or two first-degree relatives (who are first-degree relatives of each other) with colorectal cancer at any age, of whom the person is a first-degree relative of at least one.',
+      offer: 'One-off colonoscopy at age 55; further colonoscopy as post-polypectomy surveillance guidelines.' },
+    average: { label: 'Average risk (family history does not meet moderate or high risk)',
+      def: 'No family history of colorectal cancer, or one that does not meet the moderate- or high-risk categories.',
+      offer: 'National bowel cancer screening programme.' }
+  },
+  notes: [
+    'Use only when no hereditary colorectal cancer syndrome (e.g. Lynch syndrome, polyposis) has been identified.',
+    'Assess MMR status in the tumour of a close affected relative for everyone referred with a family history of colorectal cancer.',
+    'Confirm reported diagnoses from histopathology or endoscopy reports where possible.'
+  ],
+  amsterdam: 'Amsterdam criteria families where MMR testing is not possible may be offered surveillance as for Lynch syndrome, and/or further germline testing.',
+  lynchLike: 'Lynch-like syndrome (MMR-deficient tumour without MLH1 hypermethylation or BRAF V600E and no germline MMR variant): 2-yearly colonoscopy from 25 until 75, also for unaffected first-degree relatives.'
+};
 
 /*
  * UKCGG patient information leaflets (ukcgg.org leaflets and guidelines page,
