@@ -154,6 +154,7 @@ b.logic { font-weight: 700; color: var(--accent-dark); }
 .crit-list .split .glyph { position: absolute; left: 0; color: transparent; width: 12px; overflow: hidden; }
 .crit-list .split .glyph::before { content: "•"; color: var(--muted); position: absolute; left: 2px; }
 .crit-list .sent { display: block; margin-top: 6px; }
+.crit-list strong.inline-head { display: inline-block; margin-top: 8px; }
 ins.fix { text-decoration: underline dashed var(--button); text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: help; }
 .crit-help ins.fix { cursor: default; }
 .crit-list .crit-note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 6px 10px; border-radius: 0 4px 4px 0; font-size: .95rem; }

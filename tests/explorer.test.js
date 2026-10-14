@@ -84,7 +84,8 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   for (const [code, find, fix, kind] of TDX_CORRECTIONS) {
     const n = byCode[code] ? texts(byCode[code]).reduce((a, t) => a + t.split(find).length - 1, 0) : 0;
     if (n !== 1) stale.push(`${code} “${find}” (${n}×)`);
-    const ok = kind === 'spelling' ? lev(find, fix) <= 3 && lev(find, fix) > 0 : ['punctuation', 'break'].includes(kind) && letters(find) === letters(fix) && find !== fix;
+    const ok = kind === 'spelling' ? lev(find, fix) <= 3 && lev(find, fix) > 0 : kind === 'heading' ? find.endsWith(' ' + fix) && fix.length > 2
+      : ['punctuation', 'break'].includes(kind) && letters(find) === letters(fix) && find !== fix;
     if (!ok) wrong.push(`${code} “${find}”`);
   }
   check(!stale.length, `every correction matches its indication's text exactly once (${TDX_CORRECTIONS.length})${stale.length ? ' – update or remove: ' + stale.join('; ') : ''}`);
@@ -92,11 +93,17 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   // With its corrections, a line's formatted text equals the corrected text, and every correction is marked once.
   const plain = html => html.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
   let bad = 0, marked = 0;
-  for (const [code, find, fix] of TDX_CORRECTIONS) {
+  for (const [code, find, fix, kind] of TDX_CORRECTIONS) {
     const e = byCode[code]; if (!e) continue;
+    if (kind === 'heading') {
+      const t = (e.criteria || []).map(c => c[2]).find(x => x.includes(find)); if (!t) continue;
+      const html = TDX_FORMAT.line(t, null, [[find, fix, kind]]);
+      if (plain(html) !== t.replace(find, find.slice(0, -fix.length - 1) + '\n' + fix) || !html.includes(`<br class="fix-br">\n<strong class="inline-head">${fix}</strong>`)) bad++;
+      marked++; continue;
+    }
     const t = texts(e).find(x => x.includes(find)); if (!t) continue;
     const isCrit = (e.criteria || []).some(c => c[2] === t);
-    const html = (isCrit ? TDX_FORMAT.line : TDX_FORMAT.text)(t, (c, m) => `<a href="#${c}">${m}</a>`, [[find, fix]]);
+    const html = (isCrit ? TDX_FORMAT.line : TDX_FORMAT.text)(t, (c, m) => `<a href="#${c}">${m}</a>`, [[find, fix, kind]]);
     if (plain(html) !== t.replace(find, fix)) bad++;
     marked += /<ins class="fix"/.test(html) || fix.replace(/\n/g, ' ') === find; // a pure line break shows, unmarked
   }
@@ -206,6 +213,13 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#detail .crit-list br.fix-br').count() === 1 && /excluded\.\s*\nOrder of testing/.test(await page.locator('#detail .crit-list').innerText()), 'R33: “Order of testing” starts its own line');
   await page.goto(BASE + '#R62'); await page.waitForSelector('#detail .s-who');
   check(/our-services\/find-service/.test(await page.locator('#detail .s-who').innerText()), 'R62: the web address broken by a line wrap is joined');
+  await page.goto(BASE + '#R457'); await page.waitForSelector('#detail .s-crit');
+  check(await page.locator('#detail .crit-list strong.inline-head', { hasText: /^Chordoma$/ }).count() === 1
+    && /<25\s*\nChordoma/.test(await page.locator('#detail .crit-list').innerText()), 'R457: the Chordoma heading starts its own line in bold');
+  check(await page.locator('#detail .crit-list li.crit-sub', { hasText: /^Sarcoma$/ }).count() === 1, 'R457: the Sarcoma heading is bold');
+  check(!/corrected/.test(await page.locator('#detail .crit-help').innerText()), 'a moved heading is not counted as a correction');
+  await page.goto(BASE + '#R151'); await page.waitForSelector('#detail .s-crit');
+  check(await page.locator('#detail .crit-list li.crit-sub', { hasText: 'Familial Primary Hyperparathyroidism' }).count() === 1, 'a short line before a list is shown as its heading');
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.click('#detail [data-copy]'); await page.waitForTimeout(100);
   check(await page.evaluate(() => navigator.clipboard.readText()) === page.url(), 'Copy link copies the page address');

@@ -22,7 +22,7 @@ const TDX_FORMAT = (() => {
   const PMID = /PMID:?\s?(\d{6,9})/g;
   // Corrections are carried through the formatting as private-use markers around the changed words (the marker holds the
   // correction's number as one private-use character, which no formatting rule matches), then become <ins>.
-  const FIX_ON = '\uE000', FIX_OFF = '\uE001', fixId = k => String.fromCharCode(0xE100 + k);
+  const FIX_ON = '\uE000', FIX_OFF = '\uE001', fixId = k => String.fromCharCode(0xE100 + k), HEAD_ON = '\uE002', HEAD_OFF = '\uE003';
   // Where a correction differs from the PDF: a list of [from, to] ranges in the PDF text and in the corrected text.
   // Punctuation-only corrections (same letters) are aligned character by character, so each added full stop, removed
   // space or apostrophe is its own change; a spelling correction is one change.
@@ -59,9 +59,15 @@ const TDX_FORMAT = (() => {
   }
   function applyFixes(text, fixes) {
     const pdf = [];
-    for (const [find, fix] of fixes || []) {
+    for (const [find, fix, kind] of fixes || []) {
       const at = text.indexOf(find);
       if (at < 0) continue;
+      // A heading run into the line before it: same words, but it starts a new line in bold (no correction mark).
+      if (kind === 'heading') {
+        const cut = find.length - fix.length - 1;
+        text = text.slice(0, at) + find.slice(0, cut) + '\n' + HEAD_ON + fix + HEAD_OFF + text.slice(at + find.length);
+        continue;
+      }
       // Mark each change together with the word it touches (e.g. "variants", "likely.", "Addison’s").
       const marks = changes(find, fix).map(([ia, ib, ja, jb]) => {
         const edge = c => c === undefined || /\s/.test(c);
@@ -93,6 +99,7 @@ const TDX_FORMAT = (() => {
   }
   const FIXED = new RegExp(`${FIX_ON}([\uE100-\uE1FF])([^${FIX_OFF}]*)${FIX_OFF}`, 'g');
   const finishFixes = (html, pdf) => html
+    .replace(/\uE002([^\uE003]*)\uE003/g, '<strong class="inline-head">$1</strong>')
     .replace(FIXED, (m, id, inner) => { const was = esc(pdf[id.charCodeAt(0) - 0xE100]);
       return `<ins class="fix" data-pdf="${was}" data-full="Corrected – the PDF has “${was}”" title="Corrected – the PDF has “${was}”">${inner}</ins>`; })
     .replace(/\n/g, '<br class="fix-br">\n');
@@ -145,7 +152,7 @@ const TDX_FORMAT = (() => {
     return finishFixes(html, pdf);
   }
   // The text a line shows once corrected (what the page's text content equals).
-  const corrected = (original, fixes) => applyFixes(original, fixes).text.replace(/[\uE000\uE001\uE100-\uE1FF]/g, '');
+  const corrected = (original, fixes) => applyFixes(original, fixes).text.replace(/[\uE000-\uE003\uE100-\uE1FF]/g, '');
   const isNote = text => /^(NOTES?\b|Notes?:|Please note\b|N\.?B\.?:)/.test(text);
   return { line, text, corrected, isNote };
 })();

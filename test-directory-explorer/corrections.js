@@ -5,6 +5,7 @@
  *   spelling    – a misspelt word (the fix may differ from the PDF by at most 3 letters)
  *   punctuation – spaces, full stops, commas, apostrophes, hyphens only (the letters are unchanged)
  *   break       – a missing full stop between two sentences, or a heading run into the line before; "\n" starts a new line
+ *   heading     – a section heading run onto the end of the line before: shown on its own line in bold (no words change)
  * tests/explorer.test.js checks every entry against these rules and the data. When the directory is updated, entries
  * whose text no longer appears are reported by the test and should be removed. */
 const TDX_CORRECTIONS = [
@@ -77,4 +78,6 @@ const TDX_CORRECTIONS = [
   ['R143', 'by using R143.1 Continue to panel test', 'by using R143.1.\nContinue to panel test', 'break'],
   ['R144', 'follow-up of variants Order of testing', 'follow-up of variants.\nOrder of testing', 'break'],
   ['R151', 'Hypocalciuric hypercalcaemia Hypercalcaemia with', 'Hypocalciuric hypercalcaemia\nHypercalcaemia with', 'break'],
+  // heading: [indication, text ending with the heading, the heading] – the heading starts a new line in bold, words unchanged
+  ['R457', 'nerve sheath tumour <25 Chordoma', 'Chordoma', 'heading'],
 ];

@@ -205,14 +205,17 @@
   try { plainCriteria = localStorage.getItem('tdx-criteria-layout') === 'pdf'; } catch (err) { /* storage unavailable */ }
   // Obvious typos and punctuation corrected in the formatted layout (corrections.js); the PDF layout keeps the original.
   const FIXES = {};
-  if (typeof TDX_CORRECTIONS !== 'undefined') for (const [code, find, fix] of TDX_CORRECTIONS) (FIXES[code] = FIXES[code] || []).push([find, fix]);
+  if (typeof TDX_CORRECTIONS !== 'undefined') for (const [code, find, fix, kind] of TDX_CORRECTIONS) (FIXES[code] = FIXES[code] || []).push([find, fix, kind]);
   const fixesFor = (code, t) => plainCriteria || !FORMAT ? [] : (FIXES[code] || []).filter(([find]) => t.includes(find));
   const verbatim = (code, t) => { const f = fixesFor(code, t); return f.length ? FORMAT.text(t, linkCode, f) : linkCodes(t); };
+  // A short unmarked line just before a bulleted or numbered list is that list's heading (e.g. "Sarcoma", "Exclusion criteria").
+  const isListHead = (items, i) => { const [, mk, tx] = items[i], next = items[i + 1];
+    return !mk && next && next[1] && /^[A-Z][A-Za-z/'’ -]{2,40}$/.test(tx) && tx.split(' ').length <= 4 && !/^(OR|AND|AND\/OR|NOTES?)$/.test(tx); };
   const critList = (items, code) => {
     if (plainCriteria || !FORMAT) return `<ul class="crit-list plain">${items.map(([lv, mk, tx]) =>
       `<li class="lv${lv}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${linkCodes(tx)}</li>`).join('')}</ul>`;
-    return `<ul class="crit-list">${items.map(([lv, mk, tx]) =>
-      `<li class="lv${lv}${critClass(mk, tx)}${!mk && FORMAT.isNote(tx) ? ' crit-note' : ''}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${
+    return `<ul class="crit-list">${items.map(([lv, mk, tx], i) =>
+      `<li class="lv${lv}${critClass(mk, tx)}${!mk && FORMAT.isNote(tx) ? ' crit-note' : ''}${isListHead(items, i) && !critClass(mk, tx) ? ' crit-sub' : ''}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${
         critClass(mk, tx) === ' crit-join' ? `<span class="join join-${/^and$/i.test(tx) ? 'and' : 'or'}">${esc(tx)}</span>` : FORMAT.line(tx, linkCode, fixesFor(code, tx))}</li>`).join('')}</ul>`;
   };
   const layoutSwitch = () => FORMAT ? `<button type="button" class="layout-switch" data-layout aria-pressed="${plainCriteria}">${plainCriteria ? 'Show formatted' : 'Show as in the PDF'}</button>` : '';
@@ -311,8 +314,8 @@
       <div class="cols">
         <div>
           <section class="block s-crit"><div class="crit-head"><h3>Testing criteria</h3>${layoutSwitch()}</div>
-            ${FORMAT && !plainCriteria ? `<p class="crit-help small muted">Laid out for reading: <span class="join join-or">OR</span> / <span class="join join-and">AND</span> link one criterion to the next, and ages and thresholds are <span class="thr">highlighted</span>.${(FIXES[e.code] || []).length
-              ? ` ${plural(FIXES[e.code].length, 'obvious typo or punctuation error', 'obvious typos or punctuation errors')} on this page ${FIXES[e.code].length === 1 ? 'is' : 'are'} <ins class="fix">corrected</ins> (hover to see the PDF wording).` : ''}</p>` : ''}
+            ${FORMAT && !plainCriteria ? `<p class="crit-help small muted">Laid out for reading: <span class="join join-or">OR</span> / <span class="join join-and">AND</span> link one criterion to the next, and ages and thresholds are <span class="thr">highlighted</span>.${(FIXES[e.code] || []).filter(f => f[2] !== 'heading').length
+              ? ` ${plural(FIXES[e.code].filter(f => f[2] !== 'heading').length, 'obvious typo or punctuation error', 'obvious typos or punctuation errors')} on this page ${FIXES[e.code].filter(f => f[2] !== 'heading').length === 1 ? 'is' : 'are'} <ins class="fix">corrected</ins> (hover to see the PDF wording).` : ''}</p>` : ''}
             ${e.criteria ? critList(e.criteria, e.code) : '<p class="muted">Not found in the eligibility criteria document.</p>'}
             ${e.page ? `<p class="small source">Quoted from the ${ext(pdfPage(e.page), `eligibility criteria ${esc(TDX.meta.criteria)}, PDF page ${e.page}`)}.</p>` : ''}
           </section>
