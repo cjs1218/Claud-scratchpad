@@ -6,8 +6,8 @@
   <title>Test Directory Explorer</title>
   <meta name="description" content="Search every rare and inherited disease (R) test in the NHS England National Genomic Test Directory by clinical indication, gene, method and requesting specialty, with the eligibility criteria.">
   <meta name="theme-color" content="#005eb8">
-  <link rel="icon" href="favicon.svg?v=20261014-15" type="image/svg+xml">
-  <link rel="stylesheet" href="explorer.css?v=20261014-15">
+  <link rel="icon" href="favicon.svg?v=20261014-16" type="image/svg+xml">
+  <link rel="stylesheet" href="explorer.css?v=20261014-16">
 </head>
 <body>
   <header class="site-head">
@@ -25,32 +25,39 @@
           <path d="M20 20l7.5 7.5" stroke="#003087" stroke-width="3.6" stroke-linecap="round"/>
         </svg>
         <div>
-          <h1><a href="./">National Genomic Test Directory Explorer</a> <span class="pill">In development</span></h1>
+          <h1><a href="./"><span class="long">National Genomic </span>Test Directory Explorer</a> <span class="pill">In development</span></h1>
           <p id="stats"></p>
         </div>
       </div>
-      <a class="head-link" href="../">Cancer Family History Navigator</a>
+      <a class="head-link" href="../"><span class="long">Cancer Family History </span>Navigator</a>
     </div>
   </header>
 
   <main class="wrap">
     <section id="home" aria-labelledby="home-title">
       <h2 id="home-title" class="visually-hidden">Find a test</h2>
-      <p class="intro">Every rare and inherited disease (R) test in the NHS England National Genomic Test Directory. Search by R code,
-        condition, gene or words in the eligibility criteria, or filter by clinical area, method or requesting specialty.</p>
+      <p class="intro">Every rare and inherited disease (R) test in the NHS England National Genomic Test Directory.<span class="long"> Search by R code,
+        condition, gene or words in the eligibility criteria, or filter by clinical area, method or requesting specialty.</span></p>
       <form id="search" role="search">
         <label for="q">Search the Test Directory</label>
-        <input id="q" type="search" placeholder="e.g. R133, cardiomyopathy, BRCA1, hearing loss" autocomplete="off">
+        <input id="q" type="search" placeholder="R code, condition, gene or criteria words – e.g. R133, cardiomyopathy, BRCA1" autocomplete="off" aria-describedby="search-hint">
+        <button type="submit">Search</button>
       </form>
-      <div id="filters">
-        <label class="check"><input type="checkbox" id="f-changed"> Changed in this version</label>
-        <button type="button" class="link" id="clear">Clear search and filters</button>
-      </div>
+      <p id="search-hint" class="hint small muted">Press <kbd>/</kbd> to search from anywhere. Type an R code and press Enter to open it.</p>
+      <details id="filter-panel" open>
+        <summary>Filters <span id="filter-count" class="muted"></span></summary>
+        <div id="filters">
+          <div id="filter-fields"></div>
+          <label class="check"><input type="checkbox" id="f-changed"> Changed in this version</label>
+        </div>
+      </details>
       <div class="result-bar">
-        <p id="count" class="muted small" role="status" aria-live="polite"></p>
-        <p id="gene-hint" hidden></p>
+        <p id="count" role="status" aria-live="polite"></p>
+        <div id="active"></div>
+        <button type="button" class="link" id="clear" hidden>Clear search and filters</button>
       </div>
-      <ul id="results" class="results"></ul>
+      <p id="gene-hint" hidden></p>
+      <div id="results"></div>
     </section>
     <section id="detail" hidden aria-live="polite"></section>
   </main>
@@ -63,9 +70,9 @@
         <a href="https://github.com/cjs1218/Claud-scratchpad/tree/main/test-directory-explorer">Source on GitHub</a></p>
     </div>
   </footer>
-  <script src="data/directory.js?v=20261014-15"></script>
-  <script src="data/panels.js?v=20261014-15"></script>
-  <script src="abbreviations.js?v=20261014-15"></script>
-  <script src="explorer.js?v=20261014-15"></script>
+  <script src="data/directory.js?v=20261014-16"></script>
+  <script src="data/panels.js?v=20261014-16"></script>
+  <script src="abbreviations.js?v=20261014-16"></script>
+  <script src="explorer.js?v=20261014-16"></script>
 </body>
 </html>

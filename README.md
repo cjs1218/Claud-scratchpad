@@ -216,6 +216,11 @@ test-directory-explorer/data/directory.js  Generated: indications, tests, verbat
 test-directory-explorer/data/panels.js     Generated: green genes on each PanelApp panel (do not edit)
 ```
 
+The list's search and filters are kept in the address (e.g. `#q=hearing+loss&part=IX+Audiology`), so a filtered view
+can be bookmarked or shared; with no search the list is grouped by clinical area. Indication pages highlight the search
+words, step to the previous/next indication in the results, show which other indications mention this one, and have
+Copy link and Print buttons; large PanelApp panels have a box to find a gene. Press `/` anywhere to search.
+
 Abbreviations are underlined with dots and show their meaning on hover, tap or keyboard focus; each indication page
 also lists the ones it uses. `tests/explorer.test.js` fails if a new directory version brings an abbreviation that is not in
 `abbreviations.js` (add its meaning, or add it to `TDX_ABBR_IGNORE` if it is not one).
