@@ -198,8 +198,19 @@
   // Criteria lines: "OR"/"AND" on their own become separators; headings such as "Exclusion criteria" stand out.
   const critClass = (mk, tx) => mk ? '' : /^(OR|AND|AND\/OR)$/i.test(tx) ? ' crit-join'
     : (/:$/.test(tx) && tx.length < 90) || /^(Testing Criteria for |Exclusion criteria$|Inclusion criteria$|NOTES?$|R\d+\.\d+ \S)/.test(tx) ? ' crit-sub' : '';
-  const critList = items => `<ul class="crit-list">${items.map(([lv, mk, tx]) =>
-    `<li class="lv${lv}${critClass(mk, tx)}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${linkCodes(tx)}</li>`).join('')}</ul>`;
+  // Two layouts of the same verbatim text: formatted (criteria-format.js) or plain, as laid out in the PDF.
+  const linkCode = (c, m) => BY_CODE[c] ? `<a href="#${c}">${m}</a>` : m;
+  const FORMAT = typeof TDX_FORMAT !== 'undefined' ? TDX_FORMAT : null;
+  let plainCriteria = false;
+  try { plainCriteria = localStorage.getItem('tdx-criteria-layout') === 'pdf'; } catch (err) { /* storage unavailable */ }
+  const critList = items => {
+    if (plainCriteria || !FORMAT) return `<ul class="crit-list plain">${items.map(([lv, mk, tx]) =>
+      `<li class="lv${lv}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${linkCodes(tx)}</li>`).join('')}</ul>`;
+    return `<ul class="crit-list">${items.map(([lv, mk, tx]) =>
+      `<li class="lv${lv}${critClass(mk, tx)}${!mk && FORMAT.isNote(tx) ? ' crit-note' : ''}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${
+        critClass(mk, tx) === ' crit-join' ? `<span class="join join-${/^and$/i.test(tx) ? 'and' : 'or'}">${esc(tx)}</span>` : FORMAT.line(tx, linkCode)}</li>`).join('')}</ul>`;
+  };
+  const layoutSwitch = () => FORMAT ? `<button type="button" class="layout-switch" data-layout aria-pressed="${plainCriteria}">${plainCriteria ? 'Show formatted' : 'Show as in the PDF'}</button>` : '';
   const bulletList = xs => xs && xs.length ? `<ul>${xs.map(x => `<li>${linkCodes(x)}</li>`).join('')}</ul>` : '<p class="muted">Not stated</p>';
   const backLink = () => `<p class="back"><a href="${listHash() || '#'}" data-back>← ${state.q || FILTER_KEYS.some(k => state[k]) || state.changed ? 'Back to your results' : 'All clinical indications'}</a></p>`;
 
@@ -294,7 +305,8 @@
       ${sourcesBox(e)}
       <div class="cols">
         <div>
-          <section class="block s-crit"><h3>Testing criteria</h3>
+          <section class="block s-crit"><div class="crit-head"><h3>Testing criteria</h3>${layoutSwitch()}</div>
+            ${FORMAT && !plainCriteria ? '<p class="crit-help small muted">Same wording as the PDF, laid out for reading: <span class="join join-or">OR</span> / <span class="join join-and">AND</span> link one criterion to the next, and ages and thresholds are <span class="thr">highlighted</span>.</p>' : ''}
             ${e.criteria ? critList(e.criteria) : '<p class="muted">Not found in the eligibility criteria document.</p>'}
             ${e.page ? `<p class="small source">Quoted from the ${ext(pdfPage(e.page), `eligibility criteria ${esc(TDX.meta.criteria)}, PDF page ${e.page}`)}.</p>` : ''}
           </section>
@@ -401,6 +413,13 @@
       (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => done('Link copied'), () => done(location.href));
     }
     if (ev.target.closest('[data-print]')) window.print();
+    if (ev.target.closest('[data-layout]')) {
+      plainCriteria = !plainCriteria;
+      try { localStorage.setItem('tdx-criteria-layout', plainCriteria ? 'pdf' : 'formatted'); } catch (err) { /* storage unavailable */ }
+      const y = window.scrollY, code = location.hash.slice(1);
+      renderIndication(code.toUpperCase()); window.scrollTo(0, y);
+      const b = $('#detail [data-layout]'); if (b) b.focus({ preventScroll: true });
+    }
     if (ev.target.closest('[data-next-mark]')) { const m = $('#detail .cols mark'); if (m) { m.scrollIntoView({ block: 'center' }); m.classList.add('current'); } }
   });
   $('#detail').addEventListener('input', ev => {

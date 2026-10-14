@@ -4,6 +4,7 @@ const load = require('./load.js');
 const { TDX } = load(path.join(__dirname, '../test-directory-explorer/data/directory.js'));
 const { TDX_PANELS } = load(path.join(__dirname, '../test-directory-explorer/data/panels.js'));
 const { TDX_ABBR, TDX_ABBR_BY_CODE, TDX_ABBR_IGNORE } = load(path.join(__dirname, '../test-directory-explorer/abbreviations.js'));
+const { TDX_FORMAT } = load(path.join(__dirname, '../test-directory-explorer/criteria-format.js'));
 let failures = 0, passes = 0;
 const check = (cond, msg) => { if (cond) { passes++; console.log('  ok  ', msg); } else { failures++; console.log('  FAIL', msg); } };
 
@@ -54,6 +55,22 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   const genesDefined = Object.keys(TDX_ABBR).filter(k => genes.has(k.toUpperCase()) && !['PAH', 'AIP', 'ADA', 'WAS', 'TAT', 'NHS', 'HR'].includes(k));
   check(!genesDefined.length, `no gene symbols expanded as abbreviations, except where the text uses them as one${genesDefined.length ? ': ' + genesDefined.join(', ') : ''}`);
   check(Object.values(TDX_ABBR).every(v => typeof v === 'string' && v.length > 1), 'every abbreviation has a meaning');
+}
+// Criteria formatting changes the layout only: the text of every formatted line is exactly the criteria text.
+{
+  const text = html => html.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+  const lines = I.flatMap(e => (e.criteria || []).map(c => [e.code, c[2]]));
+  const html = lines.map(([, t]) => TDX_FORMAT.line(t, (c, m) => `<a href="#${c}">${m}</a>`));
+  const changed = lines.filter(([, t], i) => text(html[i]) !== t).map(([c]) => c);
+  check(!changed.length, `formatting keeps every criteria line word for word (${lines.length} lines)${changed.length ? ' – changed in ' + [...new Set(changed)].join(' ') : ''}`);
+  const n = cls => html.reduce((a, h) => a + (h.match(new RegExp(`class="${cls}`, 'g')) || []).length, 0);
+  check(n('join') > 250 && n('thr') > 250 && n('split') >= 8 && n('logic') > 100, `formatting finds connectors (${n('join')}), thresholds (${n('thr')}), run-together lists (${n('split')}) and logic words (${n('logic')})`);
+  const f = t => TDX_FORMAT.line(t);
+  check(/<span class="thr">&lt;35 years<\/span>/.test(f('Parathyroid disease (<35 years), OR')) && /class="join join-or">OR</.test(f('Parathyroid disease (<35 years), OR')), 'thresholds and a trailing OR are marked');
+  check(/thr">below age 50</.test(f('onset below age 50')) && /thr">under the age of 35</.test(f('under the age of 35, with')) && /thr">&lt;3rd percentile</.test(f('all measurements <3rd percentile')), 'age phrases and centiles are marked');
+  check((f('Features such as: o Retinal angioma o Mesothelioma').match(/class="item"/g) || []).length === 2, 'a run-together “o … o …” list becomes a list');
+  check(!/class="split"/.test(f('Hypotonia - with feeding difficulties')), 'a single dash in a sentence is not a list');
+  check(TDX_FORMAT.isNote('NOTE: This indication is for urgent testing') && !TDX_FORMAT.isNote('Nothing noted'), 'NOTE lines are recognised');
 }
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
@@ -125,6 +142,22 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#detail .crit-list .crit-sub', { hasText: 'Exclusion criteria' }).count() === 1, 'criteria sub-headings stand out');
   await page.goto(BASE + '#R208'); await page.waitForSelector('#detail h2');
   check(await page.locator('#detail .crit-list .crit-join').count() > 0, '“OR” between criteria shows as a separator');
+  // Formatted criteria and the switch to the PDF layout.
+  await page.goto(BASE + '#R224'); await page.waitForSelector('#detail .s-crit');
+  check(await page.locator('#detail .crit-list .split .item').count() === 10, 'R224: the run-together list of features shows as 10 bullet points');
+  check(await page.locator('#detail .crit-list .join').count() >= 5 && await page.locator('#detail .crit-list .thr').count() >= 3, 'R224: connectors and age thresholds are marked');
+  check(await page.locator('#detail .crit-list .crit-note').count() === 1, 'R224: the NOTE shows as a note');
+  const words = () => page.locator('#detail .crit-list').evaluate(ul => ul.textContent.replace(/\s+/g, ' ').trim());
+  const formatted = await words();
+  await page.click('#detail [data-layout]'); await page.waitForTimeout(100);
+  check(await page.locator('#detail .crit-list.plain').count() === 1 && await page.locator('#detail .crit-list .join, #detail .crit-list .thr').count() === 0, '“Show as in the PDF” switches to the plain layout');
+  check(await words() === formatted, 'both layouts show exactly the same words');
+  await page.reload(); await page.waitForSelector('#detail .s-crit');
+  check(await page.locator('#detail .crit-list.plain').count() === 1, 'the chosen layout is remembered');
+  await page.click('#detail [data-layout]'); await page.waitForTimeout(100);
+  check(await page.locator('#detail .crit-list.plain').count() === 0 && (await page.locator('#detail [data-layout]').innerText()) === 'Show as in the PDF', 'and can be switched back');
+  await page.goto(BASE + '#R133'); await page.waitForSelector('#detail .s-crit');
+  check(await page.locator('#detail .crit-list a[href="https://pubmed.ncbi.nlm.nih.gov/20172912/"]').count() === 1, 'PMIDs link to PubMed');
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.click('#detail [data-copy]'); await page.waitForTimeout(100);
   check(await page.evaluate(() => navigator.clipboard.readText()) === page.url(), 'Copy link copies the page address');
