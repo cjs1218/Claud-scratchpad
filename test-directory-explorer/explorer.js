@@ -72,11 +72,18 @@
   const partSort = p => { const m = /^([IVXL]+)\s/.exec(p); if (!m) return 99; const v = { I: 1, V: 5, X: 10, L: 50 }; let n = 0;
     [...m[1]].forEach((c, i, a) => { n += v[c] < (v[a[i + 1]] || 0) ? -v[c] : v[c]; }); return n; };
   const partName = p => p.replace(/^[IVXL]+\s+/, '');
+  // Requesting specialties grouped for the filter (specialties.js): the PDF's wording varies, the filter should not.
+  // Includes the specialties allowed for an indication's semi-rapid route. Unmapped wording falls back to itself.
+  const SPEC_MAP = typeof TDX_SPECIALTIES !== 'undefined' ? TDX_SPECIALTIES : {};
+  const SPEC_ANY = typeof TDX_SPECIALTY_ANY !== 'undefined' ? TDX_SPECIALTY_ANY : '';
+  const specWording = e => [...(e.specialties || []), ...Object.values(e.variants || {}).flatMap(v => v['Requesting Specialties'] || [])];
+  const specGroups = e => [...new Set(specWording(e).flatMap(s => SPEC_MAP[s.toLowerCase()] || [s]))];
+  const SPEC_VALUES = uniq(IND.flatMap(specGroups)).sort((a, b) => (a === SPEC_ANY) - (b === SPEC_ANY) || cmp(a, b));
   const FILTERS = {
     part: { label: 'Clinical area', values: [...new Set(IND.map(e => e.part))].sort((a, b) => partSort(a) - partSort(b)), of: e => [e.part], show: partName },
     method: { label: 'Test method', values: uniq(IND.flatMap(e => e.tests.map(t => t.method))), of: e => e.tests.map(t => t.method) },
     commissioning: { label: 'Commissioning', values: uniq(IND.flatMap(e => e.tests.map(t => t.commissioning))), of: e => e.tests.map(t => t.commissioning) },
-    specialty: { label: 'Requesting specialty', values: uniq(IND.flatMap(e => e.specialties || [])), of: e => e.specialties || [] },
+    specialty: { label: 'Requesting specialty', values: SPEC_VALUES, of: specGroups },
   };
   const state = { q: '', part: '', method: '', commissioning: '', specialty: '', changed: false,
     list: IND.map(e => e.code), homeScroll: 0, view: '' };

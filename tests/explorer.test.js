@@ -123,6 +123,17 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   const flat = TDX_SYNONYMS.flat().map(x => x.toLowerCase());
   check(new Set(flat).size === flat.length, 'no word or phrase is in two synonym groups');
 }
+// Requesting-specialty filter groups: every wording in the data is mapped (so new wording cannot add a stray option).
+{
+  const { TDX_SPECIALTIES, TDX_SPECIALTY_ANY } = load(path.join(__dirname, '../test-directory-explorer/specialties.js'));
+  const wording = I.flatMap(e => [...(e.specialties || []), ...Object.values(e.variants || {}).flatMap(v => v['Requesting Specialties'] || [])]);
+  const unmapped = [...new Set(wording.filter(w => !TDX_SPECIALTIES[w.toLowerCase()]))];
+  check(!unmapped.length, `every requesting specialty is mapped to a filter group${unmapped.length ? ' – add to specialties.js: ' + unmapped.join('; ') : ''}`);
+  const groups = new Set(Object.values(TDX_SPECIALTIES).flat());
+  check(groups.size >= 35 && groups.size <= 50 && groups.has(TDX_SPECIALTY_ANY), `${new Set(wording.map(w => w.toLowerCase())).size} PDF wordings become ${groups.size} filter groups`);
+  const unused = Object.keys(TDX_SPECIALTIES).filter(k => !wording.some(w => w.toLowerCase() === k));
+  check(!unused.length, `no stale entries in specialties.js${unused.length ? ' – remove: ' + unused.join('; ') : ''}`);
+}
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
 // Page.
@@ -161,6 +172,25 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await rows() === I.length && !/part=/.test(page.url()), 'removing the chip removes the filter');
   await page.selectOption('#f-part', 'II Cardiology'); await page.waitForTimeout(100);
   await page.click('#clear');
+  // Requesting-specialty groups.
+  const specCodes = async v => { await page.selectOption('#f-specialty', v); await page.waitForTimeout(100);
+    const c = (await page.locator('#results a.row').allInnerTexts()).map(r => r.split(/\s/)[0]); await page.selectOption('#f-specialty', ''); await page.waitForTimeout(50); return c; };
+  const optTexts = await page.locator('#f-specialty option').allInnerTexts();
+  check(optTexts.length - 1 <= 50 && !optTexts.some(o => /\*|Surgery\*|Clinical genetics \(|CF service,/.test(o)), `the specialty filter offers ${optTexts.length - 1} grouped options, without footnote marks or case variants`);
+  check(/^Any appropriate specialist/.test(optTexts[optTexts.length - 1]), '“Any appropriate specialist” is last');
+  const surg = await specCodes('Surgery');
+  check(['R210', 'R151', 'R208'].every(c => surg.includes(c)), 'Surgery includes Surgery*, Surgery (head/neck/endocrine) and Surgery');
+  const neuro = await specCodes('Neurology'), paeds = await specCodes('Paediatrics');
+  check(neuro.includes('R27') && paeds.includes('R364') && paeds.includes('R27'), 'paediatric sub-specialties are under the parent specialty and Paediatrics');
+  const neo = await specCodes('Neonatology');
+  check(neo.includes('R135'), 'semi-rapid routes count (Neonatology can request R135 semi-rapid testing)');
+  const gyn = await specCodes('Gynaecology'), uro = await specCodes('Urology');
+  check(gyn.includes('R411') && uro.includes('R411'), '“Urology / gynaecology” is under both');
+  const path_ = await specCodes('Pathology and histopathology'), any = await specCodes('Any appropriate specialist');
+  check(path_.includes('R210') && path_.includes('R22') && any.includes('R65') && any.includes('R412') && !any.includes('R27'), 'merged groups (pathology, any appropriate specialist) work');
+  await page.goto(BASE + '#R210'); await page.waitForSelector('#detail .s-who');
+  check(/Surgery\*/.test(await page.locator('#detail .s-who').innerText()), 'the indication page keeps the PDF wording (Surgery*)');
+  await page.goto(BASE); await page.waitForSelector('#results a.row');
   check(await rows() === I.length, 'clear resets the list');
   check(await page.locator('#results .group-head').count() >= 15, 'with no search the list is grouped by clinical area');
   await page.fill('#q', 'hearing loss'); await page.waitForTimeout(300);
