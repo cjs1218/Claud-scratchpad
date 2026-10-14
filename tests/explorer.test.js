@@ -70,6 +70,8 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   await page.goto(BASE);
   const rows = () => page.locator('#results > li > a').count();
   check(await rows() === I.length, `home lists all ${I.length} indications`);
+  const icon = await page.getAttribute('link[rel=icon]', 'href');
+  check(/^favicon\.svg/.test(icon) && (await page.request.get(new URL(icon, page.url()).href)).ok(), 'own tab icon (DNA helix in a magnifying glass) linked and served');
   await page.fill('#q', 'cardiomyopathy'); await page.waitForTimeout(300);
   const n = await rows();
   check(n > 3 && n < 40, `search narrows the list (${n} for “cardiomyopathy”)`);
