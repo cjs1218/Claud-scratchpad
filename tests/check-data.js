@@ -110,6 +110,23 @@ for (const id of d.NONCANCER_RECOGNISED) {
   });
 }
 for (const c of d.CONDITIONS) if (![1, 2, 3, 4].includes(d.FREQ_BAND[c.id])) e(`FREQ_BAND: ${c.id} needs a band 1-4`);
+// Every syndrome whose gene is on a test's PanelApp panel lists that test, unless marked in PANEL_NOT_ROUTE.
+{
+  const src = require('fs').readFileSync(require('path').join(__dirname, '../js/panels.js'), 'utf8');
+  const TEST_GENES = new Function(src + ';return TEST_GENES;')();
+  for (const [code, g] of Object.entries(TEST_GENES)) {
+    if (!g.genes || !d.TESTS[code]) continue;
+    for (const c of d.CONDITIONS) if (!c.tests.includes(code) && c.genes.some(x => g.genes.includes(x)) && !(d.PANEL_NOT_ROUTE[code] || []).includes(c.id))
+      e(`${c.id}: gene on the ${code} panel but ${code} not in its tests (add it, or list it in PANEL_NOT_ROUTE)`);
+  }
+  // Reverse: a syndrome's test must have at least one of its genes on the panel (PanelApp may use an older symbol).
+  const ALIAS = { TBXT: 'T' };
+  for (const c of d.CONDITIONS) for (const code of c.tests) {
+    const g = TEST_GENES[code];
+    if (g && g.genes && !c.genes.some(x => g.genes.includes(x) || g.genes.includes(ALIAS[x]))) e(`${c.id}: lists ${code} but none of its genes are on the ${code} panel`);
+  }
+  for (const [code, ids] of Object.entries(d.PANEL_NOT_ROUTE)) for (const id of ids) if (!d.CONDITIONS.some(c => c.id === id)) e(`PANEL_NOT_ROUTE ${code}: unknown condition ${id}`);
+}
 // Two-step relationship list: every relationship (bar proband/unset) reachable exactly once, and only real ids used.
 const kindIds = d.REL_KINDS.flatMap(([k, , sides]) => sides ? Object.values(sides).map(v => v[0]) : [k]);
 for (const id of kindIds) if (!d.RELATIONS.some(r => r[0] === id)) e(`REL_KINDS id ${id} is not in RELATIONS`);

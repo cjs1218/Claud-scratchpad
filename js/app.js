@@ -1977,10 +1977,12 @@
     return TEST_CODES.filter(c => words.every(w => testHaystack(c).includes(w)) && (!fam || st[c])).sort((a, b) => exact(b) - exact(a));
   }
   function testPageExtras(code) {
-    const conds = condsForTest(code);
+    const conds = condsForTest(code), g = testGenes(code);
+    const other = g && g.genes ? CONDITIONS.filter(c => !conds.includes(c) && c.genes.some(x => g.genes.includes(x))) : [];
     const auto = typeof ELIG_TESTS !== 'undefined' && ELIG_TESTS.includes(code);
     return `<p class="small">${auto ? 'Checked automatically against the family on the Family assessment tab.' : 'Not checked automatically – compare the family with the criteria below.'}</p>
-      ${conds.length ? `<p class="small"><strong>Syndromes:</strong> ${conds.map(c => `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`).join(' · ')}</p>` : ''}`;
+      ${conds.length ? `<p class="small"><strong>Syndromes:</strong> ${conds.map(c => `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`).join(' · ')}</p>` : ''}
+      ${other.length ? `<p class="small"><strong>Other syndromes with genes on this panel:</strong> ${other.map(c => `<a href="#syndrome=${c.id}">${esc(c.name)}</a> <span class="muted">(${esc(c.genes.filter(x => g.genes.includes(x)).join(', '))})</span>`).join(' · ')}</p>` : ''}`;
   }
   function renderTestsTab() {
     const codes = testsShown(), st = familyTestStatus(), q = $('#tests-search').value.trim();

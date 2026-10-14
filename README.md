@@ -41,6 +41,7 @@ Everything clinical lives in `js/data.js`:
   condensed criteria (Part XI unless `part` names another chapter, e.g. `'IV'` Endocrinology).
 - **NONCANCER_RECOGNISED / COMMON_ADULT_CANCERS** – in syndromes recognised by non-cancer features, a common adult cancer is at most moderate unless limited to age 40 or under (checked by `tests/check-data.js`).
 - **FREQ_BAND / FREQ_WEIGHT** – rough frequency of each syndrome (1 commonest – 4 rarest) and the light weighting it gives the total score (×1, ×0.9, ×0.8, ×0.7); also orders exact ties.
+- **PANEL_NOT_ROUTE** – syndromes whose gene is on a test's PanelApp panel but for which that test is not a testing route (e.g. BRCA2 on the Fanconi anaemia breakage panels). `tests/check-data.js` requires every other syndrome with a gene on a panel to list that test, and every listed test to have one of the syndrome's genes on its panel.
 - **FHCC** – family history of colorectal cancer without a known syndrome: BSG/ACPGBI/UKCGG 2019 Box 1 categories and Table 1 surveillance; the category is worked out by `fhccCategory` in `js/eligibility.js` and shown as "Bowel screening if no inherited condition is found" in the results, copied summary and printouts.
 - **UKCGG_LEAFLETS** – UKCGG patient information leaflets (gene leaflets, chemoprevention, reproductive options), listed per condition with `ukl` in SOURCES; `UKCGG_GENERAL` ones show for every condition.
 - **EG / GUIDES / EU_GUIDES / US_GUIDES / SOURCES** – East Genomics leaflets (direct links), UKCGG / NICE
