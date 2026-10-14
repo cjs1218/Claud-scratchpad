@@ -28,6 +28,39 @@
   }
   const testById = Object.fromEntries(IND.flatMap(e => e.tests.map(t => [t.id, { ...t, ind: e }])));
 
+  // Abbreviations (abbreviations.js): marked in the rendered text; the meaning shows on hover, tap or keyboard focus.
+  // A few letters mean different things on different indications (TDX_ABBR_BY_CODE); gene symbols in a test's target are left alone.
+  const ABBR = typeof TDX_ABBR !== 'undefined' ? TDX_ABBR : {};
+  const ABBR_LOCAL = typeof TDX_ABBR_BY_CODE !== 'undefined' ? TDX_ABBR_BY_CODE : {};
+  const abbrRe = keys => new RegExp(`(^|[^A-Za-z0-9])(${keys.sort((a, b) => b.length - a.length)
+    .map(k => k.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|')})(?![A-Za-z0-9])`, 'g');
+  const ABBR_RE = { '': abbrRe(Object.keys(ABBR)) };
+  const abbrDict = code => ABBR_LOCAL[code] ? { ...ABBR, ...ABBR_LOCAL[code] } : ABBR;
+  const abbrRegex = code => ABBR_LOCAL[code] ? (ABBR_RE[code] = ABBR_RE[code] || abbrRe(Object.keys(abbrDict(code)))) : ABBR_RE[''];
+  const ABBR_SKIP = 'script,style,select,option,input,textarea,abbr,.genes,.no-abbr,.visually-hidden,#abbr-tip';
+  function markAbbr(root, code = '') {
+    const dict = abbrDict(code), re = abbrRegex(code), found = new Set();
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), hits = [];
+    for (let n; (n = walker.nextNode());) {
+      const el = n.parentElement;
+      if (!el || !/[A-Z]{2}|[a-z][A-Z]/.test(n.nodeValue) || el.closest(ABBR_SKIP)) continue;
+      re.lastIndex = 0;
+      if (re.test(n.nodeValue)) hits.push(n);
+    }
+    for (const n of hits) {
+      const inTarget = n.parentElement.closest('.target');
+      const html = esc(n.nodeValue).replace(re, (m, pre, k) => {
+        if (inTarget && GENE_INDEX[k.toUpperCase()]) return m;
+        found.add(k);
+        return `${pre}<abbr class="abbr" title="${esc(dict[k])}" data-full="${esc(dict[k])}">${k}</abbr>`;
+      });
+      const t = document.createElement('template'); t.innerHTML = html; n.replaceWith(t.content);
+    }
+    // Keyboard users can reach the abbreviations on an indication or gene page (not inside links, which take focus themselves).
+    root.querySelectorAll('#detail abbr.abbr:not([tabindex])').forEach(a => { if (!a.closest('a, button, summary')) a.tabIndex = 0; });
+    return [...found].sort(cmp).map(k => [k, dict[k]]);
+  }
+
   // Filters: clinical area (Part of the criteria document), method, commissioning, requesting specialty.
   const partSort = p => { const m = /^([IVXL]+)\s/.exec(p); if (!m) return 99; const v = { I: 1, V: 5, X: 10, L: 50 }; let n = 0;
     [...m[1]].forEach((c, i, a) => { n += v[c] < (v[a[i + 1]] || 0) ? -v[c] : v[c]; }); return n; };
@@ -102,7 +135,7 @@
       <p class="small muted">PanelApp shows the panel's current version, which may have changed since ${esc(PANELS_DATE || 'this page was built')}.</p></section>`;
   }
   function testCard(t) {
-    const rows = [['Target', esc(t.target)], ['Method', esc(t.method)], ['Optimal family structure', esc(t.family)],
+    const rows = [['Target', `<span class="target">${esc(t.target)}</span>`], ['Method', esc(t.method)], ['Optimal family structure', esc(t.family)],
       ['Scope', esc(t.scope)], ['Commissioning', esc(t.commissioning)], ['Specialist test group', esc(t.group)],
       ['Change since last version', t.change ? esc(t.change) : '']].filter(r => r[1]);
     return `<article class="test" id="${esc(t.id)}"><h4><span class="code">${esc(t.id)}</span> ${esc(t.method)}</h4>
@@ -111,6 +144,13 @@
   const critList = items => `<ul class="crit-list">${items.map(([lv, mk, tx]) =>
     `<li class="lv${lv}${!mk && (/:$/.test(tx) && tx.length < 90 || /^Testing Criteria for /.test(tx)) ? ' crit-sub' : ''}">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${linkCodes(tx)}</li>`).join('')}</ul>`;
   const bulletList = xs => xs && xs.length ? `<ul>${xs.map(x => `<li>${linkCodes(x)}</li>`).join('')}</ul>` : '<p class="muted">Not stated</p>';
+
+  // The abbreviations on a page, listed at the end (useful on touch screens and when printed).
+  function glossary(list) {
+    if (!list.length) return;
+    $('#detail').insertAdjacentHTML('beforeend', `<details class="block glossary no-abbr"><summary>Abbreviations on this page (${list.length})</summary>
+      <dl>${list.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></details>`);
+  }
 
   // Views.
   function renderHome() {
@@ -125,6 +165,7 @@
         <span class="row-meta">${esc(partName(e.part))} · ${plural(e.tests.length, 'test')} ${methods(e)}</span>
         ${m.why ? `<span class="row-why">${esc(m.why)}</span>` : ''}</a></li>`).join('')
       : '<li class="empty">No clinical indications match. Try fewer words or clear the filters.</li>';
+    markAbbr($('#results'));
     show('home');
   }
   function renderIndication(code) {
@@ -158,6 +199,7 @@
           ${variants}
         </div>
       </div>`;
+    glossary(markAbbr($('#detail'), e.code));
     show('detail');
   }
   function renderGene(name) {
@@ -166,13 +208,14 @@
     document.title = `${g.name} – Test Directory Explorer`;
     const tests = [...g.tests].map(id => testById[id]).sort((a, b) => cmp(a.id, b.id));
     $('#detail').innerHTML = `<p class="back"><a href="#${state.q ? 'q=' + encodeURIComponent(state.q) : ''}">← All clinical indications</a></p>
-      <h2 id="detail-title">${esc(g.name)}</h2>
+      <h2 id="detail-title" class="no-abbr">${esc(g.name)}</h2>
       <p>Tested by ${plural(tests.length, 'test')} in ${plural(new Set(tests.map(t => t.ind.code)).size, 'clinical indication')}: green on the test's PanelApp panel, or named in its target.
         <a href="https://panelapp.genomicsengland.co.uk/panels/entities/${encodeURIComponent(g.name)}" target="_blank" rel="noopener">${esc(g.name)} in PanelApp</a></p>
       <ul class="results">${tests.map(t => `<li class="row"><a class="row-head" href="#${t.ind.code}"><span class="code">${esc(t.id)}</span> <span class="row-name">${esc(t.ind.name)}</span></a>
-        <span class="row-meta">${esc(t.target)} ${chip(t.method)}</span>
+        <span class="row-meta"><span class="target">${esc(t.target)}</span> ${chip(t.method)}</span>
         ${t.panels.length ? `<span class="row-meta">${t.panels.map(id => `<a class="ext" href="${PANELAPP(id)}" target="_blank" rel="noopener">${esc(PANELS[id] ? PANELS[id].name : 'Panel ' + id)} on PanelApp</a>`).join(' · ')}</span>` : ''}
         ${t.ind.page ? `<span class="row-meta"><a class="ext" href="${pdfPage(t.ind.page)}" target="_blank" rel="noopener">${esc(t.ind.code)} criteria – PDF page ${t.ind.page}</a></span>` : ''}</li>`).join('')}</ul>`;
+    glossary(markAbbr($('#detail')));
     show('detail');
   }
   function notFound(what, gene) {
@@ -221,6 +264,44 @@
     state.changed = false; $('#f-changed').checked = false; state.q = ''; $('#q').value = '';
     history.replaceState(null, '', location.pathname); renderHome(); $('#q').focus();
   });
+  // Abbreviation tooltip: shows at once on hover, keyboard focus or tap (tap again or press Escape to close).
+  const tip = document.createElement('div');
+  tip.id = 'abbr-tip'; tip.setAttribute('role', 'tooltip'); tip.hidden = true;
+  document.body.append(tip);
+  let tipFor = null;
+  const showTip = el => {
+    if (el.title) el.removeAttribute('title'); // the meaning stays in data-full; avoids a second, slow browser tooltip
+    tip.textContent = el.dataset.full; tip.hidden = false; tipFor = el; placeTip();
+  };
+  const placeTip = () => {
+    const r = tipFor.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    if (r.bottom < 0 || r.top > innerHeight) return hideTip();
+    tip.style.left = `${Math.max(8, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 8))}px`;
+    tip.style.top = `${r.bottom + 6 + h > innerHeight ? r.top - h - 6 : r.bottom + 6}px`;
+  };
+  const hideTip = () => { tip.hidden = true; tipFor = null; };
+  // A tap also fires mouseover and focus before its click, which would open the tooltip early; so a tap decides
+  // from whether this word's tooltip was open when the finger went down (open: close it; closed: open it).
+  let touching = false, openAtPress = null;
+  document.addEventListener('pointerdown', ev => { touching = ev.pointerType !== 'mouse'; openAtPress = tipFor; }, true);
+  document.addEventListener('pointermove', ev => { if (ev.pointerType === 'mouse') touching = false; }, true);
+  document.addEventListener('mouseover', ev => {
+    if (touching) return;
+    const el = ev.target.closest && ev.target.closest('abbr.abbr'); if (el) showTip(el); else if (tipFor) hideTip();
+  });
+  document.addEventListener('focusin', ev => { const el = ev.target.closest && ev.target.closest('abbr.abbr'); if (el) showTip(el); else if (tipFor) hideTip(); });
+  document.addEventListener('click', ev => {
+    const el = ev.target.closest && ev.target.closest('abbr.abbr');
+    if (!el) { if (tipFor) hideTip(); return; }
+    if (el.closest('a, button, summary, label')) return; // links keep working; hovering still shows the meaning
+    ev.preventDefault();
+    if (ev.pointerType !== 'mouse' && openAtPress === el) hideTip(); else showTip(el);
+  }, true);
+  addEventListener('scroll', () => { if (tipFor) placeTip(); }, { passive: true }); // follows the word; hides once it is off screen
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && tipFor) hideTip(); });
+  markAbbr(document.querySelector('footer'));
+  markAbbr(document.querySelector('.intro'));
+
   window.addEventListener('hashchange', route);
   route();
 })();

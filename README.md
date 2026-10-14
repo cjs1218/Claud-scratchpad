@@ -211,9 +211,14 @@ pathway and who can request it; or open a gene to see every test that covers it.
 test-directory-explorer/index.html         The page
 test-directory-explorer/explorer.js        Search, filters and views (#R133, #gene=BRCA1, #q=…)
 test-directory-explorer/explorer.css       Styles (light/dark)
+test-directory-explorer/abbreviations.js   Meanings shown on hover/tap; per-indication meanings; words deliberately not expanded
 test-directory-explorer/data/directory.js  Generated: indications, tests, verbatim criteria (do not edit)
 test-directory-explorer/data/panels.js     Generated: green genes on each PanelApp panel (do not edit)
 ```
+
+Abbreviations are underlined with dots and show their meaning on hover, tap or keyboard focus; each indication page
+also lists the ones it uses. `tests/explorer.test.js` fails if a new directory version brings an abbreviation that is not in
+`abbreviations.js` (add its meaning, or add it to `TDX_ABBR_IGNORE` if it is not one).
 
 `tools/update-explorer.py` builds both data files from the directory spreadsheet, the eligibility criteria PDF and the
 PanelApp API, and lists anything it could not match. When NHS England publishes a new version, update the `XLSX` and

@@ -3,6 +3,7 @@ const path = require('path');
 const load = require('./load.js');
 const { TDX } = load(path.join(__dirname, '../test-directory-explorer/data/directory.js'));
 const { TDX_PANELS } = load(path.join(__dirname, '../test-directory-explorer/data/panels.js'));
+const { TDX_ABBR, TDX_ABBR_BY_CODE, TDX_ABBR_IGNORE } = load(path.join(__dirname, '../test-directory-explorer/abbreviations.js'));
 let failures = 0, passes = 0;
 const check = (cond, msg) => { if (cond) { passes++; console.log('  ok  ', msg); } else { failures++; console.log('  FAIL', msg); } };
 
@@ -31,6 +32,29 @@ const ids = new Set(tests.flatMap(t => t.panels)), missing = [...ids].filter(id 
 check(missing.length <= 5, `PanelApp panels present (${ids.size - missing.length}/${ids.size}; missing ${missing.join(', ') || 'none'})`);
 check(Object.values(TDX_PANELS.panels).every(p => p.name && p.version && Array.isArray(p.genes)), 'panels have a name, version and gene list');
 check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANELS.panels[635].genes.includes(g)), 'R208 panel (635) has BRCA1, BRCA2 and PALB2');
+// Abbreviations: every abbreviation-like word in the text (two or more capitals, e.g. NIPD, mtDNA) is defined or deliberately ignored.
+{
+  const genes = new Set(Object.values(TDX_PANELS.panels).flatMap(p => [...p.genes, ...(p.strs || [])]).map(g => g.toUpperCase()));
+  const ignore = new Set(TDX_ABBR_IGNORE);
+  const reFor = keys => new RegExp(`(^|[^A-Za-z0-9])(${keys.sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|')})(?![A-Za-z0-9])`, 'g');
+  const missing = {};
+  for (const e of I) {
+    const dict = { ...TDX_ABBR, ...(TDX_ABBR_BY_CODE[e.code] || {}) }, re = reFor(Object.keys(dict));
+    const texts = [e.name, e.pathway, e.change, ...(e.criteria || []).map(c => c[2]), ...(e.overlapping || []), ...(e.specialties || []),
+      ...(e.specialtyNotes || []), ...(e.serviceGroup || []), ...e.tests.flatMap(t => [t.target, t.method, t.scope, t.family, t.change])];
+    for (const t of texts.filter(Boolean)) for (const w of t.replace(re, '$1 ').split(/[^A-Za-z0-9]+/)) {
+      if ((w.match(/[A-Z]/g) || []).length < 2 || ignore.has(w) || genes.has(w.toUpperCase()) || /^R\d+([A-Z][a-z]+)?$/.test(w)) continue; // R codes (one runs into the next word in the PDF text)
+      if (/\d/.test(w) && /^[A-Z0-9]+$/.test(w)) continue; // gene-like (e.g. SMN2, CYP2C19) when not on a panel
+      if (/^[A-Z][a-z]{2}\d+[A-Z][a-z]{2}$/.test(w)) continue; // protein change, e.g. Gly551Asp
+      (missing[w] = missing[w] || new Set()).add(e.code);
+    }
+  }
+  const list = Object.entries(missing).map(([w, c]) => `${w} (${[...c].slice(0, 3).join(' ')})`);
+  check(!list.length, `every abbreviation in the text has a meaning in abbreviations.js${list.length ? ' – add or ignore: ' + list.join(', ') : ''}`);
+  const genesDefined = Object.keys(TDX_ABBR).filter(k => genes.has(k.toUpperCase()) && !['PAH', 'AIP', 'ADA', 'WAS', 'TAT', 'NHS', 'HR'].includes(k));
+  check(!genesDefined.length, `no gene symbols expanded as abbreviations, except where the text uses them as one${genesDefined.length ? ': ' + genesDefined.join(', ') : ''}`);
+  check(Object.values(TDX_ABBR).every(v => typeof v === 'string' && v.length > 1), 'every abbreviation has a meaning');
+}
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
 // Page.
@@ -80,10 +104,40 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#detail a[href="https://panelapp.genomicsengland.co.uk/panels/635/"]').count() >= 1, 'gene page links to the PanelApp panel of each test');
   await page.goto(BASE + '#R9999'); await page.waitForSelector('#detail h2');
   check((await page.locator('#detail h2').innerText()) === 'Not found', 'unknown code shows not found');
+  // Abbreviations: hover shows the meaning; tap works too; keyboard focus too; the page lists them.
+  await page.goto(BASE + '#R21'); await page.waitForSelector('#detail h2');
+  const anyAbbr = await page.locator('#detail abbr.abbr').count();
+  check(anyAbbr > 3, `indication page marks abbreviations (${anyAbbr} on R21)`);
+  const firstAbbr = page.locator('#detail .crit-list abbr.abbr').first();
+  await firstAbbr.hover();
+  const full = await firstAbbr.getAttribute('data-full');
+  check(await page.locator('#abbr-tip').isVisible() && (await page.locator('#abbr-tip').innerText()) === full, `hovering an abbreviation shows its meaning (“${full}”)`);
+  await page.mouse.move(2, 2); await page.waitForTimeout(50);
+  check(await page.locator('#abbr-tip').isHidden(), 'moving away hides it');
+  await firstAbbr.focus();
+  check(await page.locator('#abbr-tip').isVisible(), 'keyboard focus shows the meaning');
+  await page.keyboard.press('Escape');
+  check(await page.locator('#abbr-tip').isHidden(), 'Escape hides it');
+  check((await page.locator('#detail .glossary').innerText()).includes('Abbreviations on this page'), 'indication page lists its abbreviations');
+  await page.goto(BASE + '#R134'); await page.waitForSelector('#detail h2');
+  check((await page.locator('#detail abbr.abbr', { hasText: /^FH$/ }).first().getAttribute('data-full')) === 'familial hypercholesterolaemia', 'FH means familial hypercholesterolaemia on R134');
+  await page.goto(BASE + '#R224'); await page.waitForSelector('#detail h2');
+  check((await page.locator('#detail abbr.abbr', { hasText: /^FH$/ }).first().getAttribute('data-full')) === 'fumarate hydratase', '… and fumarate hydratase on R224');
+  await page.goto(BASE + '#R188'); await page.waitForSelector('#detail h2');
+  check(await page.locator('#detail .crit-list abbr.abbr', { hasText: /^PAH$/ }).count() > 0, 'PAH expanded in R188 criteria (pulmonary arterial hypertension)');
+  await page.goto(BASE + '#gene=PAH'); await page.waitForSelector('#detail h2');
+  check(await page.locator('#detail .target abbr.abbr', { hasText: /^PAH$/ }).count() === 0, 'gene symbol PAH is not expanded in test targets');
+  await page.goto(BASE + '#q=NIPD'); await page.waitForTimeout(300);
+  check(await page.locator('#results abbr.abbr').count() > 0, 'the list marks abbreviations too');
   for (const w of [390]) {
-    const p = await b.newPage({ viewport: { width: w, height: 800 } });
+    const p = await b.newPage({ viewport: { width: w, height: 800 }, hasTouch: true, isMobile: true });
     await p.goto(BASE + '#R208'); await p.waitForSelector('#detail h2');
     check(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `no sideways scrolling at ${w}px`);
+    const a = p.locator('#detail .crit-list abbr.abbr').first();
+    await a.tap(); await p.waitForTimeout(50);
+    check(await p.locator('#abbr-tip').isVisible(), `tapping an abbreviation shows its meaning on a touch screen (${w}px)`);
+    await a.tap(); await p.waitForTimeout(50);
+    check(await p.locator('#abbr-tip').isHidden(), 'tapping it again hides it');
     await p.close();
   }
   check(!errors.length, `no console/page errors${errors.length ? ': ' + errors.join(' | ') : ''}`);

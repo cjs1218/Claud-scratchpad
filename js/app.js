@@ -2324,14 +2324,22 @@
       tip.style.left = `${left}px`; tip.style.top = `${top}px`;
     };
     const hideTip = () => { tip.hidden = true; tipFor = null; };
-    document.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest(TIP_SEL); if (el) showTip(el); else if (tipFor) hideTip(); });
+    // A tap also fires mouseover (and focus) before its click, which would open the tooltip early; so a tap decides
+    // from whether this item's tooltip was open when the finger went down (open: close it; closed: open it).
+    let touching = false, openAtPress = null;
+    document.addEventListener('pointerdown', e => { touching = e.pointerType !== 'mouse'; openAtPress = tipFor; }, true);
+    document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') touching = false; }, true);
+    document.addEventListener('mouseover', e => {
+      if (touching) return;
+      const el = e.target.closest && e.target.closest(TIP_SEL); if (el) showTip(el); else if (tipFor) hideTip();
+    });
     document.addEventListener('focusin', e => { const el = e.target.closest && e.target.closest('abbr.abbr'); if (el) showTip(el); else if (tipFor) hideTip(); });
     document.addEventListener('click', e => {
       const el = e.target.closest && e.target.closest(TIP_SEL);
       if (!el) { if (tipFor) hideTip(); return; }
       if (el.closest('a, button, summary, label')) return; // links and controls keep working; hover still shows the meaning
       e.preventDefault();
-      if (tipFor === el && e.pointerType !== 'mouse') hideTip(); else showTip(el);
+      if (e.pointerType !== 'mouse' && openAtPress === el) hideTip(); else showTip(el);
     }, true);
     window.addEventListener('scroll', () => { if (tipFor) hideTip(); }, { passive: true });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && tipFor) hideTip(); });

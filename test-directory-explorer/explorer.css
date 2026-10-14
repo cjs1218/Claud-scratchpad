@@ -112,3 +112,19 @@ footer { border-top: 1px solid var(--border); padding: 20px 0 32px; color: var(-
 footer p { margin: 0 0 6px; }
 @media (max-width: 820px) { .cols { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .test dl div { grid-template-columns: 1fr; gap: 0; } #filters select { max-width: 100%; } #filters label { flex: 1 1 100%; } }
+
+abbr.abbr { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }
+abbr.abbr:hover { color: var(--accent); }
+abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+#abbr-tip { position: fixed; z-index: 1000; max-width: min(340px, calc(100vw - 16px)); padding: 6px 9px; border-radius: 4px; background: #212b32;
+  color: #fff; font-size: .82rem; line-height: 1.35; pointer-events: none; box-shadow: 0 2px 8px rgb(0 0 0 / .25); }
+:root[data-theme="dark"] #abbr-tip { background: #e6ecef; color: #11181d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #abbr-tip { background: #e6ecef; color: #11181d; } }
+#abbr-tip[hidden] { display: none; }
+.glossary { margin-top: 16px; }
+.glossary summary { cursor: pointer; font-weight: 600; }
+.glossary dl { margin: 10px 0 0; display: grid; gap: 4px; }
+.glossary dl div { display: grid; grid-template-columns: 7em 1fr; gap: 8px; }
+.glossary dt { font-weight: 700; }
+.glossary dd { margin: 0; }
+@media print { abbr.abbr { text-decoration: none; } #abbr-tip { display: none; } .glossary { display: block; } }

@@ -427,6 +427,17 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.goto(BASE + '#syndrome=brca2'); await page.waitForSelector('#syn-detail h2'); await page.waitForTimeout(100);
   check(await page.locator('#syn-detail abbr.abbr[data-full="lobular carcinoma in situ"]', { hasText: /^LCIS$/ }).count() > 0 || await page.evaluate(() => !/\bLCIS\b/.test(document.getElementById('syn-detail').textContent)), 'LCIS marked where it appears');
   check(await page.evaluate(() => ABBREVIATIONS.LCIS === 'lobular carcinoma in situ'), 'LCIS in the abbreviation list');
+  {
+    // On a touch screen a tap opens the meaning and a second tap closes it (the tap's own hover and focus must not close it).
+    const phone = await browser.newPage({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true });
+    await phone.goto(BASE + '#syndrome=lynch_msh2'); await phone.waitForSelector('#syn-detail h2'); await phone.waitForTimeout(200);
+    const a = phone.locator('#syn-detail abbr.abbr').first();
+    await a.tap(); await phone.waitForTimeout(50);
+    check(await phone.isVisible('#abbr-tip'), 'tapping an abbreviation on a touch screen shows its meaning');
+    await a.tap(); await phone.waitForTimeout(50);
+    check(!(await phone.isVisible('#abbr-tip')), 'tapping it again hides it');
+    await phone.close();
+  }
   await page.click('[data-tab=assess]'); await page.click('#clear');
   const d0 = page.locator('#family .dx').first();
   await d0.locator('select[data-f=site]').selectOption('sarcoma'); await d0.locator('select[data-f=hist]').selectOption({ label: 'Gastrointestinal stromal tumour (GIST)' });
