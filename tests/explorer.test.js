@@ -33,6 +33,9 @@ check(R133 && R133.tests[0].panels[0] === 134 && R133.specialties.join() === 'Ca
 const ids = new Set(tests.flatMap(t => t.panels)), missing = [...ids].filter(id => !TDX_PANELS.panels[id]);
 check(missing.length <= 5, `PanelApp panels present (${ids.size - missing.length}/${ids.size}; missing ${missing.join(', ') || 'none'})`);
 check(Object.values(TDX_PANELS.panels).every(p => p.name && p.version && Array.isArray(p.genes)), 'panels have a name, version and gene list');
+check(Object.values(TDX_PANELS.panels).every(p => p.version && (p.signedOff === null || /^\d{4}-\d\d-\d\d$/.test(p.signedOff))), 'every panel records its signed-off version and date (or that it is not signed off)');
+check(Object.values(TDX_PANELS.panels).every(p => !p.current || (p.current.version && Array.isArray(p.current.added) && Array.isArray(p.current.removed))
+  && (!p.current || p.current.added.every(g => !p.genes.includes(g)))), 'genes added on a newer version are not in the signed-off list');
 check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANELS.panels[635].genes.includes(g)), 'R208 panel (635) has BRCA1, BRCA2 and PALB2');
 // Abbreviations: every abbreviation-like word in the text (two or more capitals, e.g. NIPD, mtDNA) is defined or deliberately ignored.
 {
@@ -113,6 +116,13 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   const br = TDX_FORMAT.line('not been excluded Order of testing', null, [['excluded Order of testing', 'excluded.\nOrder of testing']]);
   check(/excluded\.<\/ins><br class="fix-br">/.test(br), 'a run-in heading starts a new line after a full stop');
 }
+{
+  const { TDX_SYNONYMS, TDX_SPELLING } = load(path.join(__dirname, '../test-directory-explorer/search-terms.js'));
+  check(TDX_SYNONYMS.every(g => g.length >= 2 && g.every(x => typeof x === 'string' && x.trim() === x && x)) && TDX_SPELLING.every(([us, uk]) => us && uk && us !== uk),
+    `search synonyms (${TDX_SYNONYMS.length} groups) and US→UK spellings (${TDX_SPELLING.length}) are well formed`);
+  const flat = TDX_SYNONYMS.flat().map(x => x.toLowerCase());
+  check(new Set(flat).size === flat.length, 'no word or phrase is in two synonym groups');
+}
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
 // Page.
@@ -156,6 +166,27 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   await page.fill('#q', 'hearing loss'); await page.waitForTimeout(300);
   check((await page.locator('#results a.row').first().innerText()).startsWith('R67'), 'a phrase ranks the indication named with it first (R67 Monogenic hearing loss)');
   check(await page.locator('#results a.row').first().locator('mark').count() > 0, 'search words are highlighted in the results');
+  // Smarter search: abbreviations, synonyms, UK spelling, ranking of exclusions, suggestions, long lists.
+  const firstRows = async (q, n = 3) => { await page.fill('#q', q); await page.waitForTimeout(300);
+    return (await page.locator('#results a.row').allInnerTexts()).slice(0, n).map(r => r.split(/\s/)[0]); };
+  const hcm = await firstRows('HCM', 5);
+  check(hcm.includes('R131') && hcm.includes('R454'), `an abbreviation finds its meaning (HCM → ${hcm.join(', ')})`);
+  check((await firstRows('deafness'))[0] === 'R67', 'a synonym finds the Directory wording (deafness → R67 Monogenic hearing loss)');
+  check((await firstRows('learning disability', 5)).includes('R27'), 'learning disability finds intellectual disability (R27)');
+  check((await firstRows('NF1'))[0] === 'R222', 'NF1 lists R222 Neurofibromatosis type 1 first, not “…excluding NF1”');
+  check((await firstRows('breast cancer'))[0] === 'R208', 'breast cancer lists R208 first, not “…without breast cancer”');
+  await firstRows('tumor');
+  check(await page.locator('#results a.row').count() > 5 && (await page.locator('#results mark').allInnerTexts()).some(m => /^tumour/i.test(m)), 'US spelling finds UK spelling (tumor → tumour)');
+  await page.fill('#q', 'cardiomyopthy'); await page.waitForTimeout(300);
+  const dym = page.locator('#results [data-dym]');
+  check(await dym.count() === 1 && (await dym.innerText()) === 'cardiomyopathy', 'a misspelling offers “Did you mean cardiomyopathy?”');
+  await dym.click(); await page.waitForTimeout(300);
+  check(await page.inputValue('#q') === 'cardiomyopathy' && await rows() > 3, 'the suggestion runs the corrected search');
+  await page.fill('#q', 'syndrome'); await page.waitForTimeout(300);
+  const many = await page.locator('#results [data-show-all]').innerText().catch(() => '');
+  check(await rows() === 50 && /Show all \d+ results/.test(many), 'a long result list shows the best 50 first');
+  await page.click('#results [data-show-all]'); await page.waitForTimeout(200);
+  check(await rows() === +many.match(/\d+/)[0], '“Show all” shows the rest');
   await page.fill('#q', 'Dravet'); await page.waitForTimeout(300);
   check(await page.locator('#results .row-snip mark').count() > 0, 'a criteria match shows the matching text');
   await page.locator('#results a.row', { hasText: 'R27' }).click(); await page.waitForSelector('#detail h2');
@@ -245,6 +276,21 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#detail a[href="https://panelapp.genomicsengland.co.uk/panels/635/"]').count() >= 1, 'gene page links to the PanelApp panel of each test');
   await page.goto(BASE + '#R9999'); await page.waitForSelector('#detail h2');
   check((await page.locator('#detail h2').innerText()) === 'Not found', 'unknown code shows not found');
+  // Signed-off panels: the version laboratories test against, and any change on PanelApp's newer version.
+  await page.goto(BASE + '#R133'); await page.waitForSelector('#detail .panel');
+  check(new RegExp(`signed-off version ${TDX_PANELS.panels[134].version.replace('.', '\\.')} \\(.*\\) – what laboratories test against`).test(await page.locator('#detail .panel-name').first().innerText()), 'the panel shows its signed-off version and date');
+  {
+    // Simulate a newer PanelApp version that adds and removes a gene.
+    const p2 = await b.newPage();
+    await p2.route('**/data/panels.js*', async route => { const r = await route.fetch();
+      route.fulfill({ response: r, body: (await r.text()) + "\nTDX_PANELS.panels[134].current = { version: '9.9', added: ['TESTGENE1'], removed: ['PLN'] };" }); });
+    await p2.goto(BASE + '#R133'); await p2.waitForSelector('#detail .panel');
+    const note = await p2.locator('#detail .panel-change').innerText();
+    check(/newer version 9\.9 changes the green genes/.test(note) && /added TESTGENE1/.test(note) && /removed PLN/.test(note), 'a newer version that changes the genes is flagged on the test');
+    await p2.goto(BASE + '#gene=TESTGENE1'); await p2.waitForSelector('#detail h2');
+    check(/not yet signed-off/.test(await p2.locator('#detail .panel-change').innerText()), 'a gene only on the newer version says laboratories do not test it yet');
+    await p2.close();
+  }
   // Abbreviations: hover shows the meaning; tap works too; keyboard focus too; the page lists them.
   await page.goto(BASE + '#R21'); await page.waitForSelector('#detail h2');
   const anyAbbr = await page.locator('#detail abbr.abbr').count();

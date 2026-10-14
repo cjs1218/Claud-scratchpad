@@ -214,9 +214,15 @@ test-directory-explorer/explorer.css       Styles (light/dark)
 test-directory-explorer/abbreviations.js   Meanings shown on hover/tap; per-indication meanings; words deliberately not expanded
 test-directory-explorer/criteria-format.js Clearer layout of the verbatim criteria (formatting only; the words never change)
 test-directory-explorer/corrections.js     Obvious typos and punctuation corrected in the formatted layout (each marked; PDF layout unchanged)
+test-directory-explorer/search-terms.js    Search synonyms (deafness ↔ hearing loss …) and US → UK spellings
 test-directory-explorer/data/directory.js  Generated: indications, tests, verbatim criteria (do not edit)
 test-directory-explorer/data/panels.js     Generated: green genes on each PanelApp panel (do not edit)
 ```
+
+Search also finds abbreviations by their meaning (HCM → hypertrophic cardiomyopathy), everyday synonyms and US spellings
+(`search-terms.js`), ranks names that exclude a term ("…excluding NF1") lower, and offers "Did you mean…?" when nothing
+matches. Gene lists are each PanelApp panel's GMS signed-off version (what laboratories test against); if PanelApp's newer
+version changes the green genes, the test and the gene page say so.
 
 The list's search and filters are kept in the address (e.g. `#q=hearing+loss&part=IX+Audiology`), so a filtered view
 can be bookmarked or shared; with no search the list is grouped by clinical area. Indication pages highlight the search

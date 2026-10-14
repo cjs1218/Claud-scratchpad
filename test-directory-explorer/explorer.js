@@ -7,6 +7,7 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const IND = TDX.indications;
   const BY_CODE = Object.fromEntries(IND.map(e => [e.code, e]));
+  const ORDER = Object.fromEntries(IND.map(e => e.code).sort((a, b) => +a.slice(1) - +b.slice(1)).map((c, i) => [c, i])); // R codes in number order
   const PANELS = (typeof TDX_PANELS !== 'undefined' && TDX_PANELS.panels) || {};
   const PANELS_DATE = typeof TDX_PANELS !== 'undefined' ? TDX_PANELS.date : '';
   const PANELAPP = id => `https://panelapp.genomicsengland.co.uk/panels/${id}/`;
@@ -20,6 +21,11 @@
   const GENE_INDEX = {};
   for (const e of IND) for (const t of e.tests) for (const id of t.panels) for (const g of panelEntities(id)) {
     const k = g.toUpperCase(); (GENE_INDEX[k] = GENE_INDEX[k] || { name: g, tests: new Set() }).tests.add(t.id);
+  }
+  // Genes green only on a panel's newer (not yet signed-off) version: findable, but labelled as not yet tested.
+  for (const e of IND) for (const t of e.tests) for (const id of t.panels) for (const g of (PANELS[id] && PANELS[id].current ? PANELS[id].current.added : [])) {
+    const k = g.toUpperCase(); const x = GENE_INDEX[k] = GENE_INDEX[k] || { name: g, tests: new Set() };
+    (x.pending = x.pending || new Set()).add(t.id);
   }
   // A gene named in the target text without a panel (e.g. "CFTR", "SMN1") also counts.
   const NOT_GENES = /^(CNVS?|STRS?|WGS|WES|DNA|UPD|MLPA|PWS|AS|NIPD|LHON|FISH|CI)$/;
@@ -96,15 +102,39 @@
     state.changed = u.get('changed') === '1';
   }
 
-  // Search: every word must match somewhere; rank exact code, then name, then gene/target, then criteria text.
+  // Search. The query becomes terms; every term must match somewhere. A term also matches its synonyms (search-terms.js),
+  // the meaning of an abbreviation (HCM → hypertrophic cardiomyopathy) and UK spelling (tumor → tumour). Ranking: exact
+  // code, then name, then gene/target, then criteria text. Each indication's text is prepared once, so typing stays quick.
   const textLines = e => [...(e.criteria || []).map(c => c[2]), ...(e.overlapping || []), e.pathway, ...(e.specialties || [])].filter(Boolean);
-  const textOf = e => [e.name, ...textLines(e)].join(' \n ');
+  const HAY = Object.fromEntries(IND.map(e => [e.code, {
+    name: e.name, text: [e.name, ...textLines(e)].join(' \n '),
+    targets: e.tests.map(t => `${t.target} \n ${t.method}`).join(' \n '), ids: new Set([e.code, ...e.tests.map(t => t.id)].map(x => x.toUpperCase())) }]));
   const words = q => q.trim().split(/\s+/).filter(Boolean);
   const reEsc = w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const wordRe = w => new RegExp(`(^|[^A-Za-z0-9])${reEsc(w)}`, 'i');
-  // Search words to highlight (whole query as a phrase first, then each word from the start of a word).
-  const markRe = q => { const ws = words(q).filter(w => w.length > 1 && !/^R\d+(\.\d+)?$/i.test(w)); if (!ws.length) return null;
-    return new RegExp(`(?<![A-Za-z0-9])(${[ws.map(reEsc).join('\\s+'), ...ws.map(reEsc)].join('|')})`, 'gi'); };
+  const SYN = (typeof TDX_SYNONYMS !== 'undefined' ? TDX_SYNONYMS : []).map(g => g.map(x => x.toLowerCase()));
+  const SPELL = typeof TDX_SPELLING !== 'undefined' ? TDX_SPELLING : [];
+  const ABBR_CI = Object.fromEntries(Object.entries(ABBR).map(([k, v]) => [k.toUpperCase(), [k, v]]));
+  // The query's terms: synonym phrases first (longest), then single words, each with the forms it may take in the text.
+  function terms(q) {
+    let rest = ` ${q.trim().toLowerCase().replace(/\s+/g, ' ')} `; const out = [];
+    const phrases = SYN.flatMap((g, gi) => g.map(p => [p, gi])).filter(([p]) => p.includes(' ')).sort((a, b) => b[0].length - a[0].length);
+    for (const [p, gi] of phrases) if (rest.includes(` ${p} `)) { out.push({ label: p, alts: [...new Set(SYN[gi])] }); rest = rest.replace(` ${p} `, ' '); }
+    for (const w of words(rest)) {
+      const alts = new Set([w]);
+      for (const g of SYN) if (g.includes(w)) g.forEach(x => alts.add(x));
+      for (const [us, uk] of SPELL) if (w.includes(us) && !w.includes(uk)) alts.add(w.replace(us, uk));
+      // An abbreviation searches for its meaning too: always when typed in capitals, and for 3+ letters in any case.
+      const a = ABBR_CI[w.toUpperCase()];
+      if (a && (w.length >= 3 || w === w.toUpperCase())) { alts.add(a[0].toLowerCase()); alts.add(a[1].replace(/\s*\(.*?\)\s*/g, ' ').trim().toLowerCase()); }
+      out.push({ label: w, alts: [...alts] });
+    }
+    return out;
+  }
+  const altRe = alts => new RegExp(`(^|[^A-Za-z0-9])(?:${alts.map(a => a.split(/\s+/).map(reEsc).join('\\s+')).join('|')})`, 'i');
+  // Search words to highlight: every form of every term, from the start of a word.
+  const markRe = q => { const ts = terms(q).filter(t => t.label.length > 1 && !/^r\d+(\.\d+)?$/.test(t.label)); if (!ts.length) return null;
+    const alts = [...new Set(ts.flatMap(t => t.alts))].sort((a, b) => b.length - a.length);
+    return new RegExp(`(?<![A-Za-z0-9])(${alts.map(a => a.split(/\s+/).map(reEsc).join('\\s+')).join('|')})`, 'gi'); };
   const highlight = (text, re) => re ? esc(text).replace(re, '<mark>$1</mark>') : esc(text);
   // A short excerpt of the first criteria line containing the search words, with them highlighted.
   function snippet(e, re) {
@@ -121,29 +151,47 @@
   // Tests with smaller panels are more specific for a gene, so they rank higher (0–20 points).
   const specificity = tests => Math.max(...tests.map(t => { const n = t.panels.reduce((a, id) => a + panelEntities(id).length, 0) || 1;
     return Math.round(20 * (1 - Math.log(n) / Math.log(5000))); }));
-  function match(e, ws) {
-    if (!ws.length) return { score: 0, why: '' };
-    let score = 0; const why = [];
+  // A name that mentions the term only to exclude it ("…excluding NF1", "…without breast cancer") is a weak match.
+  const excludes = (name, re) => { const m = re.exec(name); return !!m && /\b(excluding|without|except|other than|not)\s+(\S+\s+){0,3}$/i.test(name.slice(0, m.index + m[1].length)); };
+  function match(e, ts, phrase) {
+    if (!ts.length) return { score: 0, why: '' };
+    const h = HAY[e.code]; let score = 0; const why = [];
     // The words together as a phrase count for more than the same words scattered through the text.
-    if (ws.length > 1) { const ph = new RegExp(`(^|[^A-Za-z0-9])${ws.map(reEsc).join('\\s+')}`, 'i');
-      if (ph.test(e.name)) score += 300; else if (ph.test(textOf(e))) score += 60; }
-    for (const w of ws) {
-      const re = wordRe(w), W = w.toUpperCase();
-      if (e.code.toUpperCase() === W || e.tests.some(t => t.id.toUpperCase() === W)) { score += 1000; continue; }
-      if (re.test(e.name)) { score += 100; continue; }
-      const g = GENE_INDEX[W], hit = g && e.tests.filter(t => g.tests.has(t.id));
-      if (hit && hit.length) { score += 50 + specificity(hit); why.push(`${g.name} is tested by ${hit.map(t => t.id).join(', ')}`); continue; }
-      if (e.tests.some(t => re.test(t.target) || re.test(t.method))) { score += 30; why.push(`test target or method mentions “${w}”`); continue; }
-      const txt = textOf(e);
-      if (re.test(txt)) { const n = txt.split(re).length - 1; score += Math.min(n, 10); continue; }
+    if (phrase) { if (phrase.test(h.name) && !excludes(h.name, phrase)) score += 300; else if (phrase.test(h.text)) score += 60; }
+    for (const t of ts) {
+      const W = t.label.toUpperCase();
+      if (h.ids.has(W)) { score += 1000; continue; }
+      const re = t.re;
+      if (re.test(h.name)) { score += excludes(h.name, re) ? 5 : 100; continue; }
+      const g = GENE_INDEX[W], hit = g && e.tests.filter(x => g.tests.has(x.id));
+      if (hit && hit.length) { score += 50 + specificity(hit); why.push(`${g.name} is tested by ${hit.map(x => x.id).join(', ')}`); continue; }
+      if (re.test(h.targets)) { score += 30; why.push(`test target or method mentions “${t.label}”`); continue; }
+      if (re.test(h.text)) { score += Math.min(h.text.split(re).length - 1, 10); continue; }
       return null;
     }
     return { score, why: [...new Set(why)].join('; ') };
   }
+  // Nothing found: suggest the nearest word from the directory's own wording for each word that matches nowhere.
+  const VOCAB = (() => { const c = {}; for (const e of IND) for (const w of HAY[e.code].text.toLowerCase().match(/[a-z][a-z-]{3,}/g) || []) c[w] = (c[w] || 0) + 1; return c; })();
+  const lev = (a, b, max) => { if (Math.abs(a.length - b.length) > max) return max + 1; let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) { const cur = [i]; for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; } return prev[b.length]; };
+  function didYouMean(q) {
+    let changed = false;
+    const fixed = words(q).map(w => {
+      const lw = w.toLowerCase();
+      if (lw.length < 4 || VOCAB[lw] || GENE_INDEX[w.toUpperCase()] || /^r\d/.test(lw) || terms(w)[0].alts.some(a => VOCAB[a])) return w;
+      const max = lw.length <= 6 ? 1 : 2; let best = null, bestD = max + 1, bestN = 0;
+      for (const [v, n] of Object.entries(VOCAB)) { const d = lev(lw, v, max); if (d < bestD || (d === bestD && n > bestN)) { best = v; bestD = d; bestN = n; } }
+      if (best && bestD <= max) { changed = true; return best; }
+      return w;
+    });
+    return changed ? fixed.join(' ') : '';
+  }
   const passes = (e, k) => !state[k] || FILTERS[k].of(e).some(v => v.toLowerCase() === state[k].toLowerCase());
   function results() {
-    const ws = words(state.q);
-    const base = IND.map(e => ({ e, m: match(e, ws) })).filter(({ e, m }) => m && (!state.changed || e.change));
+    const ts = terms(state.q).map(t => ({ ...t, re: altRe(t.alts) }));
+    const ws = words(state.q), phrase = ws.length > 1 ? new RegExp(`(^|[^A-Za-z0-9])(${ws.map(reEsc).join('\\s+')})`, 'i') : null;
+    const base = IND.map(e => ({ e, m: match(e, ts, phrase) })).filter(({ e, m }) => m && (!state.changed || e.change));
     // How many indications each filter option would give, with the search and the other filters applied.
     const counts = {};
     for (const k of FILTER_KEYS) {
@@ -151,7 +199,7 @@
       for (const { e } of base) if (FILTER_KEYS.every(o => o === k || passes(e, o))) for (const v of new Set(FILTERS[k].of(e).map(x => x.toLowerCase()))) c[v] = (c[v] || 0) + 1;
     }
     const list = base.filter(({ e }) => FILTER_KEYS.every(k => passes(e, k)))
-      .sort((a, b) => (b.m.score - a.m.score) || cmp(a.e.code, b.e.code));
+      .sort((a, b) => (b.m.score - a.m.score) || ORDER[a.e.code] - ORDER[b.e.code]);
     return { list, counts };
   }
 
@@ -171,8 +219,15 @@
         <p class="small muted" data-gene-none hidden>Not on this panel as a green gene.</p>` : '';
       const list = p.genes.length ? `<p class="genes">${p.genes.map(g => `<a href="#gene=${encodeURIComponent(g)}">${esc(g)}</a>`).join(' ')}</p>` : '';
       const extra = [p.strs && `STRs: ${p.strs.join(', ')}`, p.regions && `Regions: ${p.regions.join(', ')}`].filter(Boolean).map(x => `<p class="small">${esc(x)}</p>`).join('');
+      // The signed-off version is what laboratories test against; say whether PanelApp's newer version changes the green genes.
+      const when = p.signedOff ? new Date(p.signedOff + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      const status = p.signedOff ? `signed-off version ${esc(p.version)} (${when}) – what laboratories test against` : `version ${esc(p.version)} – <strong>not signed off</strong>`;
+      const c = p.current, later = !c ? '' : c.added.length || c.removed.length
+        ? `<p class="panel-change small"><strong>PanelApp's newer version ${esc(c.version)} changes the green genes</strong> (not yet signed off):
+            ${c.added.length ? `added ${c.added.map(g => `<a href="#gene=${encodeURIComponent(g)}">${esc(g)}</a>`).join(', ')}` : ''}${c.added.length && c.removed.length ? '; ' : ''}${c.removed.length ? `removed ${c.removed.map(esc).join(', ')}` : ''}.</p>`
+        : `<p class="small muted">PanelApp's newer version ${esc(c.version)} has the same green genes.</p>`;
       return `<div class="panel"><p class="panel-name">${ext(PANELAPP(id), `${esc(p.name)} on PanelApp`)}
-        <span class="muted small">panel ${id} · version ${esc(p.version)} used here</span></p>
+        <span class="muted small">panel ${id} · ${status}</span></p>${later}
         <details><summary>Show the ${plural(ents.length, 'green gene or locus', 'green genes and loci')}</summary>${find}${list}${extra}</details></div>`;
     }).join('');
   }
@@ -185,7 +240,7 @@
       ...panels.map(id => ext(PANELAPP(id), `PanelApp: ${esc(PANELS[id] ? PANELS[id].name : 'panel ' + id)}`, 'src')),
     ].filter(Boolean);
     return `<section class="sources" aria-labelledby="src-title"><h3 id="src-title">Check the sources</h3><p class="src-links">${links.join(' ')}</p>
-      <p class="small muted">PanelApp shows each panel's current version; this page used the version of ${esc(PANELS_DATE || 'its build date')}.
+      <p class="small muted">Gene lists are each panel's signed-off version (what laboratories test against), checked on ${esc(PANELS_DATE || 'the build date')}; PanelApp opens at the newest version.
         In the spreadsheet, ${e.code} is in the “R&amp;ID indications” tab.</p></section>`;
   }
   function testCard(t) {
@@ -265,7 +320,8 @@
     for (const k of FILTER_KEYS) {
       const sel = $(`#f-${k}`), f = FILTERS[k];
       sel.value = state[k];
-      for (const o of sel.options) if (o.value) { const n = counts[k][o.value.toLowerCase()] || 0; o.textContent = `${(f.show || String)(o.value)} (${n})`; o.disabled = !n && o.value !== state[k]; }
+      for (const o of sel.options) if (o.value) { const n = counts[k][o.value.toLowerCase()] || 0, label = `${(f.show || String)(o.value)} (${n})`, off = !n && o.value !== state[k];
+        if (o.textContent !== label) o.textContent = label; if (o.disabled !== off) o.disabled = off; }
     }
     $('#f-changed').checked = state.changed;
     const active = [...FILTER_KEYS.filter(k => state[k]).map(k => [k, `${FILTERS[k].label}: ${(FILTERS[k].show || String)(state[k])}`]), ...(state.changed ? [['changed', 'Changed in this version']] : [])];
@@ -274,14 +330,21 @@
     $('#clear').hidden = !state.q && !filtered;
     // No search: grouped by clinical area, in code order. A search: one list, best match first.
     let html;
-    if (!list.length) html = `<p class="empty">No clinical indications match${state.q ? ` “${esc(state.q)}”` : ''}${filtered ? ' with these filters' : ''}. Try fewer words${filtered ? ' or remove a filter' : ''}.</p>`;
+    if (!list.length) { const dym = state.q ? didYouMean(state.q) : '';
+      html = `<p class="empty">No clinical indications match${state.q ? ` “${esc(state.q)}”` : ''}${filtered ? ' with these filters' : ''}.
+        ${dym ? `Did you mean <a href="#${esc(new URLSearchParams({ q: dym }).toString())}" data-dym>${esc(dym)}</a>? ` : ''}Try fewer words${filtered ? ' or remove a filter' : ''}.</p>`; }
     else if (!state.q.trim()) {
       const groups = {};
       for (const x of list) (groups[x.e.part] = groups[x.e.part] || []).push(x);
       html = Object.keys(groups).sort((a, b) => partSort(a) - partSort(b)).map(p => `<section class="group" aria-label="${esc(partName(p))}">
         <h3 class="group-head">${esc(partName(p))} <span class="muted">${groups[p].length}</span></h3>
         <ul class="results">${groups[p].map(x => rowHtml(x, null, true)).join('')}</ul></section>`).join('');
-    } else html = `<ul class="results">${list.map(x => rowHtml(x, re)).join('')}</ul>`;
+    } else {
+      // Long result lists show the best 50 first (fast while typing); the rest are one click away.
+      const first = state.showAll ? list : list.slice(0, 50);
+      html = `<ul class="results">${first.map(x => rowHtml(x, re)).join('')}</ul>` +
+        (first.length < list.length ? `<p class="more"><button type="button" data-show-all>Show all ${list.length} results</button></p>` : '');
+    }
     $('#results').innerHTML = html;
     markAbbr($('#results'));
     show('home');
@@ -347,10 +410,12 @@
     // Most specific first: the tests whose panels are smallest.
     const size = t => t.panels.reduce((a, id) => a + panelEntities(id).length, 0) || 1;
     const tests = [...g.tests].map(id => testById[id]).sort((a, b) => size(a) - size(b) || cmp(a.id, b.id));
+    const pending = [...(g.pending || [])].filter(id => !g.tests.has(id)).map(id => testById[id]);
     $('#detail').innerHTML = `${backLink()}
       <h2 id="detail-title" class="no-abbr">${esc(g.name)}</h2>
       <p>Tested by ${plural(tests.length, 'test')} in ${plural(new Set(tests.map(t => t.ind.code)).size, 'clinical indication')}: green on the test's PanelApp panel, or named in its target.
         Most specific (smallest panel) first. ${ext(`https://panelapp.genomicsengland.co.uk/panels/entities/${encodeURIComponent(g.name)}`, `${esc(g.name)} in PanelApp`)}</p>
+      ${pending.length ? `<p class="panel-change">${esc(g.name)} is green on the newer, <strong>not yet signed-off</strong> version of the panel for ${pending.map(t => `<a href="#${t.ind.code}">${esc(t.id)}</a>`).join(', ')} – laboratories do not test it under ${pending.length === 1 ? 'that test' : 'those tests'} until the panel is signed off.</p>` : ''}
       <ul class="results">${tests.map(t => `<li class="row"><a class="row-head" href="#${t.ind.code}"><span class="code">${esc(t.id)}</span> <span class="row-name">${esc(t.ind.name)}</span></a>
         <span class="row-meta"><span class="target">${esc(t.target)}</span> ${chip(t.method)}${t.panels.length ? ` <span class="muted small">${plural(size(t), 'gene')} on the panel</span>` : ''}</span>
         ${t.panels.length ? `<span class="row-meta">${t.panels.map(id => ext(PANELAPP(id), `${esc(PANELS[id] ? PANELS[id].name : 'Panel ' + id)} on PanelApp`)).join(' · ')}</span>` : ''}
@@ -391,7 +456,7 @@
   // On a phone the filters start folded away (unless one is on), so the results show without scrolling.
   if (matchMedia('(max-width: 640px)').matches && !/[?&#](part|method|commissioning|specialty|changed)=/.test(location.hash)) $('#filter-panel').open = false;
   // Any change to the search or filters updates the address (replacing it, so Back leaves the list rather than undoing each letter).
-  const updateList = () => { history.replaceState(null, '', listHash() || location.pathname + location.search); renderHome(); };
+  const updateList = () => { state.showAll = false; history.replaceState(null, '', listHash() || location.pathname + location.search); renderHome(); };
   let t; // debounce timer for the search box
   $('#q').addEventListener('input', () => { state.q = $('#q').value; clearTimeout(t); t = setTimeout(updateList, 150); });
   $('#search').addEventListener('submit', ev => {
@@ -405,6 +470,9 @@
     const k = ev.target.dataset.filter;
     if (k) state[k] = ev.target.value; else if (ev.target.id === 'f-changed') state.changed = ev.target.checked;
     updateList();
+  });
+  $('#results').addEventListener('click', ev => {
+    if (ev.target.closest('[data-show-all]')) { const y = window.scrollY; state.showAll = true; renderHome(); window.scrollTo(0, y); }
   });
   $('#active').addEventListener('click', ev => {
     const b = ev.target.closest('[data-remove]'); if (!b) return;
