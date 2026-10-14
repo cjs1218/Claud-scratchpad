@@ -1149,6 +1149,18 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   }
   await page.goto(BASE + '#test=R207'); await page.waitForSelector('#tests-detail h2');
   check(await page.locator('#tests-detail a[href="#syndrome=lynch_mlh1"]').count() >= 1 && await page.locator('#tests-detail a[href="#syndrome=palb2"]').count() >= 1, 'R207 lists Lynch syndrome and PALB2 (their genes are on the ovarian panel)');
+  {
+    const txt = await page.textContent('#tests-detail');
+    const g = await page.evaluate(() => TEST_GENES.R207);
+    check(new RegExp(`signed-off version PanelApp ${g.panel}: .* v${g.version.replace('.', '\\.')}, signed off`).test(txt) && /laboratories test against/.test(txt), 'genes come from the signed-off PanelApp version, with its sign-off date');
+    check(!g.current || /no change to the green genes since sign-off/.test(txt), 'a newer PanelApp version with the same green genes is noted');
+    await page.evaluate(() => { TEST_GENES.R207 = { ...TEST_GENES.R207, current: '99.0', pending: { added: ['NEWGENE'], removed: ['MLH1'] } }; });
+    await page.goto(BASE + '#test=R208'); await page.waitForSelector('#tests-detail h2');
+    await page.goto(BASE + '#test=R207'); await page.waitForFunction(() => /Not yet signed off/.test(document.querySelector('#tests-detail')?.textContent || ''));
+    const warn = await page.textContent('#tests-detail .panel-warn');
+    check(/v99\.0 adds NEWGENE and removes MLH1/.test(warn) && /not tested until signed off/.test(warn) && await page.locator('#tests-detail .gene-pending').count() === 1, 'genes added or removed since sign-off are flagged as not yet tested');
+    await page.evaluate(g => { TEST_GENES.R207 = g; }, g);
+  }
   await page.goto(BASE + '#test=R208'); await page.waitForSelector('#tests-detail h2');
   check(/Other syndromes with genes on this panel/.test(await page.textContent('#tests-detail')) && await page.locator('#tests-detail a[href="#syndrome=fanconi"]').count() === 1, 'shared genes for other conditions are listed separately');
   await page.goto(BASE); await loadEx(page, 'brca'); await page.locator('#results [data-test=R208]').first().click();

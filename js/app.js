@@ -1201,7 +1201,21 @@
     return `<section class="crit-genes"><h3>Genes tested (${g.n})</h3>
       ${g.genes ? `<p class="crit-gene-list">${g.genes.map(x => `<span class="gene${q && x.toLowerCase() === q.toLowerCase() ? ' gene-hit' : ''}">${esc(x)}</span>`).join(' ')}</p>` : `<p>${g.n} genes – too many to list here; see ${link('PanelApp panel ' + g.panel, PANELAPP(g.panel))}.</p>`}
       ${extra ? `<p class="small">Also: ${esc(extra)}.</p>` : ''}
-      <p class="small muted">Green (diagnostic-grade) genes on ${link(`PanelApp ${g.panel}: ${g.name} v${g.version}`, PANELAPP(g.panel))}, checked ${esc(PANEL_DATE)}. Test Directory: ${esc(t.genes)}.</p></section>`;
+      ${panelVersionHtml(g)}
+      <p class="small muted">Test Directory: ${esc(t.genes)}.</p></section>`;
+  }
+  // Which PanelApp version the genes come from: the signed-off version labs test against, and any green-gene
+  // changes in a newer PanelApp version that are not yet signed off.
+  function panelVersionHtml(g) {
+    const fmt = d => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const src = `${link(`PanelApp ${g.panel}: ${g.name} v${g.version}`, PANELAPP(g.panel))}`;
+    const head = g.notSignedOff
+      ? `<p class="small panel-warn">Green (diagnostic-grade) genes on ${src} – <strong>not a signed-off GMS version</strong>; check with your laboratory what is tested. Checked ${esc(PANEL_DATE)}.</p>`
+      : `<p class="small muted">Green (diagnostic-grade) genes on the signed-off version ${src}, signed off ${esc(fmt(g.signedOff))} – the version laboratories test against. Checked ${esc(PANEL_DATE)}.</p>`;
+    const pend = g.pending;
+    const pendHtml = pend ? `<p class="small panel-warn"><strong>Not yet signed off:</strong> PanelApp v${esc(g.current)} ${pend.added.length ? `adds ${pend.added.map(x => `<span class="gene gene-pending">${esc(x)}</span>`).join(' ')}` : ''}${pend.added.length && pend.removed.length ? ' and ' : ''}${pend.removed.length ? `removes ${pend.removed.map(x => `<span class="gene">${esc(x)}</span>`).join(' ')}` : ''} – not tested until signed off.</p>`
+      : g.current ? `<p class="small muted">PanelApp now shows v${esc(g.current)}, with no change to the green genes since sign-off.</p>` : '';
+    return head + pendHtml;
   }
   // One pop-up panel shared by the criteria and Manchester score views.
   let panelOpener = null;

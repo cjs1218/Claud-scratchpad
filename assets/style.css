@@ -741,3 +741,5 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .td-find .td-count { margin-right: auto; }
 #tests-detail mark.current { background: #ffb81c; outline: 2px solid #b35c00; }
 .syn-list a[aria-current] .td-snip { color: inherit; }
+.panel-warn { color: var(--warn-fg); background: var(--warn-bg); border-left: 4px solid var(--warn-edge); padding: 4px 8px; border-radius: 4px; }
+.gene.gene-pending { border: 1px dashed var(--warn-edge); }

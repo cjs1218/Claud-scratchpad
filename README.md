@@ -16,7 +16,7 @@ assets/style.css  Styles (light/dark, print)
 js/data.js        Knowledge base: sites/histologies, conditions + scoring rules,
                   Test Directory entries, NICPR gene list (June 2026)
 js/criteria.js    Test Directory testing criteria, verbatim (generated from the v9.1 PDF)
-js/panels.js      Green genes on each test's PanelApp panel (generated from the PanelApp API)
+js/panels.js      Green genes on each test's PanelApp panel, signed-off version (generated from the PanelApp API)
 js/eligibility.js Who in the family meets Test Directory criteria
 js/app.js         Scoring engine and UI
 test-directory-explorer/  National Genomic Test Directory Explorer (separate app: every R code; see below)
@@ -114,7 +114,9 @@ Clicking any test code (results, eligibility box, form tags, family tree, syndro
 the exact criteria from `js/criteria.js`, linked to the PDF page. `CRIT_REF` in `js/eligibility.js` ties each reason
 to its criterion line, so the lines the family meets (green), may meet (amber) or narrowly misses (grey) are
 highlighted with who and why. The panel ends with the genes tested (green genes on the test's PanelApp panel,
-from `js/panels.js`); hovering over a test code also shows them.
+from `js/panels.js`); hovering over a test code also shows them. Genes come from the panel's GMS signed-off version –
+what laboratories test against – not PanelApp's latest version; genes added or removed since sign-off are shown as
+"not yet signed off", and a panel with no signed-off version carries a warning.
 
 Any Manchester score (eligibility box, R208 panel, and a live score under each person with breast or ovarian cancer in
 the form) opens a breakdown: each cancer counted with its BRCA1/BRCA2 points, the tested person's pathology adjustments,
@@ -194,7 +196,10 @@ GitHub runs the same checks on every push (`.github/workflows/test.yml`).
 
 Data updates:
 
-- `npm run update:panels` – refresh `js/panels.js` from the PanelApp API.
+- `npm run update:panels` – refresh `js/panels.js` from the PanelApp API. Each entry takes its green genes from the
+  signed-off version (`/panels/signedoff/`) and records `signedOff` (date), `current` (PanelApp's newer version, if any)
+  and `pending` (`added`/`removed` green genes not yet signed off), or `notSignedOff` if the panel has none. Run it
+  monthly, and after each GMS sign-off, so pending changes show once they are live.
 - `npm run update:criteria` – rebuild `js/criteria.js` from the Test Directory PDF (needs `pdftotext`).
 - `npm run update:explorer` – rebuild the Explorer's data (below; needs `pdftotext` and Python `openpyxl`).
 - `npm run bump` – new `?v=` version on every script and style tag in `index.html`.
