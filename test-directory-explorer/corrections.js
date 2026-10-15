@@ -5,7 +5,8 @@
  *   spelling    – a misspelt word (the fix may differ from the PDF by at most 3 letters)
  *   punctuation – spaces, full stops, commas, apostrophes, hyphens only (the letters are unchanged)
  *   break       – a missing full stop between two sentences, or a heading run into the line before; "\n" starts a new line
- *   heading     – a section heading run onto the end of the line before: shown on its own line in bold (no words change)
+ *   In any kind, **…** marks a heading run into the text around it: it is shown in bold (put "\n" around it for its own line).
+ *   The stars are not part of the text: the letter rules above ignore them.
  * tests/explorer.test.js checks every entry against these rules and the data. When the directory is updated, entries
  * whose text no longer appears are reported by the test and should be removed. */
 const TDX_CORRECTIONS = [
@@ -69,15 +70,27 @@ const TDX_CORRECTIONS = [
   ['R438', 'on oral feeding alone This test', 'on oral feeding alone. This test', 'break'],
   ['R454', 'At prescribing decision Requests', 'At prescribing decision. Requests', 'break'],
   // Headings run into the line before them
-  ['R21', 'for non-urgent testing Clinical examples', 'for non-urgent testing.\nClinical examples', 'break'],
-  ['R21', 'FGR or still birth Exclusion criteria', 'FGR or still birth.\nExclusion criteria', 'break'],
-  ['R33', 'have not been excluded Order of testing', 'have not been excluded.\nOrder of testing', 'break'],
-  ['R137', 'should be present Exclusion criteria Non-syndromic', 'should be present.\nExclusion criteria\nNon-syndromic', 'break'],
-  ['R143', 'follow-up of variants Order of testing Start with', 'follow-up of variants.\nOrder of testing\nStart with', 'break'],
+  ['R21', 'for non-urgent testing Clinical examples', 'for non-urgent testing.\n**Clinical examples**', 'break'],
+  ['R21', 'FGR or still birth Exclusion criteria', 'FGR or still birth.\n**Exclusion criteria**', 'break'],
+  ['R33', 'have not been excluded Order of testing', 'have not been excluded.\n**Order of testing**', 'break'],
+  ['R137', 'should be present Exclusion criteria Non-syndromic', 'should be present.\n**Exclusion criteria**\nNon-syndromic', 'break'],
+  ['R143', 'follow-up of variants Order of testing Start with', 'follow-up of variants.\n**Order of testing**\nStart with', 'break'],
   ['R143', 'by using R143.1 Continue to panel test', 'by using R143.1.\nContinue to panel test', 'break'],
-  ['R144', 'follow-up of variants Order of testing', 'follow-up of variants.\nOrder of testing', 'break'],
+  ['R144', 'follow-up of variants Order of testing', 'follow-up of variants.\n**Order of testing**', 'break'],
   ['R151', 'Hypocalciuric hypercalcaemia Hypercalcaemia with', 'Hypocalciuric hypercalcaemia\nHypercalcaemia with', 'break'],
-  // heading: [indication, text ending with the heading, the heading] – the heading starts a new line in bold, words unchanged
-  ['R457', 'nerve sheath tumour <25 Chordoma', 'Chordoma', 'heading'],
-  ['R49', 'Two or more suggestive features Cardinal features', 'Cardinal features', 'heading'],
+  // Headings run into the text around them (shown in bold on their own line)
+  ['R49', 'Two or more suggestive features Cardinal features', 'Two or more suggestive features\n**Cardinal features**', 'break'],
+  ['R457', 'nerve sheath tumour <25 Chordoma', 'nerve sheath tumour <25\n**Chordoma**', 'break'],
+  ['R125', 'aortic genetics MDT Overlapping Indications', 'aortic genetics MDT.\n**Overlapping Indications**', 'break'],
+  ['R142', '(5.5-7.5%) In pregnancy', '(5.5-7.5%)\n**In pregnancy**', 'break'],
+  ['R210', 'Clinical Criteria for germline testing in an affected individual The proband', '**Clinical Criteria for germline testing in an affected individual**\nThe proband', 'break'],
+  ['R210', 'Clinical criteria for MSI /IHC testing on a stored tumour sample prior to germline testing', '**Clinical criteria for MSI /IHC testing on a stored tumour sample prior to germline testing**', 'break'],
+  ['R221', 'two Minor criteria Major Criteria', 'two Minor criteria\n**Major Criteria**', 'break'],
+  ['R221', 'Unilateral vestibular schwannoma ii Parent or child with NF2 related schwannomatosis iii Two or more meningioma Minor Criteria (can count more than one of a type e.g. 2 schwannoma count as two minor criteria) I Ependymoma Ii Meningioma Iii Schwannoma Minor criteria (can count only once) I Juvenile subcapsular or cortical cataract Ii Retinal hamartoma (any age) Iii Epiretinal membrane <40',
+    'Unilateral vestibular schwannoma\nii Parent or child with NF2 related schwannomatosis\niii Two or more meningioma\n**Minor Criteria (can count more than one of a type e.g. 2 schwannoma count as two minor criteria)**\nI Ependymoma\nIi Meningioma\nIii Schwannoma\n**Minor criteria (can count only once)**\nI Juvenile subcapsular or cortical cataract\nIi Retinal hamartoma (any age)\nIii Epiretinal membrane <40', 'break'],
+  // A stray full stop at the start of a lettered item
+  ['R221', '. Two or more non-intradermal', 'Two or more non-intradermal', 'punctuation'],
+  ['R221', '. One pathologically confirmed', 'One pathologically confirmed', 'punctuation'],
+  ['R221', '. Meningioma diagnosed', 'Meningioma diagnosed', 'punctuation'],
+  ['R221', '. Any clear Cell', 'Any clear Cell', 'punctuation'],
 ];

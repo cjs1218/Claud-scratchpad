@@ -59,15 +59,11 @@ const TDX_FORMAT = (() => {
   }
   function applyFixes(text, fixes) {
     const pdf = [];
-    for (const [find, fix, kind] of fixes || []) {
+    for (const [find, boldFix] of fixes || []) {
       const at = text.indexOf(find);
       if (at < 0) continue;
-      // A heading run into the line before it: same words, but it starts a new line in bold (no correction mark).
-      if (kind === 'heading') {
-        const cut = find.length - fix.length - 1;
-        text = text.slice(0, at) + find.slice(0, cut) + '\n' + HEAD_ON + fix + HEAD_OFF + text.slice(at + find.length);
-        continue;
-      }
+      // **…** in a correction marks a heading run into the text around it: shown in bold (on its own line via "\n").
+      const heads = [...boldFix.matchAll(/\*\*(.+?)\*\*/g)].map(m => m[1]), fix = boldFix.replace(/\*\*/g, '');
       // Mark each change together with the word it touches (e.g. "variants", "likely.", "Addison’s").
       const marks = changes(find, fix).map(([ia, ib, ja, jb]) => {
         const edge = c => c === undefined || /\s/.test(c);
@@ -93,7 +89,9 @@ const TDX_FORMAT = (() => {
         const piece = fix.slice(ws, we).split('\n').map((part, k) => part.trim() ? on + part + FIX_OFF : part).join('\n');
         out += fix.slice(last, ws) + piece; last = we;
       }
-      text = text.slice(0, at) + out + fix.slice(last) + text.slice(at + find.length);
+      out += fix.slice(last);
+      for (const h of heads) out = out.replace(h, HEAD_ON + h + HEAD_OFF);
+      text = text.slice(0, at) + out + text.slice(at + find.length);
     }
     return { text, pdf };
   }

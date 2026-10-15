@@ -87,7 +87,7 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   for (const [code, find, fix, kind] of TDX_CORRECTIONS) {
     const n = byCode[code] ? texts(byCode[code]).reduce((a, t) => a + t.split(find).length - 1, 0) : 0;
     if (n !== 1) stale.push(`${code} “${find}” (${n}×)`);
-    const ok = kind === 'spelling' ? lev(find, fix) <= 3 && lev(find, fix) > 0 : kind === 'heading' ? find.endsWith(' ' + fix) && fix.length > 2
+    const ok = kind === 'spelling' ? lev(find, fix.replace(/\*\*/g, '')) <= 3 && lev(find, fix.replace(/\*\*/g, '')) > 0
       : ['punctuation', 'break'].includes(kind) && letters(find) === letters(fix) && find !== fix;
     if (!ok) wrong.push(`${code} “${find}”`);
   }
@@ -98,17 +98,12 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   let bad = 0, marked = 0;
   for (const [code, find, fix, kind] of TDX_CORRECTIONS) {
     const e = byCode[code]; if (!e) continue;
-    if (kind === 'heading') {
-      const t = (e.criteria || []).map(c => c[2]).find(x => x.includes(find)); if (!t) continue;
-      const html = TDX_FORMAT.line(t, null, [[find, fix, kind]]);
-      if (plain(html) !== t.replace(find, find.slice(0, -fix.length - 1) + '\n' + fix) || !html.includes(`<br class="fix-br">\n<strong class="inline-head">${fix}</strong>`)) bad++;
-      marked++; continue;
-    }
     const t = texts(e).find(x => x.includes(find)); if (!t) continue;
     const isCrit = (e.criteria || []).some(c => c[2] === t);
     const html = (isCrit ? TDX_FORMAT.line : TDX_FORMAT.text)(t, (c, m) => `<a href="#${c}">${m}</a>`, [[find, fix, kind]]);
-    if (plain(html) !== t.replace(find, fix)) bad++;
-    marked += /<ins class="fix"/.test(html) || fix.replace(/\n/g, ' ') === find; // a pure line break shows, unmarked
+    if (plain(html) !== t.replace(find, fix.replace(/\*\*/g, ''))) bad++;
+    for (const [, h] of fix.matchAll(/\*\*(.+?)\*\*/g)) if (!html.includes(`<strong class="inline-head">${h}</strong>`)) bad++;
+    marked += /<ins class="fix"/.test(html) || fix.replace(/\*\*/g, '').replace(/\n/g, ' ') === find; // a pure line break or heading shows, unmarked
   }
   check(!bad && marked === TDX_CORRECTIONS.length, `corrected lines show exactly the corrected text, each correction marked (${marked})`);
   const v = TDX_FORMAT.line('parents carry different varints OR', null, [['different varints', 'different variants']]);
@@ -278,6 +273,11 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#detail .crit-list strong.inline-head', { hasText: /^Chordoma$/ }).count() === 1
     && /<25\s*\nChordoma/.test(await page.locator('#detail .crit-list').innerText()), 'R457: the Chordoma heading starts its own line in bold');
   check(await page.locator('#detail .crit-list li.crit-sub', { hasText: /^Sarcoma$/ }).count() === 1, 'R457: the Sarcoma heading is bold');
+  await page.goto(BASE + '#R221'); await page.waitForSelector('#detail .s-crit');
+  const r221 = await page.locator('#detail .crit-list').innerText();
+  check(['Major Criteria', 'Minor Criteria (can count more than one of a type e.g. 2 schwannoma count as two minor criteria)', 'Minor criteria (can count only once)']
+    .every(h => r221.includes('\n' + h + '\n')) && await page.locator('#detail .crit-list strong.inline-head').count() === 3 && /\nIii Epiretinal membrane/.test(r221), 'R221: the squashed major/minor criteria lists are laid out under bold headings');
+  check(!/\.\s+\.\s/.test(r221), 'R221: no stray “. .” at the start of items');
   await page.goto(BASE + '#R49'); await page.waitForSelector('#detail .s-crit');
   check(await page.locator('#detail .crit-list strong.inline-head', { hasText: /^Cardinal features$/ }).count() === 1
     && /suggestive features\s*\nCardinal features\s*\n•\s*Macroglossia/.test(await page.locator('#detail .crit-list').innerText()), 'R49: “Cardinal features” is a bold heading on its own line above its list');
