@@ -278,6 +278,9 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#detail .crit-list strong.inline-head', { hasText: /^Chordoma$/ }).count() === 1
     && /<25\s*\nChordoma/.test(await page.locator('#detail .crit-list').innerText()), 'R457: the Chordoma heading starts its own line in bold');
   check(await page.locator('#detail .crit-list li.crit-sub', { hasText: /^Sarcoma$/ }).count() === 1, 'R457: the Sarcoma heading is bold');
+  await page.goto(BASE + '#R49'); await page.waitForSelector('#detail .s-crit');
+  check(await page.locator('#detail .crit-list strong.inline-head', { hasText: /^Cardinal features$/ }).count() === 1
+    && /suggestive features\s*\nCardinal features\s*\n•\s*Macroglossia/.test(await page.locator('#detail .crit-list').innerText()), 'R49: “Cardinal features” is a bold heading on its own line above its list');
   check(!/corrected/.test(await page.locator('#detail .crit-help').innerText()), 'a moved heading is not counted as a correction');
   await page.goto(BASE + '#R151'); await page.waitForSelector('#detail .s-crit');
   check(await page.locator('#detail .crit-list li.crit-sub', { hasText: 'Familial Primary Hyperparathyroidism' }).count() === 1, 'a short line before a list is shown as its heading');

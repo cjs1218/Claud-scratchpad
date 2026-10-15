@@ -72,7 +72,6 @@ const TDX_CORRECTIONS = [
   ['R21', 'for non-urgent testing Clinical examples', 'for non-urgent testing.\nClinical examples', 'break'],
   ['R21', 'FGR or still birth Exclusion criteria', 'FGR or still birth.\nExclusion criteria', 'break'],
   ['R33', 'have not been excluded Order of testing', 'have not been excluded.\nOrder of testing', 'break'],
-  ['R49', 'suggestive features Cardinal features', 'suggestive features.\nCardinal features', 'break'],
   ['R137', 'should be present Exclusion criteria Non-syndromic', 'should be present.\nExclusion criteria\nNon-syndromic', 'break'],
   ['R143', 'follow-up of variants Order of testing Start with', 'follow-up of variants.\nOrder of testing\nStart with', 'break'],
   ['R143', 'by using R143.1 Continue to panel test', 'by using R143.1.\nContinue to panel test', 'break'],
@@ -80,4 +79,5 @@ const TDX_CORRECTIONS = [
   ['R151', 'Hypocalciuric hypercalcaemia Hypercalcaemia with', 'Hypocalciuric hypercalcaemia\nHypercalcaemia with', 'break'],
   // heading: [indication, text ending with the heading, the heading] – the heading starts a new line in bold, words unchanged
   ['R457', 'nerve sheath tumour <25 Chordoma', 'Chordoma', 'heading'],
+  ['R49', 'Two or more suggestive features Cardinal features', 'Cardinal features', 'heading'],
 ];
