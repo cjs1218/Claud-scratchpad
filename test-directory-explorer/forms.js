@@ -24,6 +24,20 @@ const TDX_FORMS = {
       // Further information (not a form), shown below the notes.
       info: { label: 'Further information about R14 rapid whole genome sequencing (Exeter Genomics Laboratory)',
         url: 'https://www.exeterlaboratory.com/genetics/genome-sequencing/' } },
+    // R21 is tested by two laboratories for the whole country, with national forms. Each hub sends its samples to a default
+    // testing laboratory (NHS England guidance, Rapid exome sequencing service for fetal anomalies testing v3.0, Figure 1).
+    r21: { title: 'Rapid prenatal exome sequencing', codes: ['R21'],
+      note: 'R21 is tested by two laboratories for the whole of England: North Thames GLH (Great Ormond Street) and Central and South GLH (Birmingham). Agree testing with Clinical Genetics, then contact the testing laboratory before sending samples – its contact details are on the form. Samples go to your own hub, which does the rapid aneuploidy test (and microarray if needed) and forwards them.',
+      forms: [
+        { kind: 'Test request form', label: 'R21 rapid prenatal exome sequencing test request form v2 (national)', type: 'PDF',
+          url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2025/08/R21-Rapid-Exome-Sequencing-Test-request-form-v2-Feb23.pdf' },
+        { kind: 'Record of discussion', label: 'Record of discussion – prenatal exome sequencing (one per parent)', type: 'PDF',
+          url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2023/08/Record-of-discussion-regarding-prenatal-exome-sequencing.pdf' }],
+      labs: { 'north-thames': 'North Thames GLH (Great Ormond Street)', 'central-south': 'Central and South GLH (Birmingham)' },
+      testingLab: { 'north-thames': 'north-thames', 'south-east': 'north-thames', east: 'north-thames', 'south-west': 'north-thames',
+        'central-south': 'central-south', 'north-west': 'central-south', 'north-east-yorkshire': 'central-south' },
+      info: { label: 'NHS England guidance – rapid exome sequencing service for fetal anomalies testing', type: 'PDF',
+        url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2023/08/Rapid-Exome-Sequencing-Guidance.pdf' } },
     prenatal: { title: 'Prenatal and fetal testing', codes: ['R320', 'R448', 'R471'], part: /Fetal/,
       note: 'Fetal and prenatal (including NIPD) samples usually need your hub’s prenatal request form, and many tests need Clinical Genetics or specialist agreement first.' },
     pharmacogenomic: { title: 'Pharmacogenomic testing', codes: ['R454', 'R65'],
@@ -51,12 +65,7 @@ const TDX_FORMS = {
           url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2024/12/Genetic-Test-Request-Form.pdf' },
       ], special: {
         prenatal: [{ kind: 'Prenatal test request form', label: 'Prenatal cytogenetic test request form v9', type: 'PDF',
-          url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2026/08/Prenatal-Cytogenetic-Test-Request-Form-v9-EDITABLE.pdf' }],
-        R21: [
-          { kind: 'R21 test request form', label: 'R21 rapid exome sequencing test request form v2', type: 'PDF',
-            url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2025/08/R21-Rapid-Exome-Sequencing-Test-request-form-v2-Feb23.pdf' },
-          { kind: 'Record of discussion', label: 'Record of discussion – prenatal exome sequencing', type: 'PDF',
-            url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2023/08/Record-of-discussion-regarding-prenatal-exome-sequencing.pdf' }],
+          url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2026/08/Prenatal-Cytogenetic-Test-Request-Form-v9-EDITABLE.pdf' }]
       } },
     { id: 'south-east', name: 'South East GLH',
       page: 'https://southeastgenomics.nhs.uk/professionals/test-order-forms/',

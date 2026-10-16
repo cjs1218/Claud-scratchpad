@@ -136,6 +136,8 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
     'request forms: the national WGS record of discussion and the v2.0 rare disease WGS test order form');
   const codes = new Set(TDX.indications.map(e => e.code)), cats = Object.keys(TDX_FORMS.special);
   check(cats.every(k => TDX_FORMS.special[k].codes.every(c => codes.has(c)) && TDX_FORMS.special[k].note), `special form routes (${cats.join(', ')}) name real R codes and explain themselves`);
+  const r21 = TDX_FORMS.special.r21;
+  check(TDX_FORMS.hubs.every(h => r21.labs[r21.testingLab[h.id]]) && r21.forms.every(formOk), 'R21: national forms, and every hub has a default testing laboratory');
   check(TDX_FORMS.special.rapid.forms.every(formOk) && TDX.indications.filter(e => TDX_FORMS.special.prenatal.part.test(e.part)).length > 10, 'rapid WGS has its own forms; the prenatal route covers the fetal clinical area');
   const hubs = TDX_FORMS.hubs;
   check(hubs.length === 7 && new Set(hubs.map(h => h.id)).size === 7 && hubs.every(h => /^https:\/\//.test(h.page) && h.name && h.other.every(formOk)
@@ -372,7 +374,14 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await page.locator('#request-forms [data-glh]').count() === 0 && !(await hrefs('#request-forms a')).some(u => TDX_FORMS.hubs.some(x => x.page === u)), 'R14: no hub picker or hub forms link (rapid WGS goes to Exeter whichever the hub)');
   await page.goto(BASE + '#R21'); await page.waitForSelector('#request-forms'); await pickHub('north-thames');
   const r21 = await hrefs('#request-forms ul.forms a');
-  check(hub('north-thames').special.R21.every(f => r21.includes(f.url)) && hub('north-thames').special.prenatal.every(f => r21.includes(f.url)), 'R21 with North Thames: links its R21 and prenatal forms');
+  const r21f = TDX_FORMS.special.r21;
+  check(r21f.forms.every(f => r21.includes(f.url)) && hub('north-thames').special.prenatal.every(f => r21.includes(f.url)), 'R21 with North Thames: links the national R21 forms and its prenatal form');
+  for (const [id, lab] of [['south-west', /Great Ormond Street/], ['north-west', /Birmingham/]]) {
+    await pickHub(id);
+    const links = await hrefs('#request-forms ul.forms a'), text = await page.locator('#request-forms .form-notes').innerText();
+    check(r21f.forms.every(f => links.includes(f.url)) && new RegExp(`${hub(id).name} sends R21 samples to [^.]*${lab.source}`).test(text), `R21 with ${hub(id).name}: the national forms, and samples go to ${lab.source}`);
+  }
+  check((await hrefs('#request-forms .form-info a')).includes(r21f.info.url), 'R21 links the national guidance as further information');
   await page.goto(BASE + '#R454'); await page.waitForSelector('#request-forms'); await pickHub('south-west');
   check((await hrefs('#request-forms ul.forms a')).includes(hub('south-west').special.R454[0].url) && /Pharmacogenomic/.test(await page.locator('#request-forms').innerText()), 'R454 with South West: links its CYP2C19 mavacamten form');
   await page.goto(BASE + '#R185'); await page.waitForSelector('#request-forms'); await pickHub('north-east-yorkshire');

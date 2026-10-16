@@ -227,6 +227,11 @@
   function formsFor(e, t) {
     const sp = specialsOf(e), h = chosenHub(), notes = [];
     if (sp.includes('rapid')) return { forms: FORMS.special.rapid.forms, notes: [FORMS.special.rapid.note], needsHub: false };
+    if (sp.includes('r21')) { // national forms whichever the hub; say which laboratory tests the hub's samples
+      const r = FORMS.special.r21, lab = h && r.labs[r.testingLab[h.id]];
+      return { forms: [...r.forms, ...(h && h.special.prenatal || []).filter(f => !r.forms.some(x => x.url === f.url))], needsHub: false,
+        notes: [r.note + (lab ? ` By default, ${h.name} sends R21 samples to ${lab}${(h.special.prenatal || []).length ? '; its prenatal request form is for the local tests' : ''}.` : ' Choose your hub to see which laboratory tests its samples by default.')] };
+    }
     if (isWgs(t)) return { forms: FORMS.wgs, notes: [], needsHub: false };
     if (!h) return { forms: [], notes: sp.map(k => FORMS.special[k].note), needsHub: true };
     const seen = new Set(), forms = [];
