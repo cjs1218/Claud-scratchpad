@@ -365,7 +365,11 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(/Whole genome sequencing \(R135\.2\)[\s\S]*Other tests \(R135\.3\)/.test(await page.locator('#request-forms').innerText()), 'R135: the request forms section lists both sets');
   await page.goto(BASE + '#R14'); await page.waitForSelector('#request-forms');
   const r14 = await hrefs('#request-forms ul.forms a');
-  check(TDX_FORMS.special.rapid.forms.every(f => r14.includes(f.url)) && /v7\.0/.test(TDX_FORMS.special.rapid.forms[0].label) && /Exeter/.test(await page.locator('#request-forms').innerText()), 'R14: links the Exeter R14 rapid WGS test request form v7.0 and its forms page');
+  const rapid = TDX_FORMS.special.rapid, r14Info = await hrefs('#request-forms .form-info a');
+  check(r14.join() === rapid.forms.map(f => f.url).join() && /record of discussion v3\.0/.test(rapid.forms[0].label) && /test request form v7\.0/.test(rapid.forms[1].label),
+    'R14: the forms list holds only Exeter’s R14 record of discussion v3.0 and test request form v7.0');
+  check(r14Info.length === 1 && r14Info[0] === rapid.info.url && /Further information about R14/.test(await page.locator('#request-forms .form-info').innerText()), 'R14: Exeter’s genome sequencing page is labelled as further information, not a form');
+  check(await page.locator('#request-forms [data-glh]').count() === 0 && !(await hrefs('#request-forms a')).some(u => TDX_FORMS.hubs.some(x => x.page === u)), 'R14: no hub picker or hub forms link (rapid WGS goes to Exeter whichever the hub)');
   await page.goto(BASE + '#R21'); await page.waitForSelector('#request-forms'); await pickHub('north-thames');
   const r21 = await hrefs('#request-forms ul.forms a');
   check(hub('north-thames').special.R21.every(f => r21.includes(f.url)) && hub('north-thames').special.prenatal.every(f => r21.includes(f.url)), 'R21 with North Thames: links its R21 and prenatal forms');

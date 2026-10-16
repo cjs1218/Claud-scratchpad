@@ -1,6 +1,6 @@
 /* Request forms. Whole genome sequencing (WGS) uses the national GMS forms; other tests use the forms of the requester's
  * Genomic Laboratory Hub (chosen on the page and remembered in the browser). Some tests have their own route or forms
- * (special). Forms are version-controlled: the page reminds users to check the current version with their hub.
+ * (special), some with a further information link (info). Forms are version-controlled: the page reminds users to check the current version with their hub.
  * Links checked 16 Oct 2026 (the North East and Yorkshire and Exeter sites block automated checks).
  * tests/explorer.test.js checks the structure. A form: { kind, label, type, url }. */
 const TDX_FORMS = {
@@ -16,11 +16,14 @@ const TDX_FORMS = {
   // Tests with their own route or forms. codes: R codes; part: matches the clinical area (Part) of the criteria document.
   special: {
     rapid: { title: 'Rapid whole genome sequencing', codes: ['R14'],
-      note: 'R14 is delivered by the Exeter Genomics Laboratory, which has its own test order form and record of discussion for rapid testing. Requests need a Clinical Geneticist’s support.',
-      forms: [{ kind: 'Test request form', label: 'R14 rapid WGS test request form v7.0', type: 'PDF',
-        url: 'https://www.exeterlaboratory.com/wp-content/uploads/R14__Rapid_WGS_Test_request_form_v7.0.pdf' },
-      { kind: 'Other rapid WGS forms', label: 'Exeter Genomics Laboratory – genome sequencing (R14 forms)', type: 'web page',
-        url: 'https://www.exeterlaboratory.com/genetics/genome-sequencing/' }] },
+      note: 'R14 is delivered by the Exeter Genomics Laboratory, which has its own record of discussion and test request form. Requests need a Clinical Geneticist’s support.',
+      forms: [{ kind: 'Record of discussion', label: 'R14 rapid genome sequencing record of discussion v3.0', type: 'PDF',
+        url: 'https://www.exeterlaboratory.com/wp-content/uploads/Record_of_Discussion_regarding_R14_Rapid_Genome_Sequencing_v3.0.pdf' },
+      { kind: 'Test request form', label: 'R14 rapid WGS test request form v7.0', type: 'PDF',
+        url: 'https://www.exeterlaboratory.com/wp-content/uploads/R14__Rapid_WGS_Test_request_form_v7.0.pdf' }],
+      // Further information (not a form), shown below the notes.
+      info: { label: 'Further information about R14 rapid whole genome sequencing (Exeter Genomics Laboratory)',
+        url: 'https://www.exeterlaboratory.com/genetics/genome-sequencing/' } },
     prenatal: { title: 'Prenatal and fetal testing', codes: ['R320', 'R448', 'R471'], part: /Fetal/,
       note: 'Fetal and prenatal (including NIPD) samples usually need your hub’s prenatal request form, and many tests need Clinical Genetics or specialist agreement first.' },
     pharmacogenomic: { title: 'Pharmacogenomic testing', codes: ['R454', 'R65'],

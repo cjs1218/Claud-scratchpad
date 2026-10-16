@@ -276,8 +276,9 @@
     const h = chosenHub(), groups = new Map();
     for (const t of e.tests) { const f = formsFor(e, t), key = f.forms.map(x => x.url).join(' ') + (f.needsHub ? ' hub' : '');
       (groups.get(key) || groups.set(key, { ...f, tests: [] }).get(key)).tests.push(t); }
-    const notes = [...new Set([...groups.values()].flatMap(g => g.notes))];
-    const picker = `<label class="glh-pick">Your Genomic Laboratory Hub
+    const notes = [...new Set([...groups.values()].flatMap(g => g.notes))], rapid = specialsOf(e).includes('rapid');
+    // Rapid WGS goes to one laboratory whichever the hub, so there is nothing to choose.
+    const picker = rapid ? '' : `<label class="glh-pick">Your Genomic Laboratory Hub
       <select data-glh><option value="">Choose your hub…</option>${HUBS.map(x => `<option value="${esc(x.id)}"${x.id === glhId ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>`;
     const list = [...groups.values()].map(g => `
       ${groups.size > 1 ? `<p class="small forms-for">${g.tests.every(isWgs) && !specialsOf(e).includes('rapid') ? 'Whole genome sequencing' : specialsOf(e).includes('rapid') ? 'Rapid whole genome sequencing' : 'Other tests'} (${g.tests.map(t => esc(t.id)).join(', ')}):</p>` : ''}
@@ -286,8 +287,9 @@
     return `<section class="block s-request" id="request-forms" aria-labelledby="request-title"><h3 id="request-title">Request forms</h3>
       ${picker}${list}
       ${notes.length ? `<ul class="form-notes small">${notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
-      <p class="small">${h ? ext(h.page, `All ${esc(h.name)} forms`) : `Not sure which hub? ${ext(FORMS.hubsListUrl, 'NHS England – Genomic Laboratory Hubs')}`}</p>
-      <p class="small muted">Forms are updated from time to time – check you have your hub's current version. Links checked ${esc(new Date(FORMS.checked + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}.</p></section>`;
+      ${specialsOf(e).map(k => FORMS.special[k].info).filter(Boolean).map(i => `<p class="small form-info">${ext(i.url, esc(i.label))}</p>`).join('')}
+      ${rapid ? '' : `<p class="small">${h ? ext(h.page, `All ${esc(h.name)} forms`) : `Not sure which hub? ${ext(FORMS.hubsListUrl, 'NHS England – Genomic Laboratory Hubs')}`}</p>`}
+      <p class="small muted">Forms are updated from time to time – check you have ${rapid ? 'the laboratory' : 'your hub'}'s current version. Links checked ${esc(new Date(FORMS.checked + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}.</p></section>`;
   }
   function testCard(t, e) {
     const rows = [['Target', `<span class="target">${esc(t.target)}</span>`], ['Method', esc(t.method)], ['Optimal family structure', esc(t.family)],
