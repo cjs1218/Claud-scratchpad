@@ -1,7 +1,7 @@
 /* Request forms. Whole genome sequencing (WGS) uses the national GMS forms; other tests use the forms of the requester's
  * Genomic Laboratory Hub (chosen on the page and remembered in the browser). Some tests have their own route or forms
  * (special), some with a further information link (info). Forms are version-controlled: the page reminds users to check the current version with their hub.
- * Links checked 16 Oct 2026 (the North East and Yorkshire and Exeter sites block automated checks).
+ * Links checked 16 Oct 2026 (the North East and Yorkshire, South West and Exeter sites block automated checks).
  * tests/explorer.test.js checks the structure. A form: { kind, label, type, url }. */
 const TDX_FORMS = {
   checked: '2026-10-16',
@@ -109,13 +109,13 @@ const TDX_FORMS = {
       area: "Cornwall and the Isles of Scilly, Devon, Somerset, Bristol, Gloucestershire and parts of Wiltshire",
       services: ["South West Clinical Genetics Service (Exeter and Bristol)"],
       areaSource: 'https://www.southwestgenomics.nhs.uk/about-us/',
-      page: 'https://www.nbt.nhs.uk/south-west-genomic-laboratory-hub',
+      page: 'https://www.southwestgenomics.nhs.uk/healthcare-professionals/request-a-test/',
       other: [
-        { kind: 'Test order form', label: 'GMS test order form v2.3', type: 'PDF',
-          url: 'https://www.nbt.nhs.uk/sites/default/files/document/GMS%20Test%20Order%20Form%20v2.3.pdf' },
+        { kind: 'Test order form', label: 'GMS test order form v2.4', type: 'PDF',
+          url: 'https://www.southwestgenomics.nhs.uk/app/uploads/2025/07/GMS-Test-Order-Form-v2.4.pdf' },
       ], special: {
         R454: [{ kind: 'R454 test order form', label: 'GMS test order form for R454 CYP2C19 – mavacamten v2.1', type: 'PDF',
-          url: 'https://nbt.nhs.uk/sites/default/files/document/GMS%20Test%20Order%20Form%20for%20R454%20CYP2C19-Mavacamten%20V2.1.pdf' }],
+          url: 'https://www.southwestgenomics.nhs.uk/app/uploads/2026/02/GMS-Test-Order-Form-for-R454-CYP2C19-Mavacamten-V2.1.pdf' }],
       } },
     { id: 'north-west', name: 'North West GLH',
       area: "Greater Manchester, Lancashire, South Cumbria, Cheshire, Merseyside and the Isle of Man",
