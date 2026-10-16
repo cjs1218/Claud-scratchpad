@@ -131,8 +131,15 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
 }
 {
   const { TDX_FORMS } = load(path.join(__dirname, '../test-directory-explorer/forms.js'));
-  check(['wgs', 'other'].every(k => TDX_FORMS[k].length === 2 && TDX_FORMS[k].every(f => /^https:\/\/\S+\.(pdf|docx)$/.test(f.url) && f.kind && f.label && f.type)),
-    'request forms: a record of discussion and a test order form for WGS and for other tests');
+  const formOk = f => /^https:\/\/\S+$/.test(f.url) && f.kind && f.label && f.type;
+  check(TDX_FORMS.wgs.length === 2 && TDX_FORMS.wgs.every(formOk) && /record of discussion/i.test(TDX_FORMS.wgs[0].kind) && /v2\.0/.test(TDX_FORMS.wgs[1].label),
+    'request forms: the national WGS record of discussion and the v2.0 rare disease WGS test order form');
+  const codes = new Set(TDX.indications.map(e => e.code)), cats = Object.keys(TDX_FORMS.special);
+  check(cats.every(k => TDX_FORMS.special[k].codes.every(c => codes.has(c)) && TDX_FORMS.special[k].note), `special form routes (${cats.join(', ')}) name real R codes and explain themselves`);
+  check(TDX_FORMS.special.rapid.forms.every(formOk) && TDX.indications.filter(e => TDX_FORMS.special.prenatal.part.test(e.part)).length > 10, 'rapid WGS has its own forms; the prenatal route covers the fetal clinical area');
+  const hubs = TDX_FORMS.hubs;
+  check(hubs.length === 7 && new Set(hubs.map(h => h.id)).size === 7 && hubs.every(h => /^https:\/\//.test(h.page) && h.name && h.other.every(formOk)
+    && Object.entries(h.special).every(([k, fs]) => (cats.includes(k) || codes.has(k)) && fs.length && fs.every(formOk))), 'seven Genomic Laboratory Hubs, each with a forms page and well-formed forms');
 }
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
@@ -332,18 +339,40 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   // WGS tests highlighted, with the right request forms.
   const { TDX_FORMS } = load(path.join(__dirname, '../test-directory-explorer/forms.js'));
   const hrefs = sel => page.locator(sel).evaluateAll(as => as.map(a => a.getAttribute('href')));
-  const wgsUrls = TDX_FORMS.wgs.map(f => f.url), otherUrls = TDX_FORMS.other.map(f => f.url);
+  const wgsUrls = TDX_FORMS.wgs.map(f => f.url), hub = id => TDX_FORMS.hubs.find(h => h.id === id);
+  const eastUrls = hub('east').other.map(f => f.url);
+  const pickHub = async id => { await page.selectOption('#detail [data-glh]', id); await page.waitForFunction(v => document.querySelector('#detail [data-glh]').value === v && document.querySelector('#request-forms'), id); };
+  await page.evaluate(() => localStorage.removeItem('tdx-glh'));
   await page.goto(BASE + '#R27'); await page.waitForSelector('#detail .s-tests');
   check(await page.locator('#detail .test.test-wgs .chip.wgs').count() === 1, 'R27: the WGS test is highlighted');
-  const r27 = await hrefs('#detail .req-forms a');
-  check(wgsUrls.every(u => r27.includes(u)) && !otherUrls.some(u => r27.includes(u)), 'R27 (WGS): links the WGS record of discussion and test order forms only');
+  const r27 = await hrefs('#request-forms ul.forms a');
+  check(wgsUrls.every(u => r27.includes(u)) && r27.length === 2, 'R27 (WGS): links the national WGS record of discussion and test order form, with no hub needed');
+  await page.click('#detail .toolbar [data-request]'); await page.waitForTimeout(100);
+  check(Math.abs(await page.locator('#request-forms').evaluate(el => el.getBoundingClientRect().top)) < 60, '“Request this test” jumps to the request forms');
   await page.goto(BASE + '#R133'); await page.waitForSelector('#detail .s-tests');
-  const r133 = await hrefs('#detail .req-forms a');
-  check(await page.locator('#detail .test-wgs').count() === 0 && otherUrls.every(u => r133.includes(u)) && !wgsUrls.some(u => r133.includes(u)), 'R133 (small panel): links the non-WGS forms only');
+  check(await page.locator('#detail .test-wgs').count() === 0 && (await hrefs('#request-forms ul.forms a')).length === 0 && await page.locator('#request-forms .need-hub').count() === 1,
+    'R133 (small panel): asks for the hub before showing forms');
+  await page.click('#detail .test-forms [data-request]');
+  check(await page.evaluate(() => document.activeElement.matches('[data-glh]')), 'the test card’s “Choose your hub” button moves to the hub picker');
+  await pickHub('east');
+  const r133 = await hrefs('#request-forms ul.forms a');
+  check(eastUrls.every(u => r133.includes(u)) && !wgsUrls.some(u => r133.includes(u)) && (await hrefs('#request-forms a')).includes(hub('east').page), 'R133 with East GLH: links East’s non-WGS forms and its forms page');
+  await page.reload(); await page.waitForSelector('#request-forms');
+  check(await page.locator('#detail [data-glh]').inputValue() === 'east', 'the chosen hub is remembered');
   await page.goto(BASE + '#R135'); await page.waitForSelector('#detail .s-tests');
   const wgsCard = await hrefs('#detail .test-wgs .test-forms a'), otherCard = await hrefs('#detail .test:not(.test-wgs) .test-forms a');
-  check(wgsUrls.every(u => wgsCard.includes(u)) && otherUrls.every(u => otherCard.includes(u)), 'R135: each test links its own forms (WGS for R135.2, non-WGS for R135.3)');
-  check(/Whole genome sequencing \(R135\.2\)[\s\S]*Other tests \(R135\.3\)/.test(await page.locator('#detail .req-forms').innerText()), 'R135: the request forms summary lists both sets');
+  check(wgsUrls.every(u => wgsCard.includes(u)) && eastUrls.every(u => otherCard.includes(u)), 'R135: each test links its own forms (WGS for R135.2, the hub’s for R135.3)');
+  check(/Whole genome sequencing \(R135\.2\)[\s\S]*Other tests \(R135\.3\)/.test(await page.locator('#request-forms').innerText()), 'R135: the request forms section lists both sets');
+  await page.goto(BASE + '#R14'); await page.waitForSelector('#request-forms');
+  check((await hrefs('#request-forms ul.forms a')).includes(TDX_FORMS.special.rapid.forms[0].url) && /Exeter/.test(await page.locator('#request-forms').innerText()), 'R14: links the Exeter rapid WGS forms');
+  await page.goto(BASE + '#R21'); await page.waitForSelector('#request-forms'); await pickHub('north-thames');
+  const r21 = await hrefs('#request-forms ul.forms a');
+  check(hub('north-thames').special.R21.every(f => r21.includes(f.url)) && hub('north-thames').special.prenatal.every(f => r21.includes(f.url)), 'R21 with North Thames: links its R21 and prenatal forms');
+  await page.goto(BASE + '#R454'); await page.waitForSelector('#request-forms'); await pickHub('south-west');
+  check((await hrefs('#request-forms ul.forms a')).includes(hub('south-west').special.R454[0].url) && /Pharmacogenomic/.test(await page.locator('#request-forms').innerText()), 'R454 with South West: links its CYP2C19 mavacamten form');
+  await page.goto(BASE + '#R185'); await page.waitForSelector('#request-forms'); await pickHub('north-east-yorkshire');
+  check(/Carrier tests/.test(await page.locator('#request-forms').innerText()) && (await hrefs('#request-forms a')).includes(hub('north-east-yorkshire').page), 'a carrier test with a hub that lists no forms points to its forms page');
+  await pickHub('east');
   await page.goto(BASE + '#q=paediatric+disorders'); await page.waitForTimeout(300);
   check(await page.locator('#results a.row[href="#R27"] .chip.wgs').count() === 1, 'WGS is highlighted in the results list');
   // Abbreviations: hover shows the meaning; tap works too; keyboard focus too; the page lists them.

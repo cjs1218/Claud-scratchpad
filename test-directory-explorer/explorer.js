@@ -216,9 +216,25 @@
   // Whole genome sequencing tests stand out (they have their own national request forms).
   const isWgs = t => /\bWGS\b/.test(t.method);
   const methods = e => uniq(e.tests.map(t => t.method)).map(m => chip(m, /\bWGS\b/.test(m) ? 'wgs' : '')).join('');
+  // Request forms (forms.js): national forms for WGS; the chosen Genomic Laboratory Hub's forms for everything else;
+  // special routes (rapid WGS, prenatal, pharmacogenomic, carrier) add or replace forms. The hub is remembered.
   const FORMS = typeof TDX_FORMS !== 'undefined' ? TDX_FORMS : null;
-  const formLinks = t => !FORMS ? '' : `<ul class="forms">${FORMS[isWgs(t) ? 'wgs' : 'other'].map(f =>
-    `<li>${ext(f.url, `${esc(f.kind)}`)} <span class="muted small">${esc(f.label)} · ${esc(f.type)}</span></li>`).join('')}</ul>`;
+  const HUBS = FORMS ? FORMS.hubs : [];
+  let glhId = '';
+  try { glhId = localStorage.getItem('tdx-glh') || ''; } catch (err) { /* storage unavailable */ }
+  const chosenHub = () => HUBS.find(h => h.id === glhId) || null;
+  const specialsOf = e => !FORMS ? [] : Object.keys(FORMS.special).filter(k => FORMS.special[k].codes.includes(e.code) || (FORMS.special[k].part && FORMS.special[k].part.test(e.part)));
+  function formsFor(e, t) {
+    const sp = specialsOf(e), h = chosenHub(), notes = [];
+    if (sp.includes('rapid')) return { forms: FORMS.special.rapid.forms, notes: [FORMS.special.rapid.note], needsHub: false };
+    if (isWgs(t)) return { forms: FORMS.wgs, notes: [], needsHub: false };
+    if (!h) return { forms: [], notes: sp.map(k => FORMS.special[k].note), needsHub: true };
+    const seen = new Set(), forms = [];
+    for (const f of [...[e.code, ...sp].flatMap(k => h.special[k] || []), ...h.other]) if (!seen.has(f.url)) { seen.add(f.url); forms.push(f); }
+    for (const k of sp) notes.push(FORMS.special[k].note + ([e.code, k].some(x => h.special[x]) ? '' : ` ${h.name} has no separate form listed here – check its forms page.`));
+    return { forms, notes, needsHub: false };
+  }
+  const formItem = f => `<li>${ext(f.url, esc(f.label))} <span class="muted small">${esc(f.kind)} · ${esc(f.type)}</span></li>`;
   const ext = (href, text, cls = '') => `<a class="ext ${cls}" href="${esc(href)}" target="_blank" rel="noopener">${text}<span class="visually-hidden"> (opens in a new tab)</span></a>`;
   function panelBlock(t) {
     if (!t.panels.length) return '';
@@ -255,22 +271,33 @@
       <p class="small muted">Gene lists are each panel's signed-off version (what laboratories test against), checked on ${esc(PANELS_DATE || 'the build date')}; PanelApp opens at the newest version.
         In the spreadsheet, ${e.code} is in the “R&amp;ID indications” tab.</p></section>`;
   }
-  // The forms needed to request an indication's tests: WGS forms, other forms, or both when it has both kinds of test.
+  // The forms needed to request an indication's tests, grouped where tests share forms, with the hub chooser.
   function requestForms(e) {
-    const groups = [['wgs', e.tests.filter(isWgs)], ['other', e.tests.filter(t => !isWgs(t))]].filter(([, ts]) => ts.length);
-    const both = groups.length > 1;
-    return `<div class="req-forms"><p><strong>Request forms</strong></p>${groups.map(([k, ts]) => `
-      ${both ? `<p class="small">${k === 'wgs' ? 'Whole genome sequencing' : 'Other tests'} (${ts.map(t => esc(t.id)).join(', ')}):</p>` : ''}
-      <ul class="forms${k === 'wgs' ? ' forms-wgs' : ''}">${FORMS[k].map(f => `<li>${ext(f.url, esc(f.label))} <span class="muted small">${esc(f.type)}</span></li>`).join('')}</ul>`).join('')}
-      <p class="small muted">Forms are updated from time to time – check you have your Genomic Laboratory Hub's current version.</p></div>`;
+    const h = chosenHub(), groups = new Map();
+    for (const t of e.tests) { const f = formsFor(e, t), key = f.forms.map(x => x.url).join(' ') + (f.needsHub ? ' hub' : '');
+      (groups.get(key) || groups.set(key, { ...f, tests: [] }).get(key)).tests.push(t); }
+    const notes = [...new Set([...groups.values()].flatMap(g => g.notes))];
+    const picker = `<label class="glh-pick">Your Genomic Laboratory Hub
+      <select data-glh><option value="">Choose your hub…</option>${HUBS.map(x => `<option value="${esc(x.id)}"${x.id === glhId ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>`;
+    const list = [...groups.values()].map(g => `
+      ${groups.size > 1 ? `<p class="small forms-for">${g.tests.every(isWgs) && !specialsOf(e).includes('rapid') ? 'Whole genome sequencing' : specialsOf(e).includes('rapid') ? 'Rapid whole genome sequencing' : 'Other tests'} (${g.tests.map(t => esc(t.id)).join(', ')}):</p>` : ''}
+      ${g.forms.length ? `<ul class="forms${g.tests.every(isWgs) ? ' forms-wgs' : ''}">${g.forms.map(formItem).join('')}</ul>` : ''}
+      ${g.needsHub ? `<p class="small need-hub">Choose your hub above to see its forms for ${g.tests.map(t => esc(t.id)).join(', ')}.</p>` : ''}`).join('');
+    return `<section class="block s-request" id="request-forms" aria-labelledby="request-title"><h3 id="request-title">Request forms</h3>
+      ${picker}${list}
+      ${notes.length ? `<ul class="form-notes small">${notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
+      <p class="small">${h ? ext(h.page, `All ${esc(h.name)} forms`) : `Not sure which hub? ${ext(FORMS.hubsListUrl, 'NHS England – Genomic Laboratory Hubs')}`}</p>
+      <p class="small muted">Forms are updated from time to time – check you have your hub's current version. Links checked ${esc(new Date(FORMS.checked + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}.</p></section>`;
   }
-  function testCard(t) {
+  function testCard(t, e) {
     const rows = [['Target', `<span class="target">${esc(t.target)}</span>`], ['Method', esc(t.method)], ['Optimal family structure', esc(t.family)],
       ['Scope', esc(t.scope)], ['Commissioning', esc(t.commissioning)], ['Specialist test group', esc(t.group)],
       ['Change since last version', t.change ? esc(t.change) : '']].filter(r => r[1]);
     return `<article class="test${isWgs(t) ? ' test-wgs' : ''}" id="${esc(t.id)}"><h4><span class="code">${esc(t.id)}</span> ${esc(t.method)}${isWgs(t) ? ' <span class="chip wgs">Whole genome sequencing</span>' : ''}</h4>
       <dl>${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>${panelBlock(t)}
-      ${FORMS ? `<div class="test-forms"><p class="forms-head small"><strong>Request forms</strong>${isWgs(t) ? ' – WGS' : ''}</p>${formLinks(t)}</div>` : ''}</article>`;
+      ${FORMS && e ? (f => `<div class="test-forms"><p class="forms-head small"><strong>Request forms</strong>${isWgs(t) ? ' – WGS' : ''}</p>
+        ${f.forms.length ? `<ul class="forms">${f.forms.map(formItem).join('')}</ul>` : ''}
+        ${f.needsHub ? '<p class="small"><button type="button" class="link" data-request>Choose your Genomic Laboratory Hub</button> to see the forms.</p>' : ''}</div>`)(formsFor(e, t)) : ''}</article>`;
   }
   // Criteria lines: "OR"/"AND" on their own become separators; headings such as "Exclusion criteria" stand out.
   const critClass = (mk, tx) => mk ? '' : /^(OR|AND|AND\/OR)$/i.test(tx) ? ' crit-join'
@@ -395,7 +422,7 @@
     $('#detail').innerHTML = `${backLink()}
       <h2 id="detail-title"><span class="code">${e.code}</span> ${esc(e.name)}</h2>
       <p class="meta">${uniq([partName(e.part), e.group]).map(x => chip(x)).join(' ')} ${chip(plural(e.tests.length, 'test'))} ${e.change ? chip('Changed: ' + e.change, 'changed') : ''}</p>
-      <div class="toolbar"><button type="button" data-copy>Copy link</button><button type="button" data-print>Print</button><span class="copied small muted" role="status"></span></div>
+      <div class="toolbar">${FORMS ? '<button type="button" class="primary" data-request>Request this test</button>' : ''}<button type="button" data-copy>Copy link</button><button type="button" data-print>Print</button><span class="copied small muted" role="status"></span></div>
       <p class="search-note" hidden></p>
       ${sourcesBox(e)}
       <div class="cols">
@@ -409,14 +436,14 @@
           ${overlap}
         </div>
         <div>
-          <section class="block s-tests"><h3>${e.tests.length === 1 ? 'Test' : plural(e.tests.length, 'test')}</h3>${e.tests.map(testCard).join('')}</section>
+          <section class="block s-tests"><h3>${e.tests.length === 1 ? 'Test' : plural(e.tests.length, 'test')}</h3>${e.tests.map(t => testCard(t, e)).join('')}</section>
           <section class="block s-who"><h3>Who can request it</h3>
             <p><strong>Where in pathway:</strong> ${e.pathway ? verbatim(e.code, e.pathway) : '<span class="muted">Not stated</span>'}</p>
             <p><strong>Requesting specialties</strong></p>${bulletList(e.specialties)}
             ${e.specialtyNotes ? `<p class="small">${e.specialtyNotes.map(esc).join('<br>')}</p>` : ''}
             <p><strong>Specialist service group:</strong> ${esc((e.serviceGroup || []).join(', ')) || '<span class="muted">Not stated</span>'}</p>
-            ${FORMS ? requestForms(e) : ''}
           </section>
+          ${FORMS ? requestForms(e) : ''}
           ${variants}
         </div>
       </div>
@@ -515,6 +542,7 @@
       (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => done('Link copied'), () => done(location.href));
     }
     if (ev.target.closest('[data-print]')) window.print();
+    if (ev.target.closest('[data-request]')) { const r = $('#request-forms'); if (r) { r.scrollIntoView({ block: 'start' }); const sel = r.querySelector('[data-glh]'); if (sel && !glhId) sel.focus({ preventScroll: true }); } }
     if (ev.target.closest('[data-layout]')) {
       plainCriteria = !plainCriteria;
       try { localStorage.setItem('tdx-criteria-layout', plainCriteria ? 'pdf' : 'formatted'); } catch (err) { /* storage unavailable */ }
@@ -523,6 +551,13 @@
       const b = $('#detail [data-layout]'); if (b) b.focus({ preventScroll: true });
     }
     if (ev.target.closest('[data-next-mark]')) { const m = $('#detail .cols mark'); if (m) { m.scrollIntoView({ block: 'center' }); m.classList.add('current'); } }
+  });
+  $('#detail').addEventListener('change', ev => {
+    if (!ev.target.matches('[data-glh]')) return;
+    glhId = ev.target.value;
+    try { if (glhId) localStorage.setItem('tdx-glh', glhId); else localStorage.removeItem('tdx-glh'); } catch (err) { /* storage unavailable */ }
+    const y = window.scrollY; renderIndication(location.hash.slice(1).toUpperCase().split('.')[0]); window.scrollTo(0, y);
+    const sel = $('#detail [data-glh]'); if (sel) sel.focus({ preventScroll: true });
   });
   $('#detail').addEventListener('input', ev => {
     if (!ev.target.matches('[data-gene-find]')) return;

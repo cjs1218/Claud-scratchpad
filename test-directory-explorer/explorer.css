@@ -179,8 +179,14 @@ ins.fix { text-decoration: underline dashed var(--button); text-underline-offset
 .forms-head { margin: 0 0 2px !important; }
 ul.forms { margin: 0 0 4px; padding-left: 18px; }
 ul.forms li { margin: 1px 0; }
-.req-forms { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
-.req-forms ul.forms-wgs li::marker { color: var(--wgs); }
+.s-request ul.forms-wgs li::marker { color: var(--wgs); }
+.glh-pick { display: grid; gap: 2px; margin: 0 0 10px; font-size: .9rem; font-weight: 600; color: var(--muted); max-width: 360px; }
+.glh-pick select { font: inherit; font-weight: 400; color: var(--fg); background: var(--card); border: 1px solid var(--muted); border-radius: 4px; padding: 6px 8px; }
+.forms-for { margin: 8px 0 2px !important; font-weight: 600; }
+.need-hub { padding: 6px 10px; background: var(--accent-soft); border-radius: 4px; }
+.form-notes { margin: 8px 0; padding-left: 18px; }
+.toolbar button.primary { color: #fff; background: var(--button); border-color: var(--button); font-weight: 600; }
+.toolbar button.primary:hover { background: var(--button); filter: brightness(1.1); }
 .panel { margin: 8px 0; }
 .panel-name { margin: 0 0 2px; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
 .panel summary { cursor: pointer; font-size: .9rem; color: var(--accent); }
@@ -222,7 +228,7 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
 @media (max-width: 820px) {
   .cols { display: flex; flex-direction: column; }
   .cols > div { display: contents; }
-  .s-tests { order: 1; } .s-who { order: 2; } .s-variant { order: 3; } .s-crit { order: 4; } .s-overlap { order: 5; }
+  .s-tests { order: 1; } .s-who { order: 2; } .s-request { order: 3; } .s-variant { order: 4; } .s-crit { order: 5; } .s-overlap { order: 6; }
 }
 @media (max-width: 640px) {
   .site-head { padding: 10px 0; }

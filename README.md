@@ -221,7 +221,7 @@ test-directory-explorer/criteria-format.js Clearer layout of the verbatim criter
 test-directory-explorer/corrections.js     Obvious typos and punctuation corrected in the formatted layout (each marked; PDF layout unchanged)
 test-directory-explorer/search-terms.js    Search synonyms (deafness ↔ hearing loss …) and US → UK spellings
 test-directory-explorer/specialties.js     Requesting specialties (PDF wording) → filter groups (e.g. Surgery* → Surgery)
-test-directory-explorer/forms.js          Request forms: national WGS record of discussion / test order form; East GLH forms for other tests
+test-directory-explorer/forms.js          Request forms: national WGS forms; each Genomic Laboratory Hub's forms for other tests (user picks the hub); rapid, prenatal, pharmacogenomic and carrier routes
 test-directory-explorer/data/directory.js  Generated: indications, tests, verbatim criteria (do not edit)
 test-directory-explorer/data/panels.js     Generated: green genes on each PanelApp panel (do not edit)
 ```
