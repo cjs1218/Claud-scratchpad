@@ -183,6 +183,11 @@ ul.forms li { margin: 1px 0; }
 .glh-pick { display: grid; gap: 2px; margin: 0 0 10px; font-size: .9rem; font-weight: 600; color: var(--muted); max-width: 360px; }
 .glh-pick select { font: inherit; font-weight: 400; color: var(--fg); background: var(--card); border: 1px solid var(--muted); border-radius: 4px; padding: 6px 8px; }
 .forms-for { margin: 8px 0 2px !important; font-weight: 600; }
+.hub-finder { margin: 0 0 12px; }
+.hub-finder summary { cursor: pointer; color: var(--accent); font-size: .9rem; }
+.hub-finder ul { list-style: none; padding: 0; margin: 6px 0; display: grid; gap: 8px; }
+.hub-finder li { padding: 6px 10px; border-left: 3px solid var(--border); }
+.hub-finder li:has([aria-pressed="true"]) { border-left-color: var(--accent); }
 .need-hub { padding: 6px 10px; background: var(--accent-soft); border-radius: 4px; }
 .form-notes { margin: 8px 0; padding-left: 18px; }
 .toolbar button.primary { color: #fff; background: var(--button); border-color: var(--button); font-weight: 600; }

@@ -285,15 +285,23 @@
     // Rapid WGS goes to one laboratory whichever the hub, so there is nothing to choose.
     const picker = rapid ? '' : `<label class="glh-pick">Your Genomic Laboratory Hub
       <select data-glh><option value="">Choose your hub…</option>${HUBS.map(x => `<option value="${esc(x.id)}"${x.id === glhId ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>`;
+    // For clinicians who do not know their hub: each hub's area and the clinical genetics services it serves.
+    const finder = rapid ? '' : `<details class="hub-finder"${h ? '' : ' open'}><summary>Not sure which hub?</summary>
+      <p class="small muted">Hubs serve the clinical genetics services and hospitals in their area. Your local clinical genetics service can confirm yours.</p>
+      <ul>${HUBS.map(x => `<li><strong>${esc(x.name)}</strong>${x.area ? ` – ${esc(x.area)}` : ''}
+        ${x.services && x.services.length ? `<br><span class="small">Clinical genetics services: ${x.services.map(esc).join('; ')}</span>` : ''}
+        <br><button type="button" class="link small" data-choose-hub="${esc(x.id)}"${x.id === glhId ? ' aria-pressed="true"' : ''}>${x.id === glhId ? 'Your chosen hub' : `Choose ${esc(x.name)}`}</button>
+        ${x.areaSource ? ` <span class="small muted">· ${ext(x.areaSource, 'source')}</span>` : ''}</li>`).join('')}</ul>
+      <p class="small">${ext(FORMS.hubsListUrl, 'NHS England – Genomic Laboratory Hubs')}</p></details>`;
     const list = [...groups.values()].map(g => `
       ${groups.size > 1 ? `<p class="small forms-for">${g.tests.every(isWgs) && !specialsOf(e).includes('rapid') ? 'Whole genome sequencing' : specialsOf(e).includes('rapid') ? 'Rapid whole genome sequencing' : 'Other tests'} (${g.tests.map(t => esc(t.id)).join(', ')}):</p>` : ''}
       ${g.forms.length ? `<ul class="forms${g.tests.every(isWgs) ? ' forms-wgs' : ''}">${g.forms.map(formItem).join('')}</ul>` : ''}
       ${g.needsHub ? `<p class="small need-hub">Choose your hub above to see its forms for ${g.tests.map(t => esc(t.id)).join(', ')}.</p>` : ''}`).join('');
     return `<section class="block s-request" id="request-forms" aria-labelledby="request-title"><h3 id="request-title">Request forms</h3>
-      ${picker}${list}
+      ${picker}${finder}${list}
       ${notes.length ? `<ul class="form-notes small">${notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
       ${specialsOf(e).map(k => FORMS.special[k].info).filter(Boolean).map(i => `<p class="small form-info">${ext(i.url, esc(i.label))}</p>`).join('')}
-      ${rapid ? '' : `<p class="small">${h ? ext(h.page, `All ${esc(h.name)} forms`) : `Not sure which hub? ${ext(FORMS.hubsListUrl, 'NHS England – Genomic Laboratory Hubs')}`}</p>`}
+      ${!rapid && h ? `<p class="small">${ext(h.page, `All ${esc(h.name)} forms`)}</p>` : ''}
       <p class="small muted">Forms are updated from time to time – check you have ${rapid ? 'the laboratory' : 'your hub'}'s current version. Links checked ${esc(new Date(FORMS.checked + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }))}.</p></section>`;
   }
   function testCard(t, e) {
@@ -549,6 +557,8 @@
       (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => done('Link copied'), () => done(location.href));
     }
     if (ev.target.closest('[data-print]')) window.print();
+    const choose = ev.target.closest('[data-choose-hub]');
+    if (choose) setHub(choose.dataset.chooseHub, '#detail [data-glh]');
     if (ev.target.closest('[data-request]')) { const r = $('#request-forms'); if (r) { r.scrollIntoView({ block: 'start' }); const sel = r.querySelector('[data-glh]'); if (sel && !glhId) sel.focus({ preventScroll: true }); } }
     if (ev.target.closest('[data-layout]')) {
       plainCriteria = !plainCriteria;
@@ -559,13 +569,14 @@
     }
     if (ev.target.closest('[data-next-mark]')) { const m = $('#detail .cols mark'); if (m) { m.scrollIntoView({ block: 'center' }); m.classList.add('current'); } }
   });
-  $('#detail').addEventListener('change', ev => {
-    if (!ev.target.matches('[data-glh]')) return;
-    glhId = ev.target.value;
+  // Choosing a hub (the picker or a "Choose" button in the hub finder) re-renders the page where it was.
+  function setHub(id, focus) {
+    glhId = id;
     try { if (glhId) localStorage.setItem('tdx-glh', glhId); else localStorage.removeItem('tdx-glh'); } catch (err) { /* storage unavailable */ }
     const y = window.scrollY; renderIndication(location.hash.slice(1).toUpperCase().split('.')[0]); window.scrollTo(0, y);
-    const sel = $('#detail [data-glh]'); if (sel) sel.focus({ preventScroll: true });
-  });
+    const el = $(focus); if (el) el.focus({ preventScroll: true });
+  }
+  $('#detail').addEventListener('change', ev => { if (ev.target.matches('[data-glh]')) setHub(ev.target.value, '#detail [data-glh]'); });
   $('#detail').addEventListener('input', ev => {
     if (!ev.target.matches('[data-gene-find]')) return;
     const q = ev.target.value.trim().toUpperCase(), box = ev.target.closest('details');
