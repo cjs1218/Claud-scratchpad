@@ -6,6 +6,9 @@
 const TDX_FORMS = {
   checked: '2026-10-16',
   hubsListUrl: 'https://www.england.nhs.uk/genomics/genomic-laboratory-hubs/',
+  // Finding your hub: NHS England Genomics Education Programme map of clinical genetics services and the trusts each serves.
+  servicesMapUrl: 'https://www.genomicseducation.hee.nhs.uk/genotes/knowledge-hub/clinical-genetics-departments-map/',
+  boundaryNote: 'Hospitals near a boundary may use a different hub from their county – for example, Bedfordshire, East and North Hertfordshire and North Essex hospitals use East GLH laboratories but London clinical genetics services, and North Derbyshire and Bassetlaw refer to Sheffield. Wales, Scotland and Northern Ireland have their own genomic services.',
   // National WGS forms (rare disease), used whichever hub is chosen.
   wgs: [
     { kind: 'Record of discussion', label: 'NHS GMS record of discussion form (WGS) v4.04', type: 'PDF',
@@ -45,10 +48,14 @@ const TDX_FORMS = {
     carrier: { title: 'Carrier testing', codes: ['R181', 'R185', 'R244', 'R246', 'R252', 'R361'],
       note: 'Carrier tests use your hub’s standard rare disease forms unless it has a specific one (some hubs have a separate GP form, e.g. for cystic fibrosis carrier testing).' },
   },
-  // The seven Genomic Laboratory Hubs. other: standard non-WGS rare disease forms. special: forms for a special
+  // The seven Genomic Laboratory Hubs. area, services: the area and clinical genetics services each serves (from areaSource,
+  // the hub's or its lead trust's own page, and the services map; checked 16 Oct 2026). other: standard non-WGS rare disease forms. special: forms for a special
   // category (key as above) or for one R code.
   hubs: [
     { id: 'east', name: 'East GLH (East Genomics)',
+      area: "East of England and East Midlands – Cambridgeshire, Norfolk, Suffolk, Leicestershire, Northamptonshire, Rutland, Nottinghamshire, Derbyshire and Lincolnshire, plus hospitals in Bedfordshire, East and North Hertfordshire and North Essex",
+      services: ["East Anglian Medical Genetics Service, Cambridge", "Leicester Clinical Genetics Service", "Nottingham Clinical Genetics Service"],
+      areaSource: 'https://www.eastgenomics.nhs.uk/for-healthcare-professionals/clinical-genetics-services/',
       page: 'https://www.eastgenomics.nhs.uk/for-healthcare-professionals/genomic-tests/referral-forms-index/',
       other: [
         { kind: 'Record of discussion', label: 'Rare disease record of discussion (non-WGS) v5', type: 'Word document',
@@ -57,6 +64,9 @@ const TDX_FORMS = {
           url: 'https://www.eastgenomics.nhs.uk/documents/2339/East_GLH_Rare_Disease_Test_Order_Form_Adobe_GH-RI-FRM-2_v2.pdf' },
       ], special: {} },
     { id: 'north-thames', name: 'North Thames GLH',
+      area: "North, East, Central and West London, West Hertfordshire and Mid and South Essex",
+      services: ["North West Thames Regional Genetics Service (Northwick Park)", "North East Thames Regional Genetics Service (Great Ormond Street Hospital)", "Royal Marsden Cancer Genetics Unit (cancer only)"],
+      areaSource: 'https://norththamesgenomics.nhs.uk/about/clinical-genetics/',
       page: 'https://norththamesgenomics.nhs.uk/request-a-genetic-test/test-request-information/',
       other: [
         { kind: 'Record of discussion', label: 'NTGLH record of discussion v1', type: 'PDF',
@@ -68,6 +78,9 @@ const TDX_FORMS = {
           url: 'https://norththamesgenomics.nhs.uk/wp-content/uploads/2026/08/Prenatal-Cytogenetic-Test-Request-Form-v9-EDITABLE.pdf' }]
       } },
     { id: 'south-east', name: 'South East GLH',
+      area: "South London, Kent, Medway, Surrey and Sussex",
+      services: ["South East Thames Regional Genetics Service (Guy’s Hospital)", "South West Thames Centre for Genomics (St George’s Hospital)"],
+      areaSource: 'https://southeastgenomics.nhs.uk/about-us/who-are-we/',
       page: 'https://southeastgenomics.nhs.uk/professionals/test-order-forms/',
       other: [
         { kind: 'Record of discussion', label: 'Record of discussion form (non-WGS)', type: 'PDF',
@@ -81,6 +94,9 @@ const TDX_FORMS = {
           url: 'https://southeastgenomics.nhs.uk/professionals/pharmacogenomic-testing/' }],
       } },
     { id: 'central-south', name: 'Central and South GLH',
+      area: "West Midlands, Oxfordshire and the Thames Valley (Buckinghamshire, Berkshire, Milton Keynes), and Wessex (Hampshire, Isle of Wight, Dorset, Salisbury)",
+      services: ["West Midlands Clinical Genetics Service, Birmingham", "Oxford Centre for Genomic Medicine", "Wessex Clinical Genetics Service, Southampton"],
+      areaSource: 'https://centralsouthgenomics.nhs.uk/about-us/',
       page: 'https://bwc.nhs.uk/west-midlands-regional-genetics-laboratory/',
       other: [
         { kind: 'Test order form', label: 'Rare disease, reproductive and inherited cancer genomics test request form', type: 'PDF',
@@ -90,6 +106,9 @@ const TDX_FORMS = {
           url: 'https://bwc.nhs.uk/download.cfm?doc=docm93jijm4n5610.pdf&ver=8167' }],
       } },
     { id: 'south-west', name: 'South West GLH',
+      area: "Cornwall and the Isles of Scilly, Devon, Somerset, Bristol, Gloucestershire and parts of Wiltshire",
+      services: ["South West Clinical Genetics Service (Exeter and Bristol)"],
+      areaSource: 'https://www.southwestgenomics.nhs.uk/about-us/',
       page: 'https://www.nbt.nhs.uk/south-west-genomic-laboratory-hub',
       other: [
         { kind: 'Test order form', label: 'GMS test order form v2.3', type: 'PDF',
@@ -99,6 +118,9 @@ const TDX_FORMS = {
           url: 'https://nbt.nhs.uk/sites/default/files/document/GMS%20Test%20Order%20Form%20for%20R454%20CYP2C19-Mavacamten%20V2.1.pdf' }],
       } },
     { id: 'north-west', name: 'North West GLH',
+      area: "Greater Manchester, Lancashire, South Cumbria, Cheshire, Merseyside and the Isle of Man",
+      services: ["Manchester Centre for Genomic Medicine (St Mary’s Hospital)", "Liverpool Centre for Genomic Medicine (Liverpool Women’s Hospital)"],
+      areaSource: 'https://mft.nhs.uk/services/genomic-medicine',
       page: 'https://mft.nhs.uk/nwglh/documents/test-request-forms/',
       other: [
         { kind: 'Test order form', label: 'NW GLH genomic testing request form – rare disease (DOC4900)', type: 'Word document',
@@ -108,6 +130,9 @@ const TDX_FORMS = {
           url: 'https://mft.nhs.uk/cyp2c19-r454-mavacamten-referral-form' }],
       } },
     { id: 'north-east-yorkshire', name: 'North East and Yorkshire GLH',
+      area: "North East England, North Cumbria, and Yorkshire and the Humber (including Bassetlaw and North Derbyshire, which refer to Sheffield)",
+      services: ["Northern Genetics Service, Newcastle", "Leeds Clinical Genomics Service", "Sheffield Clinical Genomics Service"],
+      areaSource: 'https://www.newcastle-hospitals.nhs.uk/news/newcastle-hospitals-leads-new-genomics-laboratory-hub-for-the-north-east-and-yorkshire/',
       page: 'https://ney-genomics.org.uk/', other: [], special: {} },
   ],
 };

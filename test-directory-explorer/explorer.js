@@ -287,12 +287,13 @@
       <select data-glh><option value="">Choose your hub…</option>${HUBS.map(x => `<option value="${esc(x.id)}"${x.id === glhId ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>`;
     // For clinicians who do not know their hub: each hub's area and the clinical genetics services it serves.
     const finder = rapid ? '' : `<details class="hub-finder"${h ? '' : ' open'}><summary>Not sure which hub?</summary>
-      <p class="small muted">Hubs serve the clinical genetics services and hospitals in their area. Your local clinical genetics service can confirm yours.</p>
+      <p class="small muted">Each hub serves the clinical genetics services and hospitals in its area. Your local clinical genetics service or laboratory can confirm yours.</p>
       <ul>${HUBS.map(x => `<li><strong>${esc(x.name)}</strong>${x.area ? ` – ${esc(x.area)}` : ''}
         ${x.services && x.services.length ? `<br><span class="small">Clinical genetics services: ${x.services.map(esc).join('; ')}</span>` : ''}
         <br><button type="button" class="link small" data-choose-hub="${esc(x.id)}"${x.id === glhId ? ' aria-pressed="true"' : ''}>${x.id === glhId ? 'Your chosen hub' : `Choose ${esc(x.name)}`}</button>
         ${x.areaSource ? ` <span class="small muted">· ${ext(x.areaSource, 'source')}</span>` : ''}</li>`).join('')}</ul>
-      <p class="small">${ext(FORMS.hubsListUrl, 'NHS England – Genomic Laboratory Hubs')}</p></details>`;
+      <p class="small muted">${esc(FORMS.boundaryNote)}</p>
+      <p class="small">${ext(FORMS.servicesMapUrl, 'Map of clinical genetics services and the hospitals they serve')} · ${ext(FORMS.hubsListUrl, 'NHS England – Genomic Laboratory Hubs')}</p></details>`;
     const list = [...groups.values()].map(g => `
       ${groups.size > 1 ? `<p class="small forms-for">${g.tests.every(isWgs) && !specialsOf(e).includes('rapid') ? 'Whole genome sequencing' : specialsOf(e).includes('rapid') ? 'Rapid whole genome sequencing' : 'Other tests'} (${g.tests.map(t => esc(t.id)).join(', ')}):</p>` : ''}
       ${g.forms.length ? `<ul class="forms${g.tests.every(isWgs) ? ' forms-wgs' : ''}">${g.forms.map(formItem).join('')}</ul>` : ''}

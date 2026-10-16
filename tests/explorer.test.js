@@ -142,6 +142,8 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   const hubs = TDX_FORMS.hubs;
   check(hubs.length === 7 && new Set(hubs.map(h => h.id)).size === 7 && hubs.every(h => /^https:\/\//.test(h.page) && h.name && h.other.every(formOk)
     && Object.entries(h.special).every(([k, fs]) => (cats.includes(k) || codes.has(k)) && fs.length && fs.every(formOk))), 'seven Genomic Laboratory Hubs, each with a forms page and well-formed forms');
+  check(hubs.every(h => h.area && h.services.length && /^https:\/\//.test(h.areaSource)) && /^https:\/\//.test(TDX_FORMS.servicesMapUrl) && TDX_FORMS.boundaryNote,
+    'every hub says the area and clinical genetics services it serves, with a source');
 }
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
@@ -354,6 +356,11 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   await page.goto(BASE + '#R133'); await page.waitForSelector('#detail .s-tests');
   check(await page.locator('#detail .test-wgs').count() === 0 && (await hrefs('#request-forms ul.forms a')).length === 0 && await page.locator('#request-forms .need-hub').count() === 1,
     'R133 (small panel): asks for the hub before showing forms');
+  check(await page.locator('#request-forms details.hub-finder').evaluate(d => d.open) && (await page.locator('#request-forms .hub-finder li').count()) === 7
+    && /Leeds Clinical Genomics Service/.test(await page.locator('#request-forms .hub-finder').innerText()), '“Not sure which hub?” lists each hub’s area and clinical genetics services, open until a hub is chosen');
+  await page.click('#request-forms [data-choose-hub="south-east"]'); await page.waitForFunction(() => document.querySelector('#detail [data-glh]').value === 'south-east');
+  check(!(await page.locator('#request-forms details.hub-finder').evaluate(d => d.open)) && (await hrefs('#request-forms a')).includes(hub('south-east').page), 'choosing a hub from the list selects it and shows its forms');
+  await page.evaluate(() => localStorage.removeItem('tdx-glh')); await page.reload(); await page.waitForSelector('#request-forms');
   await page.click('#detail .test-forms [data-request]');
   check(await page.evaluate(() => document.activeElement.matches('[data-glh]')), 'the test card’s “Choose your hub” button moves to the hub picker');
   await pickHub('east');
