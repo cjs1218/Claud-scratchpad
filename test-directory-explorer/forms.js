@@ -17,7 +17,9 @@ const TDX_FORMS = {
   special: {
     rapid: { title: 'Rapid whole genome sequencing', codes: ['R14'],
       note: 'R14 is delivered by the Exeter Genomics Laboratory, which has its own test order form and record of discussion for rapid testing. Requests need a Clinical Geneticist’s support.',
-      forms: [{ kind: 'Rapid WGS forms', label: 'Exeter Genomics Laboratory – genome sequencing (R14 forms)', type: 'web page',
+      forms: [{ kind: 'Test request form', label: 'R14 rapid WGS test request form v7.0', type: 'PDF',
+        url: 'https://www.exeterlaboratory.com/wp-content/uploads/R14__Rapid_WGS_Test_request_form_v7.0.pdf' },
+      { kind: 'Other rapid WGS forms', label: 'Exeter Genomics Laboratory – genome sequencing (R14 forms)', type: 'web page',
         url: 'https://www.exeterlaboratory.com/genetics/genome-sequencing/' }] },
     prenatal: { title: 'Prenatal and fetal testing', codes: ['R320', 'R448', 'R471'], part: /Fetal/,
       note: 'Fetal and prenatal (including NIPD) samples usually need your hub’s prenatal request form, and many tests need Clinical Genetics or specialist agreement first.' },

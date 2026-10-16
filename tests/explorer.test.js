@@ -364,7 +364,8 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(wgsUrls.every(u => wgsCard.includes(u)) && eastUrls.every(u => otherCard.includes(u)), 'R135: each test links its own forms (WGS for R135.2, the hub’s for R135.3)');
   check(/Whole genome sequencing \(R135\.2\)[\s\S]*Other tests \(R135\.3\)/.test(await page.locator('#request-forms').innerText()), 'R135: the request forms section lists both sets');
   await page.goto(BASE + '#R14'); await page.waitForSelector('#request-forms');
-  check((await hrefs('#request-forms ul.forms a')).includes(TDX_FORMS.special.rapid.forms[0].url) && /Exeter/.test(await page.locator('#request-forms').innerText()), 'R14: links the Exeter rapid WGS forms');
+  const r14 = await hrefs('#request-forms ul.forms a');
+  check(TDX_FORMS.special.rapid.forms.every(f => r14.includes(f.url)) && /v7\.0/.test(TDX_FORMS.special.rapid.forms[0].label) && /Exeter/.test(await page.locator('#request-forms').innerText()), 'R14: links the Exeter R14 rapid WGS test request form v7.0 and its forms page');
   await page.goto(BASE + '#R21'); await page.waitForSelector('#request-forms'); await pickHub('north-thames');
   const r21 = await hrefs('#request-forms ul.forms a');
   check(hub('north-thames').special.R21.every(f => r21.includes(f.url)) && hub('north-thames').special.prenatal.every(f => r21.includes(f.url)), 'R21 with North Thames: links its R21 and prenatal forms');
