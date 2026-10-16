@@ -213,7 +213,12 @@
   // Shared bits of markup.
   const linkCodes = s => esc(s).replace(/\b(R\d{1,3})(\.\d+)?\b/g, (m, c) => BY_CODE[c] ? `<a href="#${c}">${m}</a>` : m);
   const chip = (s, cls = '') => `<span class="chip ${cls}">${esc(s)}</span>`;
-  const methods = e => uniq(e.tests.map(t => t.method)).map(m => chip(m)).join('');
+  // Whole genome sequencing tests stand out (they have their own national request forms).
+  const isWgs = t => /\bWGS\b/.test(t.method);
+  const methods = e => uniq(e.tests.map(t => t.method)).map(m => chip(m, /\bWGS\b/.test(m) ? 'wgs' : '')).join('');
+  const FORMS = typeof TDX_FORMS !== 'undefined' ? TDX_FORMS : null;
+  const formLinks = t => !FORMS ? '' : `<ul class="forms">${FORMS[isWgs(t) ? 'wgs' : 'other'].map(f =>
+    `<li>${ext(f.url, `${esc(f.kind)}`)} <span class="muted small">${esc(f.label)} · ${esc(f.type)}</span></li>`).join('')}</ul>`;
   const ext = (href, text, cls = '') => `<a class="ext ${cls}" href="${esc(href)}" target="_blank" rel="noopener">${text}<span class="visually-hidden"> (opens in a new tab)</span></a>`;
   function panelBlock(t) {
     if (!t.panels.length) return '';
@@ -250,12 +255,22 @@
       <p class="small muted">Gene lists are each panel's signed-off version (what laboratories test against), checked on ${esc(PANELS_DATE || 'the build date')}; PanelApp opens at the newest version.
         In the spreadsheet, ${e.code} is in the “R&amp;ID indications” tab.</p></section>`;
   }
+  // The forms needed to request an indication's tests: WGS forms, other forms, or both when it has both kinds of test.
+  function requestForms(e) {
+    const groups = [['wgs', e.tests.filter(isWgs)], ['other', e.tests.filter(t => !isWgs(t))]].filter(([, ts]) => ts.length);
+    const both = groups.length > 1;
+    return `<div class="req-forms"><p><strong>Request forms</strong></p>${groups.map(([k, ts]) => `
+      ${both ? `<p class="small">${k === 'wgs' ? 'Whole genome sequencing' : 'Other tests'} (${ts.map(t => esc(t.id)).join(', ')}):</p>` : ''}
+      <ul class="forms${k === 'wgs' ? ' forms-wgs' : ''}">${FORMS[k].map(f => `<li>${ext(f.url, esc(f.label))} <span class="muted small">${esc(f.type)}</span></li>`).join('')}</ul>`).join('')}
+      <p class="small muted">Forms are updated from time to time – check you have your Genomic Laboratory Hub's current version.</p></div>`;
+  }
   function testCard(t) {
     const rows = [['Target', `<span class="target">${esc(t.target)}</span>`], ['Method', esc(t.method)], ['Optimal family structure', esc(t.family)],
       ['Scope', esc(t.scope)], ['Commissioning', esc(t.commissioning)], ['Specialist test group', esc(t.group)],
       ['Change since last version', t.change ? esc(t.change) : '']].filter(r => r[1]);
-    return `<article class="test" id="${esc(t.id)}"><h4><span class="code">${esc(t.id)}</span> ${esc(t.method)}</h4>
-      <dl>${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>${panelBlock(t)}</article>`;
+    return `<article class="test${isWgs(t) ? ' test-wgs' : ''}" id="${esc(t.id)}"><h4><span class="code">${esc(t.id)}</span> ${esc(t.method)}${isWgs(t) ? ' <span class="chip wgs">Whole genome sequencing</span>' : ''}</h4>
+      <dl>${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>${panelBlock(t)}
+      ${FORMS ? `<div class="test-forms"><p class="forms-head small"><strong>Request forms</strong>${isWgs(t) ? ' – WGS' : ''}</p>${formLinks(t)}</div>` : ''}</article>`;
   }
   // Criteria lines: "OR"/"AND" on their own become separators; headings such as "Exclusion criteria" stand out.
   const critClass = (mk, tx) => mk ? '' : /^(OR|AND|AND\/OR)$/i.test(tx) ? ' crit-join'
@@ -400,6 +415,7 @@
             <p><strong>Requesting specialties</strong></p>${bulletList(e.specialties)}
             ${e.specialtyNotes ? `<p class="small">${e.specialtyNotes.map(esc).join('<br>')}</p>` : ''}
             <p><strong>Specialist service group:</strong> ${esc((e.serviceGroup || []).join(', ')) || '<span class="muted">Not stated</span>'}</p>
+            ${FORMS ? requestForms(e) : ''}
           </section>
           ${variants}
         </div>

@@ -129,6 +129,11 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   const unused = Object.keys(TDX_SPECIALTIES).filter(k => !wording.some(w => w.toLowerCase() === k));
   check(!unused.length, `no stale entries in specialties.js${unused.length ? ' – remove: ' + unused.join('; ') : ''}`);
 }
+{
+  const { TDX_FORMS } = load(path.join(__dirname, '../test-directory-explorer/forms.js'));
+  check(['wgs', 'other'].every(k => TDX_FORMS[k].length === 2 && TDX_FORMS[k].every(f => /^https:\/\/\S+\.(pdf|docx)$/.test(f.url) && f.kind && f.label && f.type)),
+    'request forms: a record of discussion and a test order form for WGS and for other tests');
+}
 check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versions recorded (${TDX.meta.directory}, criteria ${TDX.meta.criteria})`);
 
 // Page.
@@ -324,6 +329,23 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
     check(/not yet signed-off/.test(await p2.locator('#detail .panel-change').innerText()), 'a gene only on the newer version says laboratories do not test it yet');
     await p2.close();
   }
+  // WGS tests highlighted, with the right request forms.
+  const { TDX_FORMS } = load(path.join(__dirname, '../test-directory-explorer/forms.js'));
+  const hrefs = sel => page.locator(sel).evaluateAll(as => as.map(a => a.getAttribute('href')));
+  const wgsUrls = TDX_FORMS.wgs.map(f => f.url), otherUrls = TDX_FORMS.other.map(f => f.url);
+  await page.goto(BASE + '#R27'); await page.waitForSelector('#detail .s-tests');
+  check(await page.locator('#detail .test.test-wgs .chip.wgs').count() === 1, 'R27: the WGS test is highlighted');
+  const r27 = await hrefs('#detail .req-forms a');
+  check(wgsUrls.every(u => r27.includes(u)) && !otherUrls.some(u => r27.includes(u)), 'R27 (WGS): links the WGS record of discussion and test order forms only');
+  await page.goto(BASE + '#R133'); await page.waitForSelector('#detail .s-tests');
+  const r133 = await hrefs('#detail .req-forms a');
+  check(await page.locator('#detail .test-wgs').count() === 0 && otherUrls.every(u => r133.includes(u)) && !wgsUrls.some(u => r133.includes(u)), 'R133 (small panel): links the non-WGS forms only');
+  await page.goto(BASE + '#R135'); await page.waitForSelector('#detail .s-tests');
+  const wgsCard = await hrefs('#detail .test-wgs .test-forms a'), otherCard = await hrefs('#detail .test:not(.test-wgs) .test-forms a');
+  check(wgsUrls.every(u => wgsCard.includes(u)) && otherUrls.every(u => otherCard.includes(u)), 'R135: each test links its own forms (WGS for R135.2, non-WGS for R135.3)');
+  check(/Whole genome sequencing \(R135\.2\)[\s\S]*Other tests \(R135\.3\)/.test(await page.locator('#detail .req-forms').innerText()), 'R135: the request forms summary lists both sets');
+  await page.goto(BASE + '#q=paediatric+disorders'); await page.waitForTimeout(300);
+  check(await page.locator('#results a.row[href="#R27"] .chip.wgs').count() === 1, 'WGS is highlighted in the results list');
   // Abbreviations: hover shows the meaning; tap works too; keyboard focus too; the page lists them.
   await page.goto(BASE + '#R21'); await page.waitForSelector('#detail h2');
   const anyAbbr = await page.locator('#detail abbr.abbr').count();

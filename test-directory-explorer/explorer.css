@@ -169,6 +169,18 @@ ins.fix { text-decoration: underline dashed var(--button); text-underline-offset
 .test dl div { display: grid; grid-template-columns: 11em 1fr; gap: 8px; }
 .test dt { color: var(--muted); font-size: .9rem; }
 .test dd { margin: 0; overflow-wrap: anywhere; }
+/* Whole genome sequencing tests and request forms */
+:root { --wgs: #6a2a8c; --wgs-soft: #f3ecf8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --wgs: #d7b3ec; --wgs-soft: #33203f; } }
+:root[data-theme="dark"] { --wgs: #d7b3ec; --wgs-soft: #33203f; }
+.chip.wgs { background: var(--wgs-soft); color: var(--wgs); border: 1px solid var(--wgs); font-weight: 600; }
+.test.test-wgs { border-left: 4px solid var(--wgs); padding-left: 12px; margin-left: -4px; background: linear-gradient(90deg, var(--wgs-soft), transparent 60%); border-radius: 0 4px 4px 0; }
+.test-forms { margin: 8px 0 4px; }
+.forms-head { margin: 0 0 2px !important; }
+ul.forms { margin: 0 0 4px; padding-left: 18px; }
+ul.forms li { margin: 1px 0; }
+.req-forms { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
+.req-forms ul.forms-wgs li::marker { color: var(--wgs); }
 .panel { margin: 8px 0; }
 .panel-name { margin: 0 0 2px; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
 .panel summary { cursor: pointer; font-size: .9rem; color: var(--accent); }
