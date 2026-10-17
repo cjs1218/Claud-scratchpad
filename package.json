@@ -3,14 +3,15 @@
   "private": true,
   "description": "Static site; these scripts only run the checks and data updates.",
   "scripts": {
-    "test": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js && node tests/browser.test.js && node tests/a11y.test.js && node tests/genes.test.js && node tests/explorer.test.js",
+    "test": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js && node tests/browser.test.js && node tests/a11y.test.js && node tests/genes.test.js && node tests/explorer.test.js && node tests/published.test.js",
     "test:fast": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js && node tests/explorer.test.js --no-browser",
     "test:live": "node tests/browser.test.js https://generoute.co.uk/cancer-family-history-navigator/",
     "update:panels": "python3 tools/update-panels.py",
     "update:criteria": "tools/update-criteria.sh",
     "bump": "tools/bump-version.sh",
     "test:a11y": "node tests/a11y.test.js",
-    "update:explorer": "python3 tools/update-explorer.py"
+    "update:explorer": "python3 tools/update-explorer.py",
+    "test:published": "node tests/published.test.js"
   },
   "devDependencies": {
     "playwright": "1.56.1",

@@ -20,3 +20,5 @@ jobs:
         run: node tests/a11y.test.js
       - name: Gene pages and links
         run: node tests/genes.test.js
+      - name: Published-case accuracy (top-5 floor)
+        run: node tests/published.test.js

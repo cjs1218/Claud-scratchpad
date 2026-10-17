@@ -215,6 +215,7 @@ npm run test:live           # browser tests against the published site
 - `tests/browser.test.js` – the app in Chromium (forms, results, pop-ups, printout, phone layout).
 - `tests/a11y.test.js` – axe accessibility check of the main views in light and dark mode (serious problems and heading order).
 - `tests/genes.test.js` – every gene page renders and its links are well formed.
+- `tests/published.test.js` – 50 real families from open-access published case reports across 25 genes (`tests/published-cases.json`, each with citation, evidence quotes and notes): where the confirmed gene's syndrome ranks (top 1 / 3 / 5) and whether a matching Test Directory test is met. Fails if the top-5 rate falls below the recorded floor. On 17 Oct 2026: top 1 76%, top 3 88%, top 5 92%; Test Directory route met 92%.
 - `tests/explorer.test.js` – Explorer data (every indication has tests, criteria, specialties) and the page in Chromium (`--no-browser` for the data checks only).
 
 GitHub runs the same checks on every push (`.github/workflows/test.yml`).
