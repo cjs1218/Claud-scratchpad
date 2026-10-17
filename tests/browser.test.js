@@ -1161,6 +1161,14 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(/v99\.0 adds NEWGENE and removes MLH1/.test(warn) && /not tested until signed off/.test(warn) && await page.locator('#tests-detail .gene-pending').count() === 1, 'genes added or removed since sign-off are flagged as not yet tested');
     await page.evaluate(g => { TEST_GENES.R207 = g; }, g);
   }
+  {
+    const href = await page.getAttribute('#tests-detail a[href="test-directory-explorer/#R207"]', 'target');
+    check(href === '_blank' && await page.locator('.site-head a.xp-link[href="test-directory-explorer/"][target=_blank]').count() === 1 && await page.locator('#tab-tests .tests-xp a[href="test-directory-explorer/"]').count() === 1, 'header, Test Directory tab and each test link to the Test Directory Explorer in a new tab');
+    const xp = await browser.newPage();
+    await xp.goto(new URL('test-directory-explorer/#R207', page.url()).href); await xp.waitForSelector('#detail:not([hidden]) #detail-title');
+    check(/R207/.test(await xp.textContent('#detail-title')), 'the Explorer link opens that test in the Explorer');
+    await xp.close();
+  }
   await page.goto(BASE + '#test=R208'); await page.waitForSelector('#tests-detail h2');
   check(/Other syndromes with genes on this panel/.test(await page.textContent('#tests-detail')) && await page.locator('#tests-detail a[href="#syndrome=fanconi"]').count() === 1, 'shared genes for other conditions are listed separately');
   await page.goto(BASE); await loadEx(page, 'brca'); await page.locator('#results [data-test=R208]').first().click();
@@ -1241,7 +1249,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   const st = await page.evaluate(() => document.getElementById('jump-surveillance').getBoundingClientRect().top);
   check(st >= 40 && st < 200 && new URL(page.url()).hash === '#syndrome=men2', `Surveillance jump scrolls to the section below the tab bar (${Math.round(st)}px), hash unchanged`);
   check(await page.getAttribute('link[rel=icon]', 'href') === 'assets/favicon.svg', 'favicon linked');
-  check(await page.getAttribute('.site-head .gh-link', 'href') === 'https://github.com/cjs1218/Claud-scratchpad' && await page.locator('.site-head .gh-link svg path').count() === 1 && await page.isVisible('.site-head .gh-link'), 'GitHub link with logo in header');
+  check(await page.getAttribute('.site-head .gh-link:not(.xp-link)', 'href') === 'https://github.com/cjs1218/Claud-scratchpad' && await page.locator('.site-head .gh-link:not(.xp-link) svg path').count() === 1 && await page.isVisible('.site-head .gh-link:not(.xp-link)'), 'GitHub link with logo in header');
   const foot = await page.locator('.site-foot').textContent();
   check(/128 genes from the NICPR gene list/.test(foot) && /103 conditions/.test(foot) && foot.includes('Information checked ' + DATA_CHECKED) && /ClinGen/.test(foot) && await page.locator('.site-foot a[href="#sources"]').count() === 1, 'footer describes current sources with live counts and date');
   check(await page.locator('.site-foot a[href="https://github.com/cjs1218/Claud-scratchpad"] svg').count() === 1, 'GitHub link with logo in footer');
@@ -1284,7 +1292,8 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.locator('#syn-list a[href="#syndrome=vhl"]').click();
   await page.waitForFunction(() => /von Hippel/i.test(document.querySelector('#syn-detail h2').textContent));
   check(!(await page.isVisible('#syn-list')), 'phone: choosing a syndrome closes the list');
-  check(await page.isVisible('.site-head .gh-link svg') && (await page.locator('.site-head .gh-link').boundingBox()).width < 50, 'phone: GitHub link shows as a compact logo button');
+  check(!(await page.isVisible('.site-head .gh-link:not(.xp-link)')) && await page.locator('.site-foot .foot-code a[href="https://github.com/cjs1218/Claud-scratchpad"]').count() === 1, 'phone: GitHub link moves to the footer, leaving room in the header');
+  check(await page.isVisible('.site-head .xp-link') && (await page.locator('.site-head .xp-link').boundingBox()).width < 130, 'phone: Explorer link shows as a short button in the header');
   check(!(await page.isVisible('.lede-long')) && await page.isVisible('.disc-short'), 'phone: slim header with short disclaimer once a family is entered');
   check(await page.evaluate(() => [...document.querySelectorAll('.tabs button')].every(b => b.getBoundingClientRect().height < 50)), 'phone: tab labels stay on one line');
   await page.click('[data-tab=assess]');

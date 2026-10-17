@@ -184,6 +184,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 
 .browse-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .browse-controls input[type="search"] { flex: 2; min-width: 200px; }
+.tests-xp { margin: -4px 0 12px; }
 #browse-test { flex: 1; max-width: 320px; }
 #browse-cancer { display: inline-flex; gap: 8px; flex-wrap: wrap; }
 #browse-cancer[hidden] { display: none; }
@@ -300,8 +301,10 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 .foot-code { margin: 8px 0 0; }
 .foot-code a { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
 .gh-mark { flex: none; }
+.head-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; flex: none; }
 @media (max-width: 600px) {
   .gh-link { padding: 6px; margin-top: 0; }
+  .head-links .gh-link:not(.xp-link) { display: none; } /* the footer keeps the GitHub link */
   .gh-link span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 @media print { .gh-link { display: none; } }

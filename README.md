@@ -131,6 +131,8 @@ genes on the PanelApp panel, and linked syndromes and their cancers. Each word a
 each test (most mentions first); the open test highlights every match in yellow, with Previous / Next. Each test has its own page
 (`#test=R208`) with the exact criteria, genes, linked syndromes and – when a family has been entered – who meets, may
 meet or nearly meets each criterion; "Met or may be met by this family" filters the list. The R-code pop-up links to it.
+The header, this tab and each test (pop-up and page) link to the Test Directory Explorer (`test-directory-explorer/#R208`), which
+covers every R code; the links open in a new tab so the family entered is kept.
 
 ## Family tree
 

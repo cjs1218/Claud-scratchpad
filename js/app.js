@@ -239,6 +239,8 @@
     `<button type="button" class="${cls} test-link" data-test="${esc(key)}" title="${esc(TESTS[key].name)}${note}&#10;Genes: ${esc(genesShort(key))}&#10;Click for the full criteria">${esc(label)}</button>`;
 
   const link = (label, url) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a>`;
+  // The Test Directory Explorer's page for a test (opens in a new tab, so the family entered here is kept).
+  const explorerLink = code => link(`${code} in the Test Directory Explorer`, `test-directory-explorer/#${code}`);
 
   const leafletLi = k => `<li>${link(EG[k].label, EG[k].url)}</li>`;
 
@@ -1188,7 +1190,7 @@
       </header>
       ${page ? testPageExtras(code) : `<p class="small"><a href="#test=${esc(code)}" data-close>Open on the Test Directory tab →</a></p>`}
       <p class="small muted">Genes: ${esc(t.genes)}${t.panel ? ` · ${link('PanelApp ' + t.panel, PANELAPP(t.panel))}` : ''} ·
-        ${link(`Test Directory v9.1${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))}${t.part ? ` · Part ${esc(t.part)}` : ''}</p>
+        ${link(`Test Directory v9.1${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))}${t.part ? ` · Part ${esc(t.part)}` : ''} · ${explorerLink(code)}</p>
       <section class="crit-family"><h3>This family</h3>${summary}</section>
       <section><h3>Testing criteria${tc ? ' (exact wording)' : ''}</h3>${items}</section>
       ${testGenesHtml(code, q)}
