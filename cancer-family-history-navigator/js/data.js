@@ -1859,6 +1859,13 @@ const EXAMPLES = [
       ['mother', 'F', [{ site: 'breast', hist: 'idc', age: '31', er: 'pos', pr: 'neg', her2: 'pos' }]],
       ['m_aunt', 'F', [{ site: 'adrenal', hist: 'acc', age: '3' }]],
       ['m_gm', 'F', [{ site: 'cns', hist: 'hgg', age: '44' }], { deceased: true, ageDeath: '45' }]] },
+  { id: 'dicer1', label: 'DICER1 tumour predisposition', top: 'dicer1', test: 'R364',
+    caption: 'Pleuropulmonary blastoma at 2; mother with a multinodular goitre at 15 and a Sertoli–Leydig cell tumour of the ovary at 24, maternal aunt with a cystic nephroma in childhood.',
+    people: [
+      ['proband', 'F', [{ site: 'lung', hist: 'ppb', age: '2' }]],
+      ['mother', 'F', [{ site: 'thyroid', hist: 'mng', age: '15' }, { site: 'ovary', hist: 'sertoli', age: '24' }]],
+      ['m_aunt', 'F', [{ site: 'kidney', hist: 'cystic_nephroma', age: '3' }]],
+      ['father', 'M', [], { ageNow: '36' }]] },
   { id: 'fap', label: 'Familial adenomatous polyposis (APC)', top: 'fap', test: 'R211',
     caption: 'Over 100 adenomas at 24 with CHRPE; mother with bowel cancer at 39 and a maternal uncle with a desmoid tumour.',
     people: [

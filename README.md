@@ -104,7 +104,7 @@ Relatives with at least one cancer entered fold into a one-line card (cancers, c
 click a card to edit it and **Done** to fold it again. Loading a family or adding a relative folds the others.
 
 **Load example** opens a menu of fictional, clear-cut example families (BRCA, Lynch MSH2, PTEN, BAP1, Li-Fraumeni,
-FAP, MUTYH (MAP), multiple colorectal adenomas (MCRA), serrated polyposis (SPS), VHL, SDHB), each with a short caption. They live in `EXAMPLES` in `js/data.js`; each names the syndrome
+DICER1, FAP, MUTYH (MAP), multiple colorectal adenomas (MCRA), serrated polyposis (SPS), VHL, SDHB), each with a short caption. They live in `EXAMPLES` in `js/data.js`; each names the syndrome
 that should rank first (`top`) and the R code the proband should meet (`test`), which the browser tests check.
 
 The relationship is chosen in two steps: a short list (Grandmother, Aunt, First cousin…), then the side of the
