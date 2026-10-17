@@ -573,7 +573,7 @@
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     toast('Family saved to your downloads.');
   }
-  const REMEMBER_KEY = 'cpd-family-v1', REMEMBER_DAYS = 7;
+  const REMEMBER_KEY = 'cpd-family-v1', REMEMBER_HOURS = 24;
   function remember() {
     try { if (localStorage.getItem(REMEMBER_KEY + ':on') === '1') { localStorage.setItem(REMEMBER_KEY, JSON.stringify(familyData())); localStorage.setItem(REMEMBER_KEY + ':at', String(Date.now())); } } catch (e) { /* storage unavailable */ }
   }
@@ -2377,15 +2377,15 @@
         .finally(() => { e.target.value = ''; });
     });
     try {
-      // A remembered family is cleared after 7 days without use (health data, stored unencrypted).
+      // A remembered family is cleared after 24 hours without use (health data, stored unencrypted).
       const at = +localStorage.getItem(REMEMBER_KEY + ':at') || 0;
-      if (localStorage.getItem(REMEMBER_KEY + ':on') === '1' && at && Date.now() - at > REMEMBER_DAYS * 864e5) [':on', ':at', ''].forEach(k => localStorage.removeItem(REMEMBER_KEY + k));
+      if (localStorage.getItem(REMEMBER_KEY + ':on') === '1' && at && Date.now() - at > REMEMBER_HOURS * 36e5) [':on', ':at', ''].forEach(k => localStorage.removeItem(REMEMBER_KEY + k));
       $('#remember').checked = localStorage.getItem(REMEMBER_KEY + ':on') === '1';
       if ($('#remember').checked) { const saved = localStorage.getItem(REMEMBER_KEY); if (saved) loadFamily(JSON.parse(saved)); }
     } catch (e) { /* storage unavailable */ }
     $('#remember').addEventListener('change', e => {
       try {
-        if (e.target.checked) { localStorage.setItem(REMEMBER_KEY + ':on', '1'); remember(); toast(`Remembered in this browser only, unencrypted, until you untick the box, press Clear or ${REMEMBER_DAYS} days pass without use. Do not use this on a shared computer.`); }
+        if (e.target.checked) { localStorage.setItem(REMEMBER_KEY + ':on', '1'); remember(); toast(`Remembered in this browser only, unencrypted, until you untick the box, press Clear or ${REMEMBER_HOURS} hours pass without use. Do not use this on a shared computer.`); }
         else { [':on', ':at', ''].forEach(k => localStorage.removeItem(REMEMBER_KEY + k)); toast('Family removed from this browser.'); }
       } catch (err) { e.target.checked = false; toast('This browser does not allow saving here. Use "Save family to file" instead.'); }
     });
