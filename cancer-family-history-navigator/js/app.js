@@ -1129,6 +1129,7 @@
     </section>`;
   }
   // Breast screening if no inherited condition is found (NICE CG164): the family-history pattern's care level and surveillance.
+  const cg164Tag = rec => `<span class="cg-rec" title="NICE CG164 recommendation ${esc(rec)}">CG164 ${esc(rec)}</span>`;
   function breastFhHtml() {
     const b = breastFhCategory(state.people, state.ancestry);
     if (!b.any) return '';
@@ -1137,14 +1138,17 @@
       <h3>Breast screening if no inherited condition is found</h3>
       <div class="fh-plan fh-plan-${b.level === 'high' ? 'polyposis' : b.level === 'moderate' ? 'relative' : 'category'}">
         <p class="fh-plan-title"><strong>${esc(L.label)}</strong></p>
-        <dl class="fh-steps">${b.reasons.length ? `<dt>Because</dt><dd>${esc(b.reasons.join('; '))}.</dd>` : ''}
+        <dl class="fh-steps">${b.reasons.length ? `<dt>Because</dt><dd><ul class="bfh-reasons">${b.reasons.map(r => `<li>${esc(r.text)} ${cg164Tag(r.rec)}</li>`).join('')}</ul></dd>` : ''}
           <dt>Risk</dt><dd>${esc(L.risk)}</dd><dt>Screening</dt><dd>${abbrHtml(L.screen)}</dd>${L.vhr ? `<dt>Very high risk</dt><dd>${abbrHtml(L.vhr)} ${link('NHS BSP very high risk protocol (Nov 2025)', GUIDES.nhsbsp_vhr[1])}</dd>` : ''}
-          ${b.advice.length ? `<dt>Seek advice</dt><dd>Also present: ${esc(b.advice.join('; '))} – seek advice from secondary care or the specialist genetics service (CG164 1.3.4, 1.4.2, 1.4.5).</dd>` : ''}</dl>
+          ${b.advice.length ? `<dt>Seek advice</dt><dd>Also present – seek advice from secondary care or the specialist genetics service:<ul class="bfh-reasons">${b.advice.map(a => `<li>${esc(a.text)} ${cg164Tag(a.rec)}</li>`).join('')}</ul></dd>` : ''}</dl>
         ${b.proAffected ? '<p class="small muted">The proband has had breast cancer, so their own follow-up follows the NICE early and locally advanced breast cancer guideline (and CG164 1.6.10–1.6.15 if they remain at high risk); this pattern applies to their unaffected relatives.</p>' : ''}
         ${pro && pro.sex === 'M' ? '<p class="small muted">Screening applies to women in the family.</p>' : ''}
         <p class="small muted">Source: ${link(g[0], g[1])} – recommendations ${esc(L.rec)}${b.level === 'high' ? '' : ', 1.4.2'}, 1.6 and the risk categories.</p>
       </div>
       <ul class="small muted">${BREAST_FH.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
+      <details class="fhcc-defs bfh-how"><summary class="small">How CG164 is applied here</summary>
+        <ol class="small">${BREAST_FH.interpretations.map(n => `<li>${abbrHtml(n)}</li>`).join('')}</ol>
+      </details>
     </section>`;
   }
   // "What to do": one line each for testing, the leading syndrome, bowel and breast screening, with links to the full sections.
@@ -1556,10 +1560,10 @@
     if (bf.any) {
       const L = BREAST_FH.levels[bf.level];
       lines.push('', 'BREAST SCREENING IF NO INHERITED CONDITION IS FOUND (NICE CG164)', `- ${L.label}`);
-      if (bf.reasons.length) lines.push(`  · Because: ${bf.reasons.join('; ')}`);
+      bf.reasons.forEach(r => lines.push(`  · Because: ${r.text} [CG164 ${r.rec}]`));
       lines.push(`  · Risk: ${L.risk}`, `  · Screening: ${L.screen}`);
       if (L.vhr) lines.push(`  · Very high risk (NHS BSP, Nov 2025): ${L.vhr}`);
-      if (bf.advice.length) lines.push(`  · Seek advice – also present: ${bf.advice.join('; ')}`);
+      bf.advice.forEach(a => lines.push(`  · Seek advice – ${a.text} [CG164 ${a.rec}]`));
     }
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {

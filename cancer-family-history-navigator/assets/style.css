@@ -785,3 +785,10 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .legal-list dt { font-weight: 700; margin-top: 8px; }
 .legal-list dd { margin: 2px 0 0; }
 .todo-warn { margin: 0 0 8px; padding: 6px 10px; border-left: 4px solid var(--warn-edge); background: var(--warn-bg); color: var(--warn-fg); border-radius: 4px; font-size: 0.92rem; }
+
+/* Breast box: reasons with their CG164 recommendation */
+.bfh-reasons { margin: 0; padding-left: 18px; }
+.bfh-reasons li { margin: 1px 0; }
+.cg-rec { display: inline-block; padding: 0 6px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.bfh-how ol { margin: 6px 0 0; padding-left: 20px; }
+.bfh-how li { margin: 3px 0; }

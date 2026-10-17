@@ -1346,13 +1346,15 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(/^Decision-support summary from the Cancer Family History Navigator \(independent – not an NHS service\), \d+ \w+ \d{4}; information checked .*Based only on the family history entered/.test(ct) && /not a substitute for clinical judgement, the Test Directory or CanRisk/.test(ct), 'Copy summary opens and closes with the caveat'); }
   await loadEx(page, 'breast_high'); await page.waitForSelector('#results #bfh');
   { const bx = await page.textContent('#results #bfh');
+    check(/2 relatives with breast cancer at an average age under 50: Mother \(46\), Maternal aunt \(44\)\s*CG164 1\.4\.4/.test(bx) && await page.locator('#bfh .bfh-reasons .cg-rec').count() >= 1, 'breast box: each reason shows the CG164 recommendation it meets');
+    check(await page.locator('#bfh details.bfh-how li').count() >= 10 && /referral patterns, not risk calculations/.test(bx) && /third-degree relatives also count/.test(bx) && /epithelial/.test(bx), 'breast box: lists how CG164 is applied (interpretations)');
     check(/Very high risk/.test(bx) && /BRCA1, BRCA2 or PALB2 variant is found – annual MRI from 25/.test(bx) && /TP53 – annual MRI 20–70/.test(bx) && await page.locator('#bfh a[href*="tests-and-frequency-of-testing-for-women-at-very-high-risk"]').count() === 1, 'high-risk breast pattern: very high risk screening from 25 for BRCA1, BRCA2 and PALB2 (NHS BSP, Nov 2025)');
     await page.waitForFunction(() => document.querySelector('#bfh a.canrisk-link'));
     check(await page.locator('#bfh a.canrisk-link[href="https://www.canrisk.org/"][target=_blank]').count() >= 1 && await page.locator('#example-note a.canrisk-link').count() >= 1, '"CanRisk" links to the CanRisk website (breast box and example caption)'); }
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.click('#copy'); await page.waitForTimeout(200);
   { const ct = await page.evaluate(() => navigator.clipboard.readText());
-    check(/BREAST SCREENING IF NO INHERITED CONDITION IS FOUND \(NICE CG164\)\n- High-risk family history pattern/.test(ct) && /· Screening: Annual mammography 40–59/.test(ct), 'Copy summary includes the breast family history pattern and screening'); }
+    check(/BREAST SCREENING IF NO INHERITED CONDITION IS FOUND \(NICE CG164\)\n- High-risk family history pattern/.test(ct) && /· Screening: Annual mammography 40–59/.test(ct) && /· Because: 2 relatives with breast cancer at an average age under 50: Mother \(46\), Maternal aunt \(44\) \[CG164 1\.4\.4\]/.test(ct), 'Copy summary includes the breast family history pattern and screening'); }
   await page.click('[data-act=close-example-note]');
   check(await page.isHidden('#example-note'), 'the example note can be closed');
   await loadEx(page, 'pten'); await page.click('#clear');

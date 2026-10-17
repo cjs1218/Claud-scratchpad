@@ -2125,9 +2125,22 @@ const BREAST_FH = {
       risk: 'Likely under 17% lifetime risk.',
       screen: 'NHS Breast Screening Programme from 50.' }
   },
-  notes: ['For women without a personal history of breast cancer. First- and second-degree relatives count (four relatives may include third-degree); criteria that need the same side of the family are checked one side at a time.',
-    'Average ages use each relative’s earliest breast cancer; in bilateral cancer each breast counts once where CG164 says so.',
-    'A known BRCA1, BRCA2 or TP53 variant in the family means direct referral to a specialist genetics service (1.3.6).']
+  notes: ['For women without a personal history of breast cancer. Each reason shows the CG164 recommendation it meets.',
+    'A known BRCA1, BRCA2 or TP53 variant in the family means direct referral to a specialist genetics service (1.3.6).'],
+  // How the CG164 criteria are applied – where the guideline is not explicit, these are this tool's interpretations.
+  interpretations: [
+    'The levels are CG164 family-history referral patterns, not risk calculations: meeting 1.4.4 is shown as high risk (specialist genetic clinic) and meeting 1.3.3 as moderate risk (secondary care). CG164 asks for a formal risk assessment (e.g. CanRisk) to confirm the category.',
+    '1.3.3 is strictly the criteria for referral from primary to secondary care for assessment; families that meet it but not 1.4.4 are shown as moderate, in line with secondary care management in 1.4.2.',
+    'The family-history criteria date from the 2004 guideline and were kept unchanged in the 2013 update; regional family history services may use their own referral criteria.',
+    'Relatives counted: first- and second-degree relatives of the person being assessed; for “4 relatives” in 1.4.4, which does not state a degree, third-degree relatives also count. At least one must be first-degree where CG164 says so.',
+    'Same side of the family: criteria that CG164 says must be on the same side (ovarian cancer, male breast cancer) – and, as an interpretation, the female breast cancer patterns in 1.4.4 – are checked on the mother’s and father’s sides separately. Siblings and children count on both sides.',
+    'Average ages use each relative’s earliest breast cancer and the youngest qualifying set of relatives (including a first-degree relative where required). Relatives with no age given are left out of age-based criteria.',
+    'Bilateral breast cancer: each breast counts as one relative only in the bilateral criteria, as CG164 states; the age of the second cancer is used if given, otherwise the first.',
+    'Ovarian cancer means epithelial ovarian, fallopian tube or peritoneal cancer (serous, endometrioid, clear cell, mucinous or epithelial type unknown); non-epithelial ovarian tumours are not counted.',
+    'Male breast cancer counts in the male breast cancer and ovarian cancer combinations and in the moderate-risk counts; the female breast cancer patterns of 1.4.4 count female relatives only.',
+    '“Seek advice” features (1.3.4, the exclusions in 1.4.2, and 1.4.5) are listed when the pattern is below high risk. The paternal-history feature uses 1.3.4’s “2 or more relatives on the father’s side”, not 1.4.2’s stricter 4 relatives under 60.',
+    'If the person being assessed has had breast cancer, their own follow-up comes from the NICE early and locally advanced breast cancer guideline (and CG164 1.6.10–1.6.15); the pattern shown applies to their unaffected relatives.'
+  ]
 };
 
 /*

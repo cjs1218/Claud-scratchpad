@@ -151,7 +151,7 @@ t('Carney: one feature alone does not meet', [P('proband','F',[{site:'feature',h
 t('Carney: myxoma + thyroid cancer – may meet (if young)', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'},{site:'thyroid',hist:'papillary',age:'26'}])], [['proband','R156','maybe']]);
 {
   // Breast cancer family history (NICE CG164): high (1.4.4), moderate (1.3.3) or near population, with "seek advice" features.
-  const B = (name, ppl, level, extra) => { const r = w.breastFhCategory([P('proband', 'F'), ...ppl], extra && extra.anc); ok(r.level === level && (!extra || !extra.advice || r.advice.some(a => a.includes(extra.advice))), `Breast FH ${name}: expected ${level} got ${r.level} (${r.reasons.join('; ')}) [${r.advice.join('; ')}]`); };
+  const B = (name, ppl, level, extra) => { const r = w.breastFhCategory([P('proband', 'F'), ...ppl], extra && extra.anc); ok(r.level === level && (!extra || !extra.advice || r.advice.some(a => a.text.includes(extra.advice))) && r.reasons.every(x => x.rec === (level === 'high' ? '1.4.4' : '1.3.3')) && r.advice.every(a => /^1\.[34]\.\d/.test(a.rec)), `Breast FH ${name}: expected ${level} got ${r.level} (${r.reasons.map(x => x.text + ' ' + x.rec).join('; ')}) [${r.advice.map(a => a.text).join('; ')}]`); };
   const br = (a, more) => [{ site: 'breast', hist: 'idc', age: String(a), ...more }];
   ok(!w.breastFhCategory([P('proband', 'F'), P('mother', 'F', [{ site: 'colorectal', hist: 'adeno', age: '60' }])]).any, 'Breast FH: no breast or ovarian cancer – no section');
   B('mother at 38', [P('mother', 'F', br(38))], 'moderate');
