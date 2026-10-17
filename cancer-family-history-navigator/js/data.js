@@ -1476,9 +1476,17 @@ const SURVEILLANCE = {
 };
 
 /*
- * Date each syndrome's content (associations, tests, references, surveillance) was last reviewed,
- * as YYYY-MM-DD. Update the entry whenever a syndrome is re-checked; pages flag dates over 12 months old.
+ * Date each syndrome's content (associations, tests, references, surveillance) was last checked against its cited
+ * sources, as YYYY-MM-DD. These checks are AI-assisted and are shown as such ("Sources checked … (AI-assisted)").
+ * Update the entry whenever a syndrome is re-checked; pages flag dates over 12 months old.
  */
+/*
+ * Clinical review by a named clinician: { conditionId: ['YYYY-MM-DD', 'Name, role'] }. Only added when a clinician has
+ * reviewed the syndrome's content and agreed to be named; never filled in automatically. Pages show "Clinical review:
+ * not yet" until then.
+ */
+const CLINICAL_REVIEW = {};
+
 const LAST_REVIEWED = {
   fancm: '2026-10-11',
   brca1: '2026-10-11', brca2: '2026-10-11', palb2: '2026-10-11', atm: '2026-10-11', chek2: '2026-10-12', bard1: '2026-10-11',

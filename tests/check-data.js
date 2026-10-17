@@ -55,6 +55,10 @@ for (const c of d.CONDITIONS) {
   if (!r || !/^\d{4}-\d{2}-\d{2}$/.test(r) || isNaN(Date.parse(r))) e(`${c.id}: missing or invalid LAST_REVIEWED date`);
 }
 for (const k of Object.keys(d.LAST_REVIEWED)) if (!ids.has(k)) e(`LAST_REVIEWED key ${k} is not a condition`);
+for (const [k, v] of Object.entries(d.CLINICAL_REVIEW || {})) {
+  if (!ids.has(k)) e(`CLINICAL_REVIEW key ${k} is not a condition`);
+  if (!Array.isArray(v) || !/^\d{4}-\d{2}-\d{2}$/.test(v[0]) || isNaN(Date.parse(v[0])) || !(v[1] || '').trim()) e(`${k}: CLINICAL_REVIEW needs ['YYYY-MM-DD', 'Name, role']`);
+}
 for (const [id, pages] of Object.entries(d.GENOTES)) {
   if (!ids.has(id)) e(`GENOTES key ${id} is not a condition`);
   for (const [t, path] of pages) if (!t || !/^(knowledge-hub|in-the-clinic)\/[a-z0-9-]+\/$/.test(path)) e(`GENOTES ${id}: bad entry ${t} ${path}`);

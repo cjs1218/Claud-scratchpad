@@ -1105,7 +1105,7 @@
     const c = FHCC.categories[f.category], g = GUIDES[FHCC.source], PP = FHCC.polyps, post = GUIDES[PP.source];
     const am = amsterdamCriteria(state.people), plans = fhccPlans(f);
     const lead = plans.filter(p => p.kind !== 'polyps').length;
-    return `<section class="fhcc" id="fhcc">
+    return `<section class="fhcc" id="fhcc" tabindex="-1">
       <h3>Bowel screening if no inherited condition is found</h3>
       ${plans.length > 1 ? `<p class="small">${plans.length + 1} things apply to this family – each is set out below.</p>` : ''}
       ${plans.map(fhccPlanHtml).join('')}
@@ -1133,7 +1133,7 @@
     const b = breastFhCategory(state.people, state.ancestry);
     if (!b.any) return '';
     const L = BREAST_FH.levels[b.level], g = GUIDES[BREAST_FH.source], pro = state.people.find(p => p.rel === 'proband');
-    return `<section class="fhcc bfh" id="bfh">
+    return `<section class="fhcc bfh" id="bfh" tabindex="-1">
       <h3>Breast screening if no inherited condition is found</h3>
       <div class="fh-plan fh-plan-${b.level === 'high' ? 'polyposis' : b.level === 'moderate' ? 'relative' : 'category'}">
         <p class="fh-plan-title"><strong>${esc(L.label)}</strong></p>
@@ -1145,6 +1145,25 @@
         <p class="small muted">Source: ${link(g[0], g[1])} – recommendations ${esc(L.rec)}${b.level === 'high' ? '' : ', 1.4.2'}, 1.6 and the risk categories.</p>
       </div>
       <ul class="small muted">${BREAST_FH.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
+    </section>`;
+  }
+  // "What to do": one line each for testing, the leading syndrome, bowel and breast screening, with links to the full sections.
+  function whatToDoHtml(shown, all) {
+    const met = eligibilityList(), maybe = eligibilityList(true), rows = [];
+    const who = l => l.map(([p, os]) => `<strong>${esc(personLabel(p))}</strong>${p.deceased ? ' (deceased – stored DNA or tissue needed)' : ''}: ${[...new Set(os.map(o => o.test))].map(c => testBtn(c)).join(' ')}`).join('; ');
+    rows.push(['Test Directory', `${met.length ? `Meets criteria now – ${who(met)}` : 'No one meets the criteria checked, as entered'}${maybe.length ? `. May meet (check a detail) – ${who(maybe)}` : ''}.`, 'elig']);
+    if (shown.length) rows.push(['Leading syndrome', `${esc(shown[0].cond.name)}${weakPattern(all) ? ' – no strong pattern; scores are relative, not probabilities' : ''}.`, 'dx-start']);
+    const f = fhccCategory(state.people);
+    if (f.any) {
+      const plans = fhccPlans(f), c = FHCC.categories[f.category];
+      rows.push(['Bowel screening', plans.length ? `${abbrHtml(plans[0].title)}${plans.length > 1 ? ` – and ${plans.length - 1} more below` : ''}.` : `${esc(c.label)} – ${esc(c.offer)}`, 'fhcc']);
+    }
+    const b = breastFhCategory(state.people, state.ancestry);
+    if (b.any) rows.push(['Breast screening', `${esc(BREAST_FH.levels[b.level].label)}${b.advice.length ? ' – also seek advice (see below)' : ''}.`, 'bfh']);
+    return `<section class="todo" id="todo" aria-labelledby="todo-title">
+      <h3 id="todo-title">What to do</h3>
+      <dl class="fh-steps">${rows.map(([k, v, id]) => `<dt>${esc(k)}</dt><dd>${v} <button type="button" class="link-btn todo-jump" data-todo-jump="${id}" aria-label="${esc(k)} – go to the details">Details ↓</button></dd>`).join('')}</dl>
+      <p class="small muted">A summary of the sections below, from what has been entered – read them, and the sources, before acting.</p>
     </section>`;
   }
   function renderResults() {
@@ -1181,9 +1200,10 @@
     }
     out.innerHTML = `
       ${familyTableHtml()}
+      ${whatToDoHtml(shown, all)}
       ${eligibilityHtml()}
       ${state.printFull ? pedigreeHtml(shown) : ''}
-      <p class="muted small shown-note">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
+      <p class="muted small shown-note" id="dx-start" tabindex="-1">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${weakPattern(all) ? `<div class="weak-note" role="note"><strong>No strong pattern.</strong> ${WEAK_TEXT}</div>` : ''}
       ${TIER_LEGEND}
       ${shown.slice(0, MORE_AFTER).map((r, i) => resultCard(r, i, top)).join('')}
@@ -1447,9 +1467,9 @@
           <div class="elig-why">${reasons(o)}</div></li>`).join('')}</ul></li>`).join('')}</ul>`;
     const maybeHtml = maybe.length ? `<div class="elig-maybe"><h4>May meet – check an unrecorded detail</h4>${people(maybe)}</div>` : '';
     const foot = `<p class="small muted">Checked against the inherited cancer tests (${ELIG_TESTS.join(', ')}) using what has been entered. Click a test code for the exact criteria and the full reasons. Criteria needing information not recorded here (e.g. CanRisk, Wimmer score) are not assessed. Deceased relatives need stored DNA, or tissue with Manchester ≥17 / CanRisk ≥15% for R208/R207. Always confirm against the ${link(TD_VERSION, TD_URL)}.</p>`;
-    if (!list.length) return `<section class="elig none"><h3>Test Directory criteria</h3>${ams}
+    if (!list.length) return `<section class="elig none" id="elig" tabindex="-1"><h3>Test Directory criteria</h3>${ams}
       <p class="small">No one in the family as entered meets the inherited cancer test criteria checked here. Check the full criteria, CanRisk and the Manchester score.</p>${maybeHtml}${foot}</section>`;
-    return `<section class="elig"><h3>Meets Test Directory criteria now</h3>${ams}
+    return `<section class="elig" id="elig" tabindex="-1"><h3>Meets Test Directory criteria now</h3>${ams}
       ${people(list)}${maybeHtml}${foot}</section>`;
   }
 
@@ -1694,17 +1714,18 @@
     }).join('');
   }
 
-  /* ---- Last reviewed date per syndrome (flagged when over 12 months old) ---- */
+  /* ---- Review per syndrome: AI-assisted source check (flagged when over 12 months old) and named clinical review ---- */
+  const longDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   function reviewInfo(c) {
-    const iso = LAST_REVIEWED[c.id];
-    if (!iso) return { text: 'Not recorded', stale: true };
-    const d = new Date(iso + 'T00:00:00');
-    const stale = (Date.now() - d.getTime()) / 864e5 > 365;
-    return { text: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }), stale };
+    const iso = LAST_REVIEWED[c.id], cr = (typeof CLINICAL_REVIEW !== 'undefined' && CLINICAL_REVIEW[c.id]) || null;
+    const clinical = cr ? `Clinically reviewed ${longDate(cr[0])} by ${cr[1]}` : 'Clinical review: not yet';
+    if (!iso) return { text: 'Sources check not recorded', clinical, stale: true };
+    const stale = (Date.now() - new Date(iso + 'T00:00:00').getTime()) / 864e5 > 365;
+    return { text: `Sources checked ${longDate(iso)} (AI-assisted)`, clinical, reviewed: !!cr, stale };
   }
   function reviewedHtml(c) {
     const r = reviewInfo(c);
-    return `<span class="reviewed${r.stale ? ' stale' : ''}">${esc(r.text)}${r.stale ? ' <span class="stale-flag">over 12 months ago – due for review</span>' : ''}</span>`;
+    return `<span class="reviewed${r.stale ? ' stale' : ''}">${esc(r.text)}${r.stale ? ' <span class="stale-flag">over 12 months ago – due for review</span>' : ''}<br><span class="${r.reviewed ? 'clin-reviewed' : 'clin-pending'}">${esc(r.clinical)}</span></span>`;
   }
 
   /* On screen: a button to the Sources tab. In print: the full table plus the web address of the list. */
@@ -1828,7 +1849,7 @@
       <dl class="syn-facts">
         <dt>Genes</dt><dd>${c.genes.map(g => forPrint ? esc(g) : `<a href="#gene=${g}">${esc(g)}</a>`).join(', ')}</dd>
         <dt>Inheritance</dt><dd>${esc(c.inh)}</dd>
-        <dt>Last reviewed</dt><dd>${reviewedHtml(c)}</dd>
+        <dt>Review</dt><dd>${reviewedHtml(c)}</dd>
         ${flags.length ? `<dt>NICPR notes</dt><dd>${flags.map(([g, f]) => `${esc(g)}: ${esc(f.join('; '))}`).join('<br>')}</dd>` : ''}
       </dl>
       <h3 id="jump-cancers">Cancers and histology</h3>
@@ -1870,7 +1891,7 @@
       </dl>
       <h3 id="jump-syndromes">Syndromes caused by ${esc(g)}</h3>
       <div class="table-wrap"><table class="syn-table">
-        <thead><tr><th>Syndrome</th><th>Inheritance</th><th>Main cancers and features (hallmark / strong)</th><th>Last reviewed</th></tr></thead>
+        <thead><tr><th>Syndrome</th><th>Inheritance</th><th>Main cancers and features (hallmark / strong)</th><th>Review</th></tr></thead>
         <tbody>${cs.map(c => `<tr><td>${forPrint ? esc(c.name) : `<a href="#syndrome=${c.id}">${esc(c.name)}</a>`}</td><td>${esc(c.inh)}</td><td>${abbrHtml(mainCancers(c))}</td><td>${reviewedHtml(c)}</td></tr>`).join('')}</tbody>
       </table></div>
       ${cs.filter(c => c.note).map(c => `<p class="note">${esc(c.name)}: ${esc(c.note)}</p>`).join('')}
@@ -1954,7 +1975,7 @@
     const src = SOURCES[c.id] || {};
     const ref = REFS[c.id];
     const L = [c.name.toUpperCase(), `Genes: ${c.genes.join(', ')} · Inheritance: ${c.inh}`];
-    { const r = reviewInfo(c); L.push(`Last reviewed: ${r.text}${r.stale ? ' (over 12 months ago – due for review)' : ''}`); }
+    { const r = reviewInfo(c); L.push(`${r.text}${r.stale ? ' (over 12 months ago – due for review)' : ''}; ${r.clinical.charAt(0).toLowerCase() + r.clinical.slice(1)}`); }
     if (c.note) L.push(c.note);
     L.push('', 'CANCERS AND HISTOLOGY');
     [...c.rules].sort((x, y) => TIER_ORDER[x[2]] - TIER_ORDER[y[2]]).forEach(r => {
@@ -2440,6 +2461,13 @@
       const dlg = b.closest('#crit-dialog');
       openPanel(spsCriteriaHtml(dlg && TESTS[dlg.dataset.view] ? dlg.dataset.view : null), 'sps');
     }, true);
+    // "What to do" links scroll to the full section and move focus there.
+    document.addEventListener('click', e => {
+      const b = e.target.closest && e.target.closest('[data-todo-jump]');
+      if (!b) return;
+      const t = document.getElementById(b.dataset.todoJump);
+      if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); t.focus({ preventScroll: true }); }
+    });
     // Test codes open the criteria panel.
     document.addEventListener('click', e => {
       const b = e.target.closest && e.target.closest('[data-test]');

@@ -291,7 +291,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
 .sources ul { margin: 0; padding-left: 18px; font-size: 0.88rem; }
 
 /* Last reviewed date; stale (over 12 months) dates are flagged */
-.reviewed { white-space: nowrap; }
+.reviewed { white-space: normal; }
 .reviewed.stale { color: var(--warn-fg); font-weight: 600; white-space: normal; }
 .stale-flag { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--warn-fg); background: var(--warn-bg); border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; margin-left: 4px; }
 
@@ -768,3 +768,14 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .syn-list a[aria-current] .td-snip { color: inherit; }
 .panel-warn { color: var(--warn-fg); background: var(--warn-bg); border-left: 4px solid var(--warn-edge); padding: 4px 8px; border-radius: 4px; }
 .gene.gene-pending { border: 1px dashed var(--warn-edge); }
+
+/* What to do: summary card at the top of the results */
+.todo { margin: 0 0 14px; padding: 10px 14px; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 6px; background: var(--accent-soft); }
+.todo h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.todo .fh-steps { font-size: 0.95rem; }
+.todo-jump { padding: 0 2px; font-size: 0.85rem; font-weight: 600; text-decoration: underline; cursor: pointer; white-space: nowrap; }
+#todo, #elig, #dx-start, #fhcc, #bfh { scroll-margin-top: 72px; }
+#elig:focus, #dx-start:focus, #fhcc:focus, #bfh:focus { outline: none; }
+.reviewed .clin-pending { color: var(--muted); }
+.reviewed .clin-reviewed { color: var(--ok-text); font-weight: 600; }
+@media print { .todo-jump { display: none; } }

@@ -263,7 +263,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.click('[data-syn-act=copy]');
   const clip2 = await page.evaluate(() => navigator.clipboard.readText());
   check(/SUGGESTED SURVEILLANCE \(UK guidance\)/.test(clip2) && /Differs – EHTG/.test(clip2), 'Copy summary includes surveillance and differences');
-  check(/Last reviewed: 11 October 2026/.test(clip2) && !/due for review/.test(clip2), 'Copy summary includes last reviewed date');
+  check(/Sources checked 11 October 2026 \(AI-assisted\); clinical review: not yet/.test(clip2) && !/due for review/.test(clip2), 'Copy summary includes the source-check date (AI-assisted) and clinical review status');
 
   for (const id of ['chek2', 'atm', 'bard1', 'rad51c', 'rad51d']) {
     const t = await survOf('#syndrome=' + id);
@@ -274,10 +274,16 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(/UK guidance/.test(t) && /Manchester Centre for Genomic Medicine NF1 review/.test(t) && /annual mammography/.test(t) && /ERN GENTURIS 2023: breast MRI/.test(t), 'NF1: Manchester NF1 checklist surveillance, ERN difference noted');
     check(await page.locator('#syn-detail a[href*="NF1_review_checklist_.pdf"]').count() >= 2, 'NF1: Manchester checklist linked');
   }
-  console.log('Last reviewed dates');
+  console.log('Review status (AI-assisted source check, named clinical review)');
   await page.goto(BASE + '#syndrome=men2'); await page.waitForSelector('#syn-detail h2');
   const facts = await page.locator('#syn-detail .syn-facts').textContent();
-  check(/Last reviewed\s*11 October 2026/.test(facts) && !(await page.locator('#syn-detail .stale-flag').count()), 'MEN2 page shows Last reviewed 11 October 2026, not flagged');
+  check(/Review\s*Sources checked 11 October 2026 \(AI-assisted\)\s*Clinical review: not yet/.test(facts) && !(await page.locator('#syn-detail .stale-flag').count()), 'MEN2 page: sources checked 11 October 2026 (AI-assisted), clinical review not yet, not flagged');
+  await page.evaluate(() => { CLINICAL_REVIEW.men2 = ['2026-10-20', 'Dr A Example, consultant clinical geneticist']; location.hash = '#syndrome=vhl'; });
+  await page.waitForFunction(() => location.hash === '#syndrome=vhl' && /von Hippel/.test(document.querySelector('#syn-detail h2').textContent));
+  await page.evaluate(() => { location.hash = '#syndrome=men2'; });
+  await page.waitForFunction(() => /Clinically reviewed 20 October 2026 by Dr A Example/.test(document.querySelector('#syn-detail .syn-facts')?.textContent || ''));
+  check(await page.locator('#syn-detail .clin-reviewed').count() === 1, 'a named clinical review shows with the reviewer and date');
+  await page.evaluate(() => { delete CLINICAL_REVIEW.men2; });
   await page.evaluate(() => { LAST_REVIEWED.vhl = '2025-01-01'; location.hash = '#syndrome=vhl'; });
   await page.waitForFunction(() => /von Hippel/i.test(document.querySelector('#syn-detail h2').textContent));
   check(/1 January 2025/.test(await page.locator('#syn-detail .syn-facts').textContent()) && await page.locator('#syn-detail .reviewed.stale .stale-flag').count() === 1, 'date over 12 months old is flagged as due for review');
@@ -293,7 +299,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/Information sources and dates →/.test(atm) && (await page.locator('#syn-detail h3').allTextContents()).pop() === 'Suggested surveillance', 'gene page: surveillance last, sources button');
   const atmHead = await page.locator('#syn-detail .syn-table:not(.dates):not(.surv-table) thead').textContent();
   const atmRows = await page.locator('#syn-detail .syn-table:not(.dates):not(.surv-table) tbody tr').allTextContents();
-  check(/Last reviewed/.test(atmHead) && atmRows.length === 2 && atmRows.every(r => /11 October 2026/.test(r)), 'gene page shows last reviewed date per syndrome');
+  check(/Review/.test(atmHead) && atmRows.length === 2 && atmRows.every(r => /Sources checked 11 October 2026 \(AI-assisted\)/.test(r) && /Clinical review: not yet/.test(r)), 'gene page shows the review status per syndrome');
   const geneCount = await page.locator('#syn-list li a').count();
   check(geneCount === 137, `By gene lists all 137 genes (got ${geneCount})`);
   await page.locator('#syn-detail a[href="#syndrome=at"]').click();
@@ -1311,6 +1317,17 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     if (ex.breast) check(new RegExp(`^${ex.breast === 'high' ? 'High' : 'Moderate'}-risk family history pattern`).test((await page.textContent('#results #bfh .fh-plan-title')).trim()), `example ${ex.id}: ${ex.breast}-risk breast family history (NICE CG164)`);
     check(await page.isVisible('#example-note') && (await page.textContent('#example-note')).includes(ex.label), `example ${ex.id}: caption shown`);
   }
+  console.log('What to do');
+  await loadEx(page, 'brca'); await page.waitForSelector('#results #todo');
+  { const td = await page.textContent('#results #todo');
+    check(await page.evaluate(() => { const t = document.querySelector('#results #todo'), e = document.querySelector('#results #elig'); return t && e && (t.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'What to do sits at the top of the results, before the eligibility box');
+    check(/Test Directory\s*Meets criteria now – Proband \(F\): R208/.test(td) && /Mother: R208 R207;/.test(td) && !/R208,R207/.test(td) && /Leading syndrome\s*Hereditary breast and ovarian cancer \(BRCA1\)/.test(td) && /Breast screening\s*High-risk family history pattern/.test(td) && await page.locator('#todo button.test-link[data-test=R208]').count() >= 1, 'What to do: who meets which test, the leading syndrome and the breast screening level');
+    await page.locator('#todo [data-todo-jump=bfh]').click(); await page.waitForTimeout(400);
+    check(await page.evaluate(() => document.activeElement && document.activeElement.id === 'bfh'), 'What to do: Details moves to the full section'); }
+  await loadEx(page, 'mcra'); await page.waitForFunction(() => /14 adenomas/.test(document.querySelector('#results #todo')?.textContent || ''));
+  check(/Bowel screening\s*Possible multiple colorectal adenomas \(MCRA\) – 14 adenomas \(proband\) – and 1 more below/.test(await page.textContent('#results #todo')), 'What to do: the first bowel screening plan, and how many more there are');
+  await loadEx(page, 'bowel_mod'); await page.waitForFunction(() => /Moderate-risk family history of colorectal cancer/.test(document.querySelector('#results #todo')?.textContent || ''));
+  check(/No one meets the criteria checked, as entered/.test(await page.textContent('#results #todo')) && /One-off colonoscopy at age 55/.test(await page.textContent('#results #todo')), 'What to do: no test met, and the bowel family history category with its offer');
   await loadEx(page, 'breast_high'); await page.waitForSelector('#results #bfh');
   { const bx = await page.textContent('#results #bfh');
     check(/Very high risk/.test(bx) && /BRCA1, BRCA2 or PALB2 variant is found – annual MRI from 25/.test(bx) && /TP53 – annual MRI 20–70/.test(bx) && await page.locator('#bfh a[href*="tests-and-frequency-of-testing-for-women-at-very-high-risk"]').count() === 1, 'high-risk breast pattern: very high risk screening from 25 for BRCA1, BRCA2 and PALB2 (NHS BSP, Nov 2025)');
