@@ -1174,6 +1174,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     const home = await browser.newPage(), ROOT_URL = new URL('../', BASE).href;
     await home.goto(ROOT_URL);
     check(await home.locator('main a[href="cancer-family-history-navigator/"]').count() === 1 && await home.locator('main a[href="test-directory-explorer/"]').count() === 1, 'site root: landing page links to the Navigator and the Explorer');
+    check(await home.evaluate(() => { const i = document.querySelector('header .brand img'); return i.complete && i.naturalWidth >= 88; }) && await home.locator('link[rel=icon][href="assets/favicon-48.png"]').count() === 1 && await home.locator('link[rel=apple-touch-icon]').count() === 1, 'site root: GeneRoute icon in the header, as the favicon and the home-screen icon');
     await home.goto(ROOT_URL + '#test=R208'); await home.waitForSelector('#tests-detail h2');
     check(home.url().endsWith('cancer-family-history-navigator/#test=R208') && /R208/.test(await home.textContent('#tests-detail h2')), 'site root: an old link (#test=R208) opens that page in the Navigator');
     await home.close();

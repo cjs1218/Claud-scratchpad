@@ -15,6 +15,7 @@ Decision support only. Nothing entered leaves the browser.
 ```
 index.html                       Landing page; old Navigator links (generoute.co.uk/#test=R208) redirect to the Navigator
 CNAME                            Custom domain (generoute.co.uk) for GitHub Pages
+assets/                          Landing page icon (header, favicon, home-screen) and full logo (link previews)
 cancer-family-history-navigator/
   index.html                     The Navigator
   assets/style.css               Styles (light/dark, print)
