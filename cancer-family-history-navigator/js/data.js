@@ -546,7 +546,8 @@ const CONDITIONS = [
       ['cns', 'hgg', 'S', 25, null, null, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'Malignant brain tumours in ~55%, most often high-grade glioma (ERN 2024)'],
       ['colorectal', '*', 'S', 25, null, 35, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'CRC and other LS tumours in ~50% (ERN 2024)'],
       ['smallbowel', '*', 'S', 25, null, 35, ['eu:ern_cmmrd'], 'Small bowel cancer is part of the LS spectrum scored in C4CMMRD'],
-      ['heme', 'all|lymphoma', 'S', 18, null, null, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'Haematological malignancy in ~40%, most often T-cell lymphoblastic lymphoma (ERN 2024)'],
+      ['heme', 'all|lymphoma', 'S', 18, null, 25, ['eu:ern_cmmrd', 'gr:NBK1211', 'us:aacr_brain'], 'Haematological malignancy in ~40%, most often T-cell lymphoblastic lymphoma, nearly all in childhood (ERN 2024); strong only up to 25'],
+      ['heme', 'all|lymphoma', 'W', null, null, null, ['eu:ern_cmmrd', 'gr:NBK1211'], 'After 25: a lymphoma or ALL alone is common and rarely CMMRD'],
       ['polyps', 'adenoma', 'S', 20, 'n10', 30, ['eu:ern_cmmrd'], 'Adenomas or (oligo-)polyposis in most patients during the second decade (ERN 2024)'],
       ['feature', 'cal', 'S', null, null, null, ['eu:ern_cmmrd'], 'CALMs are the most prevalent non-neoplastic feature (ERN 2024)'],
       ['uterus', '*', 'M', 30, null, 35, ['eu:ern_cmmrd'], 'Incidence unknown; part of the LS spectrum (ERN 2024)'],
@@ -1252,13 +1253,15 @@ const CONDITIONS = [
   { id: 'at', name: 'Ataxia–telangiectasia (biallelic ATM)', genes: ['ATM'], inh: 'AR', tests: ['R294','R295'],
     rules: [
       ['feature', 'at', 'H', null, null, null, ['gr:NBK26468', 'us:aacr_gid']],
-      ['heme', 'lymphoma|all', 'S', 20, null, null, ['gr:NBK26468', 'us:aacr_gid', 'us:aacr_heme'], 'Any cancer ~15% by 18 y and 38% by 40 y; ~60% of childhood tumours are NHL (AACR 2024)'],
+      ['heme', 'lymphoma|all', 'S', 20, null, 25, ['gr:NBK26468', 'us:aacr_gid', 'us:aacr_heme'], 'Any cancer ~15% by 18 y and 38% by 40 y; ~60% of childhood tumours are NHL (AACR 2024); strong only up to 25'],
+      ['heme', 'lymphoma|all', 'W', null, null, null, ['gr:NBK26468', 'us:aacr_gid'], 'After 25: a lymphoma or ALL alone is common and rarely A-T (ataxia and telangiectasia are evident from childhood)'],
       ['breast', '*', 'M', null, null, null, ['gr:NBK26468', 'us:aacr_gid', 'ukcgg:atm']]
     ] },
   { id: 'nbs', name: 'Nijmegen breakage syndrome (biallelic NBN)', genes: ['NBN'], inh: 'AR',
     note: 'Heterozygous NBN variants have weak evidence for breast/prostate cancer risk.', tests: ['R259','R457'],
     rules: [
-      ['heme', 'lymphoma|all', 'S', 20, null, null, ['gr:NBK1176', 'us:aacr_gid', 'us:aacr_heme'], 'Malignancy ~40-70% by 20 y, mostly B/T-NHL and T-ALL (AACR 2024)'],
+      ['heme', 'lymphoma|all', 'S', 20, null, 25, ['gr:NBK1176', 'us:aacr_gid', 'us:aacr_heme'], 'Malignancy ~40-70% by 20 y, mostly B/T-NHL and T-ALL (AACR 2024); strong only up to 25'],
+      ['heme', 'lymphoma|all', 'W', null, null, null, ['gr:NBK1176', 'us:aacr_gid'], 'After 25: a lymphoma or ALL alone is common and rarely NBS (microcephaly is evident from birth)'],
       ['feature', 'microcephaly', 'S', null, null, null, ['gr:NBK1176', 'us:aacr_gid']],
       ['cns', 'medullo_nos', 'W', null, null, null, ['gr:NBK1176', 'us:aacr_gid']],
       ['sarcoma', 'rms', 'W', null, null, null, ['gr:NBK1176', 'us:aacr_gid']],
@@ -1266,7 +1269,8 @@ const CONDITIONS = [
     ] },
   { id: 'bloom', name: 'Bloom syndrome (biallelic BLM)', genes: ['BLM'], inh: 'AR', tests: ['R260','R229'],
     rules: [
-      ['heme', 'lymphoma|aml|all', 'S', 25, null, null, ['gr:NBK1398', 'us:aacr_gid', 'us:aacr_heme'], 'Any cancer 52% by 30 and 82.5% by 40; haematological ~1/3 of tumours; registry median ages AML 18, ALL 15, lymphoma 23'],
+      ['heme', 'lymphoma|aml|all', 'S', 25, null, 40, ['gr:NBK1398', 'us:aacr_gid', 'us:aacr_heme'], 'Any cancer 52% by 30 and 82.5% by 40; haematological ~1/3 of tumours; registry median ages AML 18, ALL 15, lymphoma 23; strong only up to 40'],
+      ['heme', 'lymphoma|aml|all', 'W', null, null, null, ['gr:NBK1398', 'us:aacr_gid'], 'After 40: a haematological cancer alone is common and rarely Bloom syndrome (short stature is evident from birth)'],
       ['feature', 'microcephaly', 'S', null, null, null, ['gr:NBK1398']],
       ['colorectal', '*', 'M', 35, null, null, ['gr:NBK1398', 'us:aacr_gid'], '30 CRC in registry, median 36 y (range 16-49)'],
       ['kidney', 'wilms', 'S', null, null, null, ['gr:NBK1398', 'us:aacr_gid'], 'Wilms ~3% (9 in registry, median age 3)'],
