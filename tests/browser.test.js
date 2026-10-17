@@ -346,6 +346,9 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.locator('#browse-results .result h3 a').first().click();
   await page.waitForSelector('#syn-detail h2', { state: 'visible', timeout: 5000 }).catch(() => {});
   check(await page.isVisible('#syn-detail h2'), 'clicking the already-open syndrome again still opens it');
+  await page.selectOption('#browse-mode', 'cancer');
+  await page.evaluate(() => { dispatchEvent(new PopStateEvent('popstate')); dispatchEvent(new HashChangeEvent('hashchange')); });
+  check(await page.isVisible('#browse-results') && await page.$eval('#browse-mode', s => s.value) === 'cancer', 'a late duplicate navigation event (popstate then hashchange) does not undo switching to the cancer view');
 
   console.log('All syndrome pages render');
   const ids = await page.evaluate(() => CONDITIONS.map(c => c.id));

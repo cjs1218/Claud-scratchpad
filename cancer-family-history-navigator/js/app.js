@@ -2095,7 +2095,9 @@
     $('#tests-detail .td-count').textContent = `${state.tdFind + 1} of ${marks.length} matches in this test`;
   }
 
+  let routedHref = '';
   function route() {
+    routedHref = location.href;
     const cm = location.hash.match(/^#compare=(\w+),(\w+)$/);
     state.compareView = cm && COND[cm[1]] && COND[cm[2]] ? [cm[1], cm[2]] : null;
     if (state.compareView) {
@@ -2386,8 +2388,10 @@
     $('#tests-list').addEventListener('click', e => { if (e.target.closest('a')) $('#tests-layout').classList.remove('list-open'); });
     $('#tests-detail').addEventListener('click', e => { const b = e.target.closest('[data-td-find]'); if (b) tdFindStep(+b.dataset.tdFind); });
     window.addEventListener('afterprint', () => { document.body.classList.remove('printing'); $('#print-area').innerHTML = ''; });
-    window.addEventListener('hashchange', route);
-    window.addEventListener('popstate', route);
+    // A hash link fires popstate and then hashchange: route once per address, or the second call can undo a change made in between.
+    const onNavigate = () => { if (location.href !== routedHref) route(); };
+    window.addEventListener('hashchange', onNavigate);
+    window.addEventListener('popstate', onNavigate);
     // A link to the syndrome already in the URL fires no hashchange, so open it directly.
     document.addEventListener('click', e => {
       const a = e.target.closest('a[href^="#syndrome="], a[href^="#gene="]');
