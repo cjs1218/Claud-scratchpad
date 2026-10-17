@@ -23,6 +23,7 @@ assets/                          Landing page icon (header, favicon, home-screen
 cancer-family-history-navigator/
   index.html                     The Navigator
   assets/style.css               Styles (light/dark, print)
+  assets/navigator-icon.png      Navigator logo (tree, DNA and compass); favicon-48.png and apple-touch-icon.png from it
   js/data.js                     Knowledge base: sites/histologies, conditions + scoring rules,
                                  Test Directory entries, NICPR gene list (June 2026)
   js/criteria.js                 Test Directory testing criteria, verbatim (generated from the v9.1 PDF)
