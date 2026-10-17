@@ -1872,6 +1872,13 @@ const EXAMPLES = [
       ['brother', 'M', [{ site: 'polyps', hist: 'adenoma', age: '50', count: '25' }]],
       ['mother', 'F', [], { ageNow: '80' }],
       ['father', 'M', [], { ageNow: '82' }]] },
+  { id: 'mcra', label: 'Multiple colorectal adenomas (MCRA)', top: 'fap', test: 'R211',
+    caption: '14 adenomas at 56, father with 12 adenomas and bowel cancer at 72. Germline panel testing (R211) first; if no APC or MUTYH variant is found this is MCRA – see “Polyposis without a known syndrome” under bowel screening.',
+    people: [
+      ['proband', 'M', [{ site: 'polyps', hist: 'adenoma', age: '56', count: '14' }]],
+      ['father', 'M', [{ site: 'polyps', hist: 'adenoma', age: '70', count: '12' }, { site: 'colorectal', hist: 'adeno', age: '72', mmr: 'intact' }]],
+      ['mother', 'F', [], { ageNow: '80' }],
+      ['sister', 'F', [], { ageNow: '52' }]] },
   { id: 'sps', label: 'Serrated polyposis syndrome (SPS)', top: 'rnf43', test: 'R211',
     caption: 'Serrated polyposis meeting the WHO criteria at 44 (R211: under 50), and a sister with 12 serrated polyps. Most SPS has no germline cause; RNF43 explains a small minority.',
     people: [
