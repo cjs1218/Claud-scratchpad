@@ -338,7 +338,7 @@
         <button type="button" class="icon-btn" data-act="rm-dx" title="Remove">×</button>
       </div>
       ${abbrHint(dx)}
-      ${site ? `<div class="dx-markers">${markers}${sideCountHtml(dx)}</div>` : ''}
+      ${site ? `<div class="dx-markers">${markers}${sideCountHtml(dx)}${spsHist(dx) ? ` ${spsLink()}` : ''}</div>` : ''}
     </div>`;
   }
 
@@ -448,7 +448,7 @@
         if (!showMarker('ovgrade', dx)) dx.ovgrade = '';
         // Show or hide the Side / Number boxes when the histology changes which apply.
         const box = el.closest('.dx');
-        if (!!box.querySelector('[data-f=side]') !== !!sideOptions(dx) || (!!box.querySelector('[data-f=ovgrade]') !== (dx.site === 'ovary' && showMarker('ovgrade', dx))) || (!!box.querySelector('[data-f=count]') !== (isCounted(dx) || dx.site === 'polyps'))) { renderFamily(); renderResults(); return; }
+        if (!!box.querySelector('[data-f=side]') !== !!sideOptions(dx) || (!!box.querySelector('[data-f=ovgrade]') !== (dx.site === 'ovary' && showMarker('ovgrade', dx))) || (!!box.querySelector('[data-f=count]') !== (isCounted(dx) || dx.site === 'polyps')) || (!!box.querySelector('[data-sps-who]') !== spsHist(dx))) { renderFamily(); renderResults(); return; }
       }
       if (f === 'hist') {
         const box = el.closest('.dx'), old = box.querySelector('.abbr-hint');
@@ -1025,6 +1025,44 @@
   function lynchLikeRelative() {
     return state.people.some(p => p.dx.some(d => ['msh2', 'msh6', 'pms2'].includes(d.mmr) || (d.mmr === 'mlh1' && d.meth === 'no' && d.braf !== 'yes')));
   }
+  // The WHO 2019 serrated polyposis criteria open in the shared pop-up from the form, R211 reasons and the bowel screening box.
+  const spsLink = () => '<button type="button" class="link-btn sps-who" data-sps-who>WHO criteria</button>';
+  const spsHist = dx => dx.site === 'polyps' && ['serrated', 'sps'].includes(dx.hist);
+  function spsCriteriaHtml(back) {
+    const S = FHCC.sps, g = GUIDES[FHCC.source], pp = GUIDES[FHCC.polyps.source], tc = typeof TD_CRITERIA !== 'undefined' ? TD_CRITERIA.R211 : null;
+    return `<header class="crit-head">
+        <h2>Serrated polyposis syndrome – WHO 2019 criteria</h2>
+        <button type="button" class="crit-close" data-close aria-label="Close">×</button>
+      </header>
+      ${back ? `<p><button type="button" class="link-btn" data-back="${esc(back)}">← Back to ${esc(back)}</button></p>` : ''}
+      <p>A clinical diagnosis needs either:</p>
+      <ol class="sps-criteria">${S.criteria.map(c => `<li>${esc(c)}</li>`).join('')}</ol>
+      <ul class="small">${S.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
+      <section><h3>Testing</h3><p>${abbrHtml(S.r211)}</p></section>
+      <section><h3>Surveillance if no other cause is found</h3>
+        <ul><li><strong>Affected:</strong> ${esc(S.affected)}</li><li><strong>First-degree relatives:</strong> ${esc(S.fdr)}</li><li>${esc(S.msp)}</li></ul></section>
+      <p class="small muted">Sources: ${link(`Test Directory v9.1 – R211${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))} · ${link(g[0], g[1])} – Table 1 · ${link(pp[0], pp[1])}.</p>`;
+  }
+  // Polyposis without a known syndrome (BSG 2019): MCRA and SPS for the proband and first-degree relatives. [text, WHO link?]
+  function fhccPolyposisItems(f) {
+    const P = f.polyposis, M = FHCC.mcra, S = FHCC.sps, out = [];
+    if (!P) return out;
+    if (P.proMcra) out.push([`The proband has had ${P.proMcra} adenomas – possible multiple colorectal adenomas (MCRA): ${M.def} ${M.testing} ${M.affected}`], [M.dye]);
+    if (P.proSps) out.push([`The proband has serrated polyposis syndrome: if no other cause is found, ${S.affected}`, true]);
+    P.relMcra.forEach(r => out.push([`${r.label} (first-degree relative) has had ${r.count} adenomas – possible MCRA${P.proMcra ? '.' : ` (${M.def})`} ${M.fdr}`]));
+    P.relSps.forEach(r => out.push([`${r.label} (first-degree relative) has serrated polyposis syndrome${r.age != null ? ` (diagnosed at ${r.age})` : ''}: for the proband, colonoscopy 5-yearly from ${r.from} until 75 (from 40, or 10 years earlier than the relative's diagnosis).`, true]));
+    P.relMsp.forEach(r => out.push([`${r.label} (first-degree relative) has had ${r.count} serrated polyps. ${S.msp}`, true]));
+    return out;
+  }
+  function fhccPolyposisHtml(f) {
+    const items = fhccPolyposisItems(f), g = GUIDES[FHCC.source];
+    if (!items.length) return '';
+    return `<div class="fhcc-polyposis">
+        <p class="small"><strong>Polyposis without a known syndrome</strong></p>
+        <ul class="small">${items.map(([t, who]) => `<li>${abbrHtml(t)}${who ? ` ${spsLink()}` : ''}</li>`).join('')}</ul>
+        <p class="small muted">Source: ${link(g[0], g[1])} – Table 1 and the MCRA and serrated polyposis sections.</p>
+      </div>`;
+  }
   // Post-polypectomy surveillance (BSG/ACPGBI/PHE 2020): always shown; leads with the proband when they have polyps.
   function fhccPolypText(pp) {
     const kinds = pp.hist.map(h => ({ adenoma: 'adenomas', serrated: 'serrated polyps', sps: 'serrated polyposis syndrome' })[h]).join(' and ');
@@ -1037,7 +1075,7 @@
     return `<div class="fhcc-polyps${pp ? ' fhcc-polyps-pro' : ''}">
         <p class="small"><strong>Polyps:</strong> ${esc(pp ? fhccPolypText(pp) : P.lead)}</p>
         <ul class="small">${P.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-        ${pp && pp.polyposis ? `<p class="small"><strong>${esc(P.many)}</strong></p>` : ''}
+        ${pp && pp.polyposis ? `<p class="small"><strong>${esc(P.many)}</strong>${pp.hist.some(h => h !== 'adenoma') ? ` ${spsLink()}` : ''}</p>` : ''}
         <p class="small muted">Source: ${link(g[0], g[1])}.</p>
       </div>`;
   }
@@ -1052,6 +1090,7 @@
       ${f.reasons.length ? `<p class="small">Because: ${esc(f.reasons.join('; '))}.</p>` : ''}
       ${f.proAffected ? '<p class="small muted">The proband has had colorectal cancer, so their own follow-up is as after cancer treatment; this category applies to their unaffected relatives\' assessment.</p>' : ''}
       ${f.unknownLinks ? '<p class="small muted">Some links between affected relatives are not known (e.g. whose child a cousin is) and are not counted – use “Child of” to set them.</p>' : ''}
+      ${fhccPolyposisHtml(f)}
       ${fhccPolypsHtml(f.proPolyps)}
       ${am.met ? `<p class="small">${esc(FHCC.amsterdam)}</p>` : ''}
       ${lynchLikeRelative() ? `<p class="small">If an MMR-deficient tumour is unexplained after germline testing: ${esc(FHCC.lynchLike)}</p>` : ''}
@@ -1191,7 +1230,7 @@
       if (idx >= 0) { if (!hits.has(idx)) hits.set(idx, []); hits.get(idx).push(h); } else loose.push(h);
     });
     const rank = { met: 0, maybe: 1, near: 2 };
-    const who = h => `<li class="who-${h.kind}"><span aria-hidden="true">${KIND[h.kind][1]}</span> <strong>${esc(personLabel(h.p))}</strong>${h.p.deceased ? ' (deceased)' : ''} – ${reasonHtml(h.text, h.mss)}${h.tag ? ` <span class="elig-tag">${esc(h.tag)}</span>` : ''}</li>`;
+    const who = h => `<li class="who-${h.kind}"><span aria-hidden="true">${KIND[h.kind][1]}</span> <strong>${esc(personLabel(h.p))}</strong>${h.p.deceased ? ' (deceased)' : ''} – ${reasonHtml(h.text, h.mss)}${/serrated polyp/i.test(h.text) ? ` ${spsLink()}` : ''}${h.tag ? ` <span class="elig-tag">${esc(h.tag)}</span>` : ''}</li>`;
     const all = [...hits.values()].flat().concat(loose);
     const family = state.people.some(p => p.dx.some(d => d.site && d.hist));
     const summary = !family ? '<p class="small muted">Enter a family on the Assess tab to see who meets these criteria.</p>'
@@ -1199,7 +1238,7 @@
       : ['met', 'maybe', 'near'].filter(k => all.some(h => h.kind === k)).map(k => `<h4 class="hit-${k}">${KIND[k][0]}</h4><ul class="crit-hits">${all.filter(h => h.kind === k).map(who).join('')}</ul>`).join('');
     const items = tc ? `<ol class="crit-list">${tc.items.map(([lv, mk, text], i) => {
       const hs = (hits.get(i) || []).sort((a, b) => rank[a.kind] - rank[b.kind]);
-      return `<li class="lv${lv}${!mk && /:$/.test(text) ? ' crit-sub' : ''}${hs.length ? ` hit hit-${hs[0].kind}` : ''}"${hs.length ? ` id="crit-hit-${i}"` : ''}>${mk ? `<span class="crit-mk">${esc(mk)}</span> ` : ''}${hl(text)}${hs.length ? `<ul class="crit-hits">${hs.map(who).join('')}</ul>` : ''}</li>`;
+      return `<li class="lv${lv}${!mk && /:$/.test(text) ? ' crit-sub' : ''}${hs.length ? ` hit hit-${hs[0].kind}` : ''}"${hs.length ? ` id="crit-hit-${i}"` : ''}>${mk ? `<span class="crit-mk">${esc(mk)}</span> ` : ''}${hl(text)}${/clinical diagnosis of serrated polyposis syndrome/i.test(text) ? ` ${spsLink()}` : ''}${hs.length ? `<ul class="crit-hits">${hs.map(who).join('')}</ul>` : ''}</li>`;
     }).join('')}</ol>` : `<ul>${t.criteria.map(x => `<li>${hl(x)}</li>`).join('')}</ul><p class="small muted">Summary only – see the PDF for the exact wording.</p>`;
     return `<header class="crit-head">
         <h2><span class="code">${esc(code)}</span> ${esc(t.name)}</h2>
@@ -1353,7 +1392,8 @@
     const reasons = o => {
       const mssP = o.mssFor || o.person;
       const short = [...new Set(o.text.map(t => /Manchester score/.test(t) ? reasonHtml(shortReason(t).replace('Manchester', 'Manchester score'), mssP) : abbrHtml(shortReason(t))))];
-      return `<span class="why-short">${short.join(' · ')}</span><span class="why-full">${o.text.map(t => abbrHtml(t)).join('; ')}</span>`;
+      const who = o.text.some(t => /serrated polyp/i.test(t)) ? ` ${spsLink()}` : '';
+      return `<span class="why-short">${short.join(' · ')}${who}</span><span class="why-full">${o.text.map(t => abbrHtml(t)).join('; ')}${who}</span>`;
     };
     const people = l => `<ul class="elig-people">${l.map(([p, os]) => `<li><div class="elig-who"><strong>${esc(personLabel(p))}</strong>${p.deceased ? ' <span class="elig-tag dec">deceased</span>' : ''}</div>
         <ul>${os.map(o => `<li class="elig-line">${testBtn(o.test)} <span class="elig-test">${esc(TESTS[o.test].name)}</span>${eligTag(o) && !o.possible ? ` <span class="elig-tag">${esc(eligTag(o))}</span>` : ''}
@@ -1441,6 +1481,8 @@
       if (fh.unknownLinks) lines.push('  Some links between affected relatives are not known and are not counted.');
       lines.push(`- Polyps: ${fh.proPolyps ? fhccPolypText(fh.proPolyps) : FHCC.polyps.lead}`, ...FHCC.polyps.items.map(x => `  · ${x}`));
       if (fh.proPolyps && fh.proPolyps.polyposis) lines.push(`  ${FHCC.polyps.many}`);
+      const px = fhccPolyposisItems(fh);
+      if (px.length) lines.push('- Polyposis without a known syndrome (BSG/ACPGBI/UKCGG 2019):', ...px.map(([t]) => `  · ${t}`));
     }
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {
@@ -2335,6 +2377,14 @@
     }, true);
     document.addEventListener('focusin', () => updateToResults());
     document.addEventListener('focusout', () => setTimeout(updateToResults, 0));
+    // "WHO criteria" opens the serrated polyposis criteria (with a way back when opened from a criteria panel).
+    document.addEventListener('click', e => {
+      const b = e.target.closest && e.target.closest('[data-sps-who]');
+      if (!b) return;
+      e.preventDefault(); e.stopPropagation();
+      const dlg = b.closest('#crit-dialog');
+      openPanel(spsCriteriaHtml(dlg && TESTS[dlg.dataset.view] ? dlg.dataset.view : null), 'sps');
+    }, true);
     // Test codes open the criteria panel.
     document.addEventListener('click', e => {
       const b = e.target.closest && e.target.closest('[data-test]');

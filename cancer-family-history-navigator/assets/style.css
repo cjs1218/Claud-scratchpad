@@ -741,6 +741,9 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .fhcc ul { margin: 4px 0; padding-left: 18px; }
 .fhcc p.small { margin: 4px 0; }
 .fhcc-polyps { margin: 8px 0 4px; padding-top: 6px; border-top: 1px solid var(--border); }
+.fhcc-polyposis { margin: 8px 0 4px; padding: 6px 10px; border: 1px solid var(--warn-edge); background: var(--warn-bg); color: var(--fg); border-radius: 4px; }
+.link-btn.sps-who { padding: 0; font: inherit; font-size: 0.85em; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.sps-criteria li { margin-bottom: 4px; }
 .fhcc-polyps-pro { background: var(--accent-soft); border: 0; border-radius: 4px; padding: 6px 10px; }
 
 /* Test Directory tab */

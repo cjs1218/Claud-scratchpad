@@ -55,6 +55,15 @@ for (const [a, b, e] of [['proband','m_ggp',3],['mother','m_ggp',2],['m_gm','m_g
     ok(ss.proPolyps && ss.proPolyps.hist.length === 2 && ss.proPolyps.count === 12, 'FHCC: adenomas and serrated polyps together; highest count kept');
     const pj = w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'pj', age: '20', count: '3' }])]);
     ok(!pj.any && !pj.proPolyps, 'FHCC: hamartomatous (Peutz–Jeghers) polyps do not trigger post-polypectomy surveillance');
+    {
+      const f = w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'adenoma', age: '52', count: '15' }]), P('father', 'M', [{ site: 'polyps', hist: 'adenoma', age: '60', count: '12' }]),
+        P('sister', 'F', [{ site: 'polyps', hist: 'sps', age: '46' }]), P('mother', 'F', [{ site: 'polyps', hist: 'serrated', age: '64', count: '12' }]), P('m_aunt', 'F', [{ site: 'polyps', hist: 'adenoma', age: '60', count: '30' }])]);
+      const x = f.polyposis;
+      ok(x.proMcra === 15 && !x.proSps && x.relMcra.map(r => r.count).join() === '12' && x.relSps.length === 1 && x.relSps[0].from === 36 && x.relMsp.map(r => r.count).join() === '12',
+        'FHCC: MCRA in the proband and father, SPS in a sister (relatives from 36), multiple serrated polyps in the mother; a second-degree relative is not counted');
+      const r = w.fhccCategory([P('proband', 'F'), P('brother', 'M', [{ site: 'polyps', hist: 'sps', age: '58' }])]);
+      ok(r.any && r.polyposis.relSps[0].from === 40, 'FHCC: unaffected proband with a brother with SPS at 58 – section shown, relatives from 40');
+    }
     ok(w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'sps', age: '55' }])]).proPolyps.polyposis, 'FHCC: serrated polyposis syndrome flagged as possible polyposis (not post-polypectomy)');
     ok(w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'serrated', age: '55', count: '25' }])]).proPolyps.polyposis && !w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'serrated', age: '55', count: '8' }])]).proPolyps.polyposis, 'FHCC: >20 serrated polyps flagged as possible polyposis; 8 are not');
     const rel = w.fhccCategory([P('proband', 'F'), P('mother', 'F', [{ site: 'polyps', hist: 'adenoma', age: '60', count: '2' }])]);

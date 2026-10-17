@@ -1122,6 +1122,34 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(/The proband has had serrated polyposis syndrome\./.test(sp) && /polyposis syndrome first/.test(sp) && /R211/.test(await page.textContent('#results .elig-maybe')), 'serrated polyposis syndrome: polyposis advice (not post-polypectomy) and may meet R211 (dysplasia)');
     await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', [{ site: 'polyps', hist: 'adenoma', age: '45', count: '12' }]]])) });
     await page.waitForFunction(() => /adenomas \(12\)/.test(document.querySelector('#results #fhcc')?.textContent || ''));
+    {
+      // Polyposis without a known syndrome: MCRA and SPS for the proband and first-degree relatives; WHO criteria pop-up.
+      await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', [{ site: 'polyps', hist: 'adenoma', age: '52', count: '15' }]],
+        ['father', 'M', [{ site: 'polyps', hist: 'adenoma', age: '60', count: '12' }]], ['sister', 'F', [{ site: 'polyps', hist: 'sps', age: '46' }]], ['mother', 'F', [{ site: 'polyps', hist: 'serrated', age: '64', count: '12' }]]])) });
+      await page.waitForSelector('#results #fhcc .fhcc-polyposis');
+      const px = await page.textContent('#results #fhcc .fhcc-polyposis');
+      check(/The proband has had 15 adenomas – possible multiple colorectal adenomas \(MCRA\)/.test(px) && /1–2 yearly from diagnosis until 75/.test(px) && /pancolonic dye spray/.test(px), 'MCRA: proband with 15 adenomas – germline testing first, then individualised 1–2 yearly colonoscopy');
+      check(/Father \(first-degree relative\) has had 12 adenomas – possible MCRA/.test(px) && /at referral and\/or at 50/.test(px), 'MCRA: a first-degree relative with ≥10 adenomas flags the family (colonoscopic assessment for relatives)');
+      check(/Sister \(first-degree relative\) has serrated polyposis syndrome \(diagnosed at 46\): for the proband, colonoscopy 5-yearly from 36 until 75/.test(px) && /Mother \(first-degree relative\) has had 12 serrated polyps/.test(px), 'SPS: relative with SPS – 5-yearly colonoscopy from 40 or 10 years earlier; multiple serrated polyps noted');
+      await page.locator('#results #fhcc [data-sps-who]').first().click(); await page.waitForSelector('#crit-dialog[open]');
+      const wd = await page.textContent('#crit-dialog');
+      check(/WHO 2019 criteria/.test(wd) && /Five or more serrated lesions\/polyps proximal to the rectum/.test(wd) && /More than 20 serrated/.test(wd) && /cumulative/.test(wd) && await page.locator('#crit-dialog a[href*="#page="]').count() === 1, 'WHO criteria pop-up from the bowel screening box: both criteria, cumulative count, R211 page link');
+      await page.keyboard.press('Escape');
+      await page.locator('#results button.test-link[data-test=R211]').first().click(); await page.waitForSelector('#crit-dialog[open]');
+      await page.locator('#crit-dialog .crit-list [data-sps-who]').first().click();
+      await page.waitForFunction(() => /WHO 2019 criteria/.test(document.querySelector('#crit-dialog h2').textContent));
+      await page.locator('#crit-dialog [data-back=R211]').click();
+      await page.waitForFunction(() => /R211/.test(document.querySelector('#crit-dialog h2').textContent));
+      check(true, 'R211 criteria: the serrated polyposis line opens the WHO criteria, with a way back to R211');
+      await page.keyboard.press('Escape');
+      await openAll(page);
+      check(await page.locator('#family .dx [data-sps-who]').count() >= 2, 'family form: WHO criteria link next to serrated polyp types');
+    }
+    await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', [{ site: 'polyps', hist: 'serrated', age: '45', count: '25' }]]])) });
+    await page.waitForSelector('#results .elig-maybe [data-sps-who]');
+    check(true, 'R211 "may meet – check the WHO criteria" reason links to the WHO criteria');
+    await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', [{ site: 'polyps', hist: 'adenoma', age: '45', count: '12' }]]])) });
+    await page.waitForFunction(() => /adenomas \(12\)/.test(document.querySelector('#results #fhcc')?.textContent || ''));
     await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.click('#copy'); await page.waitForTimeout(200);
     const ct = await page.evaluate(() => navigator.clipboard.readText());

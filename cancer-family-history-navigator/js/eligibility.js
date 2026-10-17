@@ -832,7 +832,19 @@
     // Possible polyposis: ≥10 adenomas, serrated polyposis (WHO criteria), or >20 serrated polyps – assess for a syndrome first.
     const proPolyps = pp.length ? { hist: [...new Set(pp.map(d => d.hist))], count: Math.max(0, ...pp.map(d => +d.count || 0)),
       polyposis: cnt('adenoma') >= 10 || pp.some(d => d.hist === 'sps') || cnt('serrated') > 20 } : null;
-    const out = { any: proAffected || affected.length > 0 || !!proPolyps, proAffected, proPolyps, unknownLinks, category: 'average', reasons: [] };
+    // Polyposis without a known syndrome (BSG 2019): MCRA (≥10 adenomas) and SPS in the proband or a first-degree relative.
+    const count = (p, h) => Math.max(0, ...(p.dx || []).filter(d => d.site === 'polyps' && d.hist === h).map(d => +d.count || 0));
+    const fdrs = pro ? people.filter(p => p !== pro && fdr(pro, p)) : [];
+    const spsAge = p => { const a = (p.dx || []).filter(d => d.site === 'polyps' && d.hist === 'sps' && d.age !== '' && d.age != null).map(d => +d.age); return a.length ? Math.min(...a) : null; };
+    const polyposis = {
+      proMcra: pro && count(pro, 'adenoma') >= 10 ? count(pro, 'adenoma') : 0,
+      proSps: !!pro && (pro.dx || []).some(d => d.site === 'polyps' && d.hist === 'sps'),
+      relMcra: fdrs.filter(p => count(p, 'adenoma') >= 10).map(p => ({ label: labelOf(p), count: count(p, 'adenoma') })),
+      relSps: fdrs.filter(p => (p.dx || []).some(d => d.site === 'polyps' && d.hist === 'sps')).map(p => ({ label: labelOf(p), age: spsAge(p), from: spsAge(p) != null ? Math.min(40, spsAge(p) - 10) : 40 })),
+      relMsp: fdrs.filter(p => !(p.dx || []).some(d => d.site === 'polyps' && d.hist === 'sps') && count(p, 'serrated') >= 10).map(p => ({ label: labelOf(p), count: count(p, 'serrated') }))
+    };
+    const relPolyposis = polyposis.relMcra.length + polyposis.relSps.length + polyposis.relMsp.length > 0;
+    const out = { any: proAffected || affected.length > 0 || !!proPolyps || relPolyposis, proAffected, proPolyps, polyposis, unknownLinks, category: 'average', reasons: [] };
     if (!pro) return out;
     const proFdrs = affected.filter(a => fdr(pro, a));
     // High: a cluster (linked by first-degree kinship) of >= 3 affected, across >= 2 generations, proband FDR of one.

@@ -1771,7 +1771,7 @@ const SOURCE_DATES = [
   ['US guidance pass', 'NCCN (JNCCN publications), ACMG, ACG, USMSTF, ATA, Endocrine Society, AACR and consensus papers: supporting citations, US differences noted (UK guidance takes priority), additions where UK guidance is silent', '12 Oct 2026'],
   ['Association evidence review', 'Each association sourced to UKCGG / BSG / NICE, ERN and other European guidance, GeneReviews, ClinGen gene–disease validity and peer-reviewed risk studies (DOIs checked via Crossref); variant notes; CanVar-UK links', '11 Oct 2026'],
   ['Suggested surveillance', 'UKCGG / BSG first, then ERN GENTURIS, EHTG, SIOPE, then AACR, consensus guidelines and GeneReviews summaries', '11 Oct 2026'],
-  ['Bowel screening without a known syndrome', 'BSG/ACPGBI/UKCGG 2019 hereditary colorectal cancer guidelines, Box 1 and Table 1', '14 Oct 2026'],
+  ['Bowel screening without a known syndrome', 'BSG/ACPGBI/UKCGG 2019 hereditary colorectal cancer guidelines, Box 1 and Table 1; multiple colorectal adenomas (MCRA) and serrated polyposis (WHO 2019 criteria, surveillance)', '17 Oct 2026'],
   ['Post-polypectomy surveillance', 'BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines (Rutter et al., Gut 2020): high-risk findings, intervals, family history', '17 Oct 2026']
 ];
 
@@ -1991,6 +1991,23 @@ const FHCC = {
       'Not routinely after 75, or when life expectancy is under 10 years.'
     ],
     many: 'With 10 or more adenomas, or serrated polyposis, assess for a polyposis syndrome first (see the Test Directory results above): hereditary polyposis is managed under the BSG/ACPGBI/UKCGG 2019 guidelines, not post-polypectomy surveillance.'
+  },
+  // Polyposis without a known syndrome: BSG/ACPGBI/UKCGG 2019 (GUIDES.bsg) – Table 1 and the MCRA and SPS sections.
+  mcra: {
+    def: '10 or more adenomas (lifetime total) without a constitutional pathogenic variant in APC or MUTYH.',
+    testing: 'Germline panel testing first (R211): considered under 60 with ≥10 adenomas, or from 60 with ≥20 adenomas or ≥10 with a family history of colorectal cancer or polyposis.',
+    affected: 'If none is found: colonoscopy individualised to the phenotype, 1–2 yearly from diagnosis until 75 – annual once the colon is cleared of lesions >5 mm, extending to 2-yearly if no polyps ≥10 mm are found.',
+    dye: '10 or more polyps (adenomas or serrated): the next colonoscopy should be a high-quality examination with pancolonic dye spray to define the phenotype.',
+    fdr: 'First-degree relatives of someone with MCRA: a colonoscopic assessment at referral and/or at 50 may be considered (the guideline group did not reach consensus).'
+  },
+  sps: {
+    criteria: ['Five or more serrated lesions/polyps proximal to the rectum, all at least 5 mm, with two or more at least 10 mm; or',
+      'More than 20 serrated lesions/polyps of any size distributed through the large bowel, with at least five proximal to the rectum.'],
+    notes: ['The polyp count is cumulative over multiple colonoscopies.', 'A diagnosis of exclusion: rule out known predisposition syndromes (germline testing).'],
+    r211: 'Test Directory R211: a clinical diagnosis of serrated polyposis syndrome qualifies if the patient is under 50, has a first-degree relative with SPS, or has dysplasia in any polyp.',
+    affected: 'colonoscopy 1–2 yearly from diagnosis until 75.',
+    fdr: 'colonoscopy 5-yearly from 40 (or 10 years earlier than the index case\'s diagnosis) until 75.',
+    msp: 'Multiple serrated polyps (10 or more polyps, at least half serrated) not meeting the WHO criteria: the same surveillance might be considered for first-degree relatives.'
   }
 };
 
