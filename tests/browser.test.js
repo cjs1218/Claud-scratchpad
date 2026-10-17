@@ -1150,9 +1150,10 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
       check(await page.locator('#family .dx [data-sps-who]').count() >= 2, 'family form: WHO criteria link next to serrated polyp types');
     }
     await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', [{ site: 'polyps', hist: 'serrated', age: '45', count: '25' }]]])) });
-    await page.waitForSelector('#results .elig-maybe [data-sps-who]');
-    check(/Possible serrated polyposis – check the WHO criteria \(proband\)/.test(await fhText()), '25 serrated polyps: "possible serrated polyposis – check the WHO criteria" plan; R211 reason links to the WHO criteria');
-    await loadEx(page, 'mcra'); await page.waitForSelector('#results #fhcc .fh-plan-polyposis');
+    // Wait for this family's own text: the previous family also had a "may meet – WHO criteria" reason.
+    await page.waitForFunction(() => /Possible serrated polyposis – check the WHO criteria/.test(document.querySelector('#results #fhcc')?.textContent || ''));
+    check(await page.locator('#results .elig-maybe [data-sps-who]').count() >= 1, '25 serrated polyps: "possible serrated polyposis – check the WHO criteria" plan; R211 reason links to the WHO criteria');
+    await loadEx(page, 'mcra'); await page.waitForFunction(() => /14 adenomas/.test(document.querySelector('#results #fhcc')?.textContent || ''));
     const mx = await fhText();
     check(/Possible multiple colorectal adenomas \(MCRA\) – 14 adenomas/.test(mx) && /First-degree relative with possible MCRA – Father, 12 adenomas/.test(mx), 'MCRA example: proband and father each get a plan');
     await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(fam([['proband', 'F', [{ site: 'polyps', hist: 'adenoma', age: '45', count: '12' }]]])) });
