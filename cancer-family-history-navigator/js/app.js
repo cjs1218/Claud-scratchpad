@@ -898,10 +898,10 @@
 
   // Fixed light colours for downloaded images (the page itself uses CSS so dark mode works).
   const PED_EXPORT_CSS = `.ped-line{stroke:#4c6272;stroke-width:1.5;fill:none}.ped-dash{stroke-dasharray:4 3}
-    .ped-sym{fill:#fff;stroke:#212b32;stroke-width:2}.ped-aff{fill:#768692}.ped-hitfill{fill:#005eb8;stroke:#003087}
+    .ped-sym{fill:#fff;stroke:#212b32;stroke-width:2}.ped-aff{fill:#6b8088}.ped-hitfill{fill:#0b7285;stroke:#08505d}
     .ped-imp{fill:#fff;stroke:#aeb7bd;stroke-dasharray:3 2}.ped-arrow{stroke:#212b32;stroke-width:2}.ped-dead{stroke:#212b32;stroke-width:2}.ped-elig{fill:#007f3b;font-weight:700}.ped-maybe{fill:#8a5a00;font-weight:700}.ped-elig-ring{fill:none;stroke:#007f3b;stroke-width:2.5;stroke-dasharray:5 3}.ped-arrowhead{fill:#212b32}
-    .ped-l{font:11px Arial,Helvetica,sans-serif;fill:#212b32}.ped-rel{font-weight:700}.ped-l-imp{fill:#768692;font-style:italic}
-    .ped-hist{font-size:10px;fill:#4c6272}.ped-hit{fill:#005eb8;font-weight:700}`;
+    .ped-l{font:11px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;fill:#212b32}.ped-rel{font-weight:700}.ped-l-imp{fill:#768692;font-style:italic}
+    .ped-hist{font-size:10px;fill:#4c6272}.ped-hit{fill:#0b7285;font-weight:700}`;
 
   function pedigreeExport(kind) {
     const svg = $('#ped-wrap svg');
@@ -1883,7 +1883,7 @@
    */
   function printItems(keys, title) {
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    const foot = `<div class="print-foot">Clinical decision support only – not a substitute for clinical judgement; check the linked sources before use. ` +
+    const foot = `<div class="print-foot">Independent – not an NHS service. Clinical decision support only – not a substitute for clinical judgement; check the linked sources before use. ` +
       `Cancer Family History Navigator · ${esc(SITE_URL)} · information checked ${esc(DATA_CHECKED)} · printed ${esc(today)}</div>`;
     // A table footer repeats at the bottom of every printed page in all major browsers.
     const framed = html => `<section class="print-page"><table class="print-frame"><tfoot><tr><td>${foot}</td></tr></tfoot>` +

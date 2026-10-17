@@ -10,6 +10,10 @@ Two static GitHub Pages tools for clinical genetics, live at https://generoute.c
 
 Decision support only. Nothing entered leaves the browser.
 
+GeneRoute is independent – not an NHS website or service – and every page says so. All three pages use the GeneRoute
+deep-teal palette from the logo (header `#0e5866`, links and buttons `#0b7285`, teal focus ring, system font), deliberately
+not the NHS identity (NHS Blue, yellow focus, green buttons, Frutiger/Arial). Keep it that way when changing styles.
+
 ## Structure
 
 ```

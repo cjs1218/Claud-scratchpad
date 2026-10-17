@@ -6,18 +6,14 @@
   <title>Cancer Family History Navigator</title>
   <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#005eb8">
-  <link rel="stylesheet" href="assets/style.css?v=20261017-2">
+  <meta name="theme-color" content="#0e5866">
+  <link rel="stylesheet" href="assets/style.css?v=20261017-3">
 </head>
 <body>
   <header class="site-head">
     <div class="wrap head-row">
       <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 32 32" width="40" height="40" aria-hidden="true" focusable="false">
-          <rect width="32" height="32" rx="7" fill="#ffffff"/>
-          <g fill="none" stroke="#005eb8" stroke-width="2.2"><rect x="4.5" y="5.5" width="8" height="8"/><circle cx="23.5" cy="9.5" r="4.2"/><path d="M12.5 9.5h7M16 9.5v8"/></g>
-          <circle cx="16" cy="22.5" r="4.6" fill="#005eb8"/>
-        </svg>
+        <a class="brand-home" href="../" title="GeneRoute home"><img class="brand-mark" src="../assets/generoute-icon.png" width="40" height="40" alt="GeneRoute home"></a>
         <div class="brand-text">
           <h1>Cancer Family History Navigator <span class="dev-pill" title="Still being developed and checked – comments welcome">In development</span></h1>
           <p class="lede lede-short">Ranked germline cancer predisposition syndromes from a family history, with NHS Test Directory tests.</p>
@@ -33,9 +29,9 @@
   </header>
   <div class="notice-strip">
     <div class="wrap">
-      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser. <a href="#disclaimer" class="disc-link">Disclaimer</a></p>
+      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> <strong>Independent – not an NHS website.</strong> Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser. <a href="#disclaimer" class="disc-link">Disclaimer</a></p>
       <p class="disclaimer stale" id="stale-note" hidden></p>
-      <p class="disclaimer disc-long"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only. Not a validated medical device and not a substitute for clinical
+      <p class="disclaimer disc-long"><span class="notice-icon" aria-hidden="true">!</span> <strong>Independent – not an NHS website or service.</strong> Clinical decision support only. Not a validated medical device and not a substitute for clinical
         judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this browser or is stored. <a href="#disclaimer" class="disc-link">Read the full disclaimer</a></p>
     </div>
   </div>
@@ -185,6 +181,8 @@
         risk models such as CanRisk, or specialist advice. Nothing you enter leaves this browser.</p>
       <section class="foot-legal" id="disclaimer" tabindex="-1" aria-labelledby="disclaimer-title">
         <h2 class="foot-title" id="disclaimer-title">Disclaimer</h2>
+        <p>The Cancer Family History Navigator is an independent tool. It is not an NHS website or service and is not provided or endorsed
+          by the NHS or NHS England; it uses the publicly available NHS National Genomic Test Directory as a source.</p>
         <p>The Cancer Family History Navigator is clinical decision support for healthcare professionals. It is not a validated medical
           device, a risk model or a substitute for clinical judgement, specialist advice or the NHS Genomic Test Directory itself.</p>
         <p>We have tried to make it accurate and up to date, but it may contain errors or omissions in its data or programming, and guidance
@@ -199,10 +197,10 @@
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261017-2"></script>
-  <script src="js/panels.js?v=20261017-2"></script>
-  <script src="js/criteria.js?v=20261017-2"></script>
-  <script src="js/eligibility.js?v=20261017-2"></script>
-  <script src="js/app.js?v=20261017-2"></script>
+  <script src="js/data.js?v=20261017-3"></script>
+  <script src="js/panels.js?v=20261017-3"></script>
+  <script src="js/criteria.js?v=20261017-3"></script>
+  <script src="js/eligibility.js?v=20261017-3"></script>
+  <script src="js/app.js?v=20261017-3"></script>
 </body>
 </html>

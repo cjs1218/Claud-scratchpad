@@ -162,6 +162,7 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(await rows() === I.length, `home lists all ${I.length} indications`);
   const icon = await page.getAttribute('link[rel=icon]', 'href');
   check(/^favicon\.svg/.test(icon) && (await page.request.get(new URL(icon, page.url()).href)).ok(), 'own tab icon (DNA helix in a magnifying glass) linked and served');
+  check(/Independent – not an NHS website/.test(await page.textContent('.intro')) && /not an NHS website or service/.test(await page.textContent('footer')) && await page.locator('.site-head a.brand-home[href="../"] img').count() === 1 && await page.evaluate(() => getComputedStyle(document.querySelector('.site-head')).backgroundColor) === 'rgb(14, 88, 102)', 'GeneRoute teal header with home icon; says it is independent, not an NHS website');
   await page.fill('#q', 'cardiomyopathy'); await page.waitForTimeout(300);
   const n = await rows();
   check(n > 3 && n < 40, `search narrows the list (${n} for “cardiomyopathy”)`);
