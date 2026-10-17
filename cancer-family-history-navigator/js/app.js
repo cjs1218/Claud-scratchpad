@@ -27,7 +27,20 @@
   // Mark abbreviations in every text node under `root` (skipping form controls, code and existing marks);
   // SVG labels (the family tree) get one tooltip listing each abbreviation they contain.
   const ABBR_SKIP = 'script,style,textarea,select,option,input,abbr,code,pre,svg,.no-abbr,.sr-only';
+  // "CanRisk" anywhere in the page text links to the CanRisk website (not inside links, buttons or form controls).
+  const CANRISK_URL = 'https://www.canrisk.org/';
+  const CANRISK_SKIP = 'a,button,script,style,textarea,select,option,input,code,pre,svg,.sr-only';
+  function linkCanRisk(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), hits = [];
+    for (let n; (n = walker.nextNode());) if (n.nodeValue.includes('CanRisk') && n.parentElement && !n.parentElement.closest(CANRISK_SKIP)) hits.push(n);
+    for (const n of hits) {
+      const t = document.createElement('template');
+      t.innerHTML = esc(n.nodeValue).replace(/CanRisk/g, `<a class="canrisk-link" href="${CANRISK_URL}" target="_blank" rel="noopener">CanRisk</a>`);
+      n.replaceWith(t.content);
+    }
+  }
   function markAbbr(root) {
+    linkCanRisk(root);
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const hits = [];
     for (let n; (n = walker.nextNode());) {
@@ -1125,7 +1138,7 @@
       <div class="fh-plan fh-plan-${b.level === 'high' ? 'polyposis' : b.level === 'moderate' ? 'relative' : 'category'}">
         <p class="fh-plan-title"><strong>${esc(L.label)}</strong></p>
         <dl class="fh-steps">${b.reasons.length ? `<dt>Because</dt><dd>${esc(b.reasons.join('; '))}.</dd>` : ''}
-          <dt>Risk</dt><dd>${esc(L.risk)}</dd><dt>Screening</dt><dd>${abbrHtml(L.screen)}</dd>
+          <dt>Risk</dt><dd>${esc(L.risk)}</dd><dt>Screening</dt><dd>${abbrHtml(L.screen)}</dd>${L.vhr ? `<dt>Very high risk</dt><dd>${abbrHtml(L.vhr)} ${link('NHS BSP very high risk protocol (Nov 2025)', GUIDES.nhsbsp_vhr[1])}</dd>` : ''}
           ${b.advice.length ? `<dt>Seek advice</dt><dd>Also present: ${esc(b.advice.join('; '))} – seek advice from secondary care or the specialist genetics service (CG164 1.3.4, 1.4.2, 1.4.5).</dd>` : ''}</dl>
         ${b.proAffected ? '<p class="small muted">The proband has had breast cancer, so their own follow-up follows the NICE early and locally advanced breast cancer guideline (and CG164 1.6.10–1.6.15 if they remain at high risk); this pattern applies to their unaffected relatives.</p>' : ''}
         ${pro && pro.sex === 'M' ? '<p class="small muted">Screening applies to women in the family.</p>' : ''}
@@ -1523,6 +1536,7 @@
       lines.push('', 'BREAST SCREENING IF NO INHERITED CONDITION IS FOUND (NICE CG164)', `- ${L.label}`);
       if (bf.reasons.length) lines.push(`  · Because: ${bf.reasons.join('; ')}`);
       lines.push(`  · Risk: ${L.risk}`, `  · Screening: ${L.screen}`);
+      if (L.vhr) lines.push(`  · Very high risk (NHS BSP, Nov 2025): ${L.vhr}`);
       if (bf.advice.length) lines.push(`  · Seek advice – also present: ${bf.advice.join('; ')}`);
     }
     const ptrs = pointersFor(familyDxs());

@@ -119,6 +119,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.goto(BASE + '#syndrome=palb2'); await page.waitForSelector('#syn-detail h2');
   const palbRefs = await page.locator('#syn-detail a').evaluateAll(as => as.map(a => a.href));
   check(palbRefs.some(h => /information-for-palb2-carriers/.test(h)) && palbRefs.some(h => /premenopausal-women-at-high-risk/.test(h)), 'PALB2 page links the UKCGG PALB2 and high-risk chemoprevention leaflets');
+  check(/annual MRI 25 to <40/.test(await page.textContent('#syn-detail')) && !/MRI from 30/.test(await page.textContent('#syn-detail')) && palbRefs.some(h => /very-high-risk/.test(h)), 'PALB2 page: very high risk breast screening from 25 (NHS BSP, Nov 2025), with its source');
   await page.goto(BASE + '#syndrome=chek2'); await page.waitForSelector('#syn-detail h2');
   const chekRefs = await page.locator('#syn-detail a').evaluateAll(as => as.map(a => a.href));
   check(chekRefs.some(h => /moderate-risk/.test(h)) && !chekRefs.some(h => /high-risk/.test(h)), 'CHEK2 page links the moderate-risk chemoprevention leaflets');
@@ -1303,6 +1304,10 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     check(await page.isVisible('#example-note') && (await page.textContent('#example-note')).includes(ex.label), `example ${ex.id}: caption shown`);
   }
   await loadEx(page, 'breast_high'); await page.waitForSelector('#results #bfh');
+  { const bx = await page.textContent('#results #bfh');
+    check(/Very high risk/.test(bx) && /BRCA1, BRCA2 or PALB2 variant is found – annual MRI from 25/.test(bx) && /TP53 – annual MRI 20–70/.test(bx) && await page.locator('#bfh a[href*="tests-and-frequency-of-testing-for-women-at-very-high-risk"]').count() === 1, 'high-risk breast pattern: very high risk screening from 25 for BRCA1, BRCA2 and PALB2 (NHS BSP, Nov 2025)');
+    await page.waitForFunction(() => document.querySelector('#bfh a.canrisk-link'));
+    check(await page.locator('#bfh a.canrisk-link[href="https://www.canrisk.org/"][target=_blank]').count() >= 1 && await page.locator('#example-note a.canrisk-link').count() >= 1, '"CanRisk" links to the CanRisk website (breast box and example caption)'); }
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.click('#copy'); await page.waitForTimeout(200);
   { const ct = await page.evaluate(() => navigator.clipboard.readText());
