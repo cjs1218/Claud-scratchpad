@@ -1945,6 +1945,13 @@ const EXAMPLES = [
       ['mother', 'F', [{ site: 'breast', hist: 'idc', age: '46', er: 'pos', pr: 'pos', her2: 'neg' }]],
       ['m_aunt', 'F', [{ site: 'breast', hist: 'idc', age: '44', er: 'pos', pr: 'pos', her2: 'neg' }]],
       ['father', 'M', [], { ageNow: '62' }]] },
+  { id: 'ovarian_fh', label: 'Ovarian cancer family history', top: 'brca1', test: 'R208', breast: 'high',
+    caption: 'Unaffected woman of 42; mother (58) and maternal aunt (62) died of high-grade serous ovarian cancer, with no stored DNA. She can be tested as an unaffected relative (R208, Manchester score 25 via her mother) through Clinical Genetics; NICE CG164 high-risk pattern (two ovarian cancers on the same side).',
+    people: [
+      ['proband', 'F', [], { ageNow: '42' }],
+      ['mother', 'F', [{ site: 'ovary', hist: 'hgsc', age: '58' }], { deceased: true, ageDeath: '60' }],
+      ['m_aunt', 'F', [{ site: 'ovary', hist: 'hgsc', age: '62' }], { deceased: true, ageDeath: '65' }],
+      ['father', 'M', [], { ageNow: '70' }]] },
   { id: 'vhl', label: 'von Hippel–Lindau syndrome', top: 'vhl', test: 'R225',
     caption: 'Cerebellar haemangioblastoma at 26; mother with phaeochromocytoma and clear cell renal cancer, maternal uncle with a pancreatic NET.',
     people: [
