@@ -886,6 +886,94 @@
     }
     return out;
   }
+  /*
+   * Family history of breast cancer (NICE CG164, GUIDES.cg164): the care level the family pattern points to for the
+   * proband – 'high' (1.4.4, specialist genetic clinic), 'moderate' (1.3.3, secondary care) or 'population' – with the
+   * reasons and any "seek advice" features (1.3.4, 1.4.2 exceptions, 1.4.5). Criteria needing the same side are tested
+   * one side at a time. Bilateral cancer: each breast counts once in the bilateral criteria.
+   */
+  function breastFh(people, ancestry) {
+    setPeople(people);
+    const pro = people.find(p => p.rel === 'proband');
+    const EPI_OV = 'hgsc|lgsc|endometrioid|clearcell|mucinous|nos';
+    const out = { any: false, level: 'population', reasons: [], advice: [], proAffected: false };
+    if (!pro) return out;
+    out.proAffected = (pro.dx || []).some(d => is(d, 'breast') && d.hist);
+    const rels = people.filter(p => p !== pro).map(p => {
+      const deg = degree(pro, p), br = (p.dx || []).filter(d => is(d, 'breast') && d.hist), ov = (p.dx || []).some(d => is(d, 'ovary', EPI_OV));
+      if (deg == null || deg > 3 || (!br.length && !ov)) return null;
+      const ages = br.map(age).filter(x => x != null), first = ages.length ? Math.min(...ages) : null;
+      const bi = br.find(d => d.side === 'both');
+      return { p, deg, side: sideOf(p), male: p.sex === 'M' && br.length > 0, fem: p.sex !== 'M' && br.length > 0, first, ov,
+        bi: bi ? [age(bi), bi.age2 !== '' && bi.age2 != null ? +bi.age2 : age(bi)] : null, label: labelOf(p) };
+    }).filter(Boolean);
+    out.any = rels.length > 0;
+    if (!out.any) return out;
+    const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+    const who = list => list.map(r => `${r.label}${r.first != null ? ` (${r.first})` : ''}`).join(', ');
+    // k relatives (first/second-degree) with an average age under A, at least one first-degree if needFdr – youngest set.
+    const youngest = (list, k, A, needFdr) => {
+      const known = list.filter(r => r.first != null).sort((a, b) => a.first - b.first);
+      if (known.length < k) return null;
+      const f = needFdr ? known.find(r => r.deg === 1) : known[0];
+      if (!f) return null;
+      const set = [f, ...known.filter(r => r !== f).slice(0, k - 1)];
+      return avg(set.map(r => r.first)) < A ? set : null;
+    };
+    const high = [];
+    for (const sd of ['M', 'P']) {
+      const L = rels.filter(r => r.side === 'core' || r.side === sd), L2 = L.filter(r => r.deg <= 2);
+      const fb = L2.filter(r => r.fem), ovs = L2.filter(r => r.ov), male = L2.filter(r => r.male), bis = L2.filter(r => r.bi);
+      let s2;
+      if ((s2 = youngest(fb, 2, 50, true))) high.push(`2 relatives with breast cancer at an average age under 50: ${who(s2)}`);
+      if ((s2 = youngest(fb, 3, 60, true))) high.push(`3 relatives with breast cancer at an average age under 60: ${who(s2)}`);
+      const fb3 = L.filter(r => r.fem);
+      if (fb3.length >= 4 && fb3.some(r => r.deg === 1)) high.push(`4 relatives with breast cancer: ${who(fb3)}`);
+      if (ovs.length) {
+        const b50 = L2.filter(r => (r.fem || r.male) && r.first != null && r.first < 50);
+        if (b50.length) high.push(`ovarian cancer (${who(ovs)}) and breast cancer under 50 on the same side: ${who(b50)}`);
+        else if ((s2 = youngest(L2.filter(r => r.fem || r.male), 2, 60, false))) high.push(`ovarian cancer (${who(ovs)}) and 2 relatives with breast cancer at an average age under 60: ${who(s2)}`);
+        if (ovs.length >= 2) high.push(`2 relatives with ovarian cancer on the same side: ${who(ovs)}`);
+      }
+      for (const b of bis) {
+        if (b.deg === 1 && b.bi.every(x => x != null) && avg(b.bi) < 50) high.push(`bilateral breast cancer in a first-degree relative at an average age under 50: ${b.label} (${b.bi.join(' and ')})`);
+        const other = fb.concat(male).filter(r => r !== b && r.first != null).sort((x, y) => x.first - y.first)[0];
+        if (other && b.bi.every(x => x != null) && avg([...b.bi, other.first]) < 60) high.push(`bilateral breast cancer (${b.label}) and breast cancer in ${other.label} at an average age under 60`);
+      }
+      if (male.length) {
+        const f50 = fb.filter(r => r.first != null && r.first < 50);
+        if (f50.length) high.push(`male breast cancer (${who(male)}) and breast cancer under 50 on the same side: ${who(f50)}`);
+        else if ((s2 = youngest(fb, 2, 60, false))) high.push(`male breast cancer (${who(male)}) and 2 relatives with breast cancer at an average age under 60: ${who(s2)}`);
+      }
+    }
+    if (high.length) { out.level = 'high'; out.reasons = [...new Set(high)]; }
+    else {
+      const d12 = rels.filter(r => r.deg <= 2), fdr = d12.filter(r => r.deg === 1), anyBr = d12.filter(r => r.fem || r.male), mod = [];
+      fdr.filter(r => r.fem && r.first != null && r.first < 40).forEach(r => mod.push(`a first-degree relative with breast cancer under 40: ${r.label} (${r.first})`));
+      fdr.filter(r => r.male).forEach(r => mod.push(`a first-degree male relative with breast cancer: ${r.label}`));
+      fdr.filter(r => r.bi && r.bi[0] != null && r.bi[0] < 50).forEach(r => mod.push(`a first-degree relative with bilateral breast cancer, first under 50: ${r.label} (${r.bi[0]})`));
+      const brF = anyBr.filter(r => r.deg === 1), brS = anyBr.filter(r => r.deg === 2);
+      if (brF.length >= 2 || (brF.length && brS.length)) mod.push(`${brF.length >= 2 ? '2 first-degree relatives' : '1 first-degree and 1 second-degree relative'} with breast cancer: ${who([...brF, ...brS].slice(0, 2))}`);
+      const ov12 = d12.filter(r => r.ov);
+      if (anyBr.length && ov12.length && (anyBr.some(r => r.deg === 1) || ov12.some(r => r.deg === 1))) mod.push(`breast cancer (${who(anyBr.slice(0, 1))}) and ovarian cancer (${who(ov12.slice(0, 1))}) in first- or second-degree relatives`);
+      if (anyBr.length >= 3) mod.push(`3 first- or second-degree relatives with breast cancer: ${who(anyBr.slice(0, 3))}`);
+      if (mod.length) { out.level = 'moderate'; out.reasons = [...new Set(mod)]; }
+    }
+    // Features that call for advice (1.3.4 in primary care; exclude secondary-care-only management, 1.4.2; 1.4.5).
+    if (out.level !== 'high') {
+      const all = people.filter(p => p !== pro && degree(pro, p) != null), dxOf = f => all.filter(p => (p.dx || []).some(f));
+      if (rels.some(r => r.bi)) out.advice.push('bilateral breast cancer');
+      if (rels.some(r => r.male)) out.advice.push('male breast cancer');
+      if (rels.some(r => r.ov)) out.advice.push('ovarian cancer');
+      if (ancestry === 'ashkenazi') out.advice.push('Jewish ancestry');
+      if (dxOf(d => is(d, 'sarcoma') && lt(d, 45)).length) out.advice.push('sarcoma in a relative under 45');
+      if (dxOf(d => is(d, 'cns', 'hgg|lgg|optic')).length || dxOf(d => is(d, 'adrenal', 'acc') && lt(d, 18)).length) out.advice.push('glioma or childhood adrenocortical carcinoma');
+      if (rels.filter(r => r.side === 'P' && (r.fem || r.male)).length >= 2) out.advice.push('paternal history of breast cancer (2 or more relatives on the father’s side)');
+      if (people.some(p => (p.dx || []).some(d => is(d, 'breast') && d.er === 'neg' && d.pr === 'neg' && d.her2 === 'neg' && lt(d, 40)))) out.advice.push('triple-negative breast cancer under 40');
+    }
+    return out;
+  }
+  window.breastFhCategory = breastFh;
   window.fhccCategory = fhcc;
   window.checkEligibility = check;
   window.CRIT_REF = CRIT_REF;

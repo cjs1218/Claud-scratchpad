@@ -1115,6 +1115,25 @@
       <ul class="small muted">${FHCC.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
     </section>`;
   }
+  // Breast screening if no inherited condition is found (NICE CG164): the family-history pattern's care level and surveillance.
+  function breastFhHtml() {
+    const b = breastFhCategory(state.people, state.ancestry);
+    if (!b.any) return '';
+    const L = BREAST_FH.levels[b.level], g = GUIDES[BREAST_FH.source], pro = state.people.find(p => p.rel === 'proband');
+    return `<section class="fhcc bfh" id="bfh">
+      <h3>Breast screening if no inherited condition is found</h3>
+      <div class="fh-plan fh-plan-${b.level === 'high' ? 'polyposis' : b.level === 'moderate' ? 'relative' : 'category'}">
+        <p class="fh-plan-title"><strong>${esc(L.label)}</strong></p>
+        <dl class="fh-steps">${b.reasons.length ? `<dt>Because</dt><dd>${esc(b.reasons.join('; '))}.</dd>` : ''}
+          <dt>Risk</dt><dd>${esc(L.risk)}</dd><dt>Screening</dt><dd>${abbrHtml(L.screen)}</dd>
+          ${b.advice.length ? `<dt>Seek advice</dt><dd>Also present: ${esc(b.advice.join('; '))} – seek advice from secondary care or the specialist genetics service (CG164 1.3.4, 1.4.2, 1.4.5).</dd>` : ''}</dl>
+        ${b.proAffected ? '<p class="small muted">The proband has had breast cancer, so their own follow-up follows the NICE early and locally advanced breast cancer guideline (and CG164 1.6.10–1.6.15 if they remain at high risk); this pattern applies to their unaffected relatives.</p>' : ''}
+        ${pro && pro.sex === 'M' ? '<p class="small muted">Screening applies to women in the family.</p>' : ''}
+        <p class="small muted">Source: ${link(g[0], g[1])} – recommendations ${esc(L.rec)}${b.level === 'high' ? '' : ', 1.4.2'}, 1.6 and the risk categories.</p>
+      </div>
+      <ul class="small muted">${BREAST_FH.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
+    </section>`;
+  }
   function renderResults() {
     // Keep folded sections as the user left them (read from the page, so it does not depend on toggle-event timing).
     if (!$('#results').dataset.print) {
@@ -1161,6 +1180,7 @@
       </details>` : ''}
       ${hidden && state.mode !== 'wide' ? `<button type="button" class="link-btn" data-mode="wide">Show all ${all.length} →</button>` : ''}
       ${fhccHtml()}
+      ${breastFhHtml()}
       ${pointersHtml(pointersFor(familyDxs()), 'Testing pointers for the cancers entered')}
       ${renderTests(shown)}`;
     // The family tree sits under the family form on screen (in the results when printing, so it prints in order).
@@ -1496,6 +1516,14 @@
       if (fh.reasons.length) lines.push(`  Because: ${fh.reasons.join('; ')}`);
       if (fh.unknownLinks) lines.push('  Some links between affected relatives are not known and are not counted.');
       if (!fh.proPolyps) lines.push(`- Polyps: ${FHCC.polyps.lead}`);
+    }
+    const bf = breastFhCategory(state.people, state.ancestry);
+    if (bf.any) {
+      const L = BREAST_FH.levels[bf.level];
+      lines.push('', 'BREAST SCREENING IF NO INHERITED CONDITION IS FOUND (NICE CG164)', `- ${L.label}`);
+      if (bf.reasons.length) lines.push(`  · Because: ${bf.reasons.join('; ')}`);
+      lines.push(`  · Risk: ${L.risk}`, `  · Screening: ${L.screen}`);
+      if (bf.advice.length) lines.push(`  · Seek advice – also present: ${bf.advice.join('; ')}`);
     }
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {

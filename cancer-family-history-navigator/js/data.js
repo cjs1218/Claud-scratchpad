@@ -1772,6 +1772,7 @@ const SOURCE_DATES = [
   ['Association evidence review', 'Each association sourced to UKCGG / BSG / NICE, ERN and other European guidance, GeneReviews, ClinGen gene–disease validity and peer-reviewed risk studies (DOIs checked via Crossref); variant notes; CanVar-UK links', '11 Oct 2026'],
   ['Suggested surveillance', 'UKCGG / BSG first, then ERN GENTURIS, EHTG, SIOPE, then AACR, consensus guidelines and GeneReviews summaries', '11 Oct 2026'],
   ['Bowel screening without a known syndrome', 'BSG/ACPGBI/UKCGG 2019 hereditary colorectal cancer guidelines, Box 1 and Table 1; multiple colorectal adenomas (MCRA) and serrated polyposis (WHO 2019 criteria, surveillance)', '17 Oct 2026'],
+  ['Breast screening without a known syndrome', 'NICE CG164: family-history referral patterns (1.3.3, 1.3.4, 1.4.2, 1.4.4, 1.4.5), risk categories and surveillance (1.6)', '17 Oct 2026'],
   ['Post-polypectomy surveillance', 'BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines (Rutter et al., Gut 2020): high-risk findings, intervals, family history', '17 Oct 2026']
 ];
 
@@ -1918,6 +1919,32 @@ const EXAMPLES = [
       ['proband', 'F', [{ site: 'feature', hist: 'cardiac_myxoma', age: '24' }, { site: 'feature', hist: 'pigment_carney', age: '20' }]],
       ['mother', 'F', [{ site: 'feature', hist: 'ppnad', age: '30' }]],
       ['father', 'M', [], { ageNow: '58' }]] },
+  { id: 'bowel_mod', label: 'Bowel cancer family history – moderate risk', fhcc: 'moderate',
+    caption: 'Unaffected woman of 45; father with bowel cancer at 45 (MMR proficient). Moderate-risk family history (BSG 2019 Box 1): one-off colonoscopy at 55 if no inherited condition is found.',
+    people: [
+      ['proband', 'F', [], { ageNow: '45' }],
+      ['father', 'M', [{ site: 'colorectal', hist: 'adeno', age: '45', mmr: 'intact' }]],
+      ['mother', 'F', [], { ageNow: '72' }]] },
+  { id: 'bowel_high', label: 'Bowel cancer family history – high risk', fhcc: 'high',
+    caption: 'Unaffected woman of 40; mother (62), maternal grandmother (70) and maternal uncle (58) with bowel cancer, all MMR proficient. High-risk family history (BSG 2019 Box 1): 5-yearly colonoscopy from 40 to 75.',
+    people: [
+      ['proband', 'F', [], { ageNow: '40' }],
+      ['mother', 'F', [{ site: 'colorectal', hist: 'adeno', age: '62', mmr: 'intact' }]],
+      ['m_gm', 'F', [{ site: 'colorectal', hist: 'adeno', age: '70', mmr: 'intact' }]],
+      ['m_uncle', 'M', [{ site: 'colorectal', hist: 'adeno', age: '58', mmr: 'intact' }]]] },
+  { id: 'breast_mod', label: 'Breast cancer family history – moderate risk', breast: 'moderate',
+    caption: 'Unaffected woman of 38; mother with breast cancer at 38. Moderate-risk pattern (NICE CG164): secondary care, annual mammography 40–49 – confirm with CanRisk.',
+    people: [
+      ['proband', 'F', [], { ageNow: '38' }],
+      ['mother', 'F', [{ site: 'breast', hist: 'idc', age: '38', er: 'pos', pr: 'pos', her2: 'neg' }]],
+      ['father', 'M', [], { ageNow: '68' }]] },
+  { id: 'breast_high', label: 'Breast cancer family history – high risk', breast: 'high',
+    caption: 'Unaffected woman of 32; mother with breast cancer at 46 and maternal aunt at 44. High-risk pattern (NICE CG164): specialist genetic clinic, annual mammography 40–59 – confirm with CanRisk.',
+    people: [
+      ['proband', 'F', [], { ageNow: '32' }],
+      ['mother', 'F', [{ site: 'breast', hist: 'idc', age: '46', er: 'pos', pr: 'pos', her2: 'neg' }]],
+      ['m_aunt', 'F', [{ site: 'breast', hist: 'idc', age: '44', er: 'pos', pr: 'pos', her2: 'neg' }]],
+      ['father', 'M', [], { ageNow: '62' }]] },
   { id: 'vhl', label: 'von Hippel–Lindau syndrome', top: 'vhl', test: 'R225',
     caption: 'Cerebellar haemangioblastoma at 26; mother with phaeochromocytoma and clear cell renal cancer, maternal uncle with a pancreatic NET.',
     people: [
@@ -2047,6 +2074,30 @@ const FHCC = {
     fdr: 'colonoscopy 5-yearly from 40 (or 10 years earlier than the index case\'s diagnosis) until 75.',
     msp: 'Multiple serrated polyps (10 or more polyps, at least half serrated) not meeting the WHO criteria: the same surveillance might be considered for first-degree relatives.'
   }
+};
+
+/*
+ * Family history of breast cancer without a known syndrome: NICE CG164 (GUIDES.cg164) – family-history patterns for
+ * referral (1.3.3 secondary care; 1.4.4 specialist genetic clinic; 1.3.4 / 1.4.2 / 1.4.5 seek advice), risk categories
+ * (Terms used) and surveillance for women without a personal history of breast cancer (1.6.3–1.6.9). The level is
+ * worked out in eligibility.js (breastFhCategory) and should be confirmed with a formal risk assessment (CanRisk).
+ */
+const BREAST_FH = {
+  source: 'cg164',
+  levels: {
+    high: { label: 'High-risk family history pattern – refer to a specialist genetic clinic', rec: '1.4.4',
+      risk: 'Likely 30% or greater lifetime risk (or >8% between 40 and 50) – confirm with a formal risk assessment (CanRisk).',
+      screen: 'Annual mammography 40–59; consider annual mammography 30–39; population screening from 60. No MRI unless the BRCA or TP53 carrier probability is above 30% or a variant is found (then annual MRI from 30 for BRCA, or from 20 for TP53, to 49).' },
+    moderate: { label: 'Moderate-risk family history pattern – refer to secondary care (family history clinic)', rec: '1.3.3',
+      risk: 'Likely 17–29% lifetime risk (3–8% between 40 and 50) – confirm with a formal risk assessment (CanRisk).',
+      screen: 'Annual mammography 40–49; consider annual mammography 50–59; population screening from 60. No MRI.' },
+    population: { label: 'Near population risk – primary care with standard written information', rec: '1.3.3',
+      risk: 'Likely under 17% lifetime risk.',
+      screen: 'NHS Breast Screening Programme from 50.' }
+  },
+  notes: ['For women without a personal history of breast cancer. First- and second-degree relatives count (four relatives may include third-degree); criteria that need the same side of the family are checked one side at a time.',
+    'Average ages use each relative’s earliest breast cancer; in bilateral cancer each breast counts once where CG164 says so.',
+    'A known BRCA1, BRCA2 or TP53 variant in the family means direct referral to a specialist genetics service (1.3.6).']
 };
 
 /*

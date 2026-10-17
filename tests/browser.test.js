@@ -1288,13 +1288,24 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.isHidden('#example-menu') && await page.evaluate(() => document.activeElement.id) === 'example', 'Escape closes the menu and returns focus');
   await page.click('#example'); await page.mouse.click(5, 300);
   check(await page.isHidden('#example-menu'), 'clicking elsewhere closes the menu');
-  for (const ex of await page.evaluate(() => EXAMPLES.map(e => ({ id: e.id, top: e.top, test: e.test, label: e.label })))) {
+  // Syndrome examples name the condition that should rank first and the test the proband meets; family-history
+  // examples name the bowel (BSG Box 1) or breast (NICE CG164) category they should show.
+  for (const ex of await page.evaluate(() => EXAMPLES.map(e => ({ id: e.id, top: e.top, test: e.test, label: e.label, fhcc: e.fhcc, breast: e.breast })))) {
     await loadEx(page, ex.id); await page.waitForSelector('#results .result');
-    check(await page.locator('#results .result').first().getAttribute('data-cond') === ex.top, `example ${ex.id}: ${ex.top} ranks first`);
-    const met = await page.evaluate(t => [...document.querySelectorAll('#results .elig > .elig-people > li')].some(li => /^Proband/.test(li.querySelector('.elig-who').textContent) && li.textContent.includes(t)), ex.test);
-    check(met, `example ${ex.id}: the proband meets ${ex.test}`);
+    if (ex.top) check(await page.locator('#results .result').first().getAttribute('data-cond') === ex.top, `example ${ex.id}: ${ex.top} ranks first`);
+    if (ex.test) {
+      const met = await page.evaluate(t => [...document.querySelectorAll('#results .elig > .elig-people > li')].some(li => /^Proband/.test(li.querySelector('.elig-who').textContent) && li.textContent.includes(t)), ex.test);
+      check(met, `example ${ex.id}: the proband meets ${ex.test}`);
+    }
+    if (ex.fhcc) check(new RegExp(`${ex.fhcc === 'high' ? 'High' : 'Moderate'}-risk family history of colorectal cancer`).test(await page.textContent('#results #fhcc')), `example ${ex.id}: ${ex.fhcc}-risk bowel family history`);
+    if (ex.breast) check(new RegExp(`^${ex.breast === 'high' ? 'High' : 'Moderate'}-risk family history pattern`).test((await page.textContent('#results #bfh .fh-plan-title')).trim()), `example ${ex.id}: ${ex.breast}-risk breast family history (NICE CG164)`);
     check(await page.isVisible('#example-note') && (await page.textContent('#example-note')).includes(ex.label), `example ${ex.id}: caption shown`);
   }
+  await loadEx(page, 'breast_high'); await page.waitForSelector('#results #bfh');
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.click('#copy'); await page.waitForTimeout(200);
+  { const ct = await page.evaluate(() => navigator.clipboard.readText());
+    check(/BREAST SCREENING IF NO INHERITED CONDITION IS FOUND \(NICE CG164\)\n- High-risk family history pattern/.test(ct) && /· Screening: Annual mammography 40–59/.test(ct), 'Copy summary includes the breast family history pattern and screening'); }
   await page.click('[data-act=close-example-note]');
   check(await page.isHidden('#example-note'), 'the example note can be closed');
   await loadEx(page, 'pten'); await page.click('#clear');

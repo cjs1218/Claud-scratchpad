@@ -149,6 +149,24 @@ t('Carney: cardiac myxoma + spotty pigmentation', [P('proband','F',[{site:'featu
 t('Carney: one feature with an affected FDR', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'}]), P('mother','F',[{site:'feature',hist:'ppnad',age:'30'}])], [['proband','R156','met'],['mother','R160','met']]);
 t('Carney: one feature alone does not meet', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'}])], [['proband','R156','none']]);
 t('Carney: myxoma + thyroid cancer – may meet (if young)', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'},{site:'thyroid',hist:'papillary',age:'26'}])], [['proband','R156','maybe']]);
+{
+  // Breast cancer family history (NICE CG164): high (1.4.4), moderate (1.3.3) or near population, with "seek advice" features.
+  const B = (name, ppl, level, extra) => { const r = w.breastFhCategory([P('proband', 'F'), ...ppl], extra && extra.anc); ok(r.level === level && (!extra || !extra.advice || r.advice.some(a => a.includes(extra.advice))), `Breast FH ${name}: expected ${level} got ${r.level} (${r.reasons.join('; ')}) [${r.advice.join('; ')}]`); };
+  const br = (a, more) => [{ site: 'breast', hist: 'idc', age: String(a), ...more }];
+  ok(!w.breastFhCategory([P('proband', 'F'), P('mother', 'F', [{ site: 'colorectal', hist: 'adeno', age: '60' }])]).any, 'Breast FH: no breast or ovarian cancer – no section');
+  B('mother at 38', [P('mother', 'F', br(38))], 'moderate');
+  B('mother at 55 only', [P('mother', 'F', br(55))], 'population');
+  B('mother 55 and maternal grandmother 60', [P('mother', 'F', br(55)), P('m_gm', 'F', br(60))], 'moderate');
+  B('mother 46 and maternal aunt 44 (2, average under 50)', [P('mother', 'F', br(46)), P('m_aunt', 'F', br(44))], 'high');
+  B('mother 55, maternal aunt 52, maternal grandmother 65 (3, average under 60)', [P('mother', 'F', br(55)), P('m_aunt', 'F', br(52)), P('m_gm', 'F', br(65))], 'high');
+  B('paternal aunt 45 and paternal grandmother 48 (no first-degree)', [P('p_aunt', 'F', br(45)), P('p_gm', 'F', br(48))], 'population', { advice: 'paternal history' });
+  B('mother ovarian and maternal aunt breast at 45', [P('mother', 'F', [{ site: 'ovary', hist: 'hgsc', age: '60' }]), P('m_aunt', 'F', br(45))], 'high');
+  B('father with breast cancer', [P('father', 'M', br(60))], 'moderate', { advice: 'male breast' });
+  B('mother bilateral at 42 and 46', [P('mother', 'F', br(42, { side: 'both', age2: '46' }))], 'high');
+  B('mother breast 50 and sister ovarian 52', [P('mother', 'F', br(50)), P('sister', 'F', [{ site: 'ovary', hist: 'hgsc', age: '52' }])], 'moderate', { advice: 'ovarian' });
+  B('Jewish ancestry, mother at 55', [P('mother', 'F', br(55))], 'population', { advice: 'Jewish', anc: 'ashkenazi' });
+  B('maternal aunt (second-degree) with breast and ovarian cancer on the father’s side do not combine', [P('m_aunt', 'F', br(45)), P('p_aunt', 'F', [{ site: 'ovary', hist: 'hgsc', age: '50' }])], 'population');
+}
 t('SPS (WHO criteria) at 45', [P('proband','F',[{site:'polyps',hist:'sps',age:'45'}])], [['proband','R211','met']]);
 t('SPS at 62, no family history: may meet (dysplasia)', [P('proband','F',[{site:'polyps',hist:'sps',age:'62'}])], [['proband','R211','maybe']]);
 t('SPS at 62 with a brother with SPS', [P('proband','F',[{site:'polyps',hist:'sps',age:'62'}]), P('brother','M',[{site:'polyps',hist:'sps',age:'58'}])], [['proband','R211','met']]);
