@@ -122,7 +122,15 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/annual MRI 25 to <40/.test(await page.textContent('#syn-detail')) && !/MRI from 30/.test(await page.textContent('#syn-detail')) && palbRefs.some(h => /very-high-risk/.test(h)), 'PALB2 page: very high risk breast screening from 25 (NHS BSP, Nov 2025), with its source');
   await page.goto(BASE + '#syndrome=chek2'); await page.waitForSelector('#syn-detail h2');
   const chekRefs = await page.locator('#syn-detail a').evaluateAll(as => as.map(a => a.href));
-  check(chekRefs.some(h => /moderate-risk/.test(h)) && !chekRefs.some(h => /high-risk/.test(h)), 'CHEK2 page links the moderate-risk chemoprevention leaflets');
+  check(chekRefs.some(h => /moderate-risk/.test(h)) && !chekRefs.some(h => /-at-high-risk/.test(h)), 'CHEK2 page links the moderate-risk chemoprevention leaflets');
+  // NHS BSP very high risk protocol (Nov 2025) on the other syndrome pages.
+  for (const [id, re, what] of [['phts', /annual MRI 30 to <40; MRI \+ mammography 40 to <51; mammography ± MRI 51 to <71/, 'PTEN'], ['pjs', /annual MRI 30 to <40/, 'STK11'], ['hdgc', /annual MRI 30 to <40/, 'CDH1'],
+    ['lfs', /annual MRI 20 to <71 \(no mammography\)/, 'TP53'], ['at', /annual MRI 25 to <71 \(no mammography\)/, 'biallelic ATM'],
+    ['atm', /≥8% from 30 \(age 30–39\) or ≥12% from 40.*c\.7271T>G \(p\.Val2424Gly\): very high risk programme from 30 without CanRisk/, 'ATM'], ['chek2', /Biallelic CHEK2: very high risk programme from 30 without CanRisk/, 'CHEK2'], ['rad51c', /≥8% from 30 \(age 30–39\)/, 'RAD51C']]) {
+    await page.goto(BASE + '#syndrome=' + id); await page.waitForFunction(i => document.querySelector('#syn-detail h2') && location.hash === '#syndrome=' + i, id);
+    const tx = await page.textContent('#syn-detail');
+    check(re.test(tx) && !/lifetime ≥40%|≥8% at 25–39/.test(tx), `${what} page: breast screening matches the NHS BSP very high risk protocol (Nov 2025)`);
+  }
   await page.goto(BASE); await page.waitForSelector('#family');
 
   console.log('European guidance: PJS');
