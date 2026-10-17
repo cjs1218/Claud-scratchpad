@@ -1865,13 +1865,20 @@ const EXAMPLES = [
       ['proband', 'M', [{ site: 'polyps', hist: 'adenoma', age: '24', count: '150' }, { site: 'feature', hist: 'chrpe' }]],
       ['mother', 'F', [{ site: 'colorectal', hist: 'adeno', age: '39' }]],
       ['m_uncle', 'M', [{ site: 'sarcoma', hist: 'desmoid', age: '33' }]]] },
-  { id: 'mutyh', label: 'MUTYH-associated polyposis', top: 'map', test: 'R211',
+  { id: 'mutyh', label: 'MUTYH-associated polyposis (MAP)', top: 'map', test: 'R211',
     caption: 'Recessive pattern: about 40 adenomas and bowel cancer at 53, a brother with about 25 adenomas; parents unaffected.',
     people: [
       ['proband', 'M', [{ site: 'polyps', hist: 'adenoma', age: '53', count: '40' }, { site: 'colorectal', hist: 'adeno', age: '53', mmr: 'intact' }]],
       ['brother', 'M', [{ site: 'polyps', hist: 'adenoma', age: '50', count: '25' }]],
       ['mother', 'F', [], { ageNow: '80' }],
       ['father', 'M', [], { ageNow: '82' }]] },
+  { id: 'sps', label: 'Serrated polyposis syndrome (SPS)', top: 'rnf43', test: 'R211',
+    caption: 'Serrated polyposis meeting the WHO criteria at 44 (R211: under 50), and a sister with 12 serrated polyps. Most SPS has no germline cause; RNF43 explains a small minority.',
+    people: [
+      ['proband', 'F', [{ site: 'polyps', hist: 'sps', age: '44' }]],
+      ['sister', 'F', [{ site: 'polyps', hist: 'serrated', age: '47', count: '12' }]],
+      ['mother', 'F', [], { ageNow: '72' }],
+      ['father', 'M', [], { ageNow: '74' }]] },
   { id: 'vhl', label: 'von Hippel–Lindau syndrome', top: 'vhl', test: 'R225',
     caption: 'Cerebellar haemangioblastoma at 26; mother with phaeochromocytoma and clear cell renal cancer, maternal uncle with a pancreatic NET.',
     people: [
