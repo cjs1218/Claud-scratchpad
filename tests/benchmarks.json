@@ -22,6 +22,9 @@
   { "name": "Pleuropulmonary blastoma at 3", "people": [["proband", "F", [{ "site": "lung", "hist": "ppb", "age": "3" }]]], "top": ["dicer1"] },
   { "name": "Small cell ovarian cancer, hypercalcaemic type, at 25", "people": [["proband", "F", [{ "site": "ovary", "hist": "sccoht", "age": "25" }]]], "top": ["smarca4"] },
   { "name": "SHH medulloblastoma at 2", "people": [["proband", "F", [{ "site": "cns", "hist": "medullo_shh", "age": "2" }]]], "top": ["sufu"] },
+  { "name": "Over 100 adenomas at 33 (APC above MUTYH)", "people": [["proband", "M", [{ "site": "polyps", "hist": "adenoma", "age": "33", "count": "150" }]]], "top": ["fap"], "top3": ["map"], "meets": ["R211"] },
+  { "name": "15 adenomas at 45, brother 20 adenomas at 48 (recessive pattern)", "people": [["proband", "F", [{ "site": "polyps", "hist": "adenoma", "age": "45", "count": "15" }]], ["brother", "M", [{ "site": "polyps", "hist": "adenoma", "age": "48", "count": "20" }]]], "top": ["map"], "meets": ["R211"] },
+  { "name": "Serrated polyposis syndrome (WHO criteria) at 45 (RNF43 first; no strong pattern, as most SPS has no germline cause)", "people": [["proband", "F", [{ "site": "polyps", "hist": "sps", "age": "45" }]]], "top": ["rnf43"], "weak": true, "meets": ["R211"] },
   { "name": "Over 100 adenomas at 25", "people": [["proband", "M", [{ "site": "polyps", "hist": "adenoma", "age": "25", "count": "150" }]]], "top": ["fap"], "meets": ["R211"] },
   { "name": "Unaffected proband, mother with breast cancer at 40", "people": [["proband", "F", []], ["mother", "F", [{ "site": "breast", "hist": "idc", "age": "40" }]]], "top": ["brca1", "brca2"], "notTop3": ["pjs", "phts"] }
 ]

@@ -166,7 +166,7 @@ const SITES = {
   headneck: { label: 'Head and neck', hist: [['scc', 'Squamous cell carcinoma']] },
   polyps: { label: 'GI polyps', markers: ['count'], hist: [
     ['adenoma', 'Adenomas'], ['pj', 'Peutz–Jeghers polyps'], ['juvenile', 'Juvenile polyps'],
-    ['serrated', 'Serrated / hyperplastic polyps'], ['mixed', 'Mixed polyposis'],
+    ['serrated', 'Serrated / hyperplastic polyps'], ['sps', 'Serrated polyposis (meets WHO criteria)'], ['mixed', 'Mixed polyposis'],
     ['ganglioneuroma', 'Ganglioneuromas / mixed hamartomatous']] },
   feature: { label: 'Other tumours & clinical features', hist: [
     ['cardiac_fibroma', 'Cardiac fibroma'],
@@ -535,7 +535,7 @@ const CONDITIONS = [
     mods: [['*', 'mmr_def', 1.5], ['*', 'mmr_prof', 0.3]] },
   { id: 'fap', name: 'Familial adenomatous polyposis (APC)', genes: ['APC'], inh: 'AD', tests: ['R211','R414'],
     rules: [
-      ['polyps', 'adenoma', 'H', 30, 'n100', null, ['ukcgg:apc', 'gr:NBK1345', 'clingen:APC', 'us:acg_gi'], 'Classical FAP: >100 adenomas, 95% have polyps by 35 (UKCGG)'],
+      ['polyps', 'adenoma', 'H', 35, 'n100', null, ['ukcgg:apc', 'gr:NBK1345', 'clingen:APC', 'us:acg_gi'], 'Classical FAP: >100 adenomas, 95% have polyps by 35 (UKCGG); early age 35 so classical polyposis in the early 30s ranks APC above MUTYH'],
       ['sarcoma', 'desmoid', 'S', null, null, null, ['ukcgg:apc', 'ukcgg:bsg', 'gr:NBK1345', 'us:acg_gi', 'us:aacr_gi'], 'Desmoids in ~15% (UKCGG; 10-30% GeneReviews); >800x population risk; >=7.5% of desmoid fibromatoses occur in FAP'],
       ['thyroid', 'cmv', 'H', null, null, null, ['ukcgg:apc', 'eu:ehtg_fap', 'gr:NBK1345', 'us:acg_gi', 'us:aacr_gi'], 'Thyroid cancer 1.5-12% lifetime, mostly cribriform-morular PTC, strong female excess (EHTG 2024)'],
       ['feature', 'gapps', 'H', null, null, null, ['gr:NBK1345', 'eu:ehtg_fap', 'clingen:APC', 'us:aacr_gi'], 'GAPPS: proximal fundic gland polyposis, gastric cancer 13-25% lifetime (GeneReviews)'],
@@ -563,7 +563,7 @@ const CONDITIONS = [
       ['urothelial', 'bladder', 'W', null, null, null, ['gr:NBK107219', 'eu:ehtg_fap', 'us:acg_gi'], 'Bladder cancer 6-8% (F), 6-25% (M) lifetime, median 61 (GeneReviews)', 'ACG 2015: bladder cancer reported in MAP but increased risk unclear'],
       ['skin', 'sebaceous', 'W', null, null, null, ['gr:NBK107219', 'us:acg_gi'], 'Sebaceous adenomas/epitheliomas in 5/276 (Vogt 2009, via GeneReviews)'],
       ['thyroid', 'papillary', 'W', null, null, null, ['gr:NBK107219', 'us:acg_gi'], 'PTC in 3/24 on ultrasound screening, not replicated (possible selection bias)', 'ACG 2015: annual thyroid ultrasound recommended for MAP (conditional, low-quality evidence) – stronger than the W tier'],
-      ['polyps', 'serrated', 'W', null, null, null, ['gr:NBK107219', 'us:acg_gi'], 'Serrated/hyperplastic polyps present in some MAP; 3/17 met serrated polyposis criteria']
+      ['polyps', 'serrated|sps', 'W', null, null, null, ['gr:NBK107219', 'us:acg_gi'], 'Serrated/hyperplastic polyps present in some MAP; 3/17 met serrated polyposis criteria']
     ] },
   { id: 'nthl1', name: 'NTHL1 tumour syndrome (biallelic NTHL1)', genes: ['NTHL1'], inh: 'AR', tests: ['R211'],
     rules: [
@@ -618,11 +618,12 @@ const CONDITIONS = [
     rules: [
       ['polyps', 'mixed', 'H', null, null, null, ['clingen:GREM1', 'jaeger2012', 'otherpolyposis2026', 'us:acg_gi'], 'Mixed hyperplastic/atypical juvenile/adenomatous polyps, typically 10-100; average age at polyp detection 28'],
       ['colorectal', '*', 'M', 50, null, null, ['jaeger2012', 'clingen:GREM1', 'ukcgg:bsg', 'us:acg_gi', 'us:aacr_gi'], 'CRC in a high proportion of affected individuals (no quantified risk)'],
-      ['polyps', 'serrated|adenoma', 'W', null, 'n5', null, ['otherpolyposis2026', 'jaeger2012', 'us:acg_gi'], 'Component polyp types in HMPS']
+      ['polyps', 'serrated|sps|adenoma', 'W', null, 'n5', null, ['otherpolyposis2026', 'jaeger2012', 'us:acg_gi'], 'Component polyp types in HMPS']
     ] },
   { id: 'rnf43', name: 'Serrated polyposis (RNF43)', genes: ['RNF43'], inh: 'AD', tests: ['R211'],
     rules: [
       ['polyps', 'serrated', 'M', null, 'n5', null, ['clingen:RNF43', 'rnf43gut2026', 'ukcgg:bsg', 'us:aacr_gi'], 'Germline RNF43 LoF in a small minority of serrated polyposis (WHO-criteria SPS)'],
+      ['polyps', 'sps', 'M', null, null, null, ['clingen:RNF43', 'rnf43gut2026', 'ukcgg:bsg', 'us:aacr_gi'], 'Serrated polyposis syndrome (WHO criteria): germline RNF43 LoF in a small minority'],
       ['polyps', 'serrated', 'W', null, null, null, ['rnf43gut2026', 'otherpolyposis2026'], 'Population carriers often lack multiple polyps'],
       ['colorectal', '*', 'W', null, null, null, ['rnf43gut2026', 'clingen:RNF43'], 'Germline RNF43 LoF: CRC OR 2.7 overall, higher for N-terminal variants (CORGI/100kGP/UKB)']
     ] },
@@ -1982,7 +1983,7 @@ const FHCC = {
       'Polyps short of the high-risk criteria under about 40, or with a family history of colorectal cancer: decide individually, ideally with clinical genetics – e.g. under 30 or with a family history of colorectal cancer, a 5-year surveillance colonoscopy may be considered.',
       'Not routinely after 75, or when life expectancy is under 10 years.'
     ],
-    many: 'With 10 or more adenomas, or possible serrated polyposis, assess for a polyposis syndrome first (see the Test Directory results above): hereditary polyposis is managed under the BSG/ACPGBI/UKCGG 2019 guidelines, not post-polypectomy surveillance.'
+    many: 'With 10 or more adenomas, or serrated polyposis, assess for a polyposis syndrome first (see the Test Directory results above): hereditary polyposis is managed under the BSG/ACPGBI/UKCGG 2019 guidelines, not post-polypectomy surveillance.'
   }
 };
 

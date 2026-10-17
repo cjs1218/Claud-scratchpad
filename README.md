@@ -125,6 +125,9 @@ pathology-adjusted Manchester score (GeNotes table, Evans 2004/2017) and unaffec
 is alive. Results appear in a "Meets Test Directory criteria now" box at the top of the results column, in the copied summary
 and in the printout. Deceased relatives are flagged as needing stored DNA or tissue. Criteria that fit apart from a detail
 the form does not record are listed as "may meet – check"; others (tumour grade, CanRisk, Wimmer score) are not assessed.
+R211 serrated polyposis: enter GI polyps as "Serrated polyposis (meets WHO criteria)" – met under 50 or with a first-degree
+relative with SPS, otherwise "may meet" (dysplasia); five or more serrated polyps without that are "may meet – check the WHO criteria"
+(size and site are not recorded).
 
 Clicking any test code (results, eligibility box, form tags, family tree, syndrome and gene pages) opens a panel with
 the exact criteria from `js/criteria.js`, linked to the PDF page. `CRIT_REF` in `js/eligibility.js` ties each reason

@@ -1027,15 +1027,17 @@
   }
   // Post-polypectomy surveillance (BSG/ACPGBI/PHE 2020): always shown; leads with the proband when they have polyps.
   function fhccPolypText(pp) {
-    const kinds = pp.hist.map(h => h === 'adenoma' ? 'adenomas' : 'serrated polyps').join(' and ');
-    return `The proband has had ${kinds}${pp.count ? ` (${pp.count})` : ''}: follow the BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines as well as the family-history category.`;
+    const kinds = pp.hist.map(h => ({ adenoma: 'adenomas', serrated: 'serrated polyps', sps: 'serrated polyposis syndrome' })[h]).join(' and ');
+    const had = `The proband has had ${kinds}${pp.count ? ` (${pp.count})` : ''}`;
+    // Possible polyposis is managed under the hereditary guidelines, not post-polypectomy surveillance (FHCC.polyps.many follows).
+    return pp.polyposis ? `${had}.` : `${had}: follow the BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines as well as the family-history category.`;
   }
   function fhccPolypsHtml(pp) {
     const P = FHCC.polyps, g = GUIDES[P.source];
     return `<div class="fhcc-polyps${pp ? ' fhcc-polyps-pro' : ''}">
         <p class="small"><strong>Polyps:</strong> ${esc(pp ? fhccPolypText(pp) : P.lead)}</p>
         <ul class="small">${P.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-        ${pp && pp.count >= 10 ? `<p class="small"><strong>${esc(P.many)}</strong></p>` : ''}
+        ${pp && pp.polyposis ? `<p class="small"><strong>${esc(P.many)}</strong></p>` : ''}
         <p class="small muted">Source: ${link(g[0], g[1])}.</p>
       </div>`;
   }
@@ -1438,7 +1440,7 @@
       if (fh.reasons.length) lines.push(`  Because: ${fh.reasons.join('; ')}`);
       if (fh.unknownLinks) lines.push('  Some links between affected relatives are not known and are not counted.');
       lines.push(`- Polyps: ${fh.proPolyps ? fhccPolypText(fh.proPolyps) : FHCC.polyps.lead}`, ...FHCC.polyps.items.map(x => `  · ${x}`));
-      if (fh.proPolyps && fh.proPolyps.count >= 10) lines.push(`  ${FHCC.polyps.many}`);
+      if (fh.proPolyps && fh.proPolyps.polyposis) lines.push(`  ${FHCC.polyps.many}`);
     }
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {

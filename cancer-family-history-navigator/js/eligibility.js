@@ -319,7 +319,7 @@
       if (r210t.length && !r210g.length) add(p, 'R210', r210t, { tumourFirst: true });
 
       /* R211 – polyposis and early-onset colorectal cancer */
-      const r211 = [];
+      const r211 = [], r211maybe = [];
       D.forEach(d => {
         if ((CRC_EC(d) || is(d, 'smallbowel')) && lt(d, 40)) r211.push(`${SITES[d.site].label.split(' ')[0].toLowerCase()} cancer under 40 (${histText(d)})`);
         if (is(d, 'polyps', 'adenoma')) {
@@ -329,6 +329,17 @@
           if (n >= 10 && a !== null && a < 60) r211.push(`≥10 adenomas under 60 (${n} at ${a})`);
           if (n >= 20 && a !== null && a >= 60) r211.push(`≥20 adenomas at 60 or over (${n} at ${a})`);
           if (n >= 5 && a !== null && a < 60 && (relDx(p, x => is(x, 'polyps', 'adenoma') && +x.count >= 5, 1).length || relDx(p, x => is(x, 'colorectal') && lt(x, 60), 1).length)) r211.push('≥5 adenomas under 60 with a first-degree relative with ≥5 adenomas or colorectal cancer under 60');
+        }
+        // Serrated polyposis syndrome (WHO clinical criteria) – qualifies if under 50, an FDR has SPS, or dysplasia in any polyp.
+        if (is(d, 'polyps', 'sps')) {
+          const a = age(d);
+          if (a !== null && a < 50) r211.push(`serrated polyposis syndrome under 50 (age ${a})`);
+          else if (relDx(p, x => is(x, 'polyps', 'sps'), 1).length) r211.push('serrated polyposis syndrome with a first-degree relative with serrated polyposis syndrome');
+          else r211maybe.push(`serrated polyposis syndrome${a !== null ? ` at ${a}` : ''} – qualifies if there is dysplasia in any polyp`);
+        }
+        if (is(d, 'polyps', 'serrated') && +d.count >= 5 && !has(x => is(x, 'polyps', 'sps'))) {
+          const a = age(d), why = a !== null && a < 50 ? 'under 50' : relDx(p, x => is(x, 'polyps', 'sps'), 1).length ? 'with a first-degree relative with serrated polyposis syndrome' : 'with dysplasia in any polyp';
+          r211maybe.push(`${d.count} serrated polyps${a !== null ? ` at ${a}` : ''} – qualifies if they meet the WHO criteria for serrated polyposis syndrome (≥5 proximal to the rectum all ≥5 mm with ≥2 ≥10 mm, or >20 throughout with ≥5 proximal), ${why}`);
         }
         if (HAM(d)) {
           const n = +d.count || 0;
@@ -341,6 +352,7 @@
         if (new Set(sibs.map(x => x.p)).size >= 2 && sibs.some(x => lt(x.d, 50))) r211.push('colorectal/endometrial cancer with ≥2 siblings with colorectal/endometrial cancer (one under 50)');
       }
       if (r211.length) add(p, 'R211', [...new Set(r211)]);
+      else if (r211maybe.length) add(p, 'R211', [...new Set(r211maybe)], { possible: true });
 
       /* R430 – prostate */
       D.filter(d => is(d, 'prostate')).forEach(d => {
@@ -717,6 +729,7 @@
       [/≥2 relatives/, 'Lynch-related cancer and ≥ 2 relatives'], [/≥3 relatives/, 'Lynch-related cancer and ≥ 3 relatives']],
     R211: [[/^small/, 'Any small bowel cancer'], [/cancer under 40/, 'Any colorectal cancer OR endometrial'], [/siblings/, 'with ≥2 siblings'], [/^≥5 adenomas with colorectal/, '≥5 adenomatous polyps and colorectal'],
       [/^≥5 adenomas under 40/, '≥5 adenomatous polyps (age <40'], [/^≥10 adenomas/, '≥10 adenomatous polyps'], [/^≥20 adenomas/, '≥20 adenomatous polyps'], [/^≥5 adenomas under 60/, '≥5 adenomatous polyps (age <60'],
+      [/^serrated polyposis syndrome under 50/, 'patient aged < 50 OR'], [/^serrated polyposis syndrome with a first-degree/, 'family history of ≥1 affected FDR with SPS'], [/^serrated polyposis syndrome.* dysplasia/, 'evidence of dysplasia within any polyp'], [/serrated polyps.*WHO criteria/, 'A clinical diagnosis of serrated polyposis syndrome'],
       [/^≥2 hamartomatous/, '≥ 2 hamartomatous polyps'], [/^hamartomatous polyp with/, '≥ 1 hamartomatous polyp and']],
     R212: [[/^≥2 Peutz/, '≥2 PJS-type hamartomatous'], [/^SCTAT or adenoma malignum \(Cervix/, 'Adenoma malignum of the cervix'], [/^SCTAT/, 'Sex cord tumours with annular tubules'], [/with characteristic pigmentation/, '≥1 PJS-type hamartomatous polyp and characteristic'],
       [/pigmentation under 10/, 'Characteristic mucocutaneous pigmentation age <10'], [/relative with a PJS/, '≥1 PJS-type hamartomatous polyp, AND']],
@@ -814,8 +827,11 @@
     const proAffected = !!pro && crcAge(pro) !== undefined;
     const unknownLinks = affected.some(a => affected.some(b => a !== b && degree(a, b) == null));
     // The proband's own premalignant polyps (adenomas or serrated): post-polypectomy surveillance applies as well.
-    const pp = pro ? (pro.dx || []).filter(d => d.site === 'polyps' && ['adenoma', 'serrated'].includes(d.hist)) : [];
-    const proPolyps = pp.length ? { hist: [...new Set(pp.map(d => d.hist))], count: Math.max(0, ...pp.map(d => +d.count || 0)) } : null;
+    const pp = pro ? (pro.dx || []).filter(d => d.site === 'polyps' && ['adenoma', 'serrated', 'sps'].includes(d.hist)) : [];
+    const cnt = h => Math.max(0, ...pp.filter(d => d.hist === h).map(d => +d.count || 0));
+    // Possible polyposis: ≥10 adenomas, serrated polyposis (WHO criteria), or >20 serrated polyps – assess for a syndrome first.
+    const proPolyps = pp.length ? { hist: [...new Set(pp.map(d => d.hist))], count: Math.max(0, ...pp.map(d => +d.count || 0)),
+      polyposis: cnt('adenoma') >= 10 || pp.some(d => d.hist === 'sps') || cnt('serrated') > 20 } : null;
     const out = { any: proAffected || affected.length > 0 || !!proPolyps, proAffected, proPolyps, unknownLinks, category: 'average', reasons: [] };
     if (!pro) return out;
     const proFdrs = affected.filter(a => fdr(pro, a));

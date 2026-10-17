@@ -55,6 +55,8 @@ for (const [a, b, e] of [['proband','m_ggp',3],['mother','m_ggp',2],['m_gm','m_g
     ok(ss.proPolyps && ss.proPolyps.hist.length === 2 && ss.proPolyps.count === 12, 'FHCC: adenomas and serrated polyps together; highest count kept');
     const pj = w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'pj', age: '20', count: '3' }])]);
     ok(!pj.any && !pj.proPolyps, 'FHCC: hamartomatous (Peutz–Jeghers) polyps do not trigger post-polypectomy surveillance');
+    ok(w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'sps', age: '55' }])]).proPolyps.polyposis, 'FHCC: serrated polyposis syndrome flagged as possible polyposis (not post-polypectomy)');
+    ok(w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'serrated', age: '55', count: '25' }])]).proPolyps.polyposis && !w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'serrated', age: '55', count: '8' }])]).proPolyps.polyposis, 'FHCC: >20 serrated polyps flagged as possible polyposis; 8 are not');
     const rel = w.fhccCategory([P('proband', 'F'), P('mother', 'F', [{ site: 'polyps', hist: 'adenoma', age: '60', count: '2' }])]);
     ok(!rel.any && !rel.proPolyps, "FHCC: a relative's polyps alone do not apply post-polypectomy surveillance to the proband");
   }
@@ -134,6 +136,11 @@ if (mss({ site: 'breast', hist: 'dcis', age: '45', grade: '3' }) === mss({ site:
 t('DCIS low grade <40', [P('proband','F',[{site:'breast',hist:'dcis',age:'35',grade:'1'}])], [['proband','R208','none']]);
 t('DCIS high grade <40', [P('proband','F',[{site:'breast',hist:'dcis',age:'35',grade:'3'}])], [['proband','R208','met']]);
 t('DCIS unknown <40', [P('proband','F',[{site:'breast',hist:'dcis',age:'35'}])], [['proband','R208','met']]);
+t('SPS (WHO criteria) at 45', [P('proband','F',[{site:'polyps',hist:'sps',age:'45'}])], [['proband','R211','met']]);
+t('SPS at 62, no family history: may meet (dysplasia)', [P('proband','F',[{site:'polyps',hist:'sps',age:'62'}])], [['proband','R211','maybe']]);
+t('SPS at 62 with a brother with SPS', [P('proband','F',[{site:'polyps',hist:'sps',age:'62'}]), P('brother','M',[{site:'polyps',hist:'sps',age:'58'}])], [['proband','R211','met']]);
+t('25 serrated polyps at 45 without WHO criteria recorded: may meet', [P('proband','F',[{site:'polyps',hist:'serrated',age:'45',count:'25'}])], [['proband','R211','maybe']]);
+t('3 serrated polyps at 45: does not meet', [P('proband','F',[{site:'polyps',hist:'serrated',age:'45',count:'3'}])], [['proband','R211','none']]);
 t('endometrioid ovary unknown grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50'}])], [['proband','R207','maybe']]);
 t('endometrioid ovary high grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50',ovgrade:'high'}])], [['proband','R207','met'],['proband','R208','none']]);
 t('endometrioid ovary low grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50',ovgrade:'low'}])], [['proband','R207','none']]);
