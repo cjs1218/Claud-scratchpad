@@ -839,6 +839,7 @@
     const polyposis = {
       proMcra: pro && count(pro, 'adenoma') >= 10 ? count(pro, 'adenoma') : 0,
       proSps: !!pro && (pro.dx || []).some(d => d.site === 'polyps' && d.hist === 'sps'),
+      proSpsAge: pro ? spsAge(pro) : null,
       relMcra: fdrs.filter(p => count(p, 'adenoma') >= 10).map(p => ({ label: labelOf(p), count: count(p, 'adenoma') })),
       relSps: fdrs.filter(p => (p.dx || []).some(d => d.site === 'polyps' && d.hist === 'sps')).map(p => ({ label: labelOf(p), age: spsAge(p), from: spsAge(p) != null ? Math.min(40, spsAge(p) - 10) : 40 })),
       relMsp: fdrs.filter(p => !(p.dx || []).some(d => d.site === 'polyps' && d.hist === 'sps') && count(p, 'serrated') >= 10).map(p => ({ label: labelOf(p), count: count(p, 'serrated') }))

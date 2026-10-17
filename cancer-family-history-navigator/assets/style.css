@@ -740,11 +740,18 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .fhcc-cat { margin: 0 0 6px; }
 .fhcc ul { margin: 4px 0; padding-left: 18px; }
 .fhcc p.small { margin: 4px 0; }
-.fhcc-polyps { margin: 8px 0 4px; padding-top: 6px; border-top: 1px solid var(--border); }
-.fhcc-polyposis { margin: 8px 0 4px; padding: 6px 10px; border: 1px solid var(--warn-edge); background: var(--warn-bg); color: var(--fg); border-radius: 4px; }
+.fh-plan { margin: 10px 0; padding: 8px 12px; border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 4px; background: var(--card); }
+.fh-plan-polyposis { border-left-color: var(--warn-edge); background: color-mix(in srgb, var(--warn-bg) 55%, var(--card)); }
+.fh-plan-relative { border-left-color: var(--accent); background: var(--accent-soft); }
+.fh-plan-polyps { border-left-color: var(--accent); }
+.fh-plan-title { margin: 0 0 6px; }
+.fh-steps { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; margin: 0 0 4px; font-size: 0.92rem; }
+.fh-steps dt { font-weight: 700; color: var(--muted); }
+.fh-steps dd { margin: 0; }
+@media (max-width: 600px) { .fh-steps { grid-template-columns: 1fr; } .fh-steps dd { margin-bottom: 4px; } }
+.fhcc-postpoly { margin: 8px 0; }
 .link-btn.sps-who { padding: 0; font: inherit; font-size: 0.85em; font-weight: 600; text-decoration: underline; cursor: pointer; }
 .sps-criteria li { margin-bottom: 4px; }
-.fhcc-polyps-pro { background: var(--accent-soft); border: 0; border-radius: 4px; padding: 6px 10px; }
 
 /* Test Directory tab */
 #tests-search { flex: 1; min-width: 220px; }

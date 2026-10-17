@@ -2003,8 +2003,7 @@ const FHCC = {
       'Otherwise: no colonoscopic surveillance – national bowel cancer screening programme when of screening age.',
       'Polyps short of the high-risk criteria under about 40, or with a family history of colorectal cancer: decide individually, ideally with clinical genetics – e.g. under 30 or with a family history of colorectal cancer, a 5-year surveillance colonoscopy may be considered.',
       'Not routinely after 75, or when life expectancy is under 10 years.'
-    ],
-    many: 'With 10 or more adenomas, or serrated polyposis, assess for a polyposis syndrome first (see the Test Directory results above): hereditary polyposis is managed under the BSG/ACPGBI/UKCGG 2019 guidelines, not post-polypectomy surveillance.'
+    ]
   },
   // Polyposis without a known syndrome: BSG/ACPGBI/UKCGG 2019 (GUIDES.bsg) – Table 1 and the MCRA and SPS sections.
   mcra: {

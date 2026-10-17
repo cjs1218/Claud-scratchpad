@@ -1043,62 +1043,76 @@
         <ul><li><strong>Affected:</strong> ${esc(S.affected)}</li><li><strong>First-degree relatives:</strong> ${esc(S.fdr)}</li><li>${esc(S.msp)}</li></ul></section>
       <p class="small muted">Sources: ${link(`Test Directory v9.1 – R211${tc ? `, page ${tc.page}` : ''} (PDF)`, TD_URL + (tc ? `#page=${tc.page}` : ''))} · ${link(g[0], g[1])} – Table 1 · ${link(pp[0], pp[1])}.</p>`;
   }
-  // Polyposis without a known syndrome (BSG 2019): MCRA and SPS for the proband and first-degree relatives. [text, WHO link?]
-  function fhccPolyposisItems(f) {
-    const P = f.polyposis, M = FHCC.mcra, S = FHCC.sps, out = [];
-    if (!P) return out;
-    if (P.proMcra) out.push([`The proband has had ${P.proMcra} adenomas – possible multiple colorectal adenomas (MCRA): ${M.def} ${M.testing} ${M.affected}`], [M.dye]);
-    if (P.proSps) out.push([`The proband has serrated polyposis syndrome: if no other cause is found, ${S.affected}`, true]);
-    P.relMcra.forEach(r => out.push([`${r.label} (first-degree relative) has had ${r.count} adenomas – possible MCRA${P.proMcra ? '.' : ` (${M.def})`} ${M.fdr}`]));
-    P.relSps.forEach(r => out.push([`${r.label} (first-degree relative) has serrated polyposis syndrome${r.age != null ? ` (diagnosed at ${r.age})` : ''}: for the proband, colonoscopy 5-yearly from ${r.from} until 75 (from 40, or 10 years earlier than the relative's diagnosis).`, true]));
-    P.relMsp.forEach(r => out.push([`${r.label} (first-degree relative) has had ${r.count} serrated polyps. ${S.msp}`, true]));
-    return out;
+  /*
+   * Bowel screening plans, most specific first: polyposis without a known syndrome (BSG 2019: MCRA, SPS – proband and
+   * first-degree relatives), the proband's own polyps (post-polypectomy, BSG/ACPGBI/PHE 2020), then the family-history
+   * category (Box 1). Each plan: { kind, title, who (WHO-criteria link), rows: [[label, text]], src }. Used for the box and the summary.
+   */
+  function fhccPlans(f) {
+    const P = f.polyposis || { relMcra: [], relSps: [], relMsp: [] }, M = FHCC.mcra, S = FHCC.sps, PP = FHCC.polyps, pp = f.proPolyps;
+    const bsg = GUIDES[FHCC.source], post = GUIDES[PP.source], plans = [];
+    const notPost = 'Not post-polypectomy surveillance: polyposis is managed under the BSG/ACPGBI/UKCGG 2019 guidelines.';
+    if (P.proSps) plans.push({ kind: 'polyposis', title: 'Serrated polyposis syndrome (proband)', who: true, rows: [
+      ['Testing', 'Germline testing to exclude a known syndrome first – R211 if eligible (see the Test Directory results).'],
+      ['Colonoscopy', `If no cause is found: ${S.affected}`],
+      ['Relatives', P.proSpsAge != null ? `First-degree relatives: colonoscopy 5-yearly from ${Math.min(40, P.proSpsAge - 10)} until 75 (from 40, or 10 years earlier than the proband's diagnosis at ${P.proSpsAge}).` : `First-degree relatives: ${S.fdr}`]], note: notPost, src: [bsg, 'Table 1'] });
+    else if (pp && pp.polyposis && pp.hist.includes('serrated') && !P.proMcra) plans.push({ kind: 'polyposis', title: 'Possible serrated polyposis – check the WHO criteria (proband)', who: true, rows: [
+      ['Next step', 'Check whether the polyps meet the WHO criteria (size and site are not recorded here).'],
+      ['If they do', `Germline testing first (R211 if eligible); if no cause is found, ${S.affected} First-degree relatives: ${S.fdr}`]], note: notPost, src: [bsg, 'Table 1'] });
+    if (P.proMcra) plans.push({ kind: 'polyposis', title: `Possible multiple colorectal adenomas (MCRA) – ${P.proMcra} adenomas (proband)`, rows: [
+      ['What it is', M.def],
+      ['Testing', M.testing],
+      ['Colonoscopy', `${M.affected} ${M.dye}`],
+      ['Relatives', M.fdr]], note: notPost, src: [bsg, 'MCRA section and Table 1'] });
+    P.relSps.forEach(r => plans.push({ kind: 'relative', title: `First-degree relative with serrated polyposis syndrome – ${r.label}${r.age != null ? `, diagnosed at ${r.age}` : ''}`, who: true, rows: [
+      ['For the proband', `Colonoscopy 5-yearly from ${r.from} until 75 (from 40, or 10 years earlier than the relative's diagnosis).`]], src: [bsg, 'Table 1'] }));
+    P.relMcra.forEach(r => plans.push({ kind: 'relative', title: `First-degree relative with possible MCRA – ${r.label}, ${r.count} adenomas`, rows: [
+      ['For the proband', `${M.fdr}${P.proMcra ? '' : ` MCRA: ${M.def}`}`]], src: [bsg, 'MCRA section'] }));
+    P.relMsp.forEach(r => plans.push({ kind: 'relative', title: `First-degree relative with multiple serrated polyps – ${r.label}, ${r.count} serrated polyps`, who: true, rows: [
+      ['For the proband', S.msp]], src: [bsg, 'serrated polyposis section'] }));
+    if (pp && !pp.polyposis) plans.push({ kind: 'polyps', title: `Polyps (proband): ${fhccPolypKinds(pp)} – post-polypectomy surveillance`, rows: [
+      ['High-risk findings', PP.items[0].replace(/^High-risk findings – /, '')],
+      ['Otherwise', PP.items[1].replace(/^Otherwise: /, '')],
+      ['Young or family history', PP.items[2]],
+      ['Stopping', PP.items[3]]], src: [post, ''] });
+    return plans;
   }
-  function fhccPolyposisHtml(f) {
-    const items = fhccPolyposisItems(f), g = GUIDES[FHCC.source];
-    if (!items.length) return '';
-    return `<div class="fhcc-polyposis">
-        <p class="small"><strong>Polyposis without a known syndrome</strong></p>
-        <ul class="small">${items.map(([t, who]) => `<li>${abbrHtml(t)}${who ? ` ${spsLink()}` : ''}</li>`).join('')}</ul>
-        <p class="small muted">Source: ${link(g[0], g[1])} – Table 1 and the MCRA and serrated polyposis sections.</p>
-      </div>`;
-  }
-  // Post-polypectomy surveillance (BSG/ACPGBI/PHE 2020): always shown; leads with the proband when they have polyps.
-  function fhccPolypText(pp) {
-    const kinds = pp.hist.map(h => ({ adenoma: 'adenomas', serrated: 'serrated polyps', sps: 'serrated polyposis syndrome' })[h]).join(' and ');
-    const had = `The proband has had ${kinds}${pp.count ? ` (${pp.count})` : ''}`;
-    // Possible polyposis is managed under the hereditary guidelines, not post-polypectomy surveillance (FHCC.polyps.many follows).
-    return pp.polyposis ? `${had}.` : `${had}: follow the BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines as well as the family-history category.`;
-  }
-  function fhccPolypsHtml(pp) {
-    const P = FHCC.polyps, g = GUIDES[P.source];
-    return `<div class="fhcc-polyps${pp ? ' fhcc-polyps-pro' : ''}">
-        <p class="small"><strong>Polyps:</strong> ${esc(pp ? fhccPolypText(pp) : P.lead)}</p>
-        <ul class="small">${P.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-        ${pp && pp.polyposis ? `<p class="small"><strong>${esc(P.many)}</strong>${pp.hist.some(h => h !== 'adenoma') ? ` ${spsLink()}` : ''}</p>` : ''}
-        <p class="small muted">Source: ${link(g[0], g[1])}.</p>
+  const fhccPolypKinds = pp => pp.hist.map(h => ({ adenoma: 'adenomas', serrated: 'serrated polyps', sps: 'serrated polyposis syndrome' })[h]).join(' and ') + (pp.count ? ` (${pp.count})` : '');
+  function fhccPlanHtml(pl) {
+    return `<div class="fh-plan fh-plan-${pl.kind}">
+        <p class="fh-plan-title"><strong>${abbrHtml(pl.title)}</strong>${pl.who ? ` ${spsLink()}` : ''}</p>
+        <dl class="fh-steps">${pl.rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${abbrHtml(v.charAt(0).toUpperCase() + v.slice(1))}</dd>`).join('')}</dl>
+        ${pl.note ? `<p class="small muted">${esc(pl.note)}</p>` : ''}
+        <p class="small muted">Source: ${link(pl.src[0][0], pl.src[0][1])}${pl.src[1] ? ` – ${esc(pl.src[1])}` : ''}.</p>
       </div>`;
   }
   function fhccHtml() {
     const f = fhccCategory(state.people);
     if (!f.any) return '';
-    const c = FHCC.categories[f.category], g = GUIDES[FHCC.source];
-    const am = amsterdamCriteria(state.people);
+    const c = FHCC.categories[f.category], g = GUIDES[FHCC.source], PP = FHCC.polyps, post = GUIDES[PP.source];
+    const am = amsterdamCriteria(state.people), plans = fhccPlans(f);
+    const lead = plans.filter(p => p.kind !== 'polyps').length;
     return `<section class="fhcc" id="fhcc">
       <h3>Bowel screening if no inherited condition is found</h3>
-      <p class="fhcc-cat fhcc-${f.category}"><strong>${esc(c.label)}</strong> – ${esc(c.offer)}</p>
-      ${f.reasons.length ? `<p class="small">Because: ${esc(f.reasons.join('; '))}.</p>` : ''}
-      ${f.proAffected ? '<p class="small muted">The proband has had colorectal cancer, so their own follow-up is as after cancer treatment; this category applies to their unaffected relatives\' assessment.</p>' : ''}
-      ${f.unknownLinks ? '<p class="small muted">Some links between affected relatives are not known (e.g. whose child a cousin is) and are not counted – use “Child of” to set them.</p>' : ''}
-      ${fhccPolyposisHtml(f)}
-      ${fhccPolypsHtml(f.proPolyps)}
-      ${am.met ? `<p class="small">${esc(FHCC.amsterdam)}</p>` : ''}
-      ${lynchLikeRelative() ? `<p class="small">If an MMR-deficient tumour is unexplained after germline testing: ${esc(FHCC.lynchLike)}</p>` : ''}
-      <details class="fhcc-defs"><summary class="small">Categories (Box 1)</summary>
-        <ul class="small">${['high', 'moderate', 'average'].map(k => `<li><strong>${esc(FHCC.categories[k].label)}:</strong> ${esc(FHCC.categories[k].def)} <em>${esc(FHCC.categories[k].offer)}</em></li>`).join('')}</ul>
-      </details>
+      ${plans.length > 1 ? `<p class="small">${plans.length + 1} things apply to this family – each is set out below.</p>` : ''}
+      ${plans.map(fhccPlanHtml).join('')}
+      <div class="fh-plan fh-plan-category">
+        <p class="fh-plan-title"><strong>${lead ? 'Family history of colorectal cancer' : 'Family history category'}: ${esc(c.label)}</strong></p>
+        <dl class="fh-steps"><dt>Offer</dt><dd>${esc(c.offer)}</dd>${f.reasons.length ? `<dt>Because</dt><dd>${esc(f.reasons.join('; '))}.</dd>` : ''}</dl>
+        ${f.proAffected ? '<p class="small muted">The proband has had colorectal cancer, so their own follow-up is as after cancer treatment; this category applies to their unaffected relatives\' assessment.</p>' : ''}
+        ${f.unknownLinks ? '<p class="small muted">Some links between affected relatives are not known (e.g. whose child a cousin is) and are not counted – use “Child of” to set them.</p>' : ''}
+        ${am.met ? `<p class="small">${esc(FHCC.amsterdam)}</p>` : ''}
+        ${lynchLikeRelative() ? `<p class="small">If an MMR-deficient tumour is unexplained after germline testing: ${esc(FHCC.lynchLike)}</p>` : ''}
+        <details class="fhcc-defs"><summary class="small">Categories (Box 1)</summary>
+          <ul class="small">${['high', 'moderate', 'average'].map(k => `<li><strong>${esc(FHCC.categories[k].label)}:</strong> ${esc(FHCC.categories[k].def)} <em>${esc(FHCC.categories[k].offer)}</em></li>`).join('')}</ul>
+        </details>
+        <p class="small muted">Source: ${link(g[0], g[1])} – Box 1 and Table 1.</p>
+      </div>
+      ${f.proPolyps ? '' : `<details class="fhcc-postpoly"><summary class="small"><strong>Polyps:</strong> ${esc(PP.lead)}</summary>
+        <ul class="small">${PP.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        <p class="small muted">Source: ${link(post[0], post[1])}.</p>
+      </details>`}
       <ul class="small muted">${FHCC.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
-      <p class="small muted">Source: ${link(g[0], g[1])} – Box 1 and Table 1.</p>
     </section>`;
   }
   function renderResults() {
@@ -1476,13 +1490,12 @@
     const fh = fhccCategory(state.people);
     if (fh.any) {
       const c = FHCC.categories[fh.category];
-      lines.push('', 'BOWEL SCREENING IF NO INHERITED CONDITION IS FOUND (BSG/ACPGBI/UKCGG 2019, Box 1)', `- ${c.label}: ${c.offer}`);
+      lines.push('', 'BOWEL SCREENING IF NO INHERITED CONDITION IS FOUND');
+      fhccPlans(fh).forEach(pl => lines.push(`- ${pl.title}`, ...pl.rows.map(([k, v]) => `  · ${k}: ${v}`)));
+      lines.push(`- Family history category (BSG/ACPGBI/UKCGG 2019, Box 1): ${c.label} – ${c.offer}`);
       if (fh.reasons.length) lines.push(`  Because: ${fh.reasons.join('; ')}`);
       if (fh.unknownLinks) lines.push('  Some links between affected relatives are not known and are not counted.');
-      lines.push(`- Polyps: ${fh.proPolyps ? fhccPolypText(fh.proPolyps) : FHCC.polyps.lead}`, ...FHCC.polyps.items.map(x => `  · ${x}`));
-      if (fh.proPolyps && fh.proPolyps.polyposis) lines.push(`  ${FHCC.polyps.many}`);
-      const px = fhccPolyposisItems(fh);
-      if (px.length) lines.push('- Polyposis without a known syndrome (BSG/ACPGBI/UKCGG 2019):', ...px.map(([t]) => `  · ${t}`));
+      if (!fh.proPolyps) lines.push(`- Polyps: ${FHCC.polyps.lead}`);
     }
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {
