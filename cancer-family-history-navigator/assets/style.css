@@ -723,6 +723,7 @@ body.compact-head .notice-strip .disc-long { display: none; }
 
 /* No strong pattern note above the ranked list */
 .weak-note { border-left: 4px solid var(--warn-edge); background: var(--warn-bg); color: var(--warn-fg); padding: 8px 10px; border-radius: 6px; margin: 8px 0; font-size: .92em; }
+.mmr-note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 8px 10px; border-radius: 6px; margin: 8px 0; font-size: .92em; }
 
 /* Family tree under the family form; full Test Directory list collapsed at the end of the results */
 .ped-host:not(:empty) { margin-top: 18px; padding-top: 14px; border-top: 2px solid var(--border); }

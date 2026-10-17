@@ -63,6 +63,17 @@ const FREQ_BAND = {
 const NONCANCER_RECOGNISED = ['pjs', 'phts', 'jps_smad4', 'jps_bmpr1a', 'hmps', 'fap', 'map', 'nthl1', 'mbd4', 'gorlin', 'xp', 'tylosis',
   'nf1', 'nf2', 'tsc', 'bloom', 'fanconi', 'tbd', 'costello', 'noonan', 'cbl', 'bws', 'sotos', 'weaver', 'sgbs', 'mulibrey', 'perlman',
   'mva', 'rts', 'werner', 'at', 'nbs', 'carney', 'mas', 'ollier', 'kit', 'pdgfra', 'pdgfrb', 'men4', 'fipa'];
+/*
+ * Syndromes defined by non-cancer features: the diagnosis rests on them (Peutz–Jeghers polyps or pigmentation; juvenile
+ * polyps – GeneReviews NBK1266, NBK1469; EHTG 2021), so when no one in the family has one, that syndrome's common
+ * cancers (and small bowel cancer) count only as weak matches. Its specific rare tumours keep their weight.
+ */
+const NEEDS_FEATURE = {
+  pjs: { label: 'Peutz–Jeghers polyps or pigmentation', features: [['polyps', 'pj'], ['feature', 'pigment_pj']] },
+  jps_smad4: { label: 'juvenile polyps or HHT features', features: [['polyps', 'juvenile'], ['polyps', 'mixed'], ['feature', 'hht']] },
+  jps_bmpr1a: { label: 'juvenile polyps', features: [['polyps', 'juvenile'], ['polyps', 'mixed']] }
+};
+const NEEDS_FEATURE_SITES = ['breast', 'colorectal', 'prostate', 'lung', 'pancreas', 'stomach', 'uterus', 'smallbowel', 'oesophagus'];
 const COMMON_ADULT_CANCERS = { breast: '*', colorectal: '*', prostate: '*', lung: '*', pancreas: 'pdac|nos', stomach: '*', uterus: '*',
   urothelial: '*', skin: 'bcc|scc|melanoma', headneck: '*', oesophagus: '*', kidney: 'ccrcc|nos' };
 const TIER_AUDIT = '13 Oct 2026'; // date all rules were last checked against TIER_DEFS
@@ -331,6 +342,10 @@ const ABBREVIATIONS = {
 };
 
 /* Predicates used by rules and modifiers. */
+/* The family being scored, for predicates that look at relatives (set by the app before scoring). */
+const PRED_CTX = { people: [] };
+const anyDx = f => PRED_CTX.people.some(q => (q.dx || []).some(f));
+
 const PRED = {
   tnbc: d => d.er === 'neg' && d.pr === 'neg' && d.her2 === 'neg',
   erpos: d => d.er === 'pos',
@@ -349,7 +364,11 @@ const PRED = {
   n5: d => +d.count >= 5,
   n10: d => +d.count >= 10,
   n20: d => +d.count >= 20,
-  n100: d => +d.count >= 100
+  n100: d => +d.count >= 100,
+  // Juvenile polyps in someone with another relative who has juvenile polyps (JPS criterion: any number with a family history).
+  jp_fh: (d, p) => PRED_CTX.people.some(q => q !== p && (q.dx || []).some(x => x.site === 'polyps' && x.hist === 'juvenile')),
+  // A phaeochromocytoma or paraganglioma in this person or the family (with renal cancer: a Test Directory R223/R224 criterion).
+  ppgl_fam: () => anyDx(x => x.site === 'ppgl' || (x.site === 'adrenal' && x.hist === 'phaeo'))
 };
 
 const PRED_LABEL = {
@@ -357,7 +376,8 @@ const PRED_LABEL = {
   mlh1_unexpl: 'MLH1/PMS2 loss, unmethylated', mlh1_sporadic: 'MLH1 loss explained by methylation/BRAF',
   mlh1_any: 'MLH1/PMS2 loss', msh2: 'MSH2/MSH6 loss', msh6: 'isolated MSH6 loss', pms2: 'isolated PMS2 loss',
   msi: 'MSI-high', mmr_prof: 'MMR proficient', mmr_def: 'MMR deficient',
-  n5: '≥5 polyps', n10: '≥10 polyps', n20: '≥20 polyps', n100: '≥100 polyps'
+  n5: '≥5 polyps', n10: '≥10 polyps', n20: '≥20 polyps', n100: '≥100 polyps',
+  jp_fh: 'with a relative with juvenile polyps', ppgl_fam: 'with phaeochromocytoma / paraganglioma in the family'
 };
 
 /* Standard modifier sets for the Lynch genes. */
@@ -598,6 +618,7 @@ const CONDITIONS = [
   { id: 'jps_smad4', name: 'Juvenile polyposis (SMAD4) / JP-HHT', genes: ['SMAD4'], inh: 'AD', tests: ['R211','R186'],
     rules: [
       ['polyps', 'juvenile', 'H', null, 'n5', null, ['ukcgg:smad4', 'ukcgg:bsg', 'gr:NBK1469', 'clingen:SMAD4', 'us:acg_gi', 'us:aacr_gi'], 'Clinical JPS: >5 juvenile polyps in colon/rectum (UKCGG)'],
+      ['polyps', 'juvenile', 'H', null, 'jp_fh', null, ['gr:NBK1469', 'ukcgg:smad4'], 'Clinical JPS: any number of juvenile polyps with a family history of juvenile polyposis (GeneReviews criterion)'],
       ['feature', 'hht', 'S', null, null, null, ['ukcgg:smad4', 'ukcgg:bsg', 'gr:NBK1351', 'clingen:SMAD4', 'us:acg_gi', 'us:usmstf_hamartoma', 'us:aacr_gi'], 'HHT features in up to 76% of SMAD4 carriers; aortopathy ~38%'],
       ['polyps', 'juvenile', 'M', null, null, null, ['ukcgg:smad4', 'gr:NBK1469', 'us:acg_gi'], 'Juvenile polyps anywhere in the GI tract; colonic polyps in 97% of SMAD4 carriers'],
       ['stomach', '*', 'M', 50, null, null, ['ukcgg:smad4', 'ukcgg:bsg', 'gr:NBK1469', 'us:acg_gi', 'us:aacr_gi'], 'Gastric polyposis 65-83%; up to 30% gastric cancer risk with gastric polyposis; gastric cancer almost exclusively SMAD4'],
@@ -608,6 +629,7 @@ const CONDITIONS = [
   { id: 'jps_bmpr1a', name: 'Juvenile polyposis (BMPR1A)', genes: ['BMPR1A'], inh: 'AD', tests: ['R211'],
     rules: [
       ['polyps', 'juvenile', 'H', null, 'n5', null, ['ukcgg:bmpr1a', 'gr:NBK1469', 'clingen:BMPR1A', 'us:acg_gi', 'us:aacr_gi'], 'Clinical JPS: >5 juvenile polyps in colon/rectum (UKCGG)'],
+      ['polyps', 'juvenile', 'H', null, 'jp_fh', null, ['gr:NBK1469', 'ukcgg:bmpr1a'], 'Clinical JPS: any number of juvenile polyps with a family history of juvenile polyposis (GeneReviews criterion)'],
       ['polyps', 'juvenile', 'M', null, null, null, ['ukcgg:bmpr1a', 'gr:NBK1469', 'us:acg_gi'], 'Juvenile polyps; BMPR1A in 25-30% of JPS'],
       ['polyps', 'mixed', 'M', null, null, null, ['ukcgg:bmpr1a', 'gr:NBK1469'], 'Mixed juvenile/adenomatous/hyperplastic polyps; BMPR1A variants found in HMPS-like families'],
       ['colorectal', '*', 'M', 45, null, null, ['ukcgg:bmpr1a', 'ukcgg:bsg', 'gr:NBK1469', 'us:acg_gi'], 'CRC risk up to 60% (overestimate), median age 44; CRC is 88% of BMPR1A-associated cancers', 'ACG 2015: JPS colon cancer mean age 34 (range 15–68), 17–22% by 35 – younger than the UK-based early-onset threshold of 45'],
@@ -797,6 +819,7 @@ const CONDITIONS = [
       ['adrenal', 'phaeo', 'M', null, null, null, ['ukcgg:sdhb', 'gr:NBK1548']],
       ['sarcoma', 'gist', 'M', null, null, null, ['ukcgg:sdhb', 'eu:sdhx_consensus', 'gr:NBK1548', 'aacr_vhl_ppgl2017']],
       ['kidney', 'ccrcc|nos', 'W', 40, null, null, ['gr:NBK1548', 'andrews2018'], 'Lifetime clear cell RCC 4.7% vs 1.7% general population (GeneReviews, citing Andrews 2018)'],
+      ['kidney', '*', 'S', null, 'ppgl_fam', null, ['ukcgg:td_v9', 'gr:NBK1548', 'andrews2018'], 'Renal cancer with phaeochromocytoma/paraganglioma in the person or family: a Test Directory testing criterion (R223, R224); RCC and PPGL together are characteristic of SDHx, mainly SDHB'],
       ['pituitary', '*', 'W', null, null, null, ['ukcgg:sdhb', 'eu:sdhx_consensus']]
     ] },
   { id: 'sdhd', name: 'Hereditary PPGL (SDHD)', genes: ['SDHD'], inh: 'AD (paternal transmission)',
@@ -1492,10 +1515,10 @@ const LAST_REVIEWED = {
   brca1: '2026-10-11', brca2: '2026-10-11', palb2: '2026-10-11', atm: '2026-10-11', chek2: '2026-10-12', bard1: '2026-10-11',
   rad51d: '2026-10-11', rad51c: '2026-10-11', brip1: '2026-10-11', lynch_mlh1: '2026-10-11', lynch_msh2: '2026-10-11', lynch_msh6: '2026-10-11',
   lynch_pms2: '2026-10-11', cmmrd: '2026-10-11', fap: '2026-10-11', map: '2026-10-11', nthl1: '2026-10-11', ppap: '2026-10-11',
-  mbd4: '2026-10-11', jps_smad4: '2026-10-11', jps_bmpr1a: '2026-10-11', hmps: '2026-10-11', rnf43: '2026-10-11', pjs: '2026-10-11',
+  mbd4: '2026-10-11', jps_smad4: '2026-10-17', jps_bmpr1a: '2026-10-17', hmps: '2026-10-11', rnf43: '2026-10-11', pjs: '2026-10-17',
   phts: '2026-10-11', hdgc: '2026-10-11', ctnna1: '2026-10-11', tylosis: '2026-10-11', lfs: '2026-10-12', men1: '2026-10-11',
   men4: '2026-10-11', men2: '2026-10-11', hptjt: '2026-10-11', fipa: '2026-10-11', carney: '2026-10-11', mas: '2026-10-11',
-  vhl: '2026-10-11', sdhb: '2026-10-11', sdhd: '2026-10-11', sdhc: '2026-10-11', sdha: '2026-10-11', sdhaf2: '2026-10-11',
+  vhl: '2026-10-11', sdhb: '2026-10-17', sdhd: '2026-10-11', sdhc: '2026-10-11', sdha: '2026-10-11', sdhaf2: '2026-10-11',
   tmem127: '2026-10-11', max: '2026-10-11', hlrcc: '2026-10-11', bhd: '2026-10-11', hprc: '2026-10-11', tsc: '2026-10-11',
   bap1: '2026-10-11', cdkn2a: '2026-10-11', cdk4: '2026-10-11', pot1: '2026-10-11', gorlin: '2026-10-11', sufu: '2026-10-11',
   xp: '2026-10-11', nf1: '2026-10-12', nf2: '2026-10-11', smarcb1: '2026-10-11', lztr1: '2026-10-11', smarca4: '2026-10-11',
@@ -2210,6 +2233,7 @@ const GUIDES = {
   etv6: ['UKCGG ETV6 management guideline (2023)', 'https://www.ukcgg.org/media/12639/ukcgg_etv6_guideline_v1_14072023.pdf'],
   ankrd26: ['UKCGG ANKRD26 management guideline (2023)', 'https://www.ukcgg.org/media/12636/ukcgg_ankrd26_guideline_v1_14072023.pdf'],
   cg164: ['NICE CG164 Familial breast cancer', 'https://www.nice.org.uk/guidance/cg164'],
+  td_v9: ['NHS England National Genomic Test Directory – rare and inherited disease eligibility criteria v9.1', 'https://www.england.nhs.uk/wp-content/uploads/2018/08/rare-and-inherited-disease-eligibility-criteria-v9.1.pdf'],
   nhsbsp_vhr: ['NHS Breast Screening Programme: tests and frequency for women at very high risk (updated 18 Nov 2025)', 'https://www.gov.uk/government/publications/breast-screening-higher-risk-women-surveillance-protocols/tests-and-frequency-of-testing-for-women-at-very-high-risk--2']
 };
 

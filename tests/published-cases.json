@@ -2,7 +2,7 @@
  "about": "Real families from open-access published case reports, each with a confirmed germline variant (pathogenic or likely pathogenic as reported by the authors), transcribed as reported by AI research agents from the full text (and pedigree figures where available) with quotes in 'evidence' and judgement calls in 'notes'. Citations checked against PubMed on 17 Oct 2026. Used to measure where the confirmed gene's syndrome ranks; do not tune scoring to individual cases without a source.",
  "collected": "2026-10-17",
  "floor": {
-  "top5": 92
+  "top5": 94
  },
  "cases": [
   {

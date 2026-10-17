@@ -106,7 +106,11 @@
 
   function scoreFamily() {
     const results = [];
+    PRED_CTX.people = state.people;
     for (const cond of CONDITIONS) {
+      // Syndromes defined by non-cancer features: without any of them in the family, common cancers count as weak (NEEDS_FEATURE).
+      const need = NEEDS_FEATURE[cond.id];
+      const featureMissing = need && !state.people.some(p => p.dx.some(d => need.features.some(([s, h]) => d.site === s && d.hist === h)));
       // Recessive: only the proband and full brothers and sisters can share the genotype, so cancers in parents
       // or other relatives do not support it. Mosaic (not inherited): only the affected person counts.
       const recessive = cond.inh.startsWith('AR');
@@ -119,8 +123,10 @@
         const rel = REL[p.rel];
         for (const dx of p.dx) {
           if (!dx.site || !dx.hist) continue;
-          const s = scoreDx(cond, dx, p);
+          let s = scoreDx(cond, dx, p);
           if (!s || s.value <= 0) continue;
+          if (featureMissing && NEEDS_FEATURE_SITES.includes(dx.site) && TIER[s.tier] > TIER.W)
+            s = { ...s, value: s.value * TIER.W / TIER[s.tier], tier: 'W', notes: [...(s.notes || []), `weak: no ${need.label} in the family`] };
           const sibship = rel.degree === 0 || rel.side === 'core';
           if (recessive && !sibship && !(cond.adSites || []).includes(dx.site)) continue;
           const rf = REL_FACTOR[rel.degree];
@@ -1172,6 +1178,14 @@
       <p class="small muted">Decision support from the family history as entered, summarising the sections below. Confirm eligibility with the full criteria and your Genomic Laboratory Hub, and risk with CanRisk where needed, before acting.</p>
     </section>`;
   }
+  // When Lynch genes lead and tumour MMR status is missing, say that adding it separates Lynch from other causes.
+  function mmrPromptHtml(shown) {
+    const top = shown.slice(0, 5).map(r => r.cond.id);
+    if (top.filter(id => id.startsWith('lynch_')).length < 2) return '';
+    const missing = state.people.filter(p => p.dx.some(d => ['colorectal', 'uterus', 'smallbowel'].includes(d.site) && d.hist && !d.mmr));
+    if (!missing.length) return '';
+    return `<div class="mmr-note" role="note"><strong>Tumour MMR status not entered</strong> (${esc(missing.map(personLabel).join(', '))}). Lynch syndrome genes rank high by default for these cancers; adding the MMR immunohistochemistry or MSI result separates Lynch syndrome from polymerase proofreading (POLE / POLD1), polyposis and other causes.</div>`;
+  }
   function renderResults() {
     // Keep folded sections as the user left them (read from the page, so it does not depend on toggle-event timing).
     if (!$('#results').dataset.print) {
@@ -1211,6 +1225,7 @@
       ${state.printFull ? pedigreeHtml(shown) : ''}
       <p class="muted small shown-note" id="dx-start" tabindex="-1">${shown.length} shown${hidden ? ` · ${hidden} more in a wider search` : ''}. Scores are relative and are not probabilities. Click a result's title to highlight it in the family tree.</p>
       ${weakPattern(all) ? `<div class="weak-note" role="note"><strong>No strong pattern.</strong> ${WEAK_TEXT}</div>` : ''}
+      ${mmrPromptHtml(shown)}
       ${TIER_LEGEND}
       ${shown.slice(0, MORE_AFTER).map((r, i) => resultCard(r, i, top)).join('')}
       ${shown.length > MORE_AFTER ? `<details class="more-results"${state.printFull || state.moreOpen ? ' open' : ''}>

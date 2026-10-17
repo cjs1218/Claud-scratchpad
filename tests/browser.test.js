@@ -1325,6 +1325,12 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     if (ex.breast) check(new RegExp(`^${ex.breast === 'high' ? 'High' : 'Moderate'}-risk family history pattern`).test((await page.textContent('#results #bfh .fh-plan-title')).trim()), `example ${ex.id}: ${ex.breast}-risk breast family history (NICE CG164)`);
     check(await page.isVisible('#example-note') && (await page.textContent('#example-note')).includes(ex.label), `example ${ex.id}: caption shown`);
   }
+  console.log('Tumour MMR prompt');
+  await loadEx(page, 'bowel_mod'); await page.waitForSelector('#results #todo');
+  check(!(await page.locator('#results .mmr-note').count()), 'no MMR prompt when tumour MMR status is entered');
+  await page.setInputFiles('#open-family', { name: 'f.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ people: [{ id: 1, rel: 'proband', sex: 'M', dx: [{ site: 'colorectal', hist: 'adeno', age: '44' }, { site: 'smallbowel', hist: 'adeno', age: '59' }] }, { id: 2, rel: 'brother', sex: 'M', dx: [{ site: 'colorectal', hist: 'adeno', age: '42' }] }] })) });
+  await page.waitForSelector('#results .mmr-note');
+  check(/Tumour MMR status not entered.*POLE \/ POLD1/.test(await page.textContent('#results .mmr-note')), 'Lynch genes leading with no MMR status: prompt to add MMR results to separate Lynch from POLE/POLD1 and polyposis');
   console.log('What to do');
   await loadEx(page, 'brca'); await page.waitForSelector('#results #todo');
   { const td = await page.textContent('#results #todo');
