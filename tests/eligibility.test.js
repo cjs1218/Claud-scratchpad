@@ -48,6 +48,16 @@ for (const [a, b, e] of [['proband','m_ggp',3],['mother','m_ggp',2],['m_gm','m_g
   const r = w.fhccCategory([P('proband', 'F'), C('m_aunt', 60), C('m_cousin', 40)]);
   ok(r.unknownLinks && r.category === 'average', 'FHCC: cousin without a named parent – link unknown, flagged');
   ok(w.fhccCategory([P('proband', 'F', [{ site: 'colorectal', hist: 'adeno', age: '45' }])]).proAffected, 'FHCC: affected proband flagged');
+  {
+    const ad = w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'adenoma', age: '50', count: '3' }])]);
+    ok(ad.any && ad.category === 'average' && ad.proPolyps && ad.proPolyps.count === 3 && ad.proPolyps.hist.join() === 'adenoma', 'FHCC: proband with adenomas and no colorectal cancer in the family – section shown, polyps flagged');
+    const ss = w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'serrated', age: '50' }, { site: 'polyps', hist: 'adenoma', age: '52', count: '12' }])]);
+    ok(ss.proPolyps && ss.proPolyps.hist.length === 2 && ss.proPolyps.count === 12, 'FHCC: adenomas and serrated polyps together; highest count kept');
+    const pj = w.fhccCategory([P('proband', 'F', [{ site: 'polyps', hist: 'pj', age: '20', count: '3' }])]);
+    ok(!pj.any && !pj.proPolyps, 'FHCC: hamartomatous (Peutz–Jeghers) polyps do not trigger post-polypectomy surveillance');
+    const rel = w.fhccCategory([P('proband', 'F'), P('mother', 'F', [{ site: 'polyps', hist: 'adenoma', age: '60', count: '2' }])]);
+    ok(!rel.any && !rel.proPolyps, "FHCC: a relative's polyps alone do not apply post-polypectomy surveillance to the proband");
+  }
 }
 
 /* Modified Amsterdam */

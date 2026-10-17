@@ -740,6 +740,8 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .fhcc-cat { margin: 0 0 6px; }
 .fhcc ul { margin: 4px 0; padding-left: 18px; }
 .fhcc p.small { margin: 4px 0; }
+.fhcc-polyps { margin: 8px 0 4px; padding-top: 6px; border-top: 1px solid var(--border); }
+.fhcc-polyps-pro { background: var(--accent-soft); border: 0; border-radius: 4px; padding: 6px 10px; }
 
 /* Test Directory tab */
 #tests-search { flex: 1; min-width: 220px; }

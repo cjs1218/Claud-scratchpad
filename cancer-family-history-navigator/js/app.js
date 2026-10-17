@@ -1025,6 +1025,20 @@
   function lynchLikeRelative() {
     return state.people.some(p => p.dx.some(d => ['msh2', 'msh6', 'pms2'].includes(d.mmr) || (d.mmr === 'mlh1' && d.meth === 'no' && d.braf !== 'yes')));
   }
+  // Post-polypectomy surveillance (BSG/ACPGBI/PHE 2020): always shown; leads with the proband when they have polyps.
+  function fhccPolypText(pp) {
+    const kinds = pp.hist.map(h => h === 'adenoma' ? 'adenomas' : 'serrated polyps').join(' and ');
+    return `The proband has had ${kinds}${pp.count ? ` (${pp.count})` : ''}: follow the BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines as well as the family-history category.`;
+  }
+  function fhccPolypsHtml(pp) {
+    const P = FHCC.polyps, g = GUIDES[P.source];
+    return `<div class="fhcc-polyps${pp ? ' fhcc-polyps-pro' : ''}">
+        <p class="small"><strong>Polyps:</strong> ${esc(pp ? fhccPolypText(pp) : P.lead)}</p>
+        <ul class="small">${P.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        ${pp && pp.count >= 10 ? `<p class="small"><strong>${esc(P.many)}</strong></p>` : ''}
+        <p class="small muted">Source: ${link(g[0], g[1])}.</p>
+      </div>`;
+  }
   function fhccHtml() {
     const f = fhccCategory(state.people);
     if (!f.any) return '';
@@ -1036,6 +1050,7 @@
       ${f.reasons.length ? `<p class="small">Because: ${esc(f.reasons.join('; '))}.</p>` : ''}
       ${f.proAffected ? '<p class="small muted">The proband has had colorectal cancer, so their own follow-up is as after cancer treatment; this category applies to their unaffected relatives\' assessment.</p>' : ''}
       ${f.unknownLinks ? '<p class="small muted">Some links between affected relatives are not known (e.g. whose child a cousin is) and are not counted – use “Child of” to set them.</p>' : ''}
+      ${fhccPolypsHtml(f.proPolyps)}
       ${am.met ? `<p class="small">${esc(FHCC.amsterdam)}</p>` : ''}
       ${lynchLikeRelative() ? `<p class="small">If an MMR-deficient tumour is unexplained after germline testing: ${esc(FHCC.lynchLike)}</p>` : ''}
       <details class="fhcc-defs"><summary class="small">Categories (Box 1)</summary>
@@ -1422,6 +1437,8 @@
       lines.push('', 'BOWEL SCREENING IF NO INHERITED CONDITION IS FOUND (BSG/ACPGBI/UKCGG 2019, Box 1)', `- ${c.label}: ${c.offer}`);
       if (fh.reasons.length) lines.push(`  Because: ${fh.reasons.join('; ')}`);
       if (fh.unknownLinks) lines.push('  Some links between affected relatives are not known and are not counted.');
+      lines.push(`- Polyps: ${fh.proPolyps ? fhccPolypText(fh.proPolyps) : FHCC.polyps.lead}`, ...FHCC.polyps.items.map(x => `  · ${x}`));
+      if (fh.proPolyps && fh.proPolyps.count >= 10) lines.push(`  ${FHCC.polyps.many}`);
     }
     const ptrs = pointersFor(familyDxs());
     if (ptrs.length) {

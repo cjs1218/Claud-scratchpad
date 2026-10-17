@@ -813,7 +813,10 @@
     const lbl = p => `${labelOf(p)}${crcAge(p) === 'unknown' ? ' (age not given)' : ` (${crcAge(p)})`}`;
     const proAffected = !!pro && crcAge(pro) !== undefined;
     const unknownLinks = affected.some(a => affected.some(b => a !== b && degree(a, b) == null));
-    const out = { any: proAffected || affected.length > 0, proAffected, unknownLinks, category: 'average', reasons: [] };
+    // The proband's own premalignant polyps (adenomas or serrated): post-polypectomy surveillance applies as well.
+    const pp = pro ? (pro.dx || []).filter(d => d.site === 'polyps' && ['adenoma', 'serrated'].includes(d.hist)) : [];
+    const proPolyps = pp.length ? { hist: [...new Set(pp.map(d => d.hist))], count: Math.max(0, ...pp.map(d => +d.count || 0)) } : null;
+    const out = { any: proAffected || affected.length > 0 || !!proPolyps, proAffected, proPolyps, unknownLinks, category: 'average', reasons: [] };
     if (!pro) return out;
     const proFdrs = affected.filter(a => fdr(pro, a));
     // High: a cluster (linked by first-degree kinship) of >= 3 affected, across >= 2 generations, proband FDR of one.

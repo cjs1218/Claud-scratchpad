@@ -1752,7 +1752,7 @@ const NICPR = {
  * When each information source was last pulled and checked (shown on every syndrome and gene page).
  * Update the matching entry whenever a source is re-checked.
  */
-const DATA_CHECKED = '14 October 2026';
+const DATA_CHECKED = '17 October 2026';
 const SOURCE_DATES = [
   ['NHS Genomic Test Directory eligibility criteria', 'v9.1, 20 May 2026', '11 Oct 2026'],
   ['PanelApp panels', 'Signed-off panel versions and their green gene lists (PanelApp API); newer versions noted', '14 Oct 2026'],
@@ -1770,7 +1770,8 @@ const SOURCE_DATES = [
   ['US guidance pass', 'NCCN (JNCCN publications), ACMG, ACG, USMSTF, ATA, Endocrine Society, AACR and consensus papers: supporting citations, US differences noted (UK guidance takes priority), additions where UK guidance is silent', '12 Oct 2026'],
   ['Association evidence review', 'Each association sourced to UKCGG / BSG / NICE, ERN and other European guidance, GeneReviews, ClinGen gene–disease validity and peer-reviewed risk studies (DOIs checked via Crossref); variant notes; CanVar-UK links', '11 Oct 2026'],
   ['Suggested surveillance', 'UKCGG / BSG first, then ERN GENTURIS, EHTG, SIOPE, then AACR, consensus guidelines and GeneReviews summaries', '11 Oct 2026'],
-  ['Bowel screening without a known syndrome', 'BSG/ACPGBI/UKCGG 2019 hereditary colorectal cancer guidelines, Box 1 and Table 1', '14 Oct 2026']
+  ['Bowel screening without a known syndrome', 'BSG/ACPGBI/UKCGG 2019 hereditary colorectal cancer guidelines, Box 1 and Table 1', '14 Oct 2026'],
+  ['Post-polypectomy surveillance', 'BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines (Rutter et al., Gut 2020): high-risk findings, intervals, family history', '17 Oct 2026']
 ];
 
 /* Relationship to proband: degree of relatedness, side of family, default sex. */
@@ -1970,7 +1971,19 @@ const FHCC = {
     'Confirm reported diagnoses from histopathology or endoscopy reports where possible.'
   ],
   amsterdam: 'Amsterdam criteria families where MMR testing is not possible may be offered surveillance as for Lynch syndrome, and/or further germline testing.',
-  lynchLike: 'Lynch-like syndrome (MMR-deficient tumour without MLH1 hypermethylation or BRAF V600E and no germline MMR variant): 2-yearly colonoscopy from 25 until 75, also for unaffected first-degree relatives.'
+  lynchLike: 'Lynch-like syndrome (MMR-deficient tumour without MLH1 hypermethylation or BRAF V600E and no germline MMR variant): 2-yearly colonoscopy from 25 until 75, also for unaffected first-degree relatives.',
+  // Anyone with polyps removed: BSG/ACPGBI/PHE 2020 post-polypectomy surveillance (Rutter et al., Gut 2020;69:201-223, GUIDES.bsg_pp).
+  polyps: {
+    source: 'bsg_pp',
+    lead: 'Anyone found to have premalignant colorectal polyps (adenomas or serrated polyps) should also follow the BSG/ACPGBI/PHE 2020 post-polypectomy surveillance guidelines.',
+    items: [
+      'High-risk findings – two or more premalignant polyps including at least one advanced polyp (a serrated polyp ≥10 mm or with any dysplasia, or an adenoma ≥10 mm or with high-grade dysplasia), or five or more premalignant polyps: one-off surveillance colonoscopy at 3 years.',
+      'Otherwise: no colonoscopic surveillance – national bowel cancer screening programme when of screening age.',
+      'Polyps short of the high-risk criteria under about 40, or with a family history of colorectal cancer: decide individually, ideally with clinical genetics – e.g. under 30 or with a family history of colorectal cancer, a 5-year surveillance colonoscopy may be considered.',
+      'Not routinely after 75, or when life expectancy is under 10 years.'
+    ],
+    many: 'With 10 or more adenomas, or possible serrated polyposis, assess for a polyposis syndrome first (see the Test Directory results above): hereditary polyposis is managed under the BSG/ACPGBI/UKCGG 2019 guidelines, not post-polypectomy surveillance.'
+  }
 };
 
 /*
@@ -2016,6 +2029,7 @@ const GUIDES = {
   dg27: ['NICE DG27 Lynch testing in colorectal cancer', 'https://www.nice.org.uk/guidance/dg27'],
   dg42: ['NICE DG42 Lynch testing in endometrial cancer', 'https://www.nice.org.uk/guidance/dg42'],
   bsg: ['BSG/ACPGBI/UKCGG hereditary colorectal cancer guidelines (2019)', 'https://www.ukcgg.org/media/11962/guidelines-for-the-management-of-hereditary-colorectal-cancerfull_.pdf'],
+  bsg_pp: ['BSG/ACPGBI/PHE post-polypectomy and post-colorectal cancer resection surveillance guidelines (Rutter et al., Gut 2020)', 'https://doi.org/10.1136/gutjnl-2019-319858'],
   apc: ['UKCGG APC management guideline (2023)', 'https://www.ukcgg.org/media/12625/ukcgg_apc_guideline_v1_15092023.pdf'],
   smad4: ['UKCGG SMAD4 management guideline (2023)', 'https://www.ukcgg.org/media/12643/ukcgg_smad4_guideline_v1_15092023.pdf'],
   bmpr1a: ['UKCGG BMPR1A management guideline (2023)', 'https://www.ukcgg.org/media/12644/ukcgg_bmpr1a_guideline_v1_15092023.pdf'],
