@@ -779,3 +779,9 @@ body.compact-head .notice-strip .disc-long { display: none; }
 .reviewed .clin-pending { color: var(--muted); }
 .reviewed .clin-reviewed { color: var(--ok-text); font-weight: 600; }
 @media print { .todo-jump { display: none; } }
+
+/* Disclaimer as a headed list; warning in the What to do card */
+.legal-list { margin: 6px 0 0; }
+.legal-list dt { font-weight: 700; margin-top: 8px; }
+.legal-list dd { margin: 2px 0 0; }
+.todo-warn { margin: 0 0 8px; padding: 6px 10px; border-left: 4px solid var(--warn-edge); background: var(--warn-bg); color: var(--warn-fg); border-radius: 4px; font-size: 0.92rem; }

@@ -8,7 +8,7 @@
   <link rel="icon" href="assets/favicon-48.png" type="image/png" sizes="48x48">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta name="theme-color" content="#0e5866">
-  <link rel="stylesheet" href="assets/style.css?v=20261017-24">
+  <link rel="stylesheet" href="assets/style.css?v=20261017-25">
 </head>
 <body>
   <header class="site-head">
@@ -31,10 +31,11 @@
   </header>
   <div class="notice-strip">
     <div class="wrap">
-      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> <span><strong>Independent – not an NHS website.</strong> Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser.</span> <a href="#disclaimer" class="disc-link">Disclaimer</a></p>
+      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> <span><strong>Independent – not an NHS website.</strong> For healthcare professionals: decision support, not a substitute for clinical judgement. Nothing you enter is sent anywhere.</span> <a href="#disclaimer" class="disc-link">Disclaimer</a></p>
       <p class="disclaimer stale" id="stale-note" hidden></p>
-      <p class="disclaimer disc-long"><span class="notice-icon" aria-hidden="true">!</span> <span><strong>Independent – not an NHS website or service.</strong> Clinical decision support only. Not a validated medical device and not a substitute for clinical
-        judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this browser or is stored.</span> <a href="#disclaimer" class="disc-link">Read the full disclaimer</a></p>
+      <p class="disclaimer disc-long"><span class="notice-icon" aria-hidden="true">!</span> <span><strong>Independent – not an NHS website or service.</strong> For healthcare professionals. Decision support only – not a validated medical device,
+        and not a substitute for clinical judgement, the Test Directory or risk models (e.g. CanRisk, Manchester score). Content is AI-assisted and most syndromes have not yet had clinical review.
+        Nothing you enter is sent anywhere.</span> <a href="#disclaimer" class="disc-link">Read the full disclaimer</a></p>
     </div>
   </div>
   <div class="tabbar">
@@ -62,7 +63,7 @@
         <div class="family-tools">
           <button type="button" id="save-family" class="btn-ghost">Save family to file</button>
           <label class="btn-ghost file-btn">Open family file<input type="file" id="open-family" accept=".json,application/json"></label>
-          <label class="mk chk" title="Keeps the family in this browser only, until you clear it"><input type="checkbox" id="remember">Remember on this device</label>
+          <label class="mk chk" title="Stores the family unencrypted in this browser (cleared after 7 days without use) – not on a shared computer"><input type="checkbox" id="remember">Remember on this device</label>
         </div>
         <div class="family-ancestry">
           <label class="mk" for="ancestry">Family ancestry</label>
@@ -183,28 +184,48 @@
         risk models such as CanRisk, or specialist advice. Nothing you enter leaves this browser.</p>
       <section class="foot-legal" id="disclaimer" tabindex="-1" aria-labelledby="disclaimer-title">
         <h2 class="foot-title" id="disclaimer-title">Disclaimer</h2>
-        <p>The Cancer Family History Navigator is an independent tool. It is not an NHS website or service and is not provided or endorsed
-          by the NHS or NHS England; it uses the publicly available NHS National Genomic Test Directory as a source.</p>
-        <p>The Cancer Family History Navigator is clinical decision support for healthcare professionals. It is not a validated medical
-          device, a risk model or a substitute for clinical judgement, specialist advice or the NHS Genomic Test Directory itself.</p>
-        <p>Its content was compiled and checked against the cited sources with AI assistance. Each syndrome page shows when its sources were
-          last checked and whether a named clinician has reviewed it; most have not yet had clinical review.</p>
-        <p>We have tried to make it accurate and up to date, but it may contain errors or omissions in its data or programming, and guidance
-          and testing criteria change. Always check results against the primary sources linked on each page before making clinical decisions.</p>
-        <p>It is provided "as is", without any warranty of completeness, accuracy or fitness for a particular purpose. To the extent permitted
-          by law, the authors and their employers accept no liability for any loss or damage arising from its use.</p>
-        <p>The views and content do not represent the official policy of the authors' employers or of NHS England. Nothing you enter leaves
-          your browser.</p>
+        <dl class="legal-list">
+          <dt>Who it is for</dt>
+          <dd>Healthcare professionals assessing a family history of cancer (for example in clinical genetics, oncology, breast or bowel
+            services and primary care). It is not designed for patients or the public: if you are a patient or relative, please talk to your
+            GP or genetics team rather than acting on these results.</dd>
+          <dt>What it does</dt>
+          <dd>From the cancers entered, it suggests germline cancer predisposition syndromes to consider, checks the inherited cancer criteria of
+            the NHS National Genomic Test Directory, and gives guideline-based screening categories, each linked to its source.</dd>
+          <dt>What it does not do</dt>
+          <dd>It does not diagnose, calculate absolute cancer or carrier risks (the ranking scores are relative; only the Manchester score is a
+            validated score), classify variants or replace CanRisk, specialist advice or the Test Directory itself – the Test Directory and your
+            Genomic Laboratory Hub decide eligibility. It knows only what has been entered: earlier genetic test results, personal risk factors and
+            cancers or pathology not entered are not taken into account.</dd>
+          <dt>Accuracy</dt>
+          <dd>Results are only as good as the family history entered – confirm reported diagnoses from histopathology or cancer registry records
+            where possible. Its content was compiled and checked against the cited sources with AI assistance. Each syndrome page shows when its
+            sources were last checked and whether a named clinician has reviewed it; most have not yet had clinical review. It may contain errors
+            or omissions in its data or programming, and guidance and testing criteria change, so always check results against the primary
+            sources linked on each page before making clinical decisions. Please
+            <a href="https://github.com/cjs1218/Claud-scratchpad/issues" target="_blank" rel="noopener">report any errors</a>.</dd>
+          <dt>Independence</dt>
+          <dd>The Cancer Family History Navigator is an independent tool. It is not an NHS website or service and is not provided or endorsed by
+            the NHS or NHS England; it uses the publicly available NHS National Genomic Test Directory as a source. The views and content do not
+            represent the official policy of the authors' employers or of NHS England.</dd>
+          <dt>Liability</dt>
+          <dd>It is provided "as is", without any warranty of completeness, accuracy or fitness for a particular purpose. To the extent permitted
+            by law, the authors and their employers accept no liability for any loss or damage arising from its use.</dd>
+          <dt>Privacy</dt>
+          <dd>Nothing you enter is sent anywhere – the page works entirely in your browser. A family is kept only if you tick “Remember on this
+            device”, which stores it unencrypted in this browser until you untick the box, press Clear, or 7 days pass without opening the page.
+            Do not use it on a shared computer. Saved family files are yours to store securely.</dd>
+        </dl>
       </section>
       <p class="foot-code"><a href="https://github.com/cjs1218/Claud-scratchpad" target="_blank" rel="noopener"><svg class="gh-mark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> Source code on GitHub</a> – open source; read how the ranking and data work.</p>
     </footer>
   </main>
 
   <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261017-24"></script>
-  <script src="js/panels.js?v=20261017-24"></script>
-  <script src="js/criteria.js?v=20261017-24"></script>
-  <script src="js/eligibility.js?v=20261017-24"></script>
-  <script src="js/app.js?v=20261017-24"></script>
+  <script src="js/data.js?v=20261017-25"></script>
+  <script src="js/panels.js?v=20261017-25"></script>
+  <script src="js/criteria.js?v=20261017-25"></script>
+  <script src="js/eligibility.js?v=20261017-25"></script>
+  <script src="js/app.js?v=20261017-25"></script>
 </body>
 </html>
