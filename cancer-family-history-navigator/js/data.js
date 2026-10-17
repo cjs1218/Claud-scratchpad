@@ -1880,6 +1880,19 @@ const EXAMPLES = [
       ['proband', 'M', [{ site: 'cns', hist: 'medullo_shh', age: '7' }]],
       ['mother', 'F', [], { ageNow: '38' }],
       ['father', 'M', [], { ageNow: '40' }]] },
+  { id: 'pjs', label: 'Peutz–Jeghers syndrome (STK11)', top: 'pjs', test: 'R212',
+    caption: 'Small-bowel intussusception at 14 from Peutz–Jeghers polyps (6 found) with pigmentation of the lips and buccal mucosa; mother with the same pigmentation and Peutz–Jeghers polyps.',
+    people: [
+      ['proband', 'F', [{ site: 'polyps', hist: 'pj', age: '14', count: '6' }, { site: 'feature', hist: 'pigment_pj', age: '3' }]],
+      ['mother', 'F', [{ site: 'feature', hist: 'pigment_pj', age: '5' }, { site: 'polyps', hist: 'pj', age: '22', count: '4' }]],
+      ['father', 'M', [], { ageNow: '46' }]] },
+  { id: 'hdgc', label: 'Hereditary diffuse gastric cancer (CDH1)', top: 'hdgc', test: 'R215',
+    caption: 'Diffuse (signet ring cell) gastric cancer at 38; mother with lobular breast cancer at 47, maternal uncle with diffuse gastric cancer at 52.',
+    people: [
+      ['proband', 'M', [{ site: 'stomach', hist: 'diffuse', age: '38' }]],
+      ['mother', 'F', [{ site: 'breast', hist: 'ilc', age: '47', er: 'pos', pr: 'pos', her2: 'neg' }]],
+      ['m_uncle', 'M', [{ site: 'stomach', hist: 'diffuse', age: '52' }], { deceased: true, ageDeath: '53' }],
+      ['father', 'M', [], { ageNow: '70' }]] },
   { id: 'fap', label: 'Familial adenomatous polyposis (APC)', top: 'fap', test: 'R211',
     caption: 'Over 100 adenomas at 24 with CHRPE; mother with bowel cancer at 39 and a maternal uncle with a desmoid tumour.',
     people: [
