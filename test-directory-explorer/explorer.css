@@ -62,8 +62,10 @@ button.link { font: inherit; font-size: .9rem; background: none; border: 0; padd
 .site-head a { color: var(--head-fg); }
 .head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; }
 .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.brand-home { flex: none; display: flex; border-radius: 8px; }
-.brand-mark { flex: none; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / .25); }
+.brand-mark { flex: none; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / .25); }
+.site-head a.brand-home { display: inline-block; color: var(--head-fg); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; opacity: .9; }
+.site-head a.brand-home:hover { text-decoration: underline; opacity: 1; }
+.brand-home::after { content: " ›"; }
 .brand h1 { margin: 0; font-size: 1.4rem; line-height: 1.2; }
 .brand h1 a { text-decoration: none; }
 .brand p { margin: 2px 0 0; font-size: .9rem; opacity: .9; }
@@ -244,7 +246,7 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
 @media (max-width: 640px) {
   .site-head { padding: 10px 0; }
   .brand { gap: 8px; }
-  .brand-mark { width: 32px; height: 32px; }
+  .brand-mark { width: 36px; height: 36px; }
   .brand h1 { font-size: 1.1rem; }
   .brand .pill { display: none; }
   #stats { display: none; }
@@ -266,7 +268,7 @@ abbr.abbr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-off
 @media print {
   body { background: #fff; color: #000; font-size: 11pt; }
   .site-head { background: none; color: #000; padding: 0 0 8px; border-bottom: 2px solid #000 !important; }
-  .site-head a, .site-head .head-link, .brand-home, .pill, #home, .back, .toolbar, .pager, .search-note, .gene-find, #abbr-tip { display: none !important; }
+  .site-head a, .site-head .head-link, .brand-home, .brand-mark, .pill, #home, .back, .toolbar, .pager, .search-note, .gene-find, #abbr-tip { display: none !important; }
   .site-head h1 a { display: inline !important; color: #000; }
   .block, .sources { box-shadow: none; border-color: #999; break-inside: avoid-page; }
   .panel details:not([open]) { display: none; }

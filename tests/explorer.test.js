@@ -161,8 +161,8 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   const rows = () => page.locator('#results a.row').count();
   check(await rows() === I.length, `home lists all ${I.length} indications`);
   const icon = await page.getAttribute('link[rel=icon]', 'href');
-  check(/^favicon\.svg/.test(icon) && (await page.request.get(new URL(icon, page.url()).href)).ok(), 'own tab icon (DNA helix in a magnifying glass) linked and served');
-  check(/Independent – not an NHS website/.test(await page.textContent('.intro')) && /not an NHS website or service/.test(await page.textContent('footer')) && await page.locator('.site-head a.brand-home[href="../"] img').count() === 1 && await page.evaluate(() => getComputedStyle(document.querySelector('.site-head')).backgroundColor) === 'rgb(14, 88, 102)', 'GeneRoute teal header with home icon; says it is independent, not an NHS website');
+  check(icon === 'favicon-48.png' && (await page.request.get(new URL(icon, page.url()).href)).ok() && await page.locator('link[rel=apple-touch-icon][href="apple-touch-icon.png"]').count() === 1 && await page.evaluate(() => { const i = document.querySelector('.site-head img.brand-mark'); return i.getAttribute('src') === 'explorer-icon.png' && i.complete && i.naturalWidth >= 48; }), 'own logo (magnifying glass over DNA) in the header, as the tab icon and home-screen icon');
+  check(/Independent – not an NHS website/.test(await page.textContent('.intro')) && /not an NHS website or service/.test(await page.textContent('footer')) && await page.locator('.site-head a.brand-home[href="../"]').count() === 1 && await page.evaluate(() => getComputedStyle(document.querySelector('.site-head')).backgroundColor) === 'rgb(14, 88, 102)', 'GeneRoute teal header with a GeneRoute home link; says it is independent, not an NHS website');
   await page.fill('#q', 'cardiomyopathy'); await page.waitForTimeout(300);
   const n = await rows();
   check(n > 3 && n < 40, `search narrows the list (${n} for “cardiomyopathy”)`);

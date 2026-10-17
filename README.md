@@ -234,6 +234,7 @@ pathway and who can request it; or open a gene to see every test that covers it.
 test-directory-explorer/index.html         The page
 test-directory-explorer/explorer.js        Search, filters and views (#R133, #gene=BRCA1, #q=…)
 test-directory-explorer/explorer.css       Styles (light/dark)
+test-directory-explorer/explorer-icon.png  Explorer logo (magnifying glass over DNA); favicon-48.png and apple-touch-icon.png from it
 test-directory-explorer/abbreviations.js   Meanings shown on hover/tap; per-indication meanings; words deliberately not expanded
 test-directory-explorer/criteria-format.js Clearer layout of the verbatim criteria (formatting only; the words never change)
 test-directory-explorer/corrections.js     Obvious typos and punctuation corrected in the formatted layout (each marked; PDF layout unchanged)
