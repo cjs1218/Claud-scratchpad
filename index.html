@@ -3,206 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cancer Family History Navigator</title>
-  <meta name="description" content="Suggest germline cancer predisposition syndromes from a family history of cancers and histology, with NHS Test Directory tests.">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    // Old links to the Navigator (generoute.co.uk/#test=R208 etc.) open the Navigator.
+    const toNavigator = () => { if (location.hash.length > 1) location.replace('cancer-family-history-navigator/' + location.search + location.hash); };
+    toNavigator(); addEventListener('hashchange', toNavigator);
+  </script>
+  <title>GeneRoute</title>
+  <meta name="description" content="Clinical genomics tools: the Cancer Family History Navigator and the National Genomic Test Directory Explorer.">
+  <link rel="icon" href="cancer-family-history-navigator/assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#005eb8">
-  <link rel="stylesheet" href="assets/style.css?v=20261017-1">
+  <style>
+    :root {
+      --bg: #f0f4f5; --fg: #212b32; --muted: #4c6272; --card: #ffffff; --border: #d8dde0;
+      --accent: #005eb8; --head-bg: #005eb8; --head-fg: #ffffff; --focus: #ffeb3b; --focus-text: #212b32;
+      --warn-bg: #fff9c4; --warn-edge: #ffb81c;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f1a24; --fg: #e8edee; --muted: #a7b6c2; --card: #182532; --border: #2d3e4e;
+        --accent: #6fb3f2; --head-bg: #003087; --warn-bg: #2e2a12; --warn-edge: #c9a227;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, Helvetica, sans-serif; line-height: 1.5; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+    a { color: var(--accent); }
+    a:focus-visible { outline: 3px solid transparent; background: var(--focus); color: var(--focus-text); box-shadow: 0 4px 0 var(--focus-text); text-decoration: none; }
+    header { background: var(--head-bg); color: var(--head-fg); padding: 28px 0 24px; }
+    h1 { margin: 0; font-size: 2rem; line-height: 1.2; }
+    header p { margin: 6px 0 0; font-size: 1.05rem; }
+    main.wrap { padding-top: 28px; padding-bottom: 40px; }
+    .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 0; padding: 0; list-style: none; }
+    .tool { position: relative; background: var(--card); border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 4px; padding: 20px; box-shadow: 0 1px 2px rgba(33, 43, 50, 0.06); }
+    .tool:hover { box-shadow: 0 2px 8px rgba(33, 43, 50, 0.15); }
+    .tool h2 { margin: 0 0 8px; font-size: 1.3rem; line-height: 1.3; }
+    .tool h2 a::after { content: ""; position: absolute; inset: 0; } /* whole card is clickable */
+    .tool p { margin: 0 0 10px; }
+    .tool ul { margin: 0; padding-left: 1.2em; color: var(--muted); font-size: 0.95rem; }
+    .notice { margin: 28px 0 0; padding: 10px 14px; background: var(--warn-bg); border-left: 4px solid var(--warn-edge); font-size: 0.95rem; }
+    footer { border-top: 1px solid var(--border); padding: 16px 0 32px; color: var(--muted); font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-  <header class="site-head">
-    <div class="wrap head-row">
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 32 32" width="40" height="40" aria-hidden="true" focusable="false">
-          <rect width="32" height="32" rx="7" fill="#ffffff"/>
-          <g fill="none" stroke="#005eb8" stroke-width="2.2"><rect x="4.5" y="5.5" width="8" height="8"/><circle cx="23.5" cy="9.5" r="4.2"/><path d="M12.5 9.5h7M16 9.5v8"/></g>
-          <circle cx="16" cy="22.5" r="4.6" fill="#005eb8"/>
-        </svg>
-        <div class="brand-text">
-          <h1>Cancer Family History Navigator <span class="dev-pill" title="Still being developed and checked – comments welcome">In development</span></h1>
-          <p class="lede lede-short">Ranked germline cancer predisposition syndromes from a family history, with NHS Test Directory tests.</p>
-          <p class="lede lede-long">Ranked germline cancer predisposition syndromes from the cancers and histology in a family, with NHS Genomic Test Directory eligibility.
-            <span class="head-stats"><span><span id="gene-count"></span> NICPR genes</span><span><span id="cond-count"></span> conditions</span><span>Test Directory v9.1</span></span></p>
-        </div>
-      </div>
-      <div class="head-links">
-        <a class="gh-link xp-link" href="test-directory-explorer/" target="_blank" rel="noopener" title="Search every NHS Genomic Test Directory test for rare and inherited disease (opens in a new tab)"><svg class="gh-mark" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l4.5 4.5"/></g></svg><span>Test Directory </span>Explorer</a>
-        <a class="gh-link" href="https://github.com/cjs1218/Claud-scratchpad" target="_blank" rel="noopener" title="View the source code on GitHub"><svg class="gh-mark" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>View code on GitHub</span></a>
-      </div>
+  <header>
+    <div class="wrap">
+      <h1>GeneRoute</h1>
+      <p>Tools for finding the right NHS genomic test.</p>
     </div>
   </header>
-  <div class="notice-strip">
-    <div class="wrap">
-      <p class="disclaimer disc-short"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only – not a substitute for clinical judgement. Nothing you enter leaves this browser. <a href="#disclaimer" class="disc-link">Disclaimer</a></p>
-      <p class="disclaimer stale" id="stale-note" hidden></p>
-      <p class="disclaimer disc-long"><span class="notice-icon" aria-hidden="true">!</span> Clinical decision support only. Not a validated medical device and not a substitute for clinical
-        judgement or risk models (e.g. CanRisk, Manchester score). Nothing you enter leaves this browser or is stored. <a href="#disclaimer" class="disc-link">Read the full disclaimer</a></p>
-    </div>
-  </div>
-  <div class="tabbar">
-    <nav class="tabs wrap" aria-label="Sections">
-      <button type="button" data-tab="assess" class="active"><span class="tab-long">Family assessment</span><span class="tab-short">Family</span></button>
-      <button type="button" data-tab="browse">Syndromes</button>
-      <button type="button" data-tab="tests"><span class="tab-long">Test Directory</span><span class="tab-short">Tests</span></button>
-      <button type="button" data-tab="sources">Sources</button>
-    </nav>
-  </div>
-
   <main class="wrap">
-    <div id="tab-assess" class="layout">
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Family history</h2>
-          <div class="actions">
-            <div class="ex-wrap">
-              <button type="button" id="example" class="btn-ghost" aria-haspopup="true" aria-expanded="false" aria-controls="example-menu">Load example <span aria-hidden="true">▾</span></button>
-              <div id="example-menu" class="ex-menu" hidden></div>
-            </div>
-            <button type="button" id="clear" class="btn-ghost">Clear</button>
-          </div>
-        </div>
-        <div class="family-tools">
-          <button type="button" id="save-family" class="btn-ghost">Save family to file</button>
-          <label class="btn-ghost file-btn">Open family file<input type="file" id="open-family" accept=".json,application/json"></label>
-          <label class="mk chk" title="Keeps the family in this browser only, until you clear it"><input type="checkbox" id="remember">Remember on this device</label>
-        </div>
-        <div class="family-ancestry">
-          <label class="mk" for="ancestry">Family ancestry</label>
-          <select id="ancestry">
-            <option value="">Not known / not relevant</option>
-            <option value="ashkenazi">Ashkenazi Jewish</option>
-            <option value="westray">Grandparent from Westray (Orkney)</option>
-            <option value="whalsay">Grandparent from Whalsay (Shetland)</option>
-            <option value="maori">Māori</option>
-            <option value="other_founder">Other founder population</option>
-          </select>
-        </div>
-        <datalist id="cancer-finder"></datalist>
-        <div id="family"></div>
-        <button type="button" id="add-person" class="btn">+ Add relative</button>
-        <div id="ped-host" class="ped-host"></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Differential</h2>
-          <div class="actions">
-            <button type="button" id="copy" class="btn-ghost">Copy summary</button>
-            <button type="button" id="print" class="btn-ghost" title="Everything: family table, tree, criteria and every result in full">Print</button>
-            <button type="button" id="print-brief" class="btn-ghost" title="Family table, tree, who meets which test and the top three syndromes">Print summary</button>
-          </div>
-        </div>
-        <div class="results-tools">
-        <div class="segmented" role="group" aria-label="Search breadth">
-          <button type="button" data-mode="narrow">Narrow</button>
-          <button type="button" data-mode="balanced">Balanced</button>
-          <button type="button" data-mode="wide">Wide</button>
-        </div>
-        <button type="button" id="compare-top" class="btn-ghost" hidden>Compare top two</button>
-        </div>
-        <p class="mode-hint small muted" id="mode-hint"></p>
-        <p class="results-status" id="results-status" role="status" aria-live="polite"></p>
-        <div id="example-note" class="example-note" role="note" hidden></div>
-        <div id="results"></div>
-      </section>
-    </div>
-    <button type="button" id="to-results" class="to-results" hidden>See results ↓</button>
-    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-
-    <div id="tab-sources" hidden>
-      <section class="panel" id="sources-page"></section>
-    </div>
-
-    <div id="tab-browse" hidden>
-      <section class="panel">
-        <div class="browse-controls">
-          <select id="browse-mode" aria-label="Browse by">
-            <option value="syndrome">By syndrome</option>
-            <option value="gene">By gene</option>
-            <option value="cancer">By cancer and histology</option>
-          </select>
-          <span id="browse-filters">
-            <input id="browse-search" type="search" placeholder="Search syndrome, gene or cancer…" aria-label="Search syndromes and genes">
-            <select id="browse-test" aria-label="Filter by test"></select>
-            <label class="mk chk"><input type="checkbox" id="browse-ukcgg">Has UK guideline</label>
-          </span>
-          <span id="browse-cancer" hidden>
-            <select id="browse-site" aria-label="Site"></select>
-            <select id="browse-hist" aria-label="Histology"></select>
-          </span>
-        </div>
-        <div id="syn-layout" class="syn-layout">
-          <button type="button" id="syn-list-toggle" class="btn-ghost list-toggle" aria-controls="syn-list"></button>
-          <nav id="syn-list" class="syn-list" aria-label="Syndromes"></nav>
-          <article id="syn-detail" class="syn-detail"></article>
-        </div>
-        <div id="browse-results" hidden></div>
-      </section>
-    </div>
-
-    <div id="tab-tests" hidden>
-      <section class="panel">
-        <div class="browse-controls">
-          <input id="tests-search" type="search" placeholder="Search R code, test name, criteria, gene or syndrome…" aria-label="Search Test Directory tests">
-          <label class="mk chk"><input type="checkbox" id="tests-family">Met or may be met by this family</label>
-        </div>
-        <p class="small muted tests-xp">The inherited cancer tests used here. For every test in the Test Directory, search the <a href="test-directory-explorer/" target="_blank" rel="noopener">Test Directory Explorer</a> (opens in a new tab).</p>
-        <div id="tests-layout" class="syn-layout">
-          <button type="button" id="tests-list-toggle" class="btn-ghost list-toggle" aria-controls="tests-list"></button>
-          <nav id="tests-list" class="syn-list" aria-label="Test Directory tests"></nav>
-          <article id="tests-detail" class="syn-detail"></article>
-        </div>
-      </section>
-    </div>
-
-    <footer class="site-foot">
-      <h2 class="foot-title">About this information</h2>
-      <dl class="foot-list">
-        <dt>Genes</dt>
-        <dd><span id="foot-genes"></span> genes from the NICPR gene list (Appendix 1, June 2026; National Disease Registration Service) across
-          <span id="foot-conds"></span> conditions, plus a few Test Directory genes not on that list (marked on their pages). RAD51C and the Lynch
-          genes are treated as fully in scope. Genes marked <sup>*</sup> carry NICPR notes; hover or tap for details.</dd>
-        <dt>Tests</dt>
-        <dd>NHS Genomic Test Directory,
-          <a href="https://www.england.nhs.uk/wp-content/uploads/2018/08/rare-and-inherited-disease-eligibility-criteria-v9.1.pdf" target="_blank" rel="noopener">Rare and Inherited Disease eligibility criteria v9.1</a>
-          (20 May 2026): Part XI (inherited cancer) and related chapters, with PanelApp panels.</dd>
-        <dt>Gene–tumour associations</dt>
-        <dd>Each association names its sources and, where published, a risk figure: UK guidance (UKCGG, BSG, NICE) first, then European
-          guidance (ERN GENTURIS, EHTG, SIOPE), GeneReviews, ClinGen gene–disease validity and peer-reviewed risk studies. US guidance (NCCN, and US guidelines
-          published in peer-reviewed journals such as ATA, AACR and ACMG) is also used; where it differs from UK guidance, UK guidance takes
-          priority and the US position is shown as a difference. Variant-level notes are for information and do not change the ranking.</dd>
-        <dt>Surveillance</dt>
-        <dd>Summarised from UK guidance first, then European, then international; differences are listed. Confirm with the full guideline
-          and local services before use.</dd>
-        <dt>Links</dt>
-        <dd>Each syndrome links to its GeneReviews chapter, OMIM entries, UK, European and US guidance, East Genomics patient information,
-          GeNotes (NHS England Genomics Education Programme), ClinGen and CanVar-UK.</dd>
-        <dt>Checked</dt>
-        <dd>Information checked <span id="foot-checked"></span>; each syndrome shows its own last-reviewed date. Every source and version is
-          listed on the <a href="#sources">Sources</a> tab.</dd>
-      </dl>
-      <p class="foot-disclaimer">Clinical decision support only. Scores are relative, not probabilities, and do not replace clinical judgement,
-        risk models such as CanRisk, or specialist advice. Nothing you enter leaves this browser.</p>
-      <section class="foot-legal" id="disclaimer" tabindex="-1" aria-labelledby="disclaimer-title">
-        <h2 class="foot-title" id="disclaimer-title">Disclaimer</h2>
-        <p>The Cancer Family History Navigator is clinical decision support for healthcare professionals. It is not a validated medical
-          device, a risk model or a substitute for clinical judgement, specialist advice or the NHS Genomic Test Directory itself.</p>
-        <p>We have tried to make it accurate and up to date, but it may contain errors or omissions in its data or programming, and guidance
-          and testing criteria change. Always check results against the primary sources linked on each page before making clinical decisions.</p>
-        <p>It is provided "as is", without any warranty of completeness, accuracy or fitness for a particular purpose. To the extent permitted
-          by law, the authors and their employers accept no liability for any loss or damage arising from its use.</p>
-        <p>The views and content do not represent the official policy of the authors' employers or of NHS England. Nothing you enter leaves
-          your browser.</p>
-      </section>
-      <p class="foot-code"><a href="https://github.com/cjs1218/Claud-scratchpad" target="_blank" rel="noopener"><svg class="gh-mark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> Source code on GitHub</a> – open source; read how the ranking and data work.</p>
-    </footer>
+    <ul class="tools">
+      <li class="tool">
+        <h2><a href="cancer-family-history-navigator/">Cancer Family History Navigator</a></h2>
+        <p>Enter the cancers and histology in a family to see ranked germline cancer predisposition syndromes and who meets NHS Test Directory criteria.</p>
+        <ul>
+          <li>Ranked syndromes, with the features behind each</li>
+          <li>Test Directory eligibility, Manchester score and bowel screening advice</li>
+          <li>Printable family summary</li>
+        </ul>
+      </li>
+      <li class="tool">
+        <h2><a href="test-directory-explorer/">National Genomic Test Directory Explorer</a></h2>
+        <p>Search every rare and inherited disease test in the NHS National Genomic Test Directory by condition, gene or criteria wording.</p>
+        <ul>
+          <li>Every R code, with its exact eligibility criteria</li>
+          <li>Genes on each test's PanelApp panel</li>
+          <li>Which tests include a given gene</li>
+        </ul>
+      </li>
+    </ul>
+    <p class="notice"><strong>In development.</strong> Clinical decision support for healthcare professionals only – not a substitute for clinical
+      judgement, and the Test Directory always takes precedence. Nothing you enter leaves your browser.</p>
   </main>
-
-  <div id="print-area" aria-hidden="true"></div>
-  <script src="js/data.js?v=20261017-1"></script>
-  <script src="js/panels.js?v=20261017-1"></script>
-  <script src="js/criteria.js?v=20261017-1"></script>
-  <script src="js/eligibility.js?v=20261017-1"></script>
-  <script src="js/app.js?v=20261017-1"></script>
+  <footer>
+    <div class="wrap"><a href="https://github.com/cjs1218/Claud-scratchpad">Source on GitHub</a></div>
+  </footer>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const d = require("./load.js")(process.argv[2] || require("path").join(__dirname, "../js/data.js"));
+const d = require("./load.js")(process.argv[2] || require("path").join(__dirname, "../cancer-family-history-navigator/js/data.js"));
 const errs = [];
 const e = m => errs.push(m);
 const ids = new Set();
@@ -112,7 +112,7 @@ for (const id of d.NONCANCER_RECOGNISED) {
 for (const c of d.CONDITIONS) if (![1, 2, 3, 4].includes(d.FREQ_BAND[c.id])) e(`FREQ_BAND: ${c.id} needs a band 1-4`);
 // Every syndrome whose gene is on a test's PanelApp panel lists that test, unless marked in PANEL_NOT_ROUTE.
 {
-  const src = require('fs').readFileSync(require('path').join(__dirname, '../js/panels.js'), 'utf8');
+  const src = require('fs').readFileSync(require('path').join(__dirname, '../cancer-family-history-navigator/js/panels.js'), 'utf8');
   const TEST_GENES = new Function(src + ';return TEST_GENES;')();
   for (const [code, g] of Object.entries(TEST_GENES)) {
     if (!g.genes || !d.TESTS[code]) continue;

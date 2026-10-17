@@ -1,8 +1,8 @@
 // Run: node tests/browser.test.js [URL]  (with no URL a local server is started)
-const { playwright, ROOT } = require('./env.js');
+const { playwright, ROOT, NAV_PATH } = require('./env.js');
 const { chromium } = playwright();
 let BASE = process.argv[2];
-const { DATA_CHECKED } = require('./load.js')(require('path').join(__dirname, '../js/data.js'));
+const { DATA_CHECKED } = require('./load.js')(require('path').join(__dirname, '../cancer-family-history-navigator/js/data.js'));
 let failures = 0, passes = 0;
 const check = (cond, msg) => { if (cond) { passes++; console.log('  ok  ', msg); } else { failures++; console.log('  FAIL', msg); } };
 
@@ -42,7 +42,7 @@ const openAll = async page => { await page.waitForTimeout(30); while (await page
 const topNames = page => page.locator('#results .result h3').allTextContents();
 
 (async () => {
-  if (!BASE) BASE = (await require('./static-server.js')(ROOT)).url;
+  if (!BASE) BASE = (await require('./static-server.js')(ROOT)).url + NAV_PATH;
   const browser = await chromium.launch();
   const page = await browser.newPage();
   const errors = [];
@@ -1162,12 +1162,21 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     await page.evaluate(g => { TEST_GENES.R207 = g; }, g);
   }
   {
-    const href = await page.getAttribute('#tests-detail a[href="test-directory-explorer/#R207"]', 'target');
-    check(href === '_blank' && await page.locator('.site-head a.xp-link[href="test-directory-explorer/"][target=_blank]').count() === 1 && await page.locator('#tab-tests .tests-xp a[href="test-directory-explorer/"]').count() === 1, 'header, Test Directory tab and each test link to the Test Directory Explorer in a new tab');
+    const href = await page.getAttribute('#tests-detail a[href="../test-directory-explorer/#R207"]', 'target');
+    check(href === '_blank' && await page.locator('.site-head a.xp-link[href="../test-directory-explorer/"][target=_blank]').count() === 1 && await page.locator('#tab-tests .tests-xp a[href="../test-directory-explorer/"]').count() === 1, 'header, Test Directory tab and each test link to the Test Directory Explorer in a new tab');
     const xp = await browser.newPage();
-    await xp.goto(new URL('test-directory-explorer/#R207', page.url()).href); await xp.waitForSelector('#detail:not([hidden]) #detail-title');
+    await xp.goto(new URL('../test-directory-explorer/#R207', page.url()).href); await xp.waitForSelector('#detail:not([hidden]) #detail-title');
     check(/R207/.test(await xp.textContent('#detail-title')), 'the Explorer link opens that test in the Explorer');
     await xp.close();
+  }
+  {
+    // The site root: a landing page for both tools; old Navigator links (root#…) still open the Navigator.
+    const home = await browser.newPage(), ROOT_URL = new URL('../', BASE).href;
+    await home.goto(ROOT_URL);
+    check(await home.locator('main a[href="cancer-family-history-navigator/"]').count() === 1 && await home.locator('main a[href="test-directory-explorer/"]').count() === 1, 'site root: landing page links to the Navigator and the Explorer');
+    await home.goto(ROOT_URL + '#test=R208'); await home.waitForSelector('#tests-detail h2');
+    check(home.url().endsWith('cancer-family-history-navigator/#test=R208') && /R208/.test(await home.textContent('#tests-detail h2')), 'site root: an old link (#test=R208) opens that page in the Navigator');
+    await home.close();
   }
   await page.goto(BASE + '#test=R208'); await page.waitForSelector('#tests-detail h2');
   check(/Other syndromes with genes on this panel/.test(await page.textContent('#tests-detail')) && await page.locator('#tests-detail a[href="#syndrome=fanconi"]').count() === 1, 'shared genes for other conditions are listed separately');

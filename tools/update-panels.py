@@ -13,7 +13,7 @@ def get(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers=HEAD), timeout=120) as r: return json.load(r)
 tests = json.loads(subprocess.check_output(['node', '-e',
     "const d=require(process.argv[1])(process.argv[2]);console.log(JSON.stringify(Object.values(d.TESTS).map(t=>[t.code,t.panel||null])))",
-    os.path.join(ROOT, 'tests/load.js'), os.path.join(ROOT, 'js/data.js')]))
+    os.path.join(ROOT, 'tests/load.js'), os.path.join(ROOT, 'cancer-family-history-navigator/js/data.js')]))
 today = datetime.date.today().strftime('%-d %B %Y')
 # Signed-off version and date of every signed-off panel.
 signed, url = {}, API + 'signedoff/'
@@ -52,7 +52,7 @@ js = ("/* Green (diagnostic-grade) genes on each test's Genomics England PanelAp
       " * Panels over 120 genes keep only the count (see PanelApp for the list). */\n"
       f"const PANEL_DATE = '{today}';\nconst TEST_GENES = {{\n" +
       ',\n'.join(f'  {c}: {json.dumps(e, ensure_ascii=False)}' for c, e in out.items()) + '\n};\n')
-open(os.path.join(ROOT, 'js/panels.js'), 'w').write(js)
+open(os.path.join(ROOT, 'cancer-family-history-navigator/js/panels.js'), 'w').write(js)
 pend = [c for c, e in out.items() if e.get('pending')]
 print(f'js/panels.js: {len(out)} tests; {sum(1 for e in out.values() if "current" in e)} newer than signed off; gene changes pending sign-off: {", ".join(pend) or "none"}.')
 print('Update the PanelApp date in SOURCE_DATES (js/data.js), then run tools/bump-version.sh.')

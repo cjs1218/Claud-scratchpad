@@ -1,9 +1,9 @@
 // Run: node tests/genes.test.js [URL]  (with no URL a local server is started)
-const { playwright, ROOT } = require('./env.js');
+const { playwright, ROOT, NAV_PATH } = require('./env.js');
 const { chromium } = playwright();
 let BASE = process.argv[2];
 (async () => {
-  if (!BASE) BASE = (await require('./static-server.js')(ROOT)).url;
+  if (!BASE) BASE = (await require('./static-server.js')(ROOT)).url + NAV_PATH;
   const b = await chromium.launch(); const p = await b.newPage(); const errs = [];
   p.on('pageerror', e => errs.push(String(e)));
   await p.goto(BASE);

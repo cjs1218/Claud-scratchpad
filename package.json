@@ -5,7 +5,7 @@
   "scripts": {
     "test": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js && node tests/browser.test.js && node tests/a11y.test.js && node tests/genes.test.js && node tests/explorer.test.js",
     "test:fast": "node tests/check-data.js && node tests/eligibility.test.js && node tests/criteria.test.js && node tests/explorer.test.js --no-browser",
-    "test:live": "node tests/browser.test.js https://cjs1218.github.io/Claud-scratchpad/",
+    "test:live": "node tests/browser.test.js http://generoute.co.uk/cancer-family-history-navigator/",
     "update:panels": "python3 tools/update-panels.py",
     "update:criteria": "tools/update-criteria.sh",
     "bump": "tools/bump-version.sh",

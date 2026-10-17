@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-const { playwright, ROOT } = require('./env.js');
+const { playwright, ROOT, NAV_PATH } = require('./env.js');
 const { chromium } = playwright();
 const AXE_VERSION = '4.10.2';
 const getAxe = () => new Promise((resolve, reject) => {
@@ -12,7 +12,7 @@ const getAxe = () => new Promise((resolve, reject) => {
 });
 let BASE = process.argv[2];
 (async () => {
-  if (!BASE) BASE = (await require('./static-server.js')(ROOT)).url;
+  if (!BASE) BASE = (await require('./static-server.js')(ROOT)).url + NAV_PATH;
   const axe = await getAxe();
   const b = await chromium.launch();
   let fails = 0;
@@ -36,7 +36,8 @@ let BASE = process.argv[2];
     await page.goto(BASE + '#gene=BRCA1'); await page.waitForSelector('#syn-detail h2'); await run('gene page');
     await page.goto(BASE + '#test=R215'); await page.waitForSelector('#tests-detail h2'); await page.fill('#tests-search', 'lobular'); await page.waitForTimeout(150); await run('Test Directory tab');
     await page.goto(BASE + '#sources'); await page.waitForTimeout(200); await run('sources');
-    const TDX = BASE + 'test-directory-explorer/';
+    await page.goto(new URL('../', BASE).href); await run('landing page');
+    const TDX = new URL('../test-directory-explorer/', BASE).href;
     await page.goto(TDX); await page.waitForSelector('#results li'); await run('Explorer list');
     await page.fill('#q', 'BRCA1'); await page.waitForTimeout(300); await run('Explorer gene search');
     await page.goto(TDX + '#R135'); await page.waitForSelector('#detail h2'); await page.locator('#detail details').first().click(); await run('Explorer indication page');

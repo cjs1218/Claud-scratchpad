@@ -71,7 +71,7 @@ def extract(L, codes, log=sys.stderr):
 
 
 if __name__ == '__main__':
-    codes = json.loads(subprocess.check_output(['node', '-e', "const d=require(process.argv[1])(process.argv[2]);console.log(JSON.stringify(Object.keys(d.TESTS)))", os.path.join(ROOT, 'tests/load.js'), os.path.join(ROOT, 'js/data.js')]))
+    codes = json.loads(subprocess.check_output(['node', '-e', "const d=require(process.argv[1])(process.argv[2]);console.log(JSON.stringify(Object.keys(d.TESTS)))", os.path.join(ROOT, 'tests/load.js'), os.path.join(ROOT, 'cancer-family-history-navigator/js/data.js')]))
     out = extract(lines(open(sys.argv[1]).read()), codes)
     json.dump(out, open(sys.argv[2], 'w'), indent=1, ensure_ascii=False)
     print(len(out), 'of', len(codes))

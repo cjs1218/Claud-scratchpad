@@ -1,27 +1,37 @@
-# Cancer Family History Navigator
+# GeneRoute: Cancer Family History Navigator and Test Directory Explorer
 
-A static GitHub Pages tool for clinical genetics. Enter cancers (site, histology,
-age, markers) across a family to get a ranked differential of germline cancer
-predisposition syndromes, with suggested NHS National Genomic Test Directory tests.
+Two static GitHub Pages tools for clinical genetics, live at https://generoute.co.uk/ (a landing page linking both):
 
-Live at: https://cjs1218.github.io/Claud-scratchpad/
+- **Cancer Family History Navigator** (`cancer-family-history-navigator/`) – enter cancers (site, histology, age,
+  markers) across a family to get a ranked differential of germline cancer predisposition syndromes, with suggested
+  NHS National Genomic Test Directory tests. https://generoute.co.uk/cancer-family-history-navigator/
+- **National Genomic Test Directory Explorer** (`test-directory-explorer/`) – every rare and inherited disease R code
+  (see [below](#test-directory-explorer)). https://generoute.co.uk/test-directory-explorer/
 
 Decision support only. Nothing entered leaves the browser.
 
 ## Structure
 
 ```
-index.html        The app
-assets/style.css  Styles (light/dark, print)
-js/data.js        Knowledge base: sites/histologies, conditions + scoring rules,
-                  Test Directory entries, NICPR gene list (June 2026)
-js/criteria.js    Test Directory testing criteria, verbatim (generated from the v9.1 PDF)
-js/panels.js      Green genes on each test's PanelApp panel, signed-off version (generated from the PanelApp API)
-js/eligibility.js Who in the family meets Test Directory criteria
-js/app.js         Scoring engine and UI
-test-directory-explorer/  National Genomic Test Directory Explorer (separate app: every R code; see below)
-.nojekyll         Serve files as-is (no Jekyll build)
+index.html                       Landing page; old Navigator links (generoute.co.uk/#test=R208) redirect to the Navigator
+CNAME                            Custom domain (generoute.co.uk) for GitHub Pages
+cancer-family-history-navigator/
+  index.html                     The Navigator
+  assets/style.css               Styles (light/dark, print)
+  js/data.js                     Knowledge base: sites/histologies, conditions + scoring rules,
+                                 Test Directory entries, NICPR gene list (June 2026)
+  js/criteria.js                 Test Directory testing criteria, verbatim (generated from the v9.1 PDF)
+  js/panels.js                   Green genes on each test's PanelApp panel, signed-off version (generated from the PanelApp API)
+  js/eligibility.js              Who in the family meets Test Directory criteria
+  js/app.js                      Scoring engine and UI
+  docs/tier-audit.md             Strength-tier audit and items for clinical review
+test-directory-explorer/         National Genomic Test Directory Explorer (separate app; see below)
+tests/                           Checks and browser tests for both apps (npm test)
+tools/                           Data refresh scripts for both apps
+.nojekyll                        Serve files as-is (no Jekyll build)
 ```
+
+In the rest of this README, `js/…` and `index.html` mean the Navigator's files in `cancer-family-history-navigator/`.
 
 ## Editing the knowledge base
 
@@ -32,7 +42,7 @@ Everything clinical lives in `js/data.js`:
   - histology `'*'` matches any type; `'a|b'` matches either
   - tier `H` hallmark (10), `S` strong (6), `M` moderate (3), `W` weak (1)
     – assigned by the definitions in `TIER_DEFS` (yield and carrier risk; shown on the Sources tab). The last full check
-      (`TIER_AUDIT`) and items for clinical review are in [docs/tier-audit.md](docs/tier-audit.md).
+      (`TIER_AUDIT`) and items for clinical review are in [docs/tier-audit.md](cancer-family-history-navigator/docs/tier-audit.md).
   - `earlyAge`: age at or below this ×1.5, 15+ years below ×2
   - `predicate`: a key in `PRED` (e.g. `tnbc`, `msh2`, `n100`)
   - `maxAge`: rule only applies at or below this age
@@ -204,7 +214,7 @@ Data updates:
   monthly, and after each GMS sign-off, so pending changes show once they are live.
 - `npm run update:criteria` – rebuild `js/criteria.js` from the Test Directory PDF (needs `pdftotext`).
 - `npm run update:explorer` – rebuild the Explorer's data (below; needs `pdftotext` and Python `openpyxl`).
-- `npm run bump` – new `?v=` version on every script and style tag in `index.html`.
+- `npm run bump` – new `?v=` version on every script and style tag in both apps' `index.html`.
 
 ## Test Directory Explorer
 

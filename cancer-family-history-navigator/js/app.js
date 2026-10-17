@@ -240,7 +240,7 @@
 
   const link = (label, url) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a>`;
   // The Test Directory Explorer's page for a test (opens in a new tab, so the family entered here is kept).
-  const explorerLink = code => link(`${code} in the Test Directory Explorer`, `test-directory-explorer/#${code}`);
+  const explorerLink = code => link(`${code} in the Test Directory Explorer`, `../test-directory-explorer/#${code}`);
 
   const leafletLi = k => `<li>${link(EG[k].label, EG[k].url)}</li>`;
 
@@ -1622,7 +1622,7 @@
         peer-reviewed studies), shown with the risk figure on every syndrome page. Where the evidence is thin, the lower strength is used.
         In a syndrome usually recognised by its non-cancer features (polyposis, pigmentation, growth or skin), a common adult cancer on its
         own is at most moderate.
-        ${TIER_AUDIT ? `All rules were checked against these definitions on ${esc(TIER_AUDIT)} (AI-assisted; ${link('audit report and items for clinical review', 'https://github.com/cjs1218/Claud-scratchpad/blob/main/docs/tier-audit.md')}). ` : ''}These are editorial weightings for ranking a differential,
+        ${TIER_AUDIT ? `All rules were checked against these definitions on ${esc(TIER_AUDIT)} (AI-assisted; ${link('audit report and items for clinical review', 'https://github.com/cjs1218/Claud-scratchpad/blob/main/cancer-family-history-navigator/docs/tier-audit.md')}). ` : ''}These are editorial weightings for ranking a differential,
         not a validated scoring system.</p>
       <h3>From strengths to a ranked list</h3>
       <ol class="small">
