@@ -1280,6 +1280,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.goto(BASE);
   await page.click('#example');
   check(await page.getAttribute('#example', 'aria-expanded') === 'true' && await page.locator('#example-menu .ex-item').count() >= 9, 'Load example opens a menu of example families');
+  check(await page.evaluate(() => { const m = document.querySelector('#example-menu'); return m.getBoundingClientRect().height <= innerHeight * 0.7 + 1 && m.scrollHeight > m.clientHeight; }), 'the example menu scrolls within itself rather than running off the screen');
   check(await page.evaluate(() => document.activeElement.classList.contains('ex-item')), 'focus moves into the menu');
   await page.keyboard.press('ArrowDown');
   check(await page.evaluate(() => document.activeElement.dataset.loadExample) === 'lynch_msh2', 'arrow keys move through the menu');

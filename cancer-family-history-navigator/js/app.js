@@ -1360,7 +1360,7 @@
   }
 
   /* ---- Who meets Test Directory criteria now (js/eligibility.js) ---- */
-  const ELIG_TESTS = ['R207', 'R208', 'R210', 'R211', 'R212', 'R213', 'R214', 'R215', 'R216', 'R217', 'R218', 'R219', 'R221', 'R222', 'R223', 'R224', 'R225', 'R226', 'R254', 'R347', 'R363', 'R364', 'R365', 'R366', 'R367', 'R414', 'R422', 'R430', 'R456', 'R457'];
+  const ELIG_TESTS = ['R156', 'R160', 'R207', 'R208', 'R210', 'R211', 'R212', 'R213', 'R214', 'R215', 'R216', 'R217', 'R218', 'R219', 'R221', 'R222', 'R223', 'R224', 'R225', 'R226', 'R254', 'R347', 'R363', 'R364', 'R365', 'R366', 'R367', 'R414', 'R422', 'R430', 'R456', 'R457'];
   // People grouped with their entries; `possible` picks the "may meet" entries instead of those met now.
   function eligibilityList(possible = false) {
     const res = checkEligibility(state.people, state.ancestry).filter(o => !!o.possible === possible);

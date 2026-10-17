@@ -145,6 +145,10 @@ if (mss({ site: 'breast', hist: 'dcis', age: '45', grade: '3' }) === mss({ site:
 t('DCIS low grade <40', [P('proband','F',[{site:'breast',hist:'dcis',age:'35',grade:'1'}])], [['proband','R208','none']]);
 t('DCIS high grade <40', [P('proband','F',[{site:'breast',hist:'dcis',age:'35',grade:'3'}])], [['proband','R208','met']]);
 t('DCIS unknown <40', [P('proband','F',[{site:'breast',hist:'dcis',age:'35'}])], [['proband','R208','met']]);
+t('Carney: cardiac myxoma + spotty pigmentation', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'},{site:'feature',hist:'pigment_carney',age:'20'}])], [['proband','R156','met']]);
+t('Carney: one feature with an affected FDR', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'}]), P('mother','F',[{site:'feature',hist:'ppnad',age:'30'}])], [['proband','R156','met'],['mother','R160','met']]);
+t('Carney: one feature alone does not meet', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'}])], [['proband','R156','none']]);
+t('Carney: myxoma + thyroid cancer – may meet (if young)', [P('proband','F',[{site:'feature',hist:'cardiac_myxoma',age:'24'},{site:'thyroid',hist:'papillary',age:'26'}])], [['proband','R156','maybe']]);
 t('SPS (WHO criteria) at 45', [P('proband','F',[{site:'polyps',hist:'sps',age:'45'}])], [['proband','R211','met']]);
 t('SPS at 62, no family history: may meet (dysplasia)', [P('proband','F',[{site:'polyps',hist:'sps',age:'62'}])], [['proband','R211','maybe']]);
 t('SPS at 62 with a brother with SPS', [P('proband','F',[{site:'polyps',hist:'sps',age:'62'}]), P('brother','M',[{site:'polyps',hist:'sps',age:'58'}])], [['proband','R211','met']]);

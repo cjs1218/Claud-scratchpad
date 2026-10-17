@@ -104,7 +104,7 @@ Relatives with at least one cancer entered fold into a one-line card (cancers, c
 click a card to edit it and **Done** to fold it again. Loading a family or adding a relative folds the others.
 
 **Load example** opens a menu of fictional, clear-cut example families (BRCA, Lynch MSH2, PTEN, BAP1, Li-Fraumeni,
-DICER1, FAP, MUTYH (MAP), multiple colorectal adenomas (MCRA), serrated polyposis (SPS), VHL, SDHB), each with a short caption. They live in `EXAMPLES` in `js/data.js`; each names the syndrome
+DICER1, Gorlin, ELP1, FAP, MUTYH (MAP), multiple colorectal adenomas (MCRA), serrated polyposis (SPS), RET (MEN2), Carney complex, VHL, SDHB), each with a short caption. They live in `EXAMPLES` in `js/data.js`; each names the syndrome
 that should rank first (`top`) and the R code the proband should meet (`test`), which the browser tests check.
 
 The relationship is chosen in two steps: a short list (Grandmother, Aunt, First cousin…), then the side of the
@@ -119,7 +119,7 @@ than assuming every aunt or uncle is the parent.
 ## Test Directory eligibility
 
 `js/eligibility.js` checks who in the family as entered meets the v9.1 criteria for the inherited cancer tests
-(R207, R208, R210–R219, R221–R226, R254, R347, R363–R367, R414, R422, R430, R456, R457): single-person criteria (e.g. breast cancer under 40,
+(R156, R160, R207, R208, R210–R219, R221–R226, R254, R347, R363–R367, R414, R422, R430, R456, R457): single-person criteria (e.g. breast cancer under 40,
 triple-negative under 60, high-grade ovarian), family patterns (e.g. modified Amsterdam, LFS, renal, PPGL), the
 pathology-adjusted Manchester score (GeNotes table, Evans 2004/2017) and unaffected relatives when no affected relative
 is alive. Results appear in a "Meets Test Directory criteria now" box at the top of the results column, in the copied summary

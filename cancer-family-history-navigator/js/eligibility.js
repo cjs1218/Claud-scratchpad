@@ -586,6 +586,22 @@
         crit('R363', met, []);
       }
 
+      /* R156 – Carney complex: ≥2 features, or 1 feature and an affected first-degree relative. R160 – PPNAD. */
+      {
+        const feats = [['spotty skin pigmentation or blue naevi', d => is(d, 'feature', 'pigment_carney')], ['cardiac myxoma', d => is(d, 'feature', 'cardiac_myxoma')],
+          ['PPNAD', d => is(d, 'feature', 'ppnad')], ['GH-producing pituitary adenoma (acromegaly)', d => is(d, 'pituitary', 'gh')],
+          ['large cell calcifying Sertoli cell tumour', d => is(d, 'testis', 'lccsct')]];
+        const soft = [['thyroid carcinoma – counts if young', d => is(d, 'thyroid', 'follicular|papillary')], ['schwannoma – counts if psammomatous melanotic', d => is(d, 'cns', 'schwannoma')]];
+        const own = feats.filter(([, f]) => D.some(f)), ownSoft = soft.filter(([, f]) => D.some(f));
+        const rel = feats.find(([, f]) => relDx(p, f, 1).length);
+        const met = [], maybe = [];
+        if (own.length >= 2) met.push(`two or more Carney complex features: ${own.map(x => x[0]).join(', ')}`);
+        else if (own.length === 1 && rel) met.push(`Carney complex feature (${own[0][0]}) with a first-degree relative with ${rel[0]}`);
+        else if (own.length + ownSoft.length >= 2 || (own.length + ownSoft.length === 1 && rel)) maybe.push(`Carney complex features – qualifies if they count: ${[...own, ...ownSoft].map(x => x[0]).join(', ')}${rel ? `; first-degree relative with ${rel[0]}` : ''}`);
+        crit('R156', met, maybe);
+        if (D.some(d => is(d, 'feature', 'ppnad'))) add(p, 'R160', ['primary pigmented nodular adrenocortical disease or ACTH-independent Cushing syndrome']);
+      }
+
       /* R364 – DICER1 */
       {
         const met = [], maybe = [];
@@ -755,6 +771,8 @@
       [/across/, 'Total of ≥3 melanoma across'], [/^≥2 melanomas with/, '≥ 2 Melanoma and/or melanoma in situ AND'], [/atypical moles/, 'AND atypical moles']],
     R347: [[/relative/, 'AML/MDS AND ≥1 relative'], [/platelet/, 'AML/MDS AND a pre-existing']],
     R363: [[/under 50/, 'Diagnosed age before age 50'], [/relative/, 'With ≥1 relative']],
+    R156: [[/./, 'Two or more of the features from the list below']],
+    R160: [[/./, 'Primary pigmented nodular adrenocortical disease']],
     R364: [[/^two DICER1|with a first-degree relative/, 'Testing of affected individual where there is a combination of two'], [/./, 'Testing of affected individual (proband) where the individual has one of the following diagnoses']],
     R365: [[/^type 2/, 'Type 2 papillary'], [/and a renal tumour|with cutaneous leiomyomata or a renal/, 'Two of: cutaneous leiomyomata'], [/relative \(up to third-degree\) with a renal/, 'Cutaneous leiomyomata AND one first'],
       [/two relatives/, 'Cutaneous leiomyomata AND two first'], [/multiple/, 'Multiple cutaneous leiomyomata'], [/under 40/, 'Uterine leiomyomata with classic histological features (age <40']],

@@ -1866,6 +1866,18 @@ const EXAMPLES = [
       ['mother', 'F', [{ site: 'thyroid', hist: 'mng', age: '15' }, { site: 'ovary', hist: 'sertoli', age: '24' }]],
       ['m_aunt', 'F', [{ site: 'kidney', hist: 'cystic_nephroma', age: '3' }]],
       ['father', 'M', [], { ageNow: '36' }]] },
+  { id: 'gorlin', label: 'Gorlin syndrome (PTCH1)', top: 'gorlin', test: 'R214',
+    caption: 'Basal cell carcinomas from 17 and an odontogenic keratocyst at 14; mother with palmar pits and basal cell carcinomas from 28.',
+    people: [
+      ['proband', 'M', [{ site: 'feature', hist: 'okc', age: '14' }, { site: 'skin', hist: 'bcc', age: '17' }]],
+      ['mother', 'F', [{ site: 'feature', hist: 'palmarpits', age: '30' }, { site: 'skin', hist: 'bcc', age: '28' }]],
+      ['father', 'M', [], { ageNow: '50' }]] },
+  { id: 'elp1', label: 'ELP1 SHH medulloblastoma', top: 'elp1', test: 'R456',
+    caption: 'SHH-activated medulloblastoma at 7 (typical age for ELP1; infant SHH medulloblastoma points more to SUFU or PTCH1). No other cancers in the family.',
+    people: [
+      ['proband', 'M', [{ site: 'cns', hist: 'medullo_shh', age: '7' }]],
+      ['mother', 'F', [], { ageNow: '38' }],
+      ['father', 'M', [], { ageNow: '40' }]] },
   { id: 'fap', label: 'Familial adenomatous polyposis (APC)', top: 'fap', test: 'R211',
     caption: 'Over 100 adenomas at 24 with CHRPE; mother with bowel cancer at 39 and a maternal uncle with a desmoid tumour.',
     people: [
@@ -1893,6 +1905,19 @@ const EXAMPLES = [
       ['sister', 'F', [{ site: 'polyps', hist: 'serrated', age: '47', count: '12' }]],
       ['mother', 'F', [], { ageNow: '72' }],
       ['father', 'M', [], { ageNow: '74' }]] },
+  { id: 'ret', label: 'Multiple endocrine neoplasia type 2 (RET)', top: 'men2', test: 'R218',
+    caption: 'Medullary thyroid cancer at 32; father with a phaeochromocytoma at 38 and medullary thyroid cancer at 40, paternal aunt with a parathyroid adenoma at 45.',
+    people: [
+      ['proband', 'F', [{ site: 'thyroid', hist: 'medullary', age: '32' }]],
+      ['father', 'M', [{ site: 'adrenal', hist: 'phaeo', age: '38' }, { site: 'thyroid', hist: 'medullary', age: '40' }]],
+      ['p_aunt', 'F', [{ site: 'parathyroid', hist: 'adenoma', age: '45' }]],
+      ['mother', 'F', [], { ageNow: '62' }]] },
+  { id: 'carney', label: 'Carney complex (PRKAR1A)', top: 'carney', test: 'R156',
+    caption: 'Cardiac myxoma at 24 with spotty skin pigmentation of the lips; mother with PPNAD (ACTH-independent Cushing syndrome) at 30.',
+    people: [
+      ['proband', 'F', [{ site: 'feature', hist: 'cardiac_myxoma', age: '24' }, { site: 'feature', hist: 'pigment_carney', age: '20' }]],
+      ['mother', 'F', [{ site: 'feature', hist: 'ppnad', age: '30' }]],
+      ['father', 'M', [], { ageNow: '58' }]] },
   { id: 'vhl', label: 'von Hippel–Lindau syndrome', top: 'vhl', test: 'R225',
     caption: 'Cerebellar haemangioblastoma at 26; mother with phaeochromocytoma and clear cell renal cancer, maternal uncle with a pancreatic NET.',
     people: [
