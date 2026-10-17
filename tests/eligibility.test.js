@@ -158,6 +158,8 @@ t('Carney: myxoma + thyroid cancer – may meet (if young)', [P('proband','F',[{
   B('mother at 55 only', [P('mother', 'F', br(55))], 'population');
   B('mother 55 and maternal grandmother 60', [P('mother', 'F', br(55)), P('m_gm', 'F', br(60))], 'moderate');
   B('mother 46 and maternal aunt 44 (2, average under 50)', [P('mother', 'F', br(46)), P('m_aunt', 'F', br(44))], 'high');
+  B('mother 46 and paternal aunt 44 – different sides, not combined for 1.4.4 (same-side checking kept)', [P('mother', 'F', br(46)), P('p_aunt', 'F', br(44))], 'moderate');
+  B('sister 46 and paternal aunt 44 – a sibling counts on either side', [P('sister', 'F', br(46)), P('p_aunt', 'F', br(44))], 'high');
   B('mother 55, maternal aunt 52, maternal grandmother 65 (3, average under 60)', [P('mother', 'F', br(55)), P('m_aunt', 'F', br(52)), P('m_gm', 'F', br(65))], 'high');
   B('paternal aunt 45 and paternal grandmother 48 (no first-degree)', [P('p_aunt', 'F', br(45)), P('p_gm', 'F', br(48))], 'population', { advice: 'paternal history' });
   B('mother ovarian and maternal aunt breast at 45', [P('mother', 'F', [{ site: 'ovary', hist: 'hgsc', age: '60' }]), P('m_aunt', 'F', br(45))], 'high');
