@@ -263,7 +263,7 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   await page.click('[data-syn-act=copy]');
   const clip2 = await page.evaluate(() => navigator.clipboard.readText());
   check(/SUGGESTED SURVEILLANCE \(UK guidance\)/.test(clip2) && /Differs – EHTG/.test(clip2), 'Copy summary includes surveillance and differences');
-  check(/Sources checked 11 October 2026 \(AI-assisted\); clinical review: not yet/.test(clip2) && !/due for review/.test(clip2), 'Copy summary includes the source-check date (AI-assisted) and clinical review status');
+  check(/Sources checked \d{1,2} \w+ \d{4} \(AI-assisted\); clinical review: not yet/.test(clip2) && !/due for review/.test(clip2), 'Copy summary includes the source-check date (AI-assisted) and clinical review status');
 
   for (const id of ['chek2', 'atm', 'bard1', 'rad51c', 'rad51d']) {
     const t = await survOf('#syndrome=' + id);
