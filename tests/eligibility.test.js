@@ -174,6 +174,9 @@ t('SPS at 62, no family history: may meet (dysplasia)', [P('proband','F',[{site:
 t('SPS at 62 with a brother with SPS', [P('proband','F',[{site:'polyps',hist:'sps',age:'62'}]), P('brother','M',[{site:'polyps',hist:'sps',age:'58'}])], [['proband','R211','met']]);
 t('25 serrated polyps at 45 without WHO criteria recorded: may meet', [P('proband','F',[{site:'polyps',hist:'serrated',age:'45',count:'25'}])], [['proband','R211','maybe']]);
 t('3 serrated polyps at 45: does not meet', [P('proband','F',[{site:'polyps',hist:'serrated',age:'45',count:'3'}])], [['proband','R211','none']]);
+t('2 hamartomatous polyps of unknown type: meets', [P('proband','F',[{site:'polyps',hist:'ham_nos',age:'30',count:'2'}])], [['proband','R211','met']]);
+t('1 hamartomatous polyp of unknown type with a mother with a juvenile polyp: meets', [P('proband','F',[{site:'polyps',hist:'ham_nos',age:'30',count:'1'}]), P('mother','F',[{site:'polyps',hist:'juvenile',age:'40'}])], [['proband','R211','met']]);
+t('30 polyps of unknown type: not counted', [P('proband','F',[{site:'polyps',hist:'nos',age:'40',count:'30'}])], [['proband','R211','none']]);
 t('endometrioid ovary unknown grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50'}])], [['proband','R207','maybe']]);
 t('endometrioid ovary high grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50',ovgrade:'high'}])], [['proband','R207','met'],['proband','R208','none']]);
 t('endometrioid ovary low grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50',ovgrade:'low'}])], [['proband','R207','none']]);

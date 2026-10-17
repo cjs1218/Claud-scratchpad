@@ -243,7 +243,7 @@
   const RENAL_SYN = d => is(d, 'cns', 'hb') || PPGL(d) || is(d, 'feature', 'lungcysts|fibrofolliculoma|cutleio') || (is(d, 'feature', 'fibroids') && lt(d, 40)) || is(d, 'meso') || is(d, 'eye', 'uveal');
   const NF1F = d => is(d, 'feature', 'cal|neurofibromas') || is(d, 'cns', 'optic') || is(d, 'sarcoma', 'mpnst');
   const PJS = d => is(d, 'polyps', 'pj') || is(d, 'feature', 'pigment_pj');
-  const HAM = d => is(d, 'polyps', 'pj|juvenile|mixed|ganglioneuroma');
+  const HAM = d => is(d, 'polyps', 'pj|juvenile|ham_nos|mixed|ganglioneuroma');
 
   function check(people, ancestry) {
     setPeople(people);

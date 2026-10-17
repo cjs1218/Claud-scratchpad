@@ -69,9 +69,9 @@ const NONCANCER_RECOGNISED = ['pjs', 'phts', 'jps_smad4', 'jps_bmpr1a', 'hmps', 
  * cancers (and small bowel cancer) count only as weak matches. Its specific rare tumours keep their weight.
  */
 const NEEDS_FEATURE = {
-  pjs: { label: 'Peutz–Jeghers polyps or pigmentation', features: [['polyps', 'pj'], ['feature', 'pigment_pj']] },
-  jps_smad4: { label: 'juvenile polyps or HHT features', features: [['polyps', 'juvenile'], ['polyps', 'mixed'], ['feature', 'hht']] },
-  jps_bmpr1a: { label: 'juvenile polyps', features: [['polyps', 'juvenile'], ['polyps', 'mixed']] }
+  pjs: { label: 'Peutz–Jeghers or hamartomatous polyps, or pigmentation', features: [['polyps', 'pj'], ['polyps', 'ham_nos'], ['feature', 'pigment_pj']] },
+  jps_smad4: { label: 'juvenile or hamartomatous polyps, or HHT features', features: [['polyps', 'juvenile'], ['polyps', 'ham_nos'], ['polyps', 'mixed'], ['feature', 'hht']] },
+  jps_bmpr1a: { label: 'juvenile or hamartomatous polyps', features: [['polyps', 'juvenile'], ['polyps', 'ham_nos'], ['polyps', 'mixed']] }
 };
 const NEEDS_FEATURE_SITES = ['breast', 'colorectal', 'prostate', 'lung', 'pancreas', 'stomach', 'uterus', 'smallbowel', 'oesophagus'];
 const COMMON_ADULT_CANCERS = { breast: '*', colorectal: '*', prostate: '*', lung: '*', pancreas: 'pdac|nos', stomach: '*', uterus: '*',
@@ -176,9 +176,11 @@ const SITES = {
   nb: { label: 'Neuroblastoma', hist: [['nb', 'Neuroblastoma / ganglioneuroblastoma']] },
   headneck: { label: 'Head and neck', hist: [['scc', 'Squamous cell carcinoma']] },
   polyps: { label: 'GI polyps', markers: ['count'], hist: [
-    ['adenoma', 'Adenomas'], ['pj', 'Peutz–Jeghers polyps'], ['juvenile', 'Juvenile polyps'],
-    ['serrated', 'Serrated / hyperplastic polyps'], ['sps', 'Serrated polyposis (meets WHO criteria)'], ['mixed', 'Mixed polyposis'],
-    ['ganglioneuroma', 'Ganglioneuromas / mixed hamartomatous']] },
+    ['adenoma', 'Adenomas'], ['serrated', 'Serrated / hyperplastic polyps'], ['sps', 'Serrated polyposis (meets WHO criteria)'],
+    ['pj', 'Peutz–Jeghers polyps (confirmed on histology)'], ['juvenile', 'Juvenile polyps'], ['ham_nos', 'Hamartomatous polyps – type not known'],
+    ['ganglioneuroma', 'Ganglioneuromas'], ['mixed', 'Mixed polyposis'], ['nos', 'Polyps – type not known']],
+    // Headings in the polyp type list.
+    groups: [['Adenomatous', ['adenoma']], ['Serrated', ['serrated', 'sps']], ['Hamartomatous', ['pj', 'juvenile', 'ham_nos', 'ganglioneuroma']], ['Mixed or not known', ['mixed', 'nos']]] },
   feature: { label: 'Other tumours & clinical features', hist: [
     ['cardiac_fibroma', 'Cardiac fibroma'],
     ['macrocephaly', 'Macrocephaly'], ['cal', 'Café-au-lait macules (≥6)'],
@@ -367,6 +369,8 @@ const PRED = {
   n100: d => +d.count >= 100,
   // Juvenile polyps in someone with another relative who has juvenile polyps (JPS criterion: any number with a family history).
   jp_fh: (d, p) => PRED_CTX.people.some(q => q !== p && (q.dx || []).some(x => x.site === 'polyps' && x.hist === 'juvenile')),
+  // Hamartomatous polyposis of unconfirmed type: ≥5 polyps, or a relative with hamartomatous polyps (R211 counts both).
+  ham_px: (d, p) => +d.count >= 5 || PRED_CTX.people.some(q => q !== p && (q.dx || []).some(x => x.site === 'polyps' && ['pj', 'juvenile', 'ham_nos'].includes(x.hist))),
   // A phaeochromocytoma or paraganglioma in this person or the family (with renal cancer: a Test Directory R223/R224 criterion).
   ppgl_fam: () => anyDx(x => x.site === 'ppgl' || (x.site === 'adrenal' && x.hist === 'phaeo'))
 };
@@ -377,7 +381,7 @@ const PRED_LABEL = {
   mlh1_any: 'MLH1/PMS2 loss', msh2: 'MSH2/MSH6 loss', msh6: 'isolated MSH6 loss', pms2: 'isolated PMS2 loss',
   msi: 'MSI-high', mmr_prof: 'MMR proficient', mmr_def: 'MMR deficient',
   n5: '≥5 polyps', n10: '≥10 polyps', n20: '≥20 polyps', n100: '≥100 polyps',
-  jp_fh: 'with a relative with juvenile polyps', ppgl_fam: 'with phaeochromocytoma / paraganglioma in the family'
+  jp_fh: 'with a relative with juvenile polyps', ham_px: '≥5 polyps or a relative with hamartomatous polyps', ppgl_fam: 'with phaeochromocytoma / paraganglioma in the family'
 };
 
 /* Standard modifier sets for the Lynch genes. */
@@ -621,6 +625,8 @@ const CONDITIONS = [
       ['polyps', 'juvenile', 'H', null, 'jp_fh', null, ['gr:NBK1469', 'ukcgg:smad4'], 'Clinical JPS: any number of juvenile polyps with a family history of juvenile polyposis (GeneReviews criterion)'],
       ['feature', 'hht', 'S', null, null, null, ['ukcgg:smad4', 'ukcgg:bsg', 'gr:NBK1351', 'clingen:SMAD4', 'us:acg_gi', 'us:usmstf_hamartoma', 'us:aacr_gi'], 'HHT features in up to 76% of SMAD4 carriers; aortopathy ~38%'],
       ['polyps', 'juvenile', 'M', null, null, null, ['ukcgg:smad4', 'gr:NBK1469', 'us:acg_gi'], 'Juvenile polyps anywhere in the GI tract; colonic polyps in 97% of SMAD4 carriers'],
+      ['polyps', 'ham_nos', 'S', null, 'ham_px', null, ['gr:NBK1469', 'ukcgg:smad4'], 'Hamartomatous polyposis of unconfirmed type (≥5 polyps, or hamartomatous polyps in a relative): juvenile polyposis is a leading cause – confirm the histology'],
+      ['polyps', 'ham_nos', 'M', null, null, null, ['gr:NBK1469', 'ukcgg:smad4'], 'Hamartomatous polyps of unconfirmed type: juvenile polyposis is one cause – confirm the histology'],
       ['stomach', '*', 'M', 50, null, null, ['ukcgg:smad4', 'ukcgg:bsg', 'gr:NBK1469', 'us:acg_gi', 'us:aacr_gi'], 'Gastric polyposis 65-83%; up to 30% gastric cancer risk with gastric polyposis; gastric cancer almost exclusively SMAD4'],
       ['colorectal', '*', 'M', 45, null, null, ['ukcgg:smad4', 'ukcgg:bsg', 'gr:NBK1469', 'us:acg_gi'], 'CRC lifetime 38-66%, mean age 44 (UKCGG; likely overestimate)', 'ACG 2015: JPS colon cancer mean age 34 (range 15–68), 17–22% by 35 – younger than the UK-based early-onset threshold of 45'],
       ['smallbowel', 'adeno', 'W', null, null, null, ['us:acg_gi'], 'Upper GI cancer (stomach, pancreas, small bowel) 21% incidence, median 54 (ACG 2015, JPS overall)'],
@@ -631,6 +637,8 @@ const CONDITIONS = [
       ['polyps', 'juvenile', 'H', null, 'n5', null, ['ukcgg:bmpr1a', 'gr:NBK1469', 'clingen:BMPR1A', 'us:acg_gi', 'us:aacr_gi'], 'Clinical JPS: >5 juvenile polyps in colon/rectum (UKCGG)'],
       ['polyps', 'juvenile', 'H', null, 'jp_fh', null, ['gr:NBK1469', 'ukcgg:bmpr1a'], 'Clinical JPS: any number of juvenile polyps with a family history of juvenile polyposis (GeneReviews criterion)'],
       ['polyps', 'juvenile', 'M', null, null, null, ['ukcgg:bmpr1a', 'gr:NBK1469', 'us:acg_gi'], 'Juvenile polyps; BMPR1A in 25-30% of JPS'],
+      ['polyps', 'ham_nos', 'S', null, 'ham_px', null, ['gr:NBK1469', 'ukcgg:bmpr1a'], 'Hamartomatous polyposis of unconfirmed type (≥5 polyps, or hamartomatous polyps in a relative): juvenile polyposis is a leading cause – confirm the histology'],
+      ['polyps', 'ham_nos', 'M', null, null, null, ['gr:NBK1469', 'ukcgg:bmpr1a'], 'Hamartomatous polyps of unconfirmed type: juvenile polyposis is one cause – confirm the histology'],
       ['polyps', 'mixed', 'M', null, null, null, ['ukcgg:bmpr1a', 'gr:NBK1469'], 'Mixed juvenile/adenomatous/hyperplastic polyps; BMPR1A variants found in HMPS-like families'],
       ['colorectal', '*', 'M', 45, null, null, ['ukcgg:bmpr1a', 'ukcgg:bsg', 'gr:NBK1469', 'us:acg_gi'], 'CRC risk up to 60% (overestimate), median age 44; CRC is 88% of BMPR1A-associated cancers', 'ACG 2015: JPS colon cancer mean age 34 (range 15–68), 17–22% by 35 – younger than the UK-based early-onset threshold of 45'],
       ['smallbowel', 'adeno', 'W', null, null, null, ['us:acg_gi'], 'Upper GI cancer (stomach, pancreas, small bowel) 21% incidence, median 54 (ACG 2015, JPS overall)'],
@@ -652,6 +660,8 @@ const CONDITIONS = [
   { id: 'pjs', name: 'Peutz–Jeghers syndrome (STK11)', genes: ['STK11'], inh: 'AD', tests: ['R212','R211','R367'],
     rules: [
       ['polyps', 'pj', 'H', null, null, null, ['eu:ehtg_pjs', 'gr:NBK1266', 'clingen:STK11', 'us:acg_gi', 'us:aacr_gi'], 'Arborising hamartomatous polyps, mainly small bowel: the sine qua non of PJS'],
+      ['polyps', 'ham_nos', 'S', null, 'ham_px', null, ['gr:NBK1266', 'eu:ehtg_pjs'], 'Hamartomatous polyposis of unconfirmed type (≥5 polyps, or hamartomatous polyps in a relative): PJS is a leading cause – confirm the histology'],
+      ['polyps', 'ham_nos', 'M', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs'], 'Hamartomatous polyps of unconfirmed type: PJS is one cause – confirm Peutz–Jeghers histology (a hallmark)'],
       ['feature', 'pigment_pj', 'H', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi'], 'Mucocutaneous macules develop in most children before age 5'],
       ['ovary', 'sctat', 'S', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi', 'us:aacr_gi'], 'Ovarian (mostly SCTAT) 10-21% lifetime, mean 28 (GeneReviews)'],
       ['cervix', 'gastric', 'S', null, null, null, ['gr:NBK1266', 'eu:ehtg_pjs', 'us:acg_gi'], 'Cervix 10-23% lifetime, mostly minimal deviation (gastric-type) adenocarcinoma'],
@@ -676,7 +686,7 @@ const CONDITIONS = [
       ['uterus', 'endometrioid|nos', 'M', 50, null, null, ['ukcgg:pten', 'gr:NBK1488', 'us:phts_consensus'], 'Endometrial 2-28% lifetime, rising from late 30s (UKCGG); ~48% in GeneReviews (US cohort)'],
       ['kidney', 'ccrcc|papillary1|chromophobe|nos', 'M', null, null, null, ['ukcgg:pten', 'gr:NBK1488', 'us:phts_consensus'], 'Renal 2-34% lifetime, mostly papillary, rising from late 40s (UKCGG)'],
       ['colorectal', '*', 'M', 50, null, null, ['ukcgg:pten', 'gr:NBK1488', 'us:phts_consensus', 'us:usmstf_hamartoma'], 'CRC 9-20% lifetime, mean 44-58 (UKCGG)'],
-      ['polyps', 'mixed|juvenile', 'M', null, null, null, ['gr:NBK1488', 'ukcgg:pten', 'us:acg_gi', 'us:phts_consensus'], 'Mixed histology polyposis throughout the GI tract'],
+      ['polyps', 'mixed|juvenile|ham_nos', 'M', null, null, null, ['gr:NBK1488', 'ukcgg:pten', 'us:acg_gi', 'us:phts_consensus'], 'Mixed histology polyposis throughout the GI tract'],
       ['thyroid', 'papillary', 'W', 40, null, null, ['ukcgg:pten', 'us:phts_consensus', 'us:aacr_pten_dicer1_tsc'], 'Papillary thyroid cancer is rare in PHTS (UKCGG)', 'PHTS consensus 2025 / AACR 2024: risk is given for differentiated thyroid cancer as a whole (17–38% lifetime; 15% before 30), not restricted to follicular – US sources do not treat papillary as rare'],
       ['skin', 'melanoma', 'W', null, null, null, ['ukcgg:pten', 'gr:NBK1488', 'us:acg_gi'], 'Melanoma 0-6% lifetime (UKCGG)'],
       ['cns', 'lgg', 'W', null, null, null, ['gr:NBK1488'], 'No glioma risk in sources; kept as proxy for dysplastic cerebellar gangliocytoma (LDD) entered as a low-grade tumour'],

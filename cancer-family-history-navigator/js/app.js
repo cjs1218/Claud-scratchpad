@@ -315,6 +315,12 @@
       opts.map(([v, l]) => `<option value="${esc(v)}"${v === selected ? ' selected' : ''}>${esc(l)}</option>`).join('');
   }
 
+  // A site's histology choices, under headings where the site defines groups (e.g. polyp types).
+  function histOptions(site, selected, placeholder) {
+    if (!site.groups) return optionList(site.hist, selected, placeholder);
+    const label = Object.fromEntries(site.hist);
+    return `<option value="">${esc(placeholder)}</option>` + site.groups.map(([g, ids]) => `<optgroup label="${esc(g)}">${optionList(ids.map(id => [id, label[id]]), selected)}</optgroup>`).join('');
+  }
   // Under each cancer, spell out any abbreviation in the chosen site or histology.
   function abbrHint(dx) {
     const site = SITES[dx.site];
@@ -352,7 +358,7 @@
       <input type="search" class="dx-find" list="cancer-finder" data-f="find" placeholder="Type to find a cancer type (e.g. GIST, lobular)…" aria-label="Find a cancer type">
       <div class="dx-main">
         <select data-f="site" aria-label="Site">${optionList(siteOpts, dx.site, 'Cancer site / finding…')}</select>
-        <select data-f="hist" aria-label="Histology"${site ? '' : ' disabled'}>${site ? optionList(site.hist, dx.hist, 'Histology / type…') : '<option>Histology…</option>'}</select>
+        <select data-f="hist" aria-label="Histology"${site ? '' : ' disabled'}>${site ? histOptions(site, dx.hist, 'Histology / type…') : '<option>Histology…</option>'}</select>
         <input type="number" min="0" max="120" inputmode="numeric" data-f="age" value="${esc(dx.age)}" placeholder="Age" aria-label="Age at diagnosis">
         <button type="button" class="icon-btn" data-act="rm-dx" title="Remove">×</button>
       </div>
@@ -1264,7 +1270,9 @@
       if (d.side === 'both' && n(d.age2) !== null && a !== null && n(d.age2) < a) w.push(`${name}: second cancer (${d.age2}) is younger than the first (${a}) – swap them if so.`);
       if (p.sex === 'M' && ['ovary', 'uterus', 'cervix'].includes(d.site)) w.push(`${name} cancer entered for a male relative – check sex or site.`);
       if (p.sex === 'F' && ['prostate', 'testis'].includes(d.site)) w.push(`${name} cancer entered for a female relative – check sex or site.`);
-      if (d.site === 'polyps' && ['adenoma', 'pj', 'juvenile', 'serrated', 'mixed', 'ganglioneuroma'].includes(d.hist) && (d.count === '' || d.count == null)) w.push(`${name}: number of polyps not entered – polyposis criteria depend on it.`);
+      if (d.site === 'polyps' && ['adenoma', 'pj', 'juvenile', 'ham_nos', 'serrated', 'mixed', 'ganglioneuroma'].includes(d.hist) && (d.count === '' || d.count == null)) w.push(`${name}: number of polyps not entered – polyposis criteria depend on it.`);
+      if (d.site === 'polyps' && d.hist === 'nos') w.push(`${name}: type not known – these polyps do not count towards any syndrome or test; check the histology report${+d.count >= 10 ? ' (10 or more polyps: consider a polyposis syndrome)' : ''}.`);
+      if (d.site === 'polyps' && d.hist === 'ham_nos') w.push(`${name}: hamartomatous type not known – confirming Peutz–Jeghers or juvenile histology changes the results.`);
     }
     return w;
   }
@@ -2098,7 +2106,7 @@
     const site = $('#browse-site').value;
     const histSel = $('#browse-hist');
     const prevHist = histSel.value;
-    histSel.innerHTML = site ? optionList(SITES[site].hist, prevHist, 'Any histology') : '<option value="">Any histology</option>';
+    histSel.innerHTML = site ? histOptions(SITES[site], prevHist, 'Any histology') : '<option value="">Any histology</option>';
     histSel.disabled = !site;
     if (!site) { out.innerHTML = '<div class="empty">Pick a cancer site to see which genes it suggests.</div>'; return; }
     const hist = histSel.value;
