@@ -1190,9 +1190,10 @@ const CONDITIONS = [
 
   /* ---------- RASopathies ---------- */
   { id: 'noonan', name: 'Noonan syndrome spectrum (RASopathy)',
-    genes: ['PTPN11', 'SOS1', 'RAF1', 'SHOC2', 'KRAS', 'NRAS'], inh: 'AD', tests: ['R27','R456','R457'],
+    genes: ['PTPN11', 'SOS1', 'RAF1', 'SHOC2', 'KRAS', 'NRAS', 'RIT1', 'LZTR1', 'RRAS2'], inh: 'AD', tests: ['R27','R456','R457'],
+    note: 'LZTR1 Noonan syndrome can be dominant or recessive (biallelic); dominant LZTR1 variants also cause schwannomatosis.',
     rules: [
-      ['feature', 'rasopathy', 'H', null, null, null, ['gr:NBK1124', 'us:aacr_ras', 'clingen:PTPN11', 'clingen:SOS1', 'clingen:RAF1', 'clingen:KRAS', 'clingen:NRAS']],
+      ['feature', 'rasopathy', 'H', null, null, null, ['gr:NBK1124', 'us:aacr_ras', 'clingen:PTPN11', 'clingen:SOS1', 'clingen:RAF1', 'clingen:KRAS', 'clingen:NRAS', 'clingen:RIT1', 'clingen:LZTR1', 'clingen:RRAS2'], 'RIT1, LZTR1 (dominant and recessive) and RRAS2: definitive for Noonan syndrome (ClinGen RASopathy expert panel)'],
       ['heme', 'jmml', 'S', null, null, null, ['gr:NBK1124', 'us:aacr_ras', 'kratz2015', 'us:aacr_heme'], 'Childhood cancer SIR 8.1 in NS, JMML most frequent (Kratz 2015); ~4% cancer by 20 (GeneReviews)'],
       ['sarcoma', 'rms', 'M', 10, null, null, ['gr:NBK1124', 'us:aacr_ras', 'kratz2015']],
       ['nb', '*', 'W', null, null, null, ['gr:NBK1124', 'us:aacr_ras', 'kratz2015']],
@@ -2108,7 +2109,8 @@ const EG_GENERAL = ['cancer_diag', 'cancer_genetics'];
 const PANEL_NOT_ROUTE = {
   R207: ['cmmrd', 'fanconi'], R208: ['fanconi', 'at'], R367: ['fanconi', 'at'], R430: ['cmmrd', 'fanconi', 'at'],
   R258: ['brca1', 'brca2', 'palb2', 'brip1', 'xp', 'bloom'], R229: ['brca1', 'brca2', 'palb2', 'brip1', 'xp'],
-  R295: ['atm'], R230: ['cmmrd'], R327: ['phts', 'gorlin', 'nf1', 'nf2', 'noonan', 'costello', 'ollier']
+  R295: ['atm'], R230: ['cmmrd'], R327: ['phts', 'gorlin', 'nf1', 'nf2', 'noonan', 'costello', 'ollier'],
+  R221: ['noonan'] // LZTR1 is on the schwannomatosis panel for schwannomatosis, not Noonan syndrome
 };
 
 /*
@@ -2553,6 +2555,10 @@ const OMIM_TITLES = {
   162200: 'Neurofibromatosis, Type I',
   162300: 'Multiple Endocrine Neoplasia, Type IIB',
   163950: 'Noonan Syndrome 1',
+  605275: 'Noonan Syndrome 2 (LZTR1, recessive)',
+  615355: 'Noonan Syndrome 8 (RIT1)',
+  616564: 'Noonan Syndrome 10 (LZTR1)',
+  618624: 'Noonan Syndrome 12 (RRAS2)',
   168000: 'Pheochromocytoma/Paraganglioma Syndrome 1',
   171300: 'Pheochromocytoma',
   171400: 'Multiple Endocrine Neoplasia, Type IIA',
@@ -2688,7 +2694,7 @@ const GENE_MIM = {
   MSH2: 609309, MSH6: 600678, MUTYH: 604933, NBN: 602667, NF1: 613113, NF2: 607379, NHP2: 606470, NRAS: 164790,
   NSD1: 606681, NTHL1: 602656, PALB2: 610355, PAX5: 167414, PDGFRA: 173490, PDGFRB: 173410, PHOX2B: 603851, PMS2: 600259,
   POLD1: 174761, POLE: 174762, POLH: 603968, POT1: 606478, PRKAR1A: 188830, PTCH1: 601309, PTEN: 601728, PTPN11: 176876,
-  RAD51C: 602774, RAD51D: 602954, RAF1: 164760, RB1: 614041, RECQL4: 603780, REST: 600571, RET: 164761, RHBDF2: 614404,
+  RAD51C: 602774, RAD51D: 602954, RAF1: 164760, RB1: 614041, RECQL4: 603780, RIT1: 609591, RRAS2: 600098, REST: 600571, RET: 164761, RHBDF2: 614404,
   RNF43: 612482, RTEL1: 608833, RUNX1: 151385, SAMD9L: 611170, SDHA: 600857, SDHAF2: 613019, SDHB: 185470, SDHC: 602413,
   SDHD: 602690, SHOC2: 602775, SLX4: 613278, SMAD4: 600993, SMARCA4: 603254, SMARCB1: 601607, SMARCE1: 603111, SOS1: 182530,
   STK11: 602216, SUFU: 607035, TERC: 602322, TERT: 187270, TMEM127: 613403, TP53: 191170, TRIM28: 601742, TRIM37: 605073,
@@ -2772,7 +2778,7 @@ const REFS = {
   weaver: { gr: ['NBK148820'], omim: [277590] },
   alk: { gr: ['NBK24599'], omim: [613014] },
   phox2b: { gr: ['NBK1427'], omim: [613013, 209880] },
-  noonan: { gr: ['NBK1124'], omim: [163950, 609942, 610733, 611553, 613224, 607721] },
+  noonan: { gr: ['NBK1124'], omim: [163950, 609942, 610733, 611553, 613224, 607721, 615355, 616564, 605275, 618624] },
   cbl: { gr: [], omim: [613563] },
   costello: { gr: ['NBK1507'], omim: [218040] },
   kit: { gr: ['NBK625142'], omim: [606764] },
@@ -3361,7 +3367,7 @@ const CLINGEN_HGNC = {
   TERT: 'HGNC:11730', TMEM127: 'HGNC:26038', TRIM37: 'HGNC:7523', VHL: 'HGNC:12687', WRN: 'HGNC:12791',
   WT1: 'HGNC:12796', XPA: 'HGNC:12814', XPC: 'HGNC:12816', CDH1: 'HGNC:1748', NF1: 'HGNC:7765', KDM3B: 'HGNC:1337',
   FANCM: 'HGNC:23168', ALK: 'HGNC:427', FH: 'HGNC:3700', GATA2: 'HGNC:4171', HRAS: 'HGNC:5173', KRAS: 'HGNC:6407',
-  LZTR1: 'HGNC:6742', NRAS: 'HGNC:7989', PTPN11: 'HGNC:9644', RAF1: 'HGNC:9829', SHOC2: 'HGNC:15454',
+  LZTR1: 'HGNC:6742', RIT1: 'HGNC:10023', RRAS2: 'HGNC:17271', NRAS: 'HGNC:7989', PTPN11: 'HGNC:9644', RAF1: 'HGNC:9829', SHOC2: 'HGNC:15454',
   SOS1: 'HGNC:11187', TP53: 'HGNC:11998', POLD1: 'HGNC:9175', CTR9: 'HGNC:16850', SAMD9L: 'HGNC:1349',
   NHP2: 'HGNC:14377', GPC3: 'HGNC:4451', MBD4: 'HGNC:6919', NSD1: 'HGNC:14234', PTEN: 'HGNC:9588',
   RTEL1: 'HGNC:15888', POT1: 'HGNC:17284', WRAP53: 'HGNC:25522', NF2: 'HGNC:7773', CDKN1C: 'HGNC:1786',

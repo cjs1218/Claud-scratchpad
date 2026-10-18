@@ -295,13 +295,20 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(await page.textContent('#syn-detail h2') === 'ATM' && await page.inputValue('#browse-mode') === 'gene', '#gene=ATM opens the ATM gene page in By gene view');
   const atm = await page.locator('#syn-detail').textContent();
   check(/ATM-related cancer predisposition/.test(atm) && /Ataxia–telangiectasia/.test(atm), 'gene page lists both ATM syndromes');
+  for (const [g, want] of [['LZTR1', [/LZTR1-related schwannomatosis/, /Noonan syndrome spectrum/]], ['RIT1', [/Noonan syndrome spectrum/]], ['RRAS2', [/Noonan syndrome spectrum/]]]) {
+    await page.evaluate(x => { location.hash = 'gene=' + x; }, g);
+    await page.waitForFunction(x => document.querySelector('#syn-detail h2')?.textContent === x, g);
+    const t = await page.locator('#syn-detail').textContent();
+    check(want.every(re => re.test(t)), `${g} gene page lists ${want.length > 1 ? 'schwannomatosis and Noonan syndrome' : 'Noonan syndrome'}`);
+  }
+  await page.goto(BASE + '#gene=ATM'); await page.waitForFunction(() => document.querySelector('#syn-detail h2')?.textContent === 'ATM');
   check(/R208/.test(atm) && /R294/.test(atm) && /UKCGG ATM management guideline/.test(atm) && /\*607585/.test(atm), 'gene page merges tests, guidance and OMIM');
   check(/Information sources and dates →/.test(atm) && (await page.locator('#syn-detail h3').allTextContents()).pop() === 'Suggested surveillance', 'gene page: surveillance last, sources button');
   const atmHead = await page.locator('#syn-detail .syn-table:not(.dates):not(.surv-table) thead').textContent();
   const atmRows = await page.locator('#syn-detail .syn-table:not(.dates):not(.surv-table) tbody tr').allTextContents();
   check(/Review/.test(atmHead) && atmRows.length === 2 && atmRows.every(r => /Sources checked 11 October 2026 \(AI-assisted\)/.test(r) && /Clinical review: not yet/.test(r)), 'gene page shows the review status per syndrome');
   const geneCount = await page.locator('#syn-list li a').count();
-  check(geneCount === 137, `By gene lists all 137 genes (got ${geneCount})`);
+  check(geneCount === 139, `By gene lists all 139 genes (got ${geneCount})`);
   await page.locator('#syn-detail a[href="#syndrome=at"]').click();
   await page.waitForFunction(() => location.hash === '#syndrome=at');
   check(/Ataxia/.test(await page.textContent('#syn-detail h2')), 'gene page links to its syndrome pages');
