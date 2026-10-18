@@ -841,6 +841,10 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(pr.includes('pjs') && pr.includes('jps_smad4'), `hamartomatous polyps of unknown type rank PJS and JPS in the top 5 (got ${pr.join(', ')})`);
   check(await page.locator('#results .result[data-cond=pjs] li:has(> strong) .tier-H').count() === 0 && await page.locator('#results .result[data-cond=pjs] li:has(> strong) .tier-M').count() >= 1, '4 hamartomatous polyps of unknown type: moderate for PJS, not a hallmark (≥5 or a relative makes it strong)');
   check(await page.locator('#results .elig [data-test=R211]').count() >= 1, '4 hamartomatous polyps of unknown type meet R211');
+  await page.setInputFiles('#open-family', { name: 'odd-values.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ people: [
+    { id: 1, rel: 'proband', sex: 'F', dx: [{ id: 1, site: 'breast', hist: 'idc', age: '40', side: 'left', er: 'positive', grade: '3' }] }] })) });
+  await page.waitForFunction(() => /Opened odd-values\.json/.test(document.getElementById('toast').textContent));
+  check(await page.locator('#results .result').count() > 0, 'a file with values the form does not offer (side "left", ER "positive") still opens; those values are dropped');
 
   console.log('Ancestry criteria');
   await page.goto(BASE); await page.click('#clear');

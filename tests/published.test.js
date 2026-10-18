@@ -44,8 +44,10 @@ let BASE = process.argv[2];
   for (const c of cases) {
     const fam = { people: c.people.map(([rel, sex, dx, extra], i) => ({ id: i + 1, rel, sex, dx: (dx || []).map((d, j) => ({ id: j + 1, ...d })), ...(extra || {}) })) };
     await page.setInputFiles('#open-family', { name: `${c.id}.json`, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(fam)) });
-    // The family's own name in the table shows it has rendered; then use the full ranking.
-    await page.waitForFunction(n => document.querySelectorAll('#family .person').length === n, fam.people.length);
+    // The "Opened <file>" message is unique to this family and shows after it has rendered (a person count can match
+    // the previous family); a family the page cannot open is reported. Then use the full ranking.
+    await page.waitForFunction(id => new RegExp(`Opened ${id}\\.json|could not be opened`).test(document.getElementById('toast').textContent), c.id);
+    if (/could not be opened/.test(await page.textContent('#toast'))) { console.log(`${c.id}: the page could not open this family`); process.exit(1); }
     if (await page.locator('[data-mode=wide]').first().isVisible()) await page.locator('[data-mode=wide]').first().click();
     await page.waitForTimeout(60);
     const ids = await page.$$eval('#results .result', a => a.map(x => x.dataset.cond));

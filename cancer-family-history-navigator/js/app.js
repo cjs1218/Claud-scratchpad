@@ -564,6 +564,9 @@
           if (opts) nd.side = opts.includes('both') ? 'both' : 'multi';
           else if (isCounted(nd)) nd.count = '2';
         }
+        // Values the form does not offer (e.g. a hand-edited file) are dropped rather than breaking the page.
+        if (nd.side && !(sideOptions(nd) || []).includes(nd.side)) { nd.side = ''; nd.age2 = ''; }
+        for (const [m, mo] of Object.entries(MARKER_OPTIONS)) if (nd[m] !== '' && !mo.opts.some(o => o[0] === String(nd[m]))) nd[m] = '';
         return nd;
       })
     }));
