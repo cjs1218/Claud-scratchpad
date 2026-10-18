@@ -64,8 +64,16 @@
   function matchRule(rule, dx, person) {
     const [site, hist, tier, early, pred, maxAge] = rule;
     if (site !== dx.site) return null;
-    if (hist !== '*' && !hist.split('|').includes(dx.hist)) return null;
-    if (pred && !PRED[pred](dx, person)) return null;
+    // A "type not known" choice matches the rules for the types it could be, at a lower strength (HIST_UNKNOWN).
+    let tierUsed = tier, unknownNote = null;
+    if (hist !== '*' && !hist.split('|').includes(dx.hist)) {
+      const u = (HIST_UNKNOWN[site] || {})[dx.hist];
+      if (!u || !hist.split('|').some(h => u.from.includes(h)) || (u.minCount && !(+dx.count >= u.minCount))) return null;
+      const order = ['H', 'S', 'M', 'W'];
+      tierUsed = u.cap ? order[Math.max(order.indexOf(tier), order.indexOf(u.cap))] : order[Math.min(order.indexOf(tier) + u.steps, 3)];
+      unknownNote = 'type not known – counted lower';
+      if (pred && !PRED[pred]({ ...dx, hist: hist.split('|').find(h => u.from.includes(h)) }, person)) return null;
+    } else if (pred && !PRED[pred](dx, person)) return null;
     const age = dx.age === '' ? null : +dx.age;
     let factor = 1;
     const notes = [];
@@ -77,7 +85,8 @@
       if (age <= early - 15) { factor *= 2; notes.push(`very early onset (≤${early - 15})`); }
       else if (age <= early) { factor *= 1.5; notes.push(`early onset (≤${early})`); }
     }
-    return { value: TIER[tier] * factor, tier, pred, notes };
+    if (unknownNote) notes.push(unknownNote);
+    return { value: TIER[tierUsed] * factor, tier: tierUsed, pred, notes };
   }
 
   function scoreDx(cond, dx, person) {
@@ -1274,7 +1283,7 @@
       if (p.sex === 'M' && ['ovary', 'uterus', 'cervix'].includes(d.site)) w.push(`${name} cancer entered for a male relative – check sex or site.`);
       if (p.sex === 'F' && ['prostate', 'testis'].includes(d.site)) w.push(`${name} cancer entered for a female relative – check sex or site.`);
       if (d.site === 'polyps' && ['adenoma', 'pj', 'juvenile', 'ham_nos', 'serrated', 'mixed', 'ganglioneuroma'].includes(d.hist) && (d.count === '' || d.count == null)) w.push(`${name}: number of polyps not entered – polyposis criteria depend on it.`);
-      if (d.site === 'polyps' && d.hist === 'nos') w.push(`${name}: type not known – these polyps do not count towards any syndrome or test; check the histology report${+d.count >= 10 ? ' (10 or more polyps: consider a polyposis syndrome)' : ''}.`);
+      if (d.site === 'polyps' && d.hist === 'nos') w.push(`${name}: polyps of unknown type – ${+d.count >= 10 ? '10 or more count as a moderate match for the adenomatous polyposis syndromes at most' : 'fewer than 10 do not count towards any syndrome'}; check the histology report (the type changes the results and Test Directory eligibility).`);
       if (d.site === 'polyps' && d.hist === 'ham_nos') w.push(`${name}: hamartomatous type not known – confirming Peutz–Jeghers or juvenile histology changes the results.`);
     }
     return w;

@@ -322,14 +322,16 @@
       const r211 = [], r211maybe = [];
       D.forEach(d => {
         if ((CRC_EC(d) || is(d, 'smallbowel')) && lt(d, 40)) r211.push(`${SITES[d.site].label.split(' ')[0].toLowerCase()} cancer under 40 (${histText(d)})`);
-        if (is(d, 'polyps', 'adenoma')) {
-          const n = +d.count || 0, a = age(d);
-          if (n >= 5 && has(x => is(x, 'colorectal'))) r211.push(`≥5 adenomas with colorectal cancer (${n})`);
-          if (n >= 5 && a !== null && a < 40) r211.push(`≥5 adenomas under 40 (${n} at ${a})`);
-          if (n >= 10 && a !== null && a < 60) r211.push(`≥10 adenomas under 60 (${n} at ${a})`);
-          if (n >= 20 && a !== null && a >= 60) r211.push(`≥20 adenomas at 60 or over (${n} at ${a})`);
-          if (n >= 5 && a !== null && a < 60 && (relDx(p, x => is(x, 'polyps', 'adenoma') && +x.count >= 5, 1).length || relDx(p, x => is(x, 'colorectal') && lt(x, 60), 1).length)) r211.push('≥5 adenomas under 60 with a first-degree relative with ≥5 adenomas or colorectal cancer under 60');
-        }
+        // Adenoma criteria; polyps of unknown type that would meet one if they were adenomas "may meet".
+        const adenomaWhy = d => { const why = [], n = +d.count || 0, a = age(d);
+          if (n >= 5 && has(x => is(x, 'colorectal'))) why.push(`≥5 adenomas with colorectal cancer (${n})`);
+          if (n >= 5 && a !== null && a < 40) why.push(`≥5 adenomas under 40 (${n} at ${a})`);
+          if (n >= 10 && a !== null && a < 60) why.push(`≥10 adenomas under 60 (${n} at ${a})`);
+          if (n >= 20 && a !== null && a >= 60) why.push(`≥20 adenomas at 60 or over (${n} at ${a})`);
+          if (n >= 5 && a !== null && a < 60 && (relDx(p, x => is(x, 'polyps', 'adenoma') && +x.count >= 5, 1).length || relDx(p, x => is(x, 'colorectal') && lt(x, 60), 1).length)) why.push('≥5 adenomas under 60 with a first-degree relative with ≥5 adenomas or colorectal cancer under 60');
+          return why; };
+        if (is(d, 'polyps', 'adenoma')) r211.push(...adenomaWhy(d));
+        if (is(d, 'polyps', 'nos')) { const w = adenomaWhy({ ...d, hist: 'adenoma' }); if (w.length) r211maybe.push(`${d.count} polyps of unknown type – qualifies if they are adenomas (${w[0]}); check the histology report`); }
         // Serrated polyposis syndrome (WHO clinical criteria) – qualifies if under 50, an FDR has SPS, or dysplasia in any polyp.
         if (is(d, 'polyps', 'sps')) {
           const a = age(d);

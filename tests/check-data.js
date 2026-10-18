@@ -114,6 +114,13 @@ for (const id of d.NONCANCER_RECOGNISED) {
   });
 }
 for (const c of d.CONDITIONS) if (![1, 2, 3, 4].includes(d.FREQ_BAND[c.id])) e(`FREQ_BAND: ${c.id} needs a band 1-4`);
+// "Type not known" options map to real histologies of their site, with a valid strength change.
+for (const [site, opts] of Object.entries(d.HIST_UNKNOWN)) for (const [h, u] of Object.entries(opts)) {
+  const S = d.SITES[site];
+  if (!S || !S.hist.some(([k]) => k === h)) { e(`HIST_UNKNOWN: ${site}/${h} is not an option`); continue; }
+  for (const f of u.from) if (!S.hist.some(([k]) => k === f)) e(`HIST_UNKNOWN ${site}/${h}: unknown histology ${f}`);
+  if (!(u.steps >= 1) && !(u.cap in d.TIER)) e(`HIST_UNKNOWN ${site}/${h}: needs steps or cap`);
+}
 // Every syndrome whose gene is on a test's PanelApp panel lists that test, unless marked in PANEL_NOT_ROUTE.
 {
   const src = require('fs').readFileSync(require('path').join(__dirname, '../cancer-family-history-navigator/js/panels.js'), 'utf8');

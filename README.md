@@ -136,7 +136,13 @@ the form does not record are listed as "may meet – check"; others (tumour grad
 GI polyp types are grouped in the form (`groups` on the site in `SITES`): Adenomatous; Serrated; Hamartomatous (Peutz–Jeghers
 polyps confirmed on histology – a hallmark; juvenile; "Hamartomatous polyps – type not known", which counts towards R211 and gives
 PJS and juvenile polyposis a moderate or strong match with a prompt to confirm the histology; ganglioneuromas); Mixed or not known
-("Polyps – type not known" counts towards nothing and warns to check the histology report).
+("Polyps – type not known": from 10 polyps it counts as possible adenomas – at most a moderate match for the adenomatous
+polyposis syndromes, and R211 "may meet" if adenomas would qualify; fewer count towards nothing; it always warns to check the
+histology report).
+"Type not known" options (`HIST_UNKNOWN` in `js/data.js`) match the rules for the common types they could be, at a lower
+strength: "Glioma – grade not known" (high- or low-grade glioma, one step lower), "Brain tumour – type not known" (glioma or
+medulloblastoma, two steps lower), thyroid cancer (papillary or follicular – never medullary – one step lower), testicular cancer
+(germ cell tumour, one step lower) and GI polyps (above). Haemangioblastomas take a number, like schwannomas and meningiomas.
 R211 serrated polyposis: enter GI polyps as "Serrated polyposis (meets WHO criteria)" – met under 50 or with a first-degree
 relative with SPS, otherwise "may meet" (dysplasia); five or more serrated polyps without that are "may meet – check the WHO criteria"
 (size and site are not recorded).
@@ -223,7 +229,7 @@ npm run test:live           # browser tests against the published site
 - `tests/browser.test.js` – the app in Chromium (forms, results, pop-ups, printout, phone layout).
 - `tests/a11y.test.js` – axe accessibility check of the main views in light and dark mode (serious problems and heading order).
 - `tests/genes.test.js` – every gene page renders and its links are well formed.
-- `tests/published.test.js` – 50 real families from open-access published case reports across 25 genes (`tests/published-cases.json`, each with citation, evidence quotes and notes): where the confirmed gene's syndrome ranks (top 1 / 3 / 5) and whether a matching Test Directory test is met. Fails if the top-5 rate falls below the recorded floor. First run (17 Oct 2026): top 1 76%, top 3 88%, top 5 92%; after the fixes below: top 1 80%, top 3 94%, top 5 94% (floor 94%); Test Directory route met 92%.
+- `tests/published.test.js` – real families from open-access published case reports, in two sets with their own floors: 50 families across 27 genes (`tests/published-cases.json`) and 54 UK and European families across 54 genes (`tests/published-cases-eu.json`, collected 18 Oct 2026), each with citation, evidence quotes and notes: where the confirmed gene's syndrome ranks (top 1 / 3 / 5) and whether a matching Test Directory test is met. Fails if the top-5 rate falls below the recorded floor. First run (17 Oct 2026): top 1 76%, top 3 88%, top 5 92%; after the fixes below: top 1 80%, top 3 94%, top 5 94% (floor 94%); Test Directory route met 92%. UK/European set (18 Oct 2026): top 1 52%, top 3 72%, top 5 83% (floor 83%), route met 81% – syndromes with distinctive features rank well (endocrine/renal 13/13, other tumour and blood genes 17/17 in the top 5); moderate-penetrance breast/ovarian genes (CHEK2, ATM, RAD51C, RAD51D, BRIP1, BARD1) rank below BRCA1/2 or Lynch by design. The harness also rejects duplicate cases and values the form does not offer.
 - `tests/explorer.test.js` – Explorer data (every indication has tests, criteria, specialties) and the page in Chromium (`--no-browser` for the data checks only).
 
 GitHub runs the same checks on every push (`.github/workflows/test.yml`).

@@ -828,10 +828,10 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
   check(/choose the histology/.test(wt[2]), 'warns when a cancer has no histology (not counted)');
   check(await page.locator('#family .person.collapsed .person-warn li').count() > 0, 'warnings show on folded cards too');
   await page.setInputFiles('#open-family', { name: 'polyps.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ people: [
-    { id: 1, rel: 'proband', sex: 'F', dx: [{ id: 1, site: 'polyps', hist: 'nos', age: '40', count: '30' }, { id: 2, site: 'polyps', hist: 'ham_nos', age: '20', count: '4' }] }] })) });
+    { id: 1, rel: 'proband', sex: 'F', dx: [{ id: 1, site: 'polyps', hist: 'nos', age: '40', count: '3' }, { id: 2, site: 'polyps', hist: 'ham_nos', age: '20', count: '4' }] }] })) });
   await page.waitForFunction(() => /type not known/.test(document.querySelector('#family .person-warn')?.textContent || ''));
   const pw = await page.locator('#family .person-warn').first().textContent();
-  check(/do not count towards any syndrome/.test(pw) && /confirming Peutz–Jeghers or juvenile histology/.test(pw), 'warns for polyps of unknown type and hamartomatous polyps of unknown type');
+  check(/fewer than 10 do not count towards any syndrome/.test(pw) && /confirming Peutz–Jeghers or juvenile histology/.test(pw), 'warns for polyps of unknown type and hamartomatous polyps of unknown type');
   await openAll(page);
   const groups = [...new Set(await page.locator('#family .person').first().locator('select optgroup').evaluateAll(g => g.map(x => x.label)))];
   check(['Adenomatous', 'Serrated', 'Hamartomatous', 'Mixed or not known'].every(l => groups.includes(l)), `polyp histology list is grouped under headings (got ${groups.join(', ')})`);

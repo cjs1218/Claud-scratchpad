@@ -1,0 +1,4263 @@
+{
+ "about": "Real UK and European families from open-access published case reports, each with a confirmed germline variant (pathogenic or likely pathogenic as reported by the authors; weaker evidence noted in 'notes'), transcribed by AI research agents from the full text and pedigree figures, with quotes in 'evidence' and judgement calls in 'notes'. Citations checked against PubMed on 18 Oct 2026. Kept separate from published-cases.json so each set keeps its own floor; do not tune scoring to individual cases without a source.",
+ "collected": "2026-10-18",
+ "floor": {
+  "top5": 83
+ },
+ "cases": [
+  {
+   "id": "brca1-eu1",
+   "gene": "BRCA1",
+   "variant": "c.671-395_2287dup, p.(Ser763Leufs*10) (NM_007294.4), partial exon 10 (legacy exon 11) tandem duplication; reclassified pathogenic (class 5) by authors after RNA analysis",
+   "country": "Italy",
+   "citation": "Faversani A et al. Front Oncol 2025;15:1497531",
+   "pmid": "39980563",
+   "pmcid": "PMC11839443",
+   "doi": "10.3389/fonc.2025.1497531",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "49",
+       "er": "neg",
+       "pr": "neg",
+       "her2": "neg",
+       "grade": "3",
+       "side": "one"
+      }
+     ],
+     {
+      "ageNow": "50"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "liver",
+       "hist": "hcc",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "64"
+     }
+    ],
+    [
+     "p_gm",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "70"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'a 50-year-old woman with a personal history of breast cancer'; 'At the age of 49 ... Two lumps ... at the left breast'; 'No Special Type Invasive Carcinoma, Grade 3, Estrogen Receptor 0%, Progesterone Receptor 0% ... HER2 score 0' (second nodule ER 5%); surgical histology 'Estrogen Receptor negative, Progesterone Receptor negative ... HER2 score 0'. 'Her mother had hepatocellular carcinoma and died of it at 64 years old. A maternal aunt was reported to have been diagnosed with gastrointestinal cancer at the age of 80'. 'On the paternal side, the grandmother had colorectal cancer at the age of 70 years, while the father died of an infection at the age of 47'. 'She has two 29-year-old daughters ... cancer-free.' 'we were able to classify the newly identified CNV as pathogenic (Class 5) according to the ClinGen ENIGMA ... Specifications'.",
+   "notes": "Mother's age at HCC diagnosis not given (died of it at 64), so age left blank. Maternal aunt with 'gastrointestinal cancer' at 80 left out: organ not stated and there is no generic GI code. Second left-breast nodule (ER 5%, grade 3, HER2 0) treated as the same primary (bifocal left breast); ER recorded as negative per the surgical specimen and the paper's 'triple-negative' description. Sister died at 18 of non-cancer causes; father died at 47 of infection; daughters cancer-free (omitted). Variant was VUS on initial testing; no segregation data. Authors note the family history is not suggestive of HBOC."
+  },
+  {
+   "id": "brca2-eu1",
+   "gene": "BRCA2",
+   "variant": "c.6275_6276del, p.(Leu2092Profs*7)",
+   "country": "Belgium",
+   "citation": "Larionesi E et al. Discov Oncol 2025;16:1751",
+   "pmid": "41021136",
+   "pmcid": "PMC12480288",
+   "doi": "10.1007/s12672-025-03555-3",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "66",
+       "er": "pos",
+       "pr": "pos",
+       "grade": "3"
+      },
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "",
+       "mmr": "intact"
+      }
+     ],
+     {}
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'A 66-year-old Caucasian male ... presented with progressive right upper limb edema'; 'Family history was significant for breast cancer in two sisters and two brothers, and both parents died of unspecified cancers.' 'Biopsy confirmed invasive ductal carcinoma, grade III, Luminal B HER2-negative (ER+, PR+, HER2 2+, Ki67 25%)'. 'Later CT and colonoscopy revealed a left-sided colonic mass ... moderately differentiated adenocarcinoma. Post-resection pathology showed pT4aN2b, medullary features, MMR proficient.' 'a heterozygote status of a pathogenic germline BRCA2 variant (c.6275_6276del p. (Leu2092Profs*7))'.",
+   "notes": "Age at breast diagnosis taken as 66 (age at presentation). Colon cancer age not stated (found 'later', metachronous, presumably about 66) so left blank. HER2 2+ (equivocal, no ISH reported) left unknown although the paper calls it HER2-negative. Siblings' ages at breast cancer diagnosis not given. Both parents 'died of unspecified cancers' – omitted as no site is known."
+  },
+  {
+   "id": "palb2-eu1",
+   "gene": "PALB2",
+   "variant": "c.1653T>A, p.(Tyr551*)",
+   "country": "Spain",
+   "citation": "Blanco A et al. PLoS One 2013;8:e67538",
+   "pmid": "23935836",
+   "pmcid": "PMC3720732",
+   "doi": "10.1371/journal.pone.0067538",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "36",
+       "er": "neg",
+       "pr": "neg",
+       "her2": "neg"
+      }
+     ],
+     {}
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "48"
+      },
+      {
+       "site": "pancreas",
+       "hist": "nos",
+       "age": "72"
+      }
+     ],
+     {}
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "pancreas",
+       "hist": "nos",
+       "age": "50"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'The PALB2 truncating mutation c.1653T>A (p.Tyr551Stop) was identified in a woman diagnosed with an infiltrating ductal carcinoma (IDC), negative for estrogen receptor (ER), progesterone receptor (PR) and HER2 at the age of 36. Her mother had been diagnosed with breast cancer at 48 and with pancreatic cancer at 72 years of age. Her maternal uncle had been diagnosed with pancreatic cancer at 50 years of age (Figure 1A).' Fig 1a pedigree of the c.1653T>A family.",
+   "notes": "Family A of two PALB2 truncating-variant families in this Spanish series (the second, c.3362del family, not transcribed). Segregation not tested ('not possible to obtain samples from family members'). Pancreatic histology not stated (nos). Current ages/vital status not given in text; pedigree figure not read for further unaffected or deceased status."
+  },
+  {
+   "id": "chek2-eu1",
+   "gene": "CHEK2",
+   "variant": "Duplication of exons 6-13 (tandem, intron 5 to intron 13 breakpoints; NM_007194.4), paternally inherited; authors consider it pathogenic (reduced mRNA, 'possibly pathogenic' in discussion)",
+   "country": "Italy",
+   "citation": "Germani A et al. Diagnostics (Basel) 2022;12:1520",
+   "pmid": "35885426",
+   "pmcid": "PMC9319214",
+   "doi": "10.3390/diagnostics12071520",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "ilc",
+       "age": "42"
+      }
+     ],
+     {
+      "ageNow": "48"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "59"
+      }
+     ],
+     {
+      "ageNow": "79"
+     }
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "40"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "40"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'The proband (III:11 Figure 1) was an Italian 48-year-old woman ... She received a diagnosis of invasive lobular carcinoma at age 42 and she reported that her 79-year-old mother (II:6, Figure 1) presented with invasive ductal carcinoma at age 59. She also reported that two paternal aunts (II:3 and II:4) underwent hysterectomy and bilateral salpingo-oophorectomy for ovarian cancer at age 40.' 'The molecular analysis of first-degree relatives confirmed the inheritance of the variant from the unaffected father (II:5) and showed its presence in the asymptomatic sister (III:10). The duplication was absent in the mother (II:6) ... possible phenocopy.' 'the possible segregation of the variant in the living aunt with ovarian cancer could not be confirmed.'",
+   "notes": "Mother is a non-carrier (phenocopy) but included because she is part of the reported family history. Unaffected carrier father and sister omitted. Paternal aunts' ovarian histology unknown (nos); one aunt is described as living, the other's status not stated. The authors call the duplication 'possibly pathogenic' in the discussion and show ~44% reduced CHEK2 mRNA (loss of expression from the duplicated allele); included as reported pathogenic finding but this is a judgement call."
+  },
+  {
+   "id": "atm-eu1",
+   "gene": "ATM",
+   "variant": "c.3747-1G>C (rs730881364), canonical splice acceptor",
+   "country": "Spain",
+   "citation": "Lendinez-Sanchez G et al. Case Rep Oncol 2024;17:386-391",
+   "pmid": "38415270",
+   "pmcid": "PMC10898853",
+   "doi": "10.1159/000536105",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "65"
+      }
+     ],
+     {}
+    ],
+    [
+     "son",
+     "M",
+     [
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "24"
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "smallbowel",
+       "hist": "nos",
+       "age": "53"
+      },
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "63"
+      }
+     ],
+     {}
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "pancreas",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'a Hispanic woman ... diagnosed in 2015 with 65 years old of localised CM in the right leg'. 'Her family history includes a mother who died probably due to a neoplasia in the head of the pancreas (without pathological confirmation), a son ... diagnosed in 2005, with 24 years old, and localised CM in the left arm ... One of his brothers was diagnosed with ampulloma when he was 53 years old and CM 10 years later, when he was 63 years old.' 'it was tested in the first-degree relatives, resulting positive for ATM c.3747-1G>C; his son was diagnosed with CM at the age of 24. The brother diagnosed with CM when he was 68 years old refused genetic testing.' Málaga, Spain centre.",
+   "notes": "'One of his brothers' read as the proband's brother (the next paragraph and discussion call him 'the patient's brother'). Brother's melanoma age given as 63 in one place and 68 in another; 63 used (stated with the 10-year interval). Ampulloma coded as small bowel/duodenum nos (ampullary tumour; malignancy/histology not specified). Mother's pancreatic cancer was 'probable' and unconfirmed by pathology; included with nos histology. Family described as 'Hispanic' but seen in Málaga, Spain; country recorded as Spain."
+  },
+  {
+   "id": "rad51c-eu1",
+   "gene": "RAD51C",
+   "variant": "c.934C>T, p.(Arg312Trp); functionally deleterious missense (authors)",
+   "country": "Spain",
+   "citation": "Gayarre J et al. Br J Cancer 2017;117:1048-1062",
+   "pmid": "28829762",
+   "pmcid": "PMC5625680",
+   "doi": "10.1038/bjc.2017.286",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "endometrioid",
+       "age": "44",
+       "ovgrade": "high"
+      }
+     ],
+     {}
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "endometrioid",
+       "age": "58"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "45"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "other",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "46"
+      }
+     ],
+     {}
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "81"
+      }
+     ],
+     {}
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "71"
+      }
+     ],
+     {}
+    ],
+    [
+     "niece",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "27"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'the proband, her mother and sister were affected at ages 44 years, 58 years and 45 years by high-grade endometrioid, endometrioid, and undifferentiated ovarian cancer, respectively. A proband's cousin was affected by breast cancer at age 46 years. Other cancers in the family included a gastric carcinoma in the proband's father (at age 81 years) and two colorectal carcinomas in a maternal aunt (at age 71 years) and in a nephew (at age 27 years.) who had been previously diagnosed as a carrier of a de novo APC mutation'. 'All affected members with ovarian cancer were deceased except for the proband.' Variant found in the sister's ovarian tumour (with LOH), absent from the father's normal tissue and gastric tumour, so 'the proband's mother is an obligate carrier'.",
+   "notes": "Cousin's side and sex not stated in the text (pedigree figure not read) – coded 'other' (side unknown), assumed female. Sister's 'undifferentiated' ovarian carcinoma coded nos. Nephew's colorectal cancer is explained by a de novo APC mutation but included as reported; whose child he is is not stated. Father is a non-carrier; included as reported family history."
+  },
+  {
+   "id": "rad51d-eu1",
+   "gene": "RAD51D",
+   "variant": "c.879delG, p.(Cys294Valfs*16) (NM_002878), novel truncating",
+   "country": "Czech Republic",
+   "citation": "Janatova M et al. PLoS One 2015;10:e0127711",
+   "pmid": "26057125",
+   "pmcid": "PMC4461297",
+   "doi": "10.1371/journal.pone.0127711",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "66"
+      }
+     ],
+     {}
+    ],
+    [
+     "daughter",
+     "F",
+     [
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": "44"
+      },
+      {
+       "site": "thyroid",
+       "hist": "nos",
+       "age": "44"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Table 2, patient 1119: 'RAD51D ... c.879delG p.C294Vfs*16 OC (66) n.a. n.a. n.a. D-Thyroid ca (44) & Endometrial ca (44)' (D = daughter; histology, grade, stage not available). Text: 'A novel RAD51D mutation, c.879delG (p.C294Vfs*16), was found in an OC patient with a daughter suffering from BC and OC duplicity.' Truncating mutations described as 'inactivating germline mutations'.",
+   "notes": "Proband from a series of 171 BRCA1/2-negative high-risk Czech ovarian cancer patients. The daughter's cancers conflict between Table 2 (thyroid and endometrial cancer at 44) and the text (breast and ovarian 'duplicity'); the table was used. Daughter's thyroid cancer left out because its type is not given and there is no unknown-type thyroid code. Ovarian and endometrial histology not available (nos). Daughter's carrier status not reported. No pedigree figure for this family (table data only). [18 Oct 2026: daughter's thyroid cancer added with the new 'type not known' option.]"
+  },
+  {
+   "id": "brip1-eu1",
+   "gene": "BRIP1",
+   "variant": "c.55dup, p.(Tyr19Leufs*2), maternally inherited; proband also carries monoallelic MUTYH c.1187G>A p.(Gly396Asp) from the paternal side",
+   "country": "Italy",
+   "citation": "D'Elia G et al. Genes (Basel) 2023;14:428",
+   "pmid": "36833355",
+   "pmcid": "PMC9957058",
+   "doi": "10.3390/genes14020428",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "53",
+       "er": "pos",
+       "pr": "pos",
+       "her2": "pos",
+       "side": "one"
+      }
+     ],
+     {
+      "ageNow": "57"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "sarcoma",
+       "hist": "sts",
+       "age": "11"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "63"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "78"
+     }
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "60"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "74"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "72"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_cousin",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "38"
+      }
+     ],
+     {
+      "ageNow": "38"
+     }
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "53"
+      }
+     ],
+     {
+      "ageNow": "78"
+     }
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "60"
+      }
+     ],
+     {
+      "ageNow": "85"
+     }
+    ]
+   ],
+   "evidence": "'We describe the case of a 57-year-old woman with BC'. 'The patient was affected with left breast BC at 53 years ... infiltrating ductal carcinoma ... positive for the estrogen receptor (ER 60%), the progesterone receptor (PgR 60%) ... and Her2 (3+).' 'her brother was affected with sarcoma at 11 years of age and died a few months after the diagnosis. The father, who died at 78 years, was affected with CC, diagnosed at 63 years. Moreover, two paternal uncles, both dead, were affected by CC developed at 60 and 74 years respectively. In addition, a paternal aunt developed gastric cancer (GC) at 72 years, and a paternal cousin, 38 years old, was affected with BC diagnosed at 38 years. On the maternal side, two uncles, 78 and 85 years of age, were affected with BC diagnosed at 53 and 60 years, respectively.' 'the same BRIP1 mutation in the healthy mother of 83 years, and the same MUTYH mutation in the paternal cousin with BC.'",
+   "notes": "Dual finding: the authors attribute the paternal-side cancers (colorectal, gastric, cousin's breast) to the monoallelic MUTYH variant and the maternal-side cancers (two male breast cancers) to BRIP1; the brother's sarcoma side is uncertain. Gene recorded as BRIP1 per assignment, but the family is mixed. Brother's sarcoma type not stated – coded 'other soft tissue sarcoma' (could be bone). Maternal 'uncles' with breast cancer taken as male as written. Unaffected carrier mother omitted."
+  },
+  {
+   "id": "bard1-eu1",
+   "gene": "BARD1",
+   "variant": "Heterozygous deletion of exons 8-11 (NM_000465.2), maternally inherited",
+   "country": "Spain",
+   "citation": "Carrera S et al. Hered Cancer Clin Pract 2023;21:2",
+   "pmid": "36709314",
+   "pmcid": "PMC9883939",
+   "doi": "10.1186/s13053-023-00246-4",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "49",
+       "mmr": "intact"
+      }
+     ],
+     {}
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": "56",
+       "mmr": "intact"
+      }
+     ],
+     {
+      "ageNow": "60"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "85",
+       "mmr": "mlh1",
+       "meth": "yes",
+       "braf": "no"
+      }
+     ],
+     {
+      "ageNow": "86"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "53"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "55"
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "50"
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "74",
+       "er": "neg",
+       "pr": "neg",
+       "her2": "neg"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "80"
+     }
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "79"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "81"
+     }
+    ]
+   ],
+   "evidence": "'a 49-year-old Caucasian man ... a tumor in the middle rectum. The biopsy was compatible with an intestinal adenocarcinoma and immunohistochemistry (IHC) for MMR proteins was proficient (pMMR)'; MSI 'stable (MSS)'. 'he had a 60-year-old sister who was diagnosed with pMMR endometrial adenocarcinoma at the age of 56. His 86 year old father was diagnosed at the age of 85 with colon adenocarcinoma with loss of MLH1-PMS2 in the IHC, BRAF V600E wild-type (WT) and hypermethylation of the MLH1 promoter ... His mother, who was diagnosed with colon cancer at the age of 53, died at the age of 55. One of his maternal aunts died of colon cancer at the age of 50 ... another maternal aunt died at age 80 and had triple negative breast cancer at age 74, and his maternal uncle died at age 81 and was diagnosed with colon cancer at age 79. His maternal grandmother died at 60 from a probable cancer of unknown origin'. Sister carrier; father non-carrier; mother, maternal uncle and TNBC aunt obligate carriers.",
+   "notes": "Maternal aunt who died of colon cancer at 50: age at diagnosis not given (blank, ageDeath 50). Maternal grandmother's 'probable cancer of unknown origin' (died 60) left out – no site. Sister's endometrial adenocarcinoma subtype not stated (nos). Father is a non-carrier with a likely sporadic MLH1-methylated colon cancer; included as reported. Proband's current age not given."
+  },
+  {
+   "id": "tp53-eu1",
+   "gene": "TP53",
+   "variant": "c.376-2A>G (NM_000546.6), likely pathogenic (class 4)",
+   "country": "Serbia",
+   "citation": "Stojiljkovic D et al. Case Rep Oncol Med 2024;2024:6699698",
+   "pmid": "38765733",
+   "pmcid": "PMC11101246",
+   "doi": "10.1155/2024/6699698",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "phyllodes",
+       "age": "17",
+       "side": "one"
+      },
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "19"
+      },
+      {
+       "site": "cns",
+       "hist": "lgg",
+       "age": "26"
+      },
+      {
+       "site": "adrenal",
+       "hist": "acc",
+       "age": "29"
+      },
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "33",
+       "er": "pos",
+       "pr": "pos",
+       "her2": "pos",
+       "side": "one"
+      }
+     ],
+     {}
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "28",
+       "side": "both",
+       "age2": "48"
+      }
+     ],
+     {}
+    ],
+    [
+     "other",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "36"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'In September 2005, at the age of 17 ... large left breast tumor ... Phyllode glandulae mammae'; timeline: 'pathohistology report confirmed it was malignant tumor'. 'December 2007 ... tested positive for pheochromocytoma, and underwent a right-sided adrenalectomy.' 'In December 2014 ... rosette-forming glioneuronal tumor (RGNT).' '2016/2017 ... confirmed an adrenocortical carcinoma (ACC)' (2017). 'May 2020 ... type B2 thymoma.' 'In November 2021 ... right breast ... invasive ductal carcinoma'; Fig 3 'breast ductal carcinoma: (a) HER2+, (b) ER+, and (c) PR+'. 'the mother was diagnosed with bilateral breast cancer (age 28 and age 48) and the grandmother was diagnosed with the breast cancer at the age of 36'. 'six primary tumors by the age of 33 years'.",
+   "notes": "Ages derived from dates (age 17 in Sept 2005): phaeochromocytoma Dec 2007 ~19, RGNT Dec 2014 ~26, ACC 2017 ~29, IDC Nov 2021 ~33. RGNT (WHO grade 1 glioneuronal tumour) coded as low-grade glioma (closest code). Thymoma (B2) at ~32 left out – no code. Phyllodes coded malignant per the timeline. Grandmother's side not stated (pedigree figure not read) – coded 'other'. Mother's carrier status not reported. ARMC5 variant also reported (adrenal macronodular hyperplasia). Proband's current age not stated."
+  },
+  {
+   "id": "mlh1-eu1",
+   "gene": "MLH1",
+   "variant": "MLH1 LRG_216t1:c.2236_2247delCTGCCTGATCTA p.(Leu746_Leu749del), in-frame deletion; classified likely pathogenic by authors (ACMG PM1, PM2, PM4, PP1-moderate)",
+   "country": "Slovenia",
+   "citation": "Klančar G et al. Genes (Basel) 2020;11(3):325",
+   "pmid": "32197529",
+   "pmcid": "PMC7140785",
+   "doi": "10.3390/genes11030325",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "39",
+       "mmr": "pms2"
+      }
+     ]
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "41",
+       "mmr": "pms2"
+      },
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": "50",
+       "mmr": "pms2"
+      }
+     ]
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "29",
+       "mmr": "pms2"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "30"
+     }
+    ],
+    [
+     "m_gm",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "43"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "57"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "58"
+     }
+    ],
+    [
+     "m_great",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "85"
+      }
+     ]
+    ]
+   ],
+   "evidence": "'The proband (III-1) was first seen at our Cancer Genetics Clinic with the diagnosis of carcinoma of the caecum at the age of 39 ... poorly differentiated adenocarcinoma (stage pT3N2M0).' 'The proband's mother (II-5) developed adenocarcinoma of the ileal flexure aged 41 and an EC aged 50. Her brother (II-6) (proband's uncle) developed a carcinoma of the caecum aged 29 and died a year later, at the age of 30. Her mother (I-4) (proband's grandmother) had been treated for ovarian cancer at the age of 43 and carcinoma of the caecum aged 57. She died at the age of 58. The grandmother's brother (I-5) (proband's great uncle) developed a rectal carcinoma at the advanced age of 85.' 'On the proband's father's side of the family only squamous cell skin cancers were reported.' 'All carrier's tumor samples (III-1, II-5, and II-6) lacked the expression of PMS2 protein and had MSI-H status'; Table 1: MLH1, MSH2, MSH6 retained in proband's caecal tumour, PMS2 0%. 'Non-carriers of the variant (III-2 and I-5) had normal expression of all MMR proteins ... and MSI-S status.'",
+   "notes": "IHC showed isolated PMS2 loss (MLH1 retained) in all carriers' tumours, recorded as 'pms2' exactly as reported even though the germline gene is MLH1 (the paper's main point). For the mother's endometrial cancer MLH1 staining was technically inadequate and PMS2 was lost; recorded as 'pms2'. The mother's 'adenocarcinoma of the ileal flexure' (Table 1 lists the sample as 'ileum') is recorded as colorectal; it could be read as small bowel. Grandmother's ovarian cancer age is 43 in the case description and 42 in the discussion; 43 used. Great-uncle (I-5) is the grandmother's brother, so maternal great-uncle; he tested negative (FFPE) with an MSS, MMR-intact rectal cancer at 85 (86 in the discussion) — a phenocopy, kept because he would appear in the family history. Unspecified paternal relatives with cutaneous SCC left out (no individuals or ages given). Proband's current age not stated. Unaffected non-carrier sister left out."
+  },
+  {
+   "id": "msh2-eu1",
+   "gene": "MSH2",
+   "variant": "MSH2 heterozygous deletion of exons 1-3 (MLPA), reported as pathogenic",
+   "country": "UK",
+   "citation": "Challis BG et al. J Clin Endocrinol Metab 2016;101(6):2269-72",
+   "pmid": "27144940",
+   "pmcid": "PMC4891804",
+   "doi": "10.1210/jc.2016-1460",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "44"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "47"
+      },
+      {
+       "site": "adrenal",
+       "hist": "acc",
+       "age": "54"
+      }
+     ]
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "36"
+      },
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": "47",
+       "mmr": "msh2"
+      }
+     ]
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "adrenal",
+       "hist": "acc",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_gf",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'In 2001, the proband (patient III:2), a 54-year old female presented ... She had previously undergone a hysterectomy and bilateral salpingo-oophorectomy for ovarian cancer at age 44 years and endoscopic removal of a malignant colonic polyp at age 47 years.' Right adrenal mass: 'in keeping with an oncocytic AAC based on Lin-Weiss-Bisceglia criteria'. 'The proband's sister (patient III:1) ... at age 36 years ... was diagnosed with an adenocarcinoma of the descending colon ... At age 47 years, she was diagnosed with endometrial carcinoma'. 'the proband's maternal aunt (patient II:3) and grandfather (patient I:1) had both been diagnosed with colorectal cancer (Figure 1). Importantly, the certificate of death for the proband's mother (patient II:2) stated metastatic ACC as the cause of death.' 'In all analyzed tumors [both ACCs and the sister's endometrial tumour], expression of MLH1 and PMS2 was retained, whereas nuclear staining for MSH2 and MSH6 were absent'. MLPA: 'heterozygous deletion of exons 1, 2, and 3 of the MSH2 gene' in proband and sister. Fig 1: I:1, II:2, II:3 shown deceased.",
+   "notes": "Authors from Cambridge and Edinburgh (UK). MSH2/MSH6 loss in both ACCs is not recorded because the adrenal site has no MMR marker field; recorded for the sister's endometrial cancer only. Proband's 'malignant colonic polyp' at 47 recorded as colorectal cancer, histology unspecified. Ovarian histology not given. Ages for mother's ACC, aunt's and grandfather's CRC not given; deceased status from pedigree slashes. TP53 testing negative in proband. Carrier children and niece are unaffected and omitted."
+  },
+  {
+   "id": "msh6-eu1",
+   "gene": "MSH6",
+   "variant": "MSH6 NM_000179.3:c.2726_2727ins[SVA[3293];2713_2726] (SINE-VNTR-Alu retrotransposon insertion in exon 4), reported by authors as the causative germline variant",
+   "country": "Norway",
+   "citation": "Sjursen W et al. Hered Cancer Clin Pract 2025;23(1):22",
+   "pmid": "41088395",
+   "pmcid": "PMC12523002",
+   "doi": "10.1186/s13053-025-00324-9",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "36"
+      },
+      {
+       "site": "urothelial",
+       "hist": "upper",
+       "age": "57"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "60"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "urothelial",
+       "hist": "bladder",
+       "age": "77"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "78"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "84"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "niece",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "46"
+      }
+     ]
+    ],
+    [
+     "daughter",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": ""
+      }
+     ]
+    ],
+    [
+     "niece",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": ""
+      }
+     ]
+    ],
+    [
+     "niece",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": ""
+      }
+     ]
+    ]
+   ],
+   "evidence": "'Two siblings, one male (Fig. 1, II:2) and one female (Fig. 1, II:5), were suspected to have a hereditary cancer predisposition syndrome ... The male patient had been diagnosed with a papillary urothelial carcinoma in the bladder at 77 years of age. He was then treated for colon cancer at age 78. Finally, rectal cancer was discovered at age 84. His sister had developed several cancers at an earlier age. She was treated for ovarian cancer at age 36. Later, she was diagnosed with ureteral cancer at age 57 and then colorectal cancer at age 60. In addition, the daughter of the male patient was diagnosed with ovarian cancer at age 46.' 'No pathogenic variant was detected before the two siblings passed away.' 'IHC showed missing protein staining for MSH2 and MSH6 in one tumor, and MSH6 in two tumors. All three tumors showed microsatellite instability.' Fig 1 (yellow = colon polyps): III:9 (II:5's daughter, carrier) and III:3, III:5 (II:2's sons, non-carriers) have colon polyps. 'only family members with the SVA insertion in MSH6 developed cancer.'",
+   "notes": "Both siblings are marked as index cases; the sister (II:5) is used as proband because she had the earlier-onset cancers. 'Ovarian cancer' histology not given. MMR IHC/MSI results were not attributed to individual tumours, so not recorded. Polyp histology, counts and ages not given ('benign colon polyps'); the two nephews with polyps tested negative for the insertion (phenocopies) but are kept as reported in the pedigree; they are coded 'niece' (niece/nephew). Earlier-identified MSH2 c.815C>T and MSH6 c.1720T>A are benign/likely benign. Ages at death not given."
+  },
+  {
+   "id": "pms2-eu1",
+   "gene": "PMS2",
+   "variant": "Biallelic PMS2 c.[137G>T];[(2174+1_2175-1)_(*160_?)del] p.(Ser46Ile) (class 4) / deletion of exons 13-15 (class 5) - constitutional mismatch repair deficiency",
+   "country": "Italy",
+   "citation": "Pedroni M et al. Genes (Basel) 2022;13(11):1953",
+   "pmid": "36360190",
+   "pmcid": "PMC9690098",
+   "doi": "10.3390/genes13111953",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "adenoma",
+       "age": "10",
+       "count": "8"
+      },
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "25",
+       "mmr": "msi"
+      },
+      {
+       "site": "smallbowel",
+       "hist": "adeno",
+       "age": "30",
+       "mmr": "mlh1"
+      },
+      {
+       "site": "smallbowel",
+       "hist": "adeno",
+       "age": "34",
+       "mmr": "pms2"
+      },
+      {
+       "site": "heme",
+       "hist": "lymphoma",
+       "age": "35"
+      }
+     ],
+     {
+      "ageNow": "40"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "all",
+       "age": "3"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "3"
+     }
+    ]
+   ],
+   "evidence": "'At age 10, rectal bleeding was noted. A first colonoscopy (1992) identified the presence of eight polyps (adenomatous at histology)'. 'In 2007 (age 25), a colonoscopy showed more than 20 lesions ... In one of these polyps (in the sigmoid), features of adenocarcinoma'; 'the resected carcinoma showed an elevated microsatellite instability with all markers, together with altered expression of the MLH1 protein ... PMS2 not tested'. 'In 2012 (age 30) ... an infiltrating adenocarcinoma was detected with a transmural extension through the ileal wall (T4N0Mx).' 'In 2016 (age 34) ... a well-differentiated duodenal adenocarcinoma (T3N0Mx).' 'December 2017 (age 35) ... definitive diagnosis of lymphoblastic lymphoma.' 'The proband's brother, born in 1986, died at age three (1989) of lymphoblastic leukemia.' Table 1B: Jejunum (2012) PMS2 and MLH1 not expressed; Duodenum (2016) PMS2 not expressed, MLH1/MSH2/MSH6 expressed. 'The proband is a 40-year-old man'. Parents (monoallelic carriers) unaffected with normal colonoscopies around 50.",
+   "notes": "CMMRD family (both parents heterozygous carriers, unaffected). The proband also carries class 3 VUS in APC, MSH2 and CHEK2. 'Multiple freckles and several hyperpigmented spots on the thorax' were described but not stated to be café-au-lait macules (>=6), so 'cal' not recorded. Colorectal cancer IHC showed MLH1 'altered' with PMS2 not tested (authors suspect artefact) and MSI-H, recorded as 'msi'. The 2012 small-bowel cancer is described as ileal in the text but as 'Jejunum (2012)' in Table 1B, where MLH1 and PMS2 were both not expressed — recorded literally as 'mlh1'. Polyp count at 10 is 8 adenomas; later >20 lesions. Brother's leukaemia recorded as ALL (lymphoblastic). Sister has sarcoidosis (no code); omitted."
+  },
+  {
+   "id": "apc-eu1",
+   "gene": "APC",
+   "variant": "APC NM_000038.5:c.4609dup p.(Thr1537Asnfs*7), novel frameshift, classified pathogenic",
+   "country": "Romania",
+   "citation": "Antohi C et al. Diagnostics (Basel) 2021;11(9):1560",
+   "pmid": "34573902",
+   "pmcid": "PMC8466590",
+   "doi": "10.3390/diagnostics11091560",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "osteomas",
+       "age": "16"
+      },
+      {
+       "site": "polyps",
+       "hist": "adenoma",
+       "age": "",
+       "count": "50"
+      }
+     ]
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "osteomas",
+       "age": "12"
+      }
+     ]
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "osteomas",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "34"
+     }
+    ],
+    [
+     "m_gf",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "osteomas",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "35"
+     }
+    ]
+   ],
+   "evidence": "'The proband is a young Caucasian female (16 year old at the time of diagnosis). She was referred to an oral surgeon because of a mandibular osteoma ... The proband's brother (12 year old at the time) had supernumerary teeth and a mandibular tumor on palpation. Family history showed that the proband's mother was diagnosed with mandibular osteoma, supernumerary teeth and died at 34 years old because of intra-abdominal and abdominal wall tumors. The maternal grandfather had supernumerary teeth and soft tissue tumors and died around the age of 35'. CBCT of both siblings: multiple osteomas of skull, jaw and sinuses; impacted teeth. Proband: 'Lower digestive endoscopy revealed multiple polyps (approximately 50-70)' - 'tubular adenomatous polyp with low-grade epithelial dysplasia'. Both siblings carry APC c.4609dup.",
+   "notes": "Mother's 'intra-abdominal and abdominal wall tumors' and grandfather's 'soft tissue tumors' are probably desmoids but the paper does not say so, so they are not coded. The grandfather is coded with 'osteomas' (multiple osteomas / dental anomalies) for supernumerary teeth only. Polyp count 50-70, recorded as 50; age at colonoscopy not stated (after diagnosis at 16; osteoma removal at 18). Brother's breast lipoma not coded. Abstract and text mention 'family history of colon cancer' generically but no relative with colorectal cancer is described, so none entered."
+  },
+  {
+   "id": "mutyh-eu1",
+   "gene": "MUTYH",
+   "variant": "MUTYH c.1187G>A p.(Gly396Asp) homozygous (biallelic), pathogenic",
+   "country": "Slovakia",
+   "citation": "Fabišíková K et al. Front Genet 2020;11:590486",
+   "pmid": "33384714",
+   "pmcid": "PMC7770176",
+   "doi": "10.3389/fgene.2020.590486",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "54",
+       "mmr": "intact"
+      },
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": "65"
+      }
+     ],
+     {
+      "ageNow": "67"
+     }
+    ],
+    [
+     "m_gm",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "48"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "Case 1: 'The proband was a 67-year-old woman presenting with a personal history of CRC diagnosed at the age of 54 and endometrial cancer diagnosed at the age of 65. Immunohistochemistry (IHC) demonstrated intact expression of MLH1, MSH2, MSH6, and PMS2. Colorectal tumor that developed was microsatellite stable.' 'The grandmother of the patient developed breast cancer at the age of 48. The brother of the proband died aged 50 from an unknown gastrointestinal disease (probably gastric cancer; Figure 1).' 'A panel of 26 cancer predisposition genes identified a germline homozygous (biallelic) pathogenic variant c.1187G > A (p.Gly396Asp)'. Fig 1: grandmother (CAMA 48) is the mother's mother; brother 'GASTRIC DISEASE 50', deceased.",
+   "notes": "Case 1 of a two-case report (case 2 involves only monoallelic carriers and is not used). No polyp count is given for the proband (atypical presentation without reported polyposis). Brother's 'unknown gastrointestinal disease (probably gastric cancer)' not entered because cancer is not confirmed. Grandmother placed as maternal from the pedigree. PALB2 c.229T>C and a TP53 intronic variant are VUS. Three unaffected heterozygous children omitted."
+  },
+  {
+   "id": "pole-eu1",
+   "gene": "POLE",
+   "variant": "POLE NM_006231.2:c.1089C>A p.(Asn363Lys), exonuclease domain, segregating in 12 carriers; reported as the disease-causing mutation",
+   "country": "Sweden",
+   "citation": "Rohlin A et al. Int J Oncol 2014;45(1):77-81",
+   "pmid": "24788313",
+   "pmcid": "PMC4079162",
+   "doi": "10.3892/ijo.2014.2410",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "47"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "53"
+      }
+     ]
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "43"
+      },
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "50"
+      },
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": "50"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "35"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "niece",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "38"
+      }
+     ]
+    ],
+    [
+     "niece",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "adenoma",
+       "age": "28"
+      }
+     ]
+    ],
+    [
+     "m_gm",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "65"
+      },
+      {
+       "site": "cns",
+       "hist": "glioma_nos",
+       "age": "68"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "56"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "28"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "45"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "52"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "78"
+      },
+      {
+       "site": "pancreas",
+       "hist": "nos",
+       "age": "78"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "ovary",
+       "hist": "nos",
+       "age": "45"
+      },
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": "45"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_cousin",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "55"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_cousin",
+     "F",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "43"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_cousin",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "40"
+      }
+     ]
+    ],
+    [
+     "m_cousin",
+     "M",
+     [
+      {
+       "site": "cns",
+       "hist": "hgg",
+       "age": "28"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'Family member III:4 (Fig. 1) had a prophylactic colectomy with ileo-rectal anastomosis (IRA) at 47 years with an accidental unexpected finding of CRC. She also developed a malign rectal tumour at 53 years. Two affected individuals in the family, I:1 and III:10 developed primary brain tumours, a glioma in one case and a giant cell glioblastoma in the other.' 'a mutation carrier also developed pancreatic cancer at age 78 (Fig. 1, family member II:9).' 'family member III:7 with gastric cancer could not be tested'. Fig 1 pedigree: I:1 CRC 65, brain tumor 68 (glioma); II:2 CRC 43, ovarian ca 50, endometrial ca 50; II:4 CRC 56; II:7 CRC 28; II:9 ovarian ca 45, CRC 52 and 78, pancreatic ca 78; II:11 ovarian ca 45, endometrial ca 45; III:2 CRC 35; III:6 CRC 55; III:7 gastric ca 43; III:9 CRC 40; III:10 brain tumor 28 (giant cell glioblastoma); IV:2 CRC 38; IV:3 adenomas 28. 'Five colorectal tumours from three affected individuals were all microsatellite stable (MSS)'.",
+   "notes": "No proband is marked; III:4 (first described, exome-sequenced) is used. Relationships derived from Fig 1: II:2 is her mother, I:1 her maternal grandmother, II:4/II:7/II:9/II:11 her mother's siblings, III:6/III:7/III:9/III:10 maternal first cousins, IV:2/IV:3 her brother III:2's sons. Deceased status read from pedigree slash marks; ages at death not given. The grandmother's 'glioma' grade is not stated; the cns site has no unspecified code, so it is entered as 'hgg' (forced choice) - the cousin's giant cell glioblastoma is a true hgg. Pancreatic and gastric histology not given. MSS results were not attributed to individuals, so not recorded. Carriers had a limited number of adenomas (AFAP/MAP range) but counts were not given. [18 Oct 2026: grandmother's glioma of unstated grade recoded as the new 'Glioma – grade not known' option.]"
+  },
+  {
+   "id": "nthl1-eu1",
+   "gene": "NTHL1",
+   "variant": "NTHL1 NM_002528.7:c.[244C>T];[435_446del] p.[(Gln82Ter)];[(Leu146_Arg149del)] - compound heterozygous; c.435_446del novel, classified likely pathogenic by authors",
+   "country": "Portugal",
+   "citation": "Pinto C et al. Front Genet 2023;14:1254908",
+   "pmid": "37727376",
+   "pmcid": "PMC10505957",
+   "doi": "10.3389/fgene.2023.1254908",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "52",
+       "count": "5"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "52"
+      },
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "54",
+       "side": "both",
+       "age2": "58"
+      },
+      {
+       "site": "uterus",
+       "hist": "carcinosarcoma",
+       "age": "58"
+      }
+     ],
+     {
+      "ageNow": "60"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "62"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "62"
+      },
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "62",
+       "count": "15"
+      }
+     ],
+     {
+      "ageNow": "62"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "50"
+      },
+      {
+       "site": "skin",
+       "hist": "bcc",
+       "age": ""
+      }
+     ],
+     {
+      "ageNow": "56"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "Family 3: 'Patient #5 ... was a woman diagnosed with five polyps and rectal cancer at 52 years, bilateral BC at 54 and 58 years and uterine carcinosarcoma at 58 years. She had two brothers with biallelic variants (relatives #3 and #4), one diagnosed with two synchronous CRCs and polyposis (15-20 polyps) at 62 years old and another diagnosed with polyposis at 50 years old and a basal cell carcinoma (Figure 1C).' 'The variant NM_002528.7:c.435_446del ... is here classified as likely pathogenic following the ACMG guidelines'. Fig 1C: patient #5 age 60; relative #3 age 62; relative #4 age 56 ('Polyposis 50, Skin'); mother (deceased) 'Breast 88' with '84' beneath the symbol; father deceased at 93.",
+   "notes": "Index patient #5 of family 3 (the study also reports two other biallelic families). Polyp histology not stated for any of the three, so 'nos' used; brother #3 count 15-20 recorded as 15; brother #4 count not given. 'Rectal cancer' recorded as colorectal; histology not given. Mother's breast cancer: the pedigree shows 'Breast 88' but also the number 84 (presumably age at death), which conflict; age left blank. Three healthy siblings (two in-frame-variant carriers, one negative) omitted."
+  },
+  {
+   "id": "jps-eu1",
+   "gene": "SMAD4",
+   "variant": "SMAD4 NM_005359.6:c.386A>C p.(Asn129Thr), mosaic in proband (AF 22%), heterozygous in son; classified likely pathogenic by authors",
+   "country": "Spain",
+   "citation": "Valentín F et al. Mol Genet Genomic Med 2024;12(1):e2348",
+   "pmid": "38146137",
+   "pmcid": "PMC10767673",
+   "doi": "10.1002/mgg3.2348",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "mixed",
+       "age": "",
+       "count": "39"
+      },
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "59"
+      }
+     ]
+    ],
+    [
+     "son",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "30",
+       "count": "9"
+      }
+     ],
+     {
+      "ageNow": "30"
+     }
+    ]
+   ],
+   "evidence": "'A 46-year-old male with no family history of cancer and chronic iron deficiency anemia ... diagnosed with massive gastric polyposis (>=100 polyps). Biopsies revealed hyperplastic inflammatory polyps'. 'for the last 14 years, he has undergone surveillance colonoscopies with the removal of multiple polyps throughout the colon (16 adenomatous, 4 hamartomatous, and 19 inflammatory polyps), therefore, meeting diagnostic criteria for JPS'. 'at the age of 59 ... total gastrectomy ... a 5 cm gastric hyperplasic polyp with high-grade dysplasia and focal adenocarcinoma.' 'One son of the CI aged 30 years was diagnosed as a SMAD4 c.386A>C p.(Asn129Thr) carrier. Gastroenterological examination revealed two subcentimeter polyps in the colon and seven inflammatory gastric polyps'. No telangiectasia or AVMs on screening.",
+   "notes": "Mosaic de novo variant (absent in both parents) - atypical presentation. Colonic polyps were mixed (16 adenomatous, 4 hamartomatous, 19 inflammatory over 14 years), coded 'mixed' count 39, age not given; gastric polyposis (>=100 hyperplastic/inflammatory) coded as polyps 'nos' count 100 at 46 because there is no gastric-polyp code. Gastric cancer recorded with histology 'nos' (focal adenocarcinoma in a hyperplastic polyp). Proband current age not stated (seen 12 months after surgery at 59). Son's polyps: 2 colonic + 7 gastric inflammatory = 9, age 30. [18 Oct 2026: the gastric hyperplastic/inflammatory polyposis (was polyps 'nos' x100) removed – GI polyps of unknown type now count as possible adenomas from 10, which misrepresents gastric hyperplastic polyps; there is no gastric-polyp code.]"
+  },
+  {
+   "id": "stk11-eu1",
+   "gene": "STK11",
+   "variant": "STK11 c.388dupG p.(Glu130Glyfs*33), novel frameshift in the catalytic site, reported as pathogenic",
+   "country": "Italy",
+   "citation": "Forte G et al. Genes Dis 2022;9(2):288-291",
+   "pmid": "35224145",
+   "pmcid": "PMC8843985",
+   "doi": "10.1016/j.gendis.2021.11.002",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "ham_nos",
+       "age": "42"
+      },
+      {
+       "site": "polyps",
+       "hist": "adenoma",
+       "age": "42",
+       "count": "1"
+      }
+     ],
+     {
+      "ageNow": "42"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "64"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "64"
+     }
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "65"
+      }
+     ]
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "58"
+      }
+     ]
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "52"
+      }
+     ]
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "55"
+      }
+     ]
+    ]
+   ],
+   "evidence": "'The index case (Fig. 1A II:28) is a 42-year-old woman with several GI hamartomatous polyps ... a pedunculated polyp (25 mm) and many sessile polyps (4-5 mm) were detected by EGD in the second portion of the duodenum. A follow-up colonoscopy ... identified numerous pedunculated and sessile polyps in the colon (3-40 mm) ... a sessile tubular adenoma with low-grade dysplasia. Moreover, the other polyps were histologically classified as likely hamartomatous lesions. Subsequently, a computed tomography (CT) scan showed many pedunculated polyps in the gastric antrum, duodenal bulb, jejunal loops, ileum'. 'Her father died at 64 years of age from gastric cancer (Fig. 1A I:12). A paternal uncle developed colorectal cancer at 65 years of age (Fig. 1A I:4). Moreover, a paternal aunt and two other paternal uncles (Fig. 1A I:3; I:5; I:6) developed intestinal polyps between 52 and 58 years of age.' Fig 1A: I:3 Ps 58y; I:5 Ps 52y; I:6 Ps 55y.",
+   "notes": "Polyps described as 'likely hamartomatous' without explicit Peutz-Jeghers histology, so 'ham_nos' rather than 'pj'; counts not given ('numerous'). Mucocutaneous pigmentation not mentioned. Father and paternal relatives were not tested. Ages for polyps of I:3, I:5, I:6 from Fig 1A. Gastric cancer histology not given. Tested healthy siblings (non-carriers) omitted. A 2024 corrigendum (PMID 37692472) exists."
+  },
+  {
+   "id": "cdh1-eu1",
+   "gene": "CDH1",
+   "variant": "CDH1 c.360delG p.(His121Thrfs*94), frameshift, reported as pathogenic",
+   "country": "Italy",
+   "citation": "Caggiari L et al. Int J Mol Sci 2020;21(14):4904",
+   "pmid": "32664545",
+   "pmcid": "PMC7402300",
+   "doi": "10.3390/ijms21144904",
+   "people": [
+    [
+     "proband",
+     "M",
+     [],
+     {
+      "ageNow": "56"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "diffuse",
+       "age": "59"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "59"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "77"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "61"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "diffuse",
+       "age": "31"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "31"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "50"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'The proband for this study is an asymptomatic 56 year-old Italian man. He had a family history of gastric cancer, including a brother who died from gastric cancer at the age of 59 years old (Figure 1). His father and two uncles were diagnosed to have gastric cancer and his mother died from breast cancer.' 'four male members died from GC: the father, two uncles and his brother ... and his mother who was diagnosed with breast cancer at the age of 50 years'. 'other members of the proband's family (an uncle and his brother) showed an invasive, aggressive HDGC and died at 31 and 59 years old, respectively.' Fig 1: father GC dx 77; paternal uncles GC dx 61 and dx 31; brother GC dx 59 (carrier); mother BC dx 50; carrier paternal aunt aged 93 unaffected.",
+   "notes": "Unaffected proband (cascade-tested brother of the original index patient). Uncles placed on the paternal side from Fig 1 (siblings of the father). 'HDGC' for the uncle who died at 31 and the brother taken as diffuse type; the father's and other uncle's histology not given. Mother not slashed in the pedigree but the text says she died from breast cancer; breast histology not given. Unaffected carrier aunt (93), cousin, niece and son omitted."
+  },
+  {
+   "id": "vhl-eu1",
+   "gene": "VHL",
+   "variant": "VHL c.414A>G, p.Pro138Pro (synonymous, splice-altering; called pathogenic/class V by the authors); proband also carries KIF1B c.3331_3332del (likely pathogenic per authors)",
+   "country": "Belgium",
+   "citation": "Landen L et al. Front Endocrinol (Lausanne) 2023;14:1204793",
+   "pmid": "37564981",
+   "pmcid": "PMC10411570",
+   "doi": "10.3389/fendo.2023.1204793",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "9"
+      },
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "13"
+      },
+      {
+       "site": "ppgl",
+       "hist": "ta",
+       "age": "13"
+      }
+     ],
+     {
+      "ageNow": "16"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "12",
+       "side": "both"
+      },
+      {
+       "site": "cns",
+       "hist": "hb",
+       "age": ""
+      },
+      {
+       "site": "sarcoma",
+       "hist": "mpnst",
+       "age": "21"
+      },
+      {
+       "site": "thyroid",
+       "hist": "papillary",
+       "age": "40"
+      }
+     ],
+     {
+      "ageNow": "48"
+     }
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "7",
+       "side": "both"
+      }
+     ],
+     {
+      "ageNow": "50"
+     }
+    ],
+    [
+     "m_gm",
+     "F",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "",
+       "side": "both"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "29"
+     }
+    ]
+   ],
+   "evidence": "Patients and methods: 'A 9 year-old girl ... diagnosed with a norepinephrine-secreting pheochromocytoma related to VHL syndrome ... She underwent right adrenalectomy.' 'At age 13 ... diagnosed with a 40 mm left pelvic tumor located within the greater omentum (metastasis or paraganglioma) and with a 21 mm left adrenal pheochromocytoma that showed to be multi-metastatic to both lungs.' 'At 16 years of age our patient has not developed other classical characteristics of VHL syndrome.' Mother: 'diagnosed at 12 years of age with VHL syndrome ... when she had resection of bilateral pheochromocytomas. Other manifestations ... included millimetric hemangioblastomas in the right retina, cervical, dorsal and lumbar spines, a 2 cm pancreatic tail cystadenoma and a 9 mm right renal cyst ... she had resection of a malignant schwannoma of the right shoulder at 21 and underwent total thyroidectomy for papillary cancer at age 40. She is alive at age 48.' Maternal uncle: 'underwent bilateral adrenalectomy for pheochromocytoma at age 7 followed by resection of lung and abdominal metastases at age 15 ... alive at age 50.' 'The girl's grandmother died at age 29 of a hypertensive crisis due to a right-sided pheochromocytoma diagnosed at autopsy. She had previously undergone left adrenalectomy for pheochromocytoma.' Pedigree (Fig 2) shows PCC, PGL and HGB.",
+   "notes": "Proband is the 9-year-old girl around whom the report is built; the authors call her mother 'the proband of the family'. Pelvic omental tumour coded ppgl/ta at 13 because the authors' Table 1 counts PGL 1/4 in this kindred, but the paper says it was 'metastasis or paraganglioma' - it may be a phaeochromocytoma metastasis. Mother's haemangioblastomas (retinal and spinal) have no age given. Mother's 'malignant schwannoma' coded sarcoma/mpnst. Mother's pancreatic cystadenoma, single renal cyst and possible broad-ligament papillary cystadenoma ('might be') not coded (feature/renal_cysts needs multiple cysts; broad-ligament lesion unconfirmed). Grandmother is maternal (VHL came through the mother); bilateral phaeo (left resected earlier, right at autopsy), ages not given beyond death at 29. Proband's second hit KIF1B variant (not in vocabulary) recorded only in variant field. Congenital heart disease in mother not coded."
+  },
+  {
+   "id": "sdhb-eu1",
+   "gene": "SDHB",
+   "variant": "SDHB c.338G>A, p.Cys113Tyr (missense; familial disease-causing variant, previously reported in UK series)",
+   "country": "United Kingdom",
+   "citation": "Srirangalingam U et al. Fam Cancer 2017;16:279-282",
+   "pmid": "27896548",
+   "pmcid": "PMC5357476",
+   "doi": "10.1007/s10689-016-9946-9",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": "41"
+      },
+      {
+       "site": "ppgl",
+       "hist": "ta",
+       "age": "41"
+      },
+      {
+       "site": "ppgl",
+       "hist": "ta",
+       "age": "41"
+      }
+     ],
+     {
+      "ageNow": "47"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "ppgl",
+       "hist": "ta",
+       "age": "81"
+      }
+     ],
+     {
+      "ageNow": "86"
+     }
+    ],
+    [
+     "son",
+     "M",
+     [
+      {
+       "site": "ppgl",
+       "hist": "ta",
+       "age": "15"
+      }
+     ],
+     {
+      "ageNow": "19"
+     }
+    ],
+    [
+     "p_gf",
+     "M",
+     [
+      {
+       "site": "ppgl",
+       "hist": "ta",
+       "age": "42"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "46"
+     }
+    ]
+   ],
+   "evidence": "Subject 1 (index): 'presented at the age of 41 years ... a mass at the base of skull involving the left vagus and hypoglossal nerves ... additional bilateral abdominal lesions adjacent to the aorta and inferior vena cava'; 'A diagnosis of multiple PGLs was made'; 'stable abdominal disease over 6 years'. Subject 2: 'The father of the index subject tested positive ... Screening CT imaging at the age of 81 years revealed a 2.8 cm retroduodenal mass, most likely a PGL ... Five years of radiological follow-up'. Subject 3: 'The son of the index case ... at the age of 15 years ... 5.8-cm retroperitoneal left paraaortic mass ... invading the aorta bifurcation ... a lymph node ... was found to be involved'; 'Over 4-year follow-up'. Subject 4: younger son, carrier aged 6, no disease. Subject 5: 'The index subject's grandfather presented in 1940 at the age of 42 years ... an inoperable tumor wrapped around the aorta ... metastatic disease to the spine ... He died at the age of 46. Though unconfirmed, the likely diagnosis was metastatic PGL.' Table 1: 'PGL abdomen (distant metastasis) († aged 46)'.",
+   "notes": "Index is male (his son's surveillance followed 'his father's diagnosis'). Head and neck PGL = left glomus vagale/jugular foramen tumour (hn); two abdominal para-aortic/coeliac PGLs coded ta (left one 'bordered the adrenal gland' - extra-adrenal assumed). Father's retroduodenal lesion is 'most likely a PGL' on imaging only. Grandfather's side is not stated; coded paternal because the father is the tested carrier. Grandfather's PGL is unconfirmed (historical, 1940) but listed in the authors' table as PGL abdomen with metastasis. ageNow values derived from follow-up durations (index 41 + 6, father 81 + 5, son 15 + 4) - approximate. Asymptomatic carrier younger son (6) omitted."
+  },
+  {
+   "id": "sdhd-eu1",
+   "gene": "SDHD",
+   "variant": "SDHD c.298delA, p.Thr100Leufs*35 (novel frameshift; called pathogenic by the authors; ClinVar SCV000575875)",
+   "country": "Austria",
+   "citation": "Koenighofer M et al. Clin Otolaryngol 2021;46:1044-1049",
+   "pmid": "33851515",
+   "pmcid": "PMC8453574",
+   "doi": "10.1111/coa.13782",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": "24"
+      }
+     ],
+     {
+      "ageNow": "31"
+     }
+    ],
+    [
+     "p_gm",
+     "F",
+     [
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": "20"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "90"
+     }
+    ],
+    [
+     "p_great",
+     "M",
+     [
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": ""
+      },
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": "62"
+      },
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "80"
+     }
+    ],
+    [
+     "p_other",
+     "F",
+     [
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": "22"
+      },
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": "22"
+      },
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": "22"
+      }
+     ],
+     {
+      "ageNow": "56"
+     }
+    ],
+    [
+     "p_other",
+     "M",
+     [
+      {
+       "site": "ppgl",
+       "hist": "hn",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "26"
+     }
+    ]
+   ],
+   "evidence": "Results: 'The 31-year-old male index patient (V.4) was diagnosed at the age of 24 with bilateral carotid hnPGL confirmed by MRI.' 'The 88-year-old affected patient (III.2) ... was diagnosed at the age of 20 with a unilateral, right-sided carotid hnPGL ... Patient III.2 died of other causes than hnPGL at the age of 90.' 'At the age of 62, patient III.3 underwent removal of an intracranial PGL followed by radiation therapy following prior surgical excision of a carotid hnPGL. Patient III.3 died at the age of 80 due to cachexia caused by malignant melanoma.' 'The affected 56-year-old family member (IV.1) was diagnosed with right-sided jugulotympanic hnPGL and left-sided carotid and vagal hnPGL at 22 years of age.' 'Patient II.2 was diagnosed with a neck lump suggestive of hnPGL but died in 1903 at age 26 of other causes.' Pedigree (Fig 1): V.4's father IV.3 is an unaffected carrier, son of III.2 (affected female, carrier); III.3 is III.2's brother; IV.1 is the daughter of III.1 (III.2's brother, unaffected 91-year-old carrier); II.2 is the brother of III.2's father II.1.",
+   "notes": "Relationships read from the pedigree: grandmother III.2 = p_gm; her affected brother III.3 = p_great; IV.1 is the proband's father's first cousin (no code) = p_other; II.2 is the proband's great-grandfather's brother (no code) = p_other, neck lump 'suggestive of hnPGL' only. III.3's 'intracranial PGL' coded ppgl/hn (likely jugular/skull-base extension); his earlier carotid PGL age not given; melanoma age not given. Proband's ageNow 31 per text although the text also says follow-up 'approximately 11 years' from diagnosis at 24 (inconsistent). Unaffected carriers (father IV.3, III.1, IV.4, V.5, V.6) omitted. The family illustrates SDHD paternal-transmission imprinting: disease only when inherited from the father. [18 Oct 2026: 'both sides' removed from the paraganglioma – the form offers no side for paraganglioma; it had no effect on the results.]"
+  },
+  {
+   "id": "sdha-eu1",
+   "gene": "SDHA",
+   "variant": "SDHA c.1534C>T, p.Arg512* (pathogenic/likely pathogenic in ClinVar); both affected also carry PALB2 c.3113G>A, p.Trp1038* (pathogenic)",
+   "country": "United Kingdom",
+   "citation": "Whitworth J et al. Eur J Hum Genet 2021;29:1139-1145",
+   "pmid": "33854214",
+   "pmcid": "PMC8298530",
+   "doi": "10.1038/s41431-021-00862-5",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "sarcoma",
+       "hist": "gist",
+       "age": "66"
+      },
+      {
+       "site": "breast",
+       "hist": "dcis",
+       "age": "70"
+      }
+     ],
+     {}
+    ],
+    [
+     "son",
+     "M",
+     [
+      {
+       "site": "sarcoma",
+       "hist": "gist",
+       "age": "34"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Results: 'A 66-year-old female presented with symptoms of satiety and was endoscopically investigated, revealing a 35 mm gastric GIST. She went on to undergo a distal gastrectomy, at which time she was identified as having liver metastases.' 'Subsequently, her son also developed a gastric GIST at the age of 34 years.' 'Histology and immunohistochemistry of both GISTs showed a mixed epithelioid growth pattern and loss of SDHB staining.' 'There was no other reported family history of neoplasia and the proband's other son had not been diagnosed with any tumours.' 'the mother was also diagnosed with ductal carcinoma in situ of the breast at the age of 70 years.' WGS: SDHA c.1534C>T (p.Arg512*) and PALB2 c.3113G>A (p.Trp1038*) in both; LOH of SDHA wild-type allele in both tumours; no PALB2 LOH.",
+   "notes": "Double heterozygote (MINAS): SDHA is the gene explaining the SDH-deficient wild-type GISTs (LOH shown); PALB2 may explain the mother's DCIS but tumour unavailable. Recorded gene SDHA. Both GISTs gastric and SDH-deficient (SDHB IHC loss) - no SDH marker field for GIST in vocabulary. DCIS ER/PR/HER2 not reported. Current ages not given. Unaffected other son omitted. Ascertained via a clinical genetics centre in England (Birmingham/Cambridge RECs)."
+  },
+  {
+   "id": "ret-eu1",
+   "gene": "RET",
+   "variant": "RET c.1900T>G, p.Cys634Gly (exon 11, codon 634; pathogenic)",
+   "country": "Romania",
+   "citation": "Florescu AF et al. Clin Pract 2024;14:2284-2299",
+   "pmid": "39585007",
+   "pmcid": "PMC11587112",
+   "doi": "10.3390/clinpract14060179",
+   "people": [
+    [
+     "proband",
+     "F",
+     [],
+     {
+      "ageNow": "6"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "31",
+       "side": "both"
+      },
+      {
+       "site": "thyroid",
+       "hist": "medullary",
+       "age": "31"
+      },
+      {
+       "site": "parathyroid",
+       "hist": "adenoma",
+       "age": "31"
+      }
+     ],
+     {
+      "ageNow": "43"
+     }
+    ],
+    [
+     "m_other",
+     "F",
+     [
+      {
+       "site": "thyroid",
+       "hist": "medullary",
+       "age": "30"
+      },
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "32"
+      },
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "38"
+      }
+     ],
+     {
+      "ageNow": "43"
+     }
+    ],
+    [
+     "m_other",
+     "F",
+     [
+      {
+       "site": "thyroid",
+       "hist": "medullary",
+       "age": "33"
+      },
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "33",
+       "side": "both"
+      }
+     ],
+     {
+      "ageNow": "44"
+     }
+    ]
+   ],
+   "evidence": "2.1: 'This was a 6-year-old girl who was admitted for an endocrine check-up since her mother was the index case in her family confirmed with multiple endocrine neoplasia type 2. She harbored the familial pathogenic variant of the RET gene: c.1900T>G'; hypercalcitoninaemia on admission; 'Further total thyroidectomy was recommended since a medullar thyroid carcinoma was highly probable'. 2.2: mother III.6 'displayed all the three endocrine components (medullary thyroid carcinoma, bilateral pheochromocytom, and primary hyperparathyroidism)'; 'the proband has other two cousins who have been tested and found RET-positive: patient III.1 ... the subject III.3'. 2.4: III.6 '(currently, a 43-year-old woman) was the first individual identified ... at the age of 31 ... bilateral laparoscopic adrenalectomy for pheochromocytoma ... total thyroidectomy, neck lymph nodes dissection, and lower left parathyroidectomy'. III.1 '(currently, a 43-year-old woman) ... at the age of 30. She initially presented medullary thyroid carcinoma ... Two years later ... unilateral pheochromocytoma ... left adrenalectomy followed by a right adrenalectomy six years later'. III.3 '(currently, a 44-year-old woman) ... at the age of 33 ... total thyroidectomy ... bilateral adrenalectomy, which confirmed the medullary thyroid carcinoma ... and bilateral pheochromocytoma'.",
+   "notes": "Proband is the 6-year-old girl (IV.5) the case series opens with; she has interscapular cutaneous lichen amyloidosis (no vocabulary code) and raised calcitonin, but MTC was not yet histologically confirmed, so no diagnosis entered. III.1 and III.3 are the mother's cousins (same generation, 'cousin' of III.6) - no code, entered as m_other. Mother's parathyroid histology not stated; coded parathyroid/adenoma (primary hyperparathyroidism). Mother's MTC implied by surgery and calcitonin 304 and by the authors' statement that she had MTC. III.1's phaeo ages from Table 3 (left 32, right 38). Lichen amyloidosis also in III.5 and III.8 (untested, declined investigation) - omitted. IV.1 (RET-positive child of III.1, no reported tumour) omitted. The paper contradicts itself on IV.4 (listed RET-negative but later said to be RET-positive with medullary microcarcinoma); IV.4 is III.3's child and omitted because of the inconsistency."
+  },
+  {
+   "id": "men1-eu1",
+   "gene": "MEN1",
+   "variant": "MEN1 c.105_107dupGCT (in-frame duplication; novel, called pathogenic/causative by the authors on segregation)",
+   "country": "Poland",
+   "citation": "Stasiak M et al. Genes (Basel) 2020;11:986",
+   "pmid": "32847108",
+   "pmcid": "PMC7565931",
+   "doi": "10.3390/genes11090986",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "parathyroid",
+       "hist": "adenoma",
+       "age": "16"
+      },
+      {
+       "site": "pituitary",
+       "hist": "other",
+       "age": "16"
+      }
+     ],
+     {}
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "parathyroid",
+       "hist": "adenoma",
+       "age": "47"
+      },
+      {
+       "site": "pituitary",
+       "hist": "other",
+       "age": "47"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Case: 'A 16-year-old female was referred to our department in March 2018 for further investigations regarding the management of her previously identified primary hyperparathyroidism (PHP), which was revealed in the course of diagnostics of the recurrent nephrolithiasis.' FNAB 'confirmed the presence of a left inferior parathyroid adenoma'; 'pituitary magnetic resonance imaging (MRI) showed a lesion corresponding to a microadenoma ... Non-functioning pituitary adenoma was diagnosed.' Histology 'confirmed a benign adenoma of the left parathyroid gland'; later 'three hypertrophic parathyroid glands were found'. 'The same mutation was detected in the patient's father, who had never been diagnosed with any of the MEN1 components ... serum biochemisty revealed hypercalcaemia and an elevated PTH level ... MRI scans showed a pituitary microadenoma.' Discussion: 'His disease was subclinical at the age of 47, while she had severe complications of hypercalcemia at the age of 16.'",
+   "notes": "Proband's PHPT was identified before age 16 (renal colic since 2016); 16 used as age at referral/diagnosis of adenoma and pituitary microadenoma. Father's parathyroid disease is biochemical PHPT without localised adenoma (coded parathyroid/adenoma as the PHPT code); his pituitary lesion is a microadenoma on MRI, function normal (pituitary/other). No pancreatic tumours in either. Variant is in-frame (not truncating); pathogenicity asserted by authors based on segregation and phenotype. Mother and other first-degree relatives tested but carrier status/phenotype not reported."
+  },
+  {
+   "id": "cdc73-eu1",
+   "gene": "CDC73",
+   "variant": "CDC73 c.687_688dup, p.Val230Glufs*28 (frameshift; pathogenic)",
+   "country": "France",
+   "citation": "Garrigues G et al. Mol Genet Genomic Med 2023;11:e2133",
+   "pmid": "36639964",
+   "pmcid": "PMC10178793",
+   "doi": "10.1002/mgg3.2133",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "parathyroid",
+       "hist": "adenoma",
+       "age": "28"
+      }
+     ],
+     {
+      "ageNow": "30"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "parathyroid",
+       "hist": "adenoma",
+       "age": "50"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Case report: 'As part of a routine workup of unexplained weight gain in a 28-year-old Caucasian woman, a pHPT was diagnosed'; Choline PET/CT hyperfixation 'which may correspond to a parathyroid adenoma P3 right'; 'mini-invasive surgery of right P3 parathyroid gland was performed. Histological examination found no malignancy criteria.' 'Her family history is marked by the occurrence of a pHPT in her mother, discovered at 50 years old, induced by a parathyroid adenoma operated at 52 years old ... This patient had a total hysterectomy at the age of 48 years for menometrorrhagia ... moderate uterine parietal adenomyosis with no sign of malignancy.' 'A heterozygous pathogenic variation in the CDC73 gene was found: c.687_688dup, p.Val230Glufs*28 ... The familial genetic investigation found the variant in her mother.' 'Follow-up two years after diagnosis did not found any new lesions in these patients.' Fig 2: 'Apart from the index case and his mother, there is no other history of hyperparathyroidism or symptoms of the HPT-JT spectrum.'",
+   "notes": "Paper is inconsistent on proband sex (case report says '28-year-old Caucasian woman'; introduction and figure legend say 'his'); coded female per the case description. Proband's parathyroid lesion histology: no malignancy, coded adenoma. Mother's uterine adenomyosis (benign, not fibroids) not coded. No jaw tumours, renal or uterine tumours on screening. ageNow 30 derived from 2-year follow-up. Paper title calls the case 'duplication' - it is a 2-bp duplication causing frameshift. Pituitary hypoenhancement and an unconfirmed 7 mm pancreatic lesion on CT not coded."
+  },
+  {
+   "id": "fh-eu1",
+   "gene": "FH",
+   "variant": "FH heterozygous large (multi-exon) deletion detected by MLPA (pathogenic)",
+   "country": "Hungary",
+   "citation": "Kárteszi J et al. Pathol Oncol Res 2025;31:1612086",
+   "pmid": "40264827",
+   "pmcid": "PMC12011599",
+   "doi": "10.3389/pore.2025.1612086",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "cutleio",
+       "age": "14"
+      },
+      {
+       "site": "kidney",
+       "hist": "fhrcc",
+       "age": "47"
+      }
+     ],
+     {
+      "ageNow": "51"
+     }
+    ],
+    [
+     "son",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "cutleio",
+       "age": "18"
+      }
+     ],
+     {
+      "ageNow": "30"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "cutleio",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "p_gm",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "cutleio",
+       "age": ""
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Individual II: 'A 51 year-old man, who is the father of Individual I. He had complaints from the age of 14, when painful and constantly but slowly growing red papules appeared ... At age 33, histological analysis proved the diagnosis of pilar leiomyomatosis.' 'His father, paternal grandmother and adolescent son had similar skin lesions, but kidney cancer was not noted in family history. Uterine myomatosis was not observed in female individuals in the family.' 'At 47 years of age ... Histological diagnosis was type 2 renal cell papillary carcinoma ... further immunohistochemistry was performed, which proved tumour cells with fumarate hydratase deficiency.' 'A large germline FH gene deletion was proved by MLPA analysis.' Individual I: 'This male patient is currently 30 years old. He first visited our department at age of 18 due to the appearance of painful skin nodules ... Histological examination verified cutaneous leiomyomatosis'; 'a heterozygous pathogenic deletion of the FH gene was identified.'",
+   "notes": "Proband chosen as Individual II (the father with the FH-deficient RCC), since the family history is given relative to him; the paper presents his son (Individual I) first. Relatives 'His father, paternal grandmother' are relative to Individual II, so coded father and p_gm (their skin lesions 'similar', not biopsied; ages unknown). The 'adolescent son' with similar lesions is assumed to be Individual I. Cutaneous leiomyomas onset age 14 (biopsy-confirmed at 33). Proband's age: stated 51, although 7 years of follow-up after surgery at 47 would make him ~54. Kidney lesion was a Bosniak III cyst from ~44 that progressed; RCC diagnosed at 47. No females with fibroids reported."
+  },
+  {
+   "id": "flcn-eu1",
+   "gene": "FLCN",
+   "variant": "FLCN c.563delT, p.Phe188Serfs*35 (novel frameshift; called disease-causing by the authors)",
+   "country": "Switzerland",
+   "citation": "Näf E et al. Fam Cancer 2016;15:127-132",
+   "pmid": "26342594",
+   "pmcid": "PMC4698292",
+   "doi": "10.1007/s10689-015-9837-5",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "kidney",
+       "hist": "chromophobe",
+       "age": "46"
+      },
+      {
+       "site": "kidney",
+       "hist": "chromophobe",
+       "age": "46"
+      },
+      {
+       "site": "feature",
+       "hist": "lungcysts",
+       "age": "46"
+      }
+     ],
+     {}
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "kidney",
+       "hist": "ccrcc",
+       "age": ""
+      },
+      {
+       "site": "kidney",
+       "hist": "nos",
+       "age": ""
+      },
+      {
+       "site": "feature",
+       "hist": "fibrofolliculoma",
+       "age": ""
+      },
+      {
+       "site": "skin",
+       "hist": "bcc",
+       "age": ""
+      },
+      {
+       "site": "colorectal",
+       "hist": "adeno",
+       "age": "36"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_other",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "lungcysts",
+       "age": "62"
+      }
+     ],
+     {
+      "ageNow": "62"
+     }
+    ]
+   ],
+   "evidence": "'A 46-year-old German woman (index patient) presented with macrohematuria ... inhomogeneous masses in both kidneys ... Pathology showed two morphologically similar but not identical well differentiated tumours, both signed out as eosinophilic variants of bilateral chromophobe renal carcinomas ... thoracic CT revealed several small lung cysts'. Father: 'had kidney surgery a decade earlier'; 'multiple of the typical dome-shaped papules at his face and neck in the last years, one of which was classified as fibrofolliculoma by skin biopsy'; 'The pathology reports stated two clear cell renal cell carcinomas on the left side as well as multiple renal cell carcinomas and adenomas on the right side without specification of their histological types. The father also had suffered from skin basal cell carcinoma and at the age of 36 years from rectal adenocarcinoma (not investigated for Lynch syndrome).' FLCN c.563delT in index, father and two asymptomatic sons (20, 21). 'the patient's father heard about lung problems, which turned out to be a spontaneous pneumothorax based on multiple lung cysts, in one of his 1st grade cousins (62-year-old female relative, Fig. 3).'",
+   "notes": "Bilateral chromophobe RCC entered as two kidney/chromophobe tumours at 46. Father's ages for kidney tumours not given (surgery 'a decade earlier' than the index's diagnosis; his age not stated); right-sided multiple RCCs of unspecified type coded kidney/nos; BCC age not given. The 62-year-old female with pneumothorax and lung cysts is the father's first cousin (index's first cousin once removed; untested) - no code, entered as p_other. Two asymptomatic carrier sons omitted. Index is German, seen at Swiss centres (Olten/Bern); country = Switzerland."
+  },
+  {
+   "id": "max-eu1",
+   "gene": "MAX",
+   "variant": "MAX c.97C>T, p.(Arg33Ter) (NM_002382.3; truncating, deleterious)",
+   "country": "Portugal",
+   "citation": "Duarte DB et al. Front Endocrinol (Lausanne) 2021;12:609263",
+   "pmid": "33815275",
+   "pmcid": "PMC8011317",
+   "doi": "10.3389/fendo.2021.609263",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "27"
+      },
+      {
+       "site": "nb",
+       "hist": "nb",
+       "age": "27"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "31"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "37"
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "33",
+       "side": "both"
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "adrenal",
+       "hist": "phaeo",
+       "age": "22"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Patient 1 (index): 'In November 2010, a 27-year old male, the oldest of the three children of patient 2'; CT: posterior mediastinal mass, bilateral adrenal lesions and a large retroperitoneal periaortic mass; pathology 'medullar hyperplasia on the right adrenal gland, and pheochromocytoma with evidence of angioinvasion on the left adrenal gland ... The extra-adrenal tumour was suggestive of well differentiated neuroblastoma'; MAX c.97C>T germline; 'he died 24 hours later, at the age of 31 years old.' Patient 2 (father): 'In March 1995, a 32-year old male' with bilateral adrenal lesions; 'Pathology revealed adrenal hyperplasia'; 'In June 2000 ... totalization of left adrenalectomy; this time pathology reported a tumoral lesion of 25x15 mm consistent with a pheochromocytoma'. Patient 3 (brother): 'In 2012, a 26 years old man' with bilateral adrenal masses; 'laparoscopic bilateral adrenalectomy was performed on April 2019 ... Pathology was consistent with bilateral pheochromocytoma'. Patient 4 (youngest brother): '14 years old' in 2012; left adrenal nodule in 2017; 'underwent laparoscopic left adrenalectomy on March 2020 ... Pathology was consistent with pheochromocytoma'.",
+   "notes": "Father: bilateral adrenal lesions and catecholamine excess at 32 (1995) with hyperplasia on first pathology; phaeochromocytoma histologically confirmed at ~37 (2000) - coded phaeo at 37. Brother (patient 3): bilateral masses seen at 26 on CT, phaeo confirmed at surgery ~33 (2019). Youngest brother: nodule at ~19 (2017), phaeo confirmed at ~22 (2020). Ages derived from stated years. Proband's posterior mediastinal mass was assumed phaeo metastasis without histology - not coded separately. Neuroblastoma (adult, extra-adrenal retroperitoneal) coded nb/nb."
+  },
+  {
+   "id": "aip-eu1",
+   "gene": "AIP",
+   "variant": "AIP c.811_812del, p.Arg271Glyfs*16 (novel frameshift, exon 6)",
+   "country": "Germany",
+   "citation": "Detomas M et al. J Endocrinol Invest 2023;46:1705-1709",
+   "pmid": "36757586",
+   "pmcid": "PMC10348927",
+   "doi": "10.1007/s40618-023-02031-5",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "pituitary",
+       "hist": "gh",
+       "age": "19"
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "pituitary",
+       "hist": "gh",
+       "age": "19"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "56"
+     }
+    ]
+   ],
+   "evidence": "'In April 2019, a 19-year-old male patient (patient III-2 in Fig. 1a) underwent a brain magnetic resonance imaging (MRI) because of recurrent headaches. Radiological workup revealed a pituitary macroadenoma'; acromegaly confirmed; 'neuropathological examination confirmed presence of a somatotroph pituitary neuroendocrine tumor'. 'The identical twin brother and the father were both found to be carriers of the same mutation, while the twins' older brother was having a wild-type AIP gene status.' Twin (III-3): seen June 2019, 'A 2.4 x 2.3 x 1.7 cm pituitary macroadenoma'; tumour with somatotroph cells, Pit-1 positive. Father: carrier, normal biochemistry and pituitary MRI at 53. 'The twins' paternal aunt (patient II-1 in Fig. 1a.) unfortunately died from metastatic colorectal cancer in 2021, at the age of 56'; she had 'facial and acral dysmorphia' with elevated IGF-1 in 2010 while on bromocriptine 'because of hyperprolactinemia'; 'responsible for acromegaly in two homozygous twins, and possibly in their paternal aunt.'",
+   "notes": "Twin brother is an identical twin (same age 19). Paternal aunt: possible acromegaly/prolactinoma never confirmed (IGF-1 1.4x ULN at 45 on bromocriptine, no imaging reported) - not coded as a pituitary tumour; her metastatic colorectal cancer coded colorectal/nos with age unknown (under chemotherapy at 54, died at 56). Unaffected carrier father (53) and AIP-negative older brother omitted; paternal grandmother refused testing. Current ages not given (twins 19 in 2019)."
+  },
+  {
+   "id": "prkar1a-eu1",
+   "gene": "PRKAR1A",
+   "variant": "PRKAR1A c.156delA, p.(Glu52Aspfs*77) (novel frameshift, heterozygous)",
+   "country": "Germany",
+   "citation": "Harbeck B et al. Endocrine 2023;80:20-28",
+   "pmid": "36255590",
+   "pmcid": "PMC10060316",
+   "doi": "10.1007/s12020-022-03209-2",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "ppnad",
+       "age": "29"
+      },
+      {
+       "site": "pituitary",
+       "hist": "gh",
+       "age": "29"
+      }
+     ],
+     {}
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "ppnad",
+       "age": "20"
+      },
+      {
+       "site": "pituitary",
+       "hist": "gh",
+       "age": "20"
+      }
+     ],
+     {}
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "ppnad",
+       "age": "23"
+      },
+      {
+       "site": "pituitary",
+       "hist": "other",
+       "age": "37"
+      },
+      {
+       "site": "feature",
+       "hist": "cardiac_myxoma",
+       "age": "46"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Patient 1: 'A 29-year-old female suffering from previously undiagnosed Cushing's syndrome ... ACTH independent hypercortisolemia ... bilateral adrenalectomy and histological work-up of the tissue was consistent with primary pigmented nodular adrenocortical disease (PPNAD). ... recurrent excisions of myxolipomas since the age of 14 ... Pituitary MRI demonstrated a 5 mm microadenoma ... densely granulated somatotroph adenoma with prolactin co-expression'; 'her younger sister suffered from similar symptoms.' Patient 2: 'a 20-year-old female ... MRI of the adrenal glands was compatible with bilateral PPNAD, which was confirmed after adrenalectomy ... invasive pituitary macroadenoma ... classified as somatomammotroph adenoma.' Patient 3: 'In the course of her daughters' treatment ... In 1987, at the age of 23 years she had undergone left-sided adrenalectomy due to CS ... multinodular adenomatous hyperplasia ... MRI of the pituitary was performed in 2001, revealing a pituitary microadenoma, which ... was hormonally inactive ... a fibroadenoma of the breast was removed ... 2010, at the age of 46 years, the patient was diagnosed with atrial myxoma'; later 'a recurrent big left atrial myoma'. Genetics: PRKAR1A c.156delA in all three.",
+   "notes": "Mother's Cushing's at 23 with 'multinodular adenomatous hyperplasia' (then misread as ACTH-dependent) is coded feature/ppnad as adrenal Cushing; PPNAD was not formally named on her histology. Mother's pituitary microadenoma age 37 derived (23 in 1987 -> 37 in 2001). Proband's acromegaly microadenoma coded pituitary/gh (GH excess shown by oGTT); sister's somatomammotroph macroadenoma with raised IGF-1 coded pituitary/gh. Myxolipomas (proband, sister), breast fibroadenomas (all three) and thyroid cysts have no vocabulary code and are omitted. Current ages not given."
+  },
+  {
+   "id": "pten-eu1",
+   "gene": "PTEN",
+   "variant": "c.71A>T p.(Asp24Val), novel missense; loss of function shown by failure to inhibit Akt phosphorylation (authors: 'deleterious')",
+   "country": "Italy",
+   "citation": "Pradella LM et al. BMC Cancer 2014;14:70",
+   "pmid": "24498881",
+   "pmcid": "PMC3922036",
+   "doi": "10.1186/1471-2407-14-70",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "32",
+       "er": "pos",
+       "pr": "pos",
+       "her2": "neg"
+      },
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "36",
+       "er": "pos",
+       "pr": "pos",
+       "her2": "neg"
+      },
+      {
+       "site": "breast",
+       "hist": "idc",
+       "age": "40",
+       "er": "neg",
+       "pr": "neg",
+       "her2": "pos"
+      },
+      {
+       "site": "thyroid",
+       "hist": "mng",
+       "age": "28"
+      },
+      {
+       "site": "feature",
+       "hist": "macrocephaly",
+       "age": ""
+      },
+      {
+       "site": "feature",
+       "hist": "trichilemmoma",
+       "age": "39"
+      }
+     ],
+     {
+      "ageNow": "40"
+     }
+    ]
+   ],
+   "evidence": "'An Italian woman underwent lumpectomy of the right breast ... at the age of 32 years for Invasive Ductal Carcinoma ... ER and PR positive (both 90%) and HER2/neu negative.' 'at the age of 36, she was diagnosed with contralateral breast cancer ... Invasive Ductal Carcinoma ... ER and PR expression positive (90% and 40%, respectively), HER2/neu negative.' 'At the age of 40, another tumor was detected at the right breast, consisting of a multicentric Invasive Ductal Carcinoma ... with negative ER/PR and positive HER2/neu (80%).' 'When she was 39 years-old, during a dermatological examination, mucocutaneous features suggestive of CS were noticed' (Fig 1: palmoplantar keratosis, papules on nose, cobblestone gingival papules). 'family history was unremarkable'; 'at the age of 28 she underwent thyroidectomy for goiter and at 31 she had a uterine leyomioma removed'; 'macrocephaly (head circumference: 61 cm)'. Germline c.71A>T (p.Asp24Val).",
+   "notes": "Single proband (family history 'unremarkable'), included as a strongly characteristic presentation. The three breast cancers are entered separately (right 32, left 36, right again 40) rather than using side/age2. 'Goiter' coded thyroid mng (multinodularity not stated). Mucocutaneous lesions (acral/palmoplantar keratoses, facial and gingival papules) coded feature trichilemmoma at 39, the age at which they were noticed; trichilemmoma histology not reported. A single uterine leiomyoma at 31 was not coded (the fibroid feature is for early/multiple fibroids). Lymphangiomata, lipomas and seborrhoeic keratoses not coded. ageNow 40 is the last age given in the case (not stated as current age)."
+  },
+  {
+   "id": "bap1-eu1",
+   "gene": "BAP1",
+   "variant": "c.178C>T p.(Arg60Ter), pathogenic (ACMG class 5)",
+   "country": "Denmark",
+   "citation": "Sjøstrøm E et al. Fam Cancer 2026;25(2):43",
+   "pmid": "42018021",
+   "pmcid": "PMC13102859",
+   "doi": "10.1007/s10689-026-00558-z",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "meso",
+       "hist": "pleural",
+       "age": "63"
+      }
+     ],
+     {}
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "37"
+     }
+    ]
+   ],
+   "evidence": "'A 63 year-old male was referred ... due to complaints of cough, right-sided thoracic pain, and hemoptysis, resulting in the discovery of a right-sided infiltrate and pleural effusion.' 'Biopsy confirmed epithelioid mesothelioma.' 'The patient's father was in the family known to have had a stomach cancer and passed away at age 37. The paternal grandfather also died of an unknown cancer.' 'germline heterozygote nonsense variant in BAP1, c.178C>T, p.(Arg60Ter) ... classified as disease causing (Class 5, pathogenic ...)'. Adult son and daughter both carriers; onychopapilloma of all ten fingernails since adolescence.",
+   "notes": "Asbestos exposure deemed likely (electrician). Mesothelioma site taken as pleural from the right pleural effusion, pleural metastases and right upper lobe/thoracic wall tumour. Father's age at stomach cancer diagnosis not given (died at 37). Paternal grandfather's 'unknown cancer' has no site and is left out. Unaffected carrier children (son with single dystrophic nail) omitted. Onychopapilloma has no feature code; not entered."
+  },
+  {
+   "id": "cdkn2a-eu1",
+   "gene": "CDKN2A",
+   "variant": "Codon 59 GTG>GGG, i.e. c.176T>G p.(Val59Gly) (germline; nucleotide/protein nomenclature derived from the codon change reported)",
+   "country": "Spain",
+   "citation": "Martínez de Juan F et al. World J Gastrointest Oncol 2017;9(9):390-396",
+   "pmid": "28979722",
+   "pmcid": "PMC5605340",
+   "doi": "10.4251/wjgo.v9.i9.390",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": ""
+      },
+      {
+       "site": "pancreas",
+       "hist": "pdac",
+       "age": "69"
+      }
+     ],
+     {
+      "ageNow": "69"
+     }
+    ]
+   ],
+   "evidence": "'A 69-year-old woman attended the hospital with upper abdominal pain ... She had a cutaneous malignant melanoma resected in 1997 and was a carrier of a germline mutation in CDKN2A at codon 59 (GTG>GGG) from a kindred with Familial Atypical Mole Melanoma (FAMMM).' Pathological diagnosis: 'Pancreatic adenosquamous carcinoma in an intraductal papillary mucinous neoplasm.'",
+   "notes": "Relatives are not described individually (only 'from a kindred with FAMMM'), so only the proband is entered. Adenosquamous carcinoma is a variant of pancreatic ductal adenocarcinoma, so coded pdac. Age at melanoma not given (resected in 1997, roughly 19-20 years before presentation, not stated). The authors give only the codon change; the c./p. notation in 'variant' is my conversion."
+  },
+  {
+   "id": "pot1-eu1",
+   "gene": "POT1",
+   "variant": "c.1087C>T p.(Arg363*) (NM_015450.3), pathogenic",
+   "country": "Italy",
+   "citation": "Martino S et al. Front Oncol 2024;14:1419739",
+   "pmid": "39156708",
+   "pmcid": "PMC11327130",
+   "doi": "10.3389/fonc.2024.1419739",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "45"
+      },
+      {
+       "site": "sarcoma",
+       "hist": "gist",
+       "age": "54"
+      },
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "56"
+      },
+      {
+       "site": "lung",
+       "hist": "adeno",
+       "age": "60"
+      }
+     ],
+     {
+      "ageNow": "60"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "90"
+      }
+     ],
+     {}
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "thyroid",
+       "hist": "nos",
+       "age": "49"
+      },
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "59"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "skin",
+       "hist": "melanoma",
+       "age": "92"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "70"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "p_cousin",
+     "F",
+     [
+      {
+       "site": "thyroid",
+       "hist": "nos",
+       "age": "66"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_cousin",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "40"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_gm",
+     "F",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "77"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "77"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_uncle",
+     "M",
+     [
+      {
+       "site": "lung",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_cousin",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "60"
+      }
+     ],
+     {}
+    ],
+    [
+     "daughter",
+     "F",
+     [
+      {
+       "site": "skin",
+       "hist": "bcc",
+       "age": "32"
+      }
+     ],
+     {
+      "ageNow": "32"
+     }
+    ]
+   ],
+   "evidence": "Table 1: 45 melanoma in situ (back); 54 hemicolectomy, GIST; 54 right adrenal adenoma; 56 intramedullary D10-11 neoplasm, melanoma ('The metastasis originated from melanoma even though the primitive lesion was not identified'); 60 lung papillary adenocarcinoma. 'cases of melanoma in the patient's sister (III-11), paternal aunt (II-2), and father (II-5), coupled with an indistinct skin condition in the mother (II-6), referred to as \"skin tumors\"'. Fig 1 legend: 'breast cancer (BC; II-9, III-9), lung cancer (III-11), gastric cancer (III-19, I-4), colorectal cancer (CRC, II-1), and thyroid cancer (III-11, III-4).' Pedigree figure: II-1 (father's sister) CRC 70, deceased; II-2 (father's sister) melanoma 92, deceased; II-5 father melanoma 90; II-6 mother skin cancer 70, deceased; I-4 maternal grandmother gastric cancer 77, deceased; II-9 (mother's sister) BC 77, deceased; II-11 (mother's brother) lung c., deceased; III-4 (daughter of II-2) thyroid c. 66; III-9 (daughter of paternal uncle II-4) BC 40, deceased; III-11 sister thyroid c. 49, Mel 59; III-19 (son of mother's sister II-12) gastric cancer 60. 'The daughter (IV-3), 32 years old, is the sole family member who tested positive ... underwent exportation of two basal cell carcinoma after the test.'",
+   "notes": "Relationships and ages read from the pedigree figure (small image). The legend lists lung cancer in III-11 but the figure shows lung cancer in II-11 (maternal uncle) and thyroid/melanoma in III-11; I followed the figure. The proband's melanoma at 56 was a spinal metastasis from an unknown primary; entered as a second melanoma diagnosis. GIST location given as 'left colon' in the text and 'right colon' in Table 1. Right adrenal adenoma (54) not coded (no benign adrenal adenoma code). The mother's ill-defined 'skin cancer' at 70 is left out (type unknown; skin has no 'nos' code). Thyroid cancer histology not stated for sister and paternal cousin ('papillary' is a placeholder; thyroid has no 'nos' code). Segregation testing covered the father, daughter and son, and the daughter is 'the sole family member who tested positive', so the father (melanoma at 90) is a non-carrier (phenocopy); the variant presumably came through the mother (not tested). He is kept in because the brief asks for reported cancers. Daughter's age at BCC taken as 32 (her age when tested; BCCs removed after the test). [18 Oct 2026: the sister's and paternal cousin's thyroid cancers (placeholder papillary) recoded as the new 'type not known' option.]"
+  },
+  {
+   "id": "dicer1-eu1",
+   "gene": "DICER1",
+   "variant": "c.1716del p.(Phe572LeufsTer15) (NM_177438.3), pathogenic frameshift; somatic second hit c.5113G>A p.(Glu1705Lys) in the tumour",
+   "country": "France",
+   "citation": "Stambouli A et al. Front Pediatr 2023;11:1150418",
+   "pmid": "37215607",
+   "pmcid": "PMC10196141",
+   "doi": "10.3389/fped.2023.1150418",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "cervix",
+       "hist": "erms",
+       "age": "9"
+      }
+     ],
+     {
+      "ageNow": "12"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "thyroid",
+       "hist": "mng",
+       "age": "16"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_gm",
+     "F",
+     [
+      {
+       "site": "thyroid",
+       "hist": "mng",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "p_aunt",
+     "F",
+     [
+      {
+       "site": "thyroid",
+       "hist": "mng",
+       "age": ""
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'At the age of 9 the girl was referred ... for metrorrhagias ... a cervically protruding vaginal mass corresponding to multiple polyps' initially called benign müllerian polyps; after DICER1 testing at 12, 'reclassification from benign müllerian polyps to embryonal rhabdomyosarcoma'. 'Family screening revealed that the father carried the same nucleotide deletion, which is consistent with thyroidectomy at the age of 16 for a multinodular goiter. A history of benign thyroid nodules in the father's mother and sister was also reported.' Abstract: 'thyroid diseases in the father, aunt and paternal grandmother before the age of 20.' 'No other DICER1-related pathologies ... especially no PPB over three generations.'",
+   "notes": "Benign thyroid nodules in paternal grandmother and aunt coded thyroid mng (closest code; multinodularity not stated); their ages are only given collectively as 'before the age of 20', so left blank. Paternal grandmother and aunt were not tested. A 2-year-old paternal half-sister carries the variant with no manifestations; omitted. Proband also had growth hormone deficiency and learning difficulties (not coded). ageNow 12 = age at genetic testing."
+  },
+  {
+   "id": "nf2-eu1",
+   "gene": "NF2",
+   "variant": "Heterozygous deletion of NF2 5'UTR and exon 1 (NM_000268.3) by MLPA, pathogenic",
+   "country": "Italy",
+   "citation": "Ognibene M et al. Int J Mol Sci 2025;26(14):6848",
+   "pmid": "40725095",
+   "pmcid": "PMC12295179",
+   "doi": "10.3390/ijms26146848",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "cns",
+       "hist": "vs",
+       "age": ""
+      },
+      {
+       "site": "cns",
+       "hist": "meningioma",
+       "age": ""
+      },
+      {
+       "site": "meso",
+       "hist": "pleural",
+       "age": "13"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'A one-year-old boy was diagnosed with severe NF2-related schwannomatosis and treated with several neurosurgical exereses (cerebral and spinal meningiomas and vestibular schwannomas)'. 'After twelve years, he developed pleural effusion ... The cytological examination on thoracentesis diagnosed an epithelioid PM' ... 'overall survival of about one year; then the patient died because of rapidly increasing meningiomas'. 'there was no tumor family history and no environmental exposure to asbestos'. 'a heterozygous deletion of the NF2 gene ... encompassing the 5'UTR ... and exon 1'.",
+   "notes": "Single proband with no family history (likely de novo), included as a characteristic NF2 presentation with an atypical cancer (childhood pleural mesothelioma, with somatic loss of the second NF2 allele). Ages at the individual meningiomas and vestibular schwannomas are not given (NF2 diagnosed at age 1), so left blank. Mesothelioma age 13 from 'at the age of 13, developed a PM'. Age at death about 14 (not stated exactly), so ageDeath left out."
+  },
+  {
+   "id": "nf1-eu1",
+   "gene": "NF1",
+   "variant": "c.122A>T (creates a new exonic 5' donor splice site; 84 bp loss from exon 2 on RNA), reported as pathogenic",
+   "country": "Slovenia",
+   "citation": "Setrajcic Dragos V et al. Front Genet 2019;10:762",
+   "pmid": "31507634",
+   "pmcid": "PMC6714493",
+   "doi": "10.3389/fgene.2019.00762",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "47",
+       "er": "pos",
+       "her2": "neg"
+      },
+      {
+       "site": "feature",
+       "hist": "neurofibromas",
+       "age": ""
+      }
+     ],
+     {
+      "ageNow": "55"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "headneck",
+       "hist": "scc",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "p_gm",
+     "F",
+     [
+      {
+       "site": "uterus",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "lung",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "Patient 1: 'referred to our cancer genetics clinic at the age of 54 ... The patient developed a hormone-positive, Her-2-negative breast cancer aged 47.' 'At age 48, she was diagnosed with an ovarian tumor, which proved to be a mucinous cystadenoma'. 'she had less than six café-au-lait spots. In addition, axillary freckling was observed. She had numerous cutaneous fibromas' later 'reclassified into neurofibromas'. 'her mother was said to have skin manifestations, similar to those seen in the daughter. The patient's sister ... had no signs of NF1. The patient's father developed an oropharyngeal carcinoma, her paternal grandmother had a uterine carcinoma, and her paternal uncle was diagnosed with lung cancer (see Figure 1A).'",
+   "notes": "Substitute gene: no UK/European case with a confirmed germline TSC1/TSC2 variant and a described family could be found, so NF1 was used. The paper describes two unrelated patients; only patient 1 (the one with cancer and a family cancer history) is entered. Breast histology not stated; 'hormone-positive' entered as ER positive (PR not separately stated). Father's oropharyngeal carcinoma coded headneck scc as a placeholder (histology not stated; headneck has only an scc code). Paternal grandmother's 'uterine carcinoma' coded uterus nos. No ages for relatives. Mother possibly affected with NF1 skin signs (not tested) – not coded. Benign mucinous cystadenoma not coded. ageNow 55 is the latest age mentioned (haemothorax at 55)."
+  },
+  {
+   "id": "ptch1-eu1",
+   "gene": "PTCH1",
+   "variant": "c.1348-2A>G (splice acceptor)",
+   "country": "Italy",
+   "citation": "Ponti G et al. Hered Cancer Clin Pract 2012;10(1):15",
+   "pmid": "23107377",
+   "pmcid": "PMC3502463",
+   "doi": "10.1186/1897-4287-10-15",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "okc",
+       "age": ""
+      }
+     ],
+     {
+      "ageNow": "23"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "okc",
+       "age": "15"
+      }
+     ],
+     {}
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "okc",
+       "age": "16"
+      },
+      {
+       "site": "skin",
+       "hist": "bcc",
+       "age": ""
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'the case of a 23 year old female patient born in 1989, originally examined in the Department of Pediatrics at the age of 10. General and skin examination revealed 4 café-au-lait spots, palmar and calcaneal cystic nodules and deformity of the jaw profile' ... 'Later, the patient presented jaw keratocystic odontogenic tumors (KCOTs)'. 'multiple histologically proven odontogenic keratocysts occurred before the age of 20'. 'The brother presented KCOTs diagnosed at the age of 15, while the father presented KCOTs diagnosed at the age of 16 ... a BCC was discovered on the father's arm ... after the dermatologic follow-up'. 'the same PTCH1 gene germline mutation (C.1348-2A>G) was identified in the three family members.'",
+   "notes": "Proband's age at keratocysts not given exactly ('before the age of 20'), so left blank. Café-au-lait macules (4 in the case text, 5 in the discussion) are fewer than 6 and not coded. A giant cell tumour from a palmar/calcaneal nodule is not coded. Age at the father's BCC not given. The authors do not state an ACMG class; the canonical splice-site variant segregates in all three affected members and is treated by them as the causative mutation."
+  },
+  {
+   "id": "rb1-eu1",
+   "gene": "RB1",
+   "variant": "c.1128-1G>A p.(Thr377Leufs*3) (NM_000321.2), loss of function; father a 10% mosaic carrier",
+   "country": "Switzerland",
+   "citation": "Tripathy D et al. BMC Ophthalmol 2024;24(1):47",
+   "pmid": "38291358",
+   "pmcid": "PMC10826275",
+   "doi": "10.1186/s12886-024-03307-x",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "sarcoma",
+       "hist": "rms",
+       "age": "0"
+      },
+      {
+       "site": "eye",
+       "hist": "rb",
+       "age": "1"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "eye",
+       "hist": "rb",
+       "age": ""
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'A 14-month-old boy developed left eye strabismus following ... local radiotherapy for an alveolar RMS (PAX3-FOXO1 positive) of the right buttock diagnosed elsewhere at the age of 5 months.' 'Ophthalmic evaluation revealed bilateral rb'. Later 'developed refractory multifocal metastatic RMS ... and succumbed to his disease.' 'The fellow twin had rb IIRC group B in OD and group D in OS ... remained tumor-free at 6 years follow-up.' 'Both twins were found to be carriers of a RB1 loss of function mutation (NM_000321.2:c.1128-1G>A:p.(Thr377 Leufs*3). The father was a 10% mosaic healthy carrier.'",
+   "notes": "Proband and his monozygotic twin brother coded proband/brother (no twin code). RMS at 5 months entered as age 0; retinoblastoma (bilateral) at 14 months entered as age 1. The twin's age at retinoblastoma diagnosis not stated (bilateral disease implied by right and left eye groups). Rhabdomyosarcoma preceded retinoblastoma (unusual order). Unaffected mosaic father omitted. Age at death not given."
+  },
+  {
+   "id": "smarcb1-eu1",
+   "gene": "SMARCB1",
+   "variant": "Germline SVA-E retrotransposon insertion in SMARCB1 intron 2 disrupting splicing (loss of function); inherited from a mosaic mother",
+   "country": "Netherlands",
+   "citation": "Sabatella M et al. J Pathol 2021;255(2):202-211",
+   "pmid": "34231212",
+   "pmcid": "PMC8519051",
+   "doi": "10.1002/path.5755",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "cns",
+       "hist": "atrt",
+       "age": "0"
+      }
+     ],
+     {}
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "cns",
+       "hist": "atrt",
+       "age": "0"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'The first daughter (II-1) of a healthy Dutch couple was diagnosed with ATRT at birth, with negative immunohistochemical staining for SMARCB1'. 'a few years later, a second daughter (II-2) was also born with congenital ATRT, again negative for SMARCB1 immunostaining'. 'Both tumors were classified as ATRT-SHH subtype through methylome profiling'. 'two siblings with congenital ATRT due to a germline SVA-E retrotransposon insertion into intron 2 of the SMARCB1 allele'; 'the mother is a mosaic carrier'.",
+   "notes": "The first affected daughter (II-1) is taken as proband. Both diagnosed at birth (age 0). Routine sequencing, WES and CNV analysis were negative; the insertion was found by optical genome mapping and long-read sequencing. The authors describe it as causing 'loss of a functional allele' rather than giving an ACMG class. Outcome/survival of the children not recorded here. Unaffected mosaic mother omitted."
+  },
+  {
+   "id": "wt1-eu1",
+   "gene": "WT1",
+   "variant": "Heterozygous deletion of WT1 exon 8 and exons 9-10 (NGS)",
+   "country": "Poland",
+   "citation": "Rdzanek O et al. Appl Clin Genet 2024;17:199-203",
+   "pmid": "39713589",
+   "pmcid": "PMC11660652",
+   "doi": "10.2147/TACG.S495498",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "kidney",
+       "hist": "wilms",
+       "age": "2"
+      },
+      {
+       "site": "feature",
+       "hist": "gu_anom",
+       "age": "2"
+      }
+     ],
+     {
+      "ageNow": "2"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "kidney",
+       "hist": "wilms",
+       "age": ""
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'A two and a half year old boy of Romani descent, born at 25 weeks of gestation, was admitted ... due to a tumor located in the abdominal cavity. ... the child's mother was treated for Wilms' tumor in childhood'. Examination: 'absence of testes in the scrotum'. 'Imaging ... revealed the presence of pathological tissue changes in both kidneys. Based on this, stage V Wilms' tumor was diagnosed.' Right kidney: 'nephroblastoma, predominantly stromal type'. 'Genetic testing revealed a deletion fragment of exon 8 and exons 9–10 on one allele of the WT1 gene.'",
+   "notes": "Bilateral Wilms tumour (stage V) at about 2.5 years entered as age 2. Undescended testes coded feature gu_anom. Mother's age at Wilms tumour not given ('in childhood') and she was not genetically tested. The authors do not state an ACMG class for the multi-exon WT1 deletion; they present it as the cause of the bilateral tumour."
+  },
+  {
+   "id": "met-eu1",
+   "gene": "MET",
+   "variant": "c.3712G>A p.(Val1238Ile), germline (authors: germline MET mutation causing HPRCC)",
+   "country": "France",
+   "citation": "Ferlicot S et al. Diagn Pathol 2021;16(1):107",
+   "pmid": "34801057",
+   "pmcid": "PMC8606058",
+   "doi": "10.1186/s13000-021-01170-8",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "kidney",
+       "hist": "papillary1",
+       "age": "51"
+      },
+      {
+       "site": "kidney",
+       "hist": "ccrcc",
+       "age": "51"
+      }
+     ],
+     {
+      "ageNow": "51"
+     }
+    ]
+   ],
+   "evidence": "'The patient, a 51-year-old man, without a familial background of RCC, underwent computed tomography for hypertension investigation that revealed bilateral and multifocal renal tumors.' Eight left and five right tumorectomies: 'Three nodules ... had typical histological features of clear cell RCC with ISUP grade 1 ... The other nodules showed typical histological features of papillary tumors, either type 1 papillary RCC (5 tumors) or papillary adenomas'. 'on peripheral blood testing, a germline MET mutation c.3712G>A, p.(Val1238Ile) was found, but no VHL germline mutation.' Later 'left adrenalectomy for RCC metastasis' (clear cell).",
+   "notes": "Single proband with no family history of RCC, included because bilateral multifocal type 1 papillary RCC is characteristic of HPRCC; the co-existing clear cell RCCs make it atypical (FLCN tested first, negative). Both kidney entries at 51 (age at first imaging; right kidney tumours resected two years later). The authors call it a 'germline MET mutation' but give no ACMG class; this is the case they present as HPRCC. Adrenal metastasis not coded as a separate primary."
+  },
+  {
+   "id": "runx1-eu1",
+   "gene": "RUNX1",
+   "variant": "c.681dup p.(Leu228ThrfsTer33) (NM_001754.5), pathogenic (ClinGen MM-VCEP criteria)",
+   "country": "Italy",
+   "citation": "Crocioni M et al. Fam Cancer 2026;25(2)",
+   "pmid": "41941013",
+   "pmcid": "PMC13053502",
+   "doi": "10.1007/s10689-026-00550-7",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "43"
+      },
+      {
+       "site": "heme",
+       "hist": "all",
+       "age": "43"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "43"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "72"
+      }
+     ],
+     {
+      "ageNow": "72"
+     }
+    ],
+    [
+     "m_gf",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "other",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "70"
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "cns",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "75"
+     }
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "prostate",
+       "hist": "adeno",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "82"
+     }
+    ]
+   ],
+   "evidence": "'A 43 years-old male was admitted ... in November 2022 because of leucocytosis and thrombocytopenia ... The final diagnosis was AML.' After MUD transplant May 2023, 'after three months, the BM was massively infiltrated by 97% of blasts positive for immature and T cell lineage antigens' -> T-ALL; 'The patient died at the end of August 2023.' 'the proband's mother, aged 72, was under treatment in another Centre because of refractory AML, and the grandfather from the maternal side had died at the age of 70 because of undefined leukemia.' 'Germline and somatic analysis in both the proband and his mother identified the same germline c.681dup, p.(Leu228ThrfsTer33), RUNX1 variant ... classification resulted as pathogenic'. 'typical FDP features, such as thrombocytopenia, bleeding, and/or bruising, did not emerge from our patient medical history.' Fig 1 pedigree: father (II) deceased 75 'CNS Ca.'; paternal uncle deceased 82 'Prostate Ca.'; maternal grandfather deceased 70 leukaemia; mother AML (72) RUNX1 +/-; proband AML -> T-ALL (43); healthy brother (47) RUNX1 wild-type.",
+   "notes": "Proband's T-ALL (post-transplant, host-derived) coded heme/all at 43 (diagnosed ~Aug 2023, age not restated; probably still 43) and ageDeath 43 is derived from the timeline. Maternal grandfather's 'undefined leukemia' coded heme/other with unknown age (only age at death 70 given). Father's 'CNS Ca.' (pedigree only, type unknown) is NOT coded because the vocabulary has no non-specific CNS code; he is listed with no diagnoses so his death is recorded. Paternal uncle's prostate cancer coded prostate/adeno as the usual type (paper says only 'Prostate Ca.'); age at diagnosis unknown. Mother and maternal siblings have Friedreich ataxia (FXN), not coded. Proband's thrombocytopenia at presentation was due to leukaemia; no FPD history, so feature/thrombocytopenia not coded. Healthy brother omitted. [18 Oct 2026: father's 'CNS Ca.' added with the new 'Brain tumour – type not known' option.]"
+  },
+  {
+   "id": "ddx41-eu1",
+   "gene": "DDX41",
+   "variant": "c.1372G>T p.(Glu458*) (NM_016222.2), likely pathogenic (class 4, PVS1+PM2) per authors; co-segregating with two VUS c.404G>T and c.1046T>C in some siblings",
+   "country": "Germany",
+   "citation": "Wagner JN et al. Biomedicines 2023;12(1):64",
+   "pmid": "38255170",
+   "pmcid": "PMC10813731",
+   "doi": "10.3390/biomedicines12010064",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "64"
+      }
+     ],
+     {
+      "ageNow": "64"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "mds",
+       "age": ""
+      },
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "kidney",
+       "hist": "ccrcc",
+       "age": ""
+      }
+     ],
+     {}
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "cll",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'A 64-year-old man presented with an initial diagnosis of AML.' 'The family history revealed that the patient's brother and father had hematologic neoplasms. The brother was diagnosed with acute myeloid leukemia in 2017, which progressed from a previously diagnosed myelodysplastic syndrome (MDS).' 'Next-generation sequencing (NGS) analysis of a stored DNA sample confirmed the DDX41 mutation. Another affected brother is currently diseased with a clear-cell renal cell tumor, and the father had suffered from chronic lymphocytic leukemia (CLL)'. 'both parents are already deceased'. 'The DDX41 variant c.1372G>T leads to ... [p.(Glu458*)] ... assessed as probably disease-relevant (IARC class 4) according to the ACMG evaluation criteria (criteria applied: PVS1, PM2).' Fig 3 pedigree: father CLL (deceased); proband AML; brother sAML; brother clear-cell RCC (carrier dot); three sisters DDX41 mut. (unaffected); one brother and proband's daughter DDX41 neg.",
+   "notes": "No ages given for the relatives' diagnoses. Brother's AML evolved from MDS, so both heme/mds and heme/aml coded with unknown ages. Variant reporting is confusing: Appendix A lists c.1372G>T in 'Brother 1' and other relatives, and two VUS (c.404G>T, c.1046T>C) in all tested siblings; the c.1372G>T nonsense (class 4) is taken as the causal variant. Father not tested (presumed carrier). Unaffected carrier sisters omitted. The 'currently diseased' brother is read as 'currently has' ccRCC (paper's wording); his carrier status is shown as positive on the pedigree."
+  },
+  {
+   "id": "cebpa-eu1",
+   "gene": "CEBPA",
+   "variant": "c.350del p.(Gly117Alafs*43), pathogenic (class 5)",
+   "country": "Belgium",
+   "citation": "Demaret T et al. Front Genet 2025;16:1575651",
+   "pmid": "40313597",
+   "pmcid": "PMC12043886",
+   "doi": "10.3389/fgene.2025.1575651",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "9"
+      },
+      {
+       "site": "polyps",
+       "hist": "adenoma",
+       "age": "41"
+      },
+      {
+       "site": "kidney",
+       "hist": "nos",
+       "age": "41"
+      },
+      {
+       "site": "thyroid",
+       "hist": "mng",
+       "age": "41"
+      },
+      {
+       "site": "feature",
+       "hist": "progeroid",
+       "age": ""
+      }
+     ],
+     {
+      "ageNow": "41"
+     }
+    ],
+    [
+     "sister",
+     "F",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "37"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "38"
+     }
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "12"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "34"
+     }
+    ],
+    [
+     "niece",
+     "F",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "16"
+      }
+     ],
+     {}
+    ],
+    [
+     "niece",
+     "F",
+     [
+      {
+       "site": "heme",
+       "hist": "aml",
+       "age": "16"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'Aged 41, the proband presented with 3 synchronous tumors ... A tubulovillous adenoma (high-grade dysplasia) of the right colic flexure, associated with multiple colon polyps (low-grade dysplasia), and an unclassified renal cell carcinoma were resected ... the patient declined the resection of a hypermetabolic nodule located inside a nodular goiter'. 'His medical history was marked by an AML, at the age of 9'; HSCT at 12 from his older sister. 'He further developed bilateral cataracts (surgically corrected at 26 years)'; 'progeroid appearance ... premature graying of hair ... prematurely aged face, and short stature'. 'Their two eldest children died of AML at the ages of 38 years (AML diagnosed at 37) and 34 years (AML diagnosed at 12) ... The oldest of the two was the donor for the proband's HSCT. She had 3 children, two of whom developed AML before the age of 18.' 'A heterozygous c.350del p.(Gly117Alafs*43) pathogenic variant in the CEBPA gene was found in the proband's urine and blood DNA, and in his affected relatives.' Fig 1B: II.1 female deceased AML; II.2 male deceased AML; II.4 proband; III.1, III.2 (daughters of II.1) AML. Fig 1A timeline: III.1 and III.2 first AML at ~16-17 y.",
+   "notes": "Nieces' AML ages (~16) read off the Fig 1A timeline; text says only 'before the age of 18'. Proband's colon lesions coded as polyps/adenoma (tubulovillous adenoma with HGD plus multiple polyps; count not given) rather than colorectal cancer. RCC 'unclassified' -> kidney/nos. Thyroid hypermetabolic nodule in a nodular goitre was not resected -> thyroid/mng (no cancer diagnosis). Progeroid features/early cataracts coded as feature/progeroid because reported, although the authors attribute them to AML treatment (phenocopy of Werner syndrome; WRN not confirmed). Proband's ageNow taken as 41 (age at presentation). De novo/parental mosaic: mother tested negative; father deceased of non-malignant cause at 66, omitted. The AML-affected brother II.2 is called 'brother' in the abstract; the text says 'two eldest children'."
+  },
+  {
+   "id": "gata2-eu1",
+   "gene": "GATA2",
+   "variant": "c.1163T>C p.(Met388Thr), germline, segregating in four relatives with GATA2 deficiency (authors do not state an ACMG class)",
+   "country": "Spain",
+   "citation": "Romero-Moya D et al. Leukemia 2025;39(4):962-966",
+   "pmid": "39890964",
+   "pmcid": "PMC11976269",
+   "doi": "10.1038/s41375-025-02519-4",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "feature",
+       "hist": "bmf",
+       "age": "29"
+      },
+      {
+       "site": "feature",
+       "hist": "gata2",
+       "age": "31"
+      },
+      {
+       "site": "heme",
+       "hist": "mds",
+       "age": "31"
+      }
+     ],
+     {}
+    ],
+    [
+     "niece",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "mds",
+       "age": "8"
+      }
+     ],
+     {
+      "ageNow": "11"
+     }
+    ]
+   ],
+   "evidence": "'This three-generation GATA2 family presented four members with identical germline GATA2 mutations (p. Met388Thr; c.1163T>C) and variable clinical manifestations.' 'Patient #3 (P3) is a female diagnosed with pancytopenia at age 29 ... Her medical history includes Mycobacterium avium infection, thrombocytopenia, obstetric complications, and an arterial aneurysm. At age 31, she was diagnosed with MonoMac syndrome ... (monocytosis, thrombocytopenia, and anemia) ... lack of NK cells ... Bone marrow (BM) analysis revealed MDS with multilineage dysplasia (MDS-MLD) and trisomy 8'. 'Patient #4 (P4) is a male who was identified as an asymptomatic GATA2 carrier at the age of 6, following the diagnosis of P3 ... He was subsequently diagnosed with myelodysplastic neoplasm with multilineage dysplasia (MDS-MLD), characterized by the acquisition of monosomy 7' (at age 8); 'To date, at age 11'. 'Patient #1 (P1) is a 75-year-old male without clinical features of GATA2 deficiency. Patient #2 (P2) is a 45-year-old male with deafness but no hematological manifestations.' Fig 1A genogram: P1 (father of P2 and P3) asymptomatic carrier; P2 deaf carrier; P3 immunodeficiency + vasculopathy + MDS-MLD; P4 (son of P2) MDS-MLD; P4's brother wild-type.",
+   "notes": "Proband taken as P3, the first diagnosed (P4 was tested 'following the diagnosis of P3'); relationships from the genogram (P1 = father, P2 = brother, P4 = brother's son, coded niece). The paper does not give an ACMG class; it presents the variant as the cause of GATA2 deficiency in the family. Proband's pancytopenia at 29 coded feature/bmf; MonoMAC with M. avium infection coded feature/gata2 at 31 (the paper text says 'monocytosis', probably an error for monocytopenia in MonoMAC; not resolved). Brother's deafness has no code; he and the father are unaffected carriers and are omitted. Proband's current age not stated."
+  },
+  {
+   "id": "ctnna1-eu1",
+   "gene": "CTNNA1",
+   "variant": "c.964_988dup p.(Arg330fs), frameshift, absent from ExAC, considered deleterious by authors (loss of alpha-E-catenin in tumour)",
+   "country": "Netherlands",
+   "citation": "Weren RDA et al. J Med Genet 2018;55(10):669-674",
+   "pmid": "29330337",
+   "pmcid": "PMC6161648",
+   "doi": "10.1136/jmedgenet-2017-104962",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "stomach",
+       "hist": "diffuse",
+       "age": "40"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_gm",
+     "F",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": "56"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'The variant p.Arg330fs was encountered in a Dutch patient with HDGC diagnosed with a diffuse-type GC (poorly cohesive adenocarcinoma, with signet ring cell differentiation, according to the WHO classification) at age 40 (family pedigree provided in figure 1C).' 'Immunohistochemistry for alpha-E-catenin showed loss of protein expression in the tumour cells'. 'Two frameshift variants, p.Asn443fs and p.Arg330fs, were not observed in the control data set and were considered deleterious.' Table 1: '432A HDGC DGC (40 F) GC: 1 (56) CTNNA1 c.964_988dup p.Arg330fs'. Fig 1C pedigree: proband deceased 'DGC 40, Mut+ p.Arg330fs'; mother 'Mut+, 82y' unaffected; maternal grandmother deceased 'GC 56'; proband's daughter Mut+, another child Mut-.",
+   "notes": "Second family in the paper (Polish patient 746A, p.Asn443fs) not included. Maternal grandmother's gastric cancer histology not stated -> stomach/nos. Proband shown deceased on the pedigree; age at death not given. Unaffected carrier mother (82) and unaffected children/siblings omitted. Authors do not give an ACMG class; they call the frameshift 'deleterious' and confirm CTNNA1 as a GC susceptibility gene."
+  },
+  {
+   "id": "mbd4-eu1",
+   "gene": "MBD4",
+   "variant": "c.939dup p.(Glu314Argfs*13) (NM_003925.2), homozygous (biallelic loss of function; MBD4-associated neoplasia syndrome)",
+   "country": "UK (Cardiff, Wales)",
+   "citation": "Palles C et al. Am J Hum Genet 2022;109(5):953-960",
+   "pmid": "35460607",
+   "pmcid": "PMC9118112",
+   "doi": "10.1016/j.ajhg.2022.03.018",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "polyps",
+       "hist": "adenoma",
+       "age": "53",
+       "count": "33"
+      },
+      {
+       "site": "eye",
+       "hist": "uveal",
+       "age": "53"
+      },
+      {
+       "site": "feature",
+       "hist": "renal_cysts",
+       "age": "53"
+      }
+     ],
+     {}
+    ],
+    [
+     "brother",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "52"
+      },
+      {
+       "site": "heme",
+       "hist": "other",
+       "age": "60"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ]
+   ],
+   "evidence": "'the other (CRDFF-292:II-3) was homozygous for an adenine duplication (GenBank: NM_003925.2: c.939dup [p.Glu314Argfs*13]; Figure S1B).' Table 1: 'CRDFF-292-1:II-3 c.939dup (homozygous) p.Glu314Argfs*13 M UVM (53) 33 A liver cysts (53), bilateral small renal cysts (53)'. Fig 1B legend: 'For colorectal adenomas, we show the total tumor numbers identified from panproctocolectomy at age 53'. Fig 1B pedigree Family CRDFF-292: I-1 father deceased 'SC (>50)'; II-1 brother deceased 'CRC (52) Leukemia (60)'; II-2 brother unaffected; II-3 proband M2/M2 '33 Ads (53) UVM (53)'; mother deceased, unaffected. Supplementary cohort table: Cardiff polyposis cohort, 'c.939dup; homozygous (n = 1)'; acknowledgements thank 'expert colonoscopists in Cardiff'.",
+   "notes": "Family chosen from four in the paper (others: Family D, CRDFF-336 and DB1; Australian/Dutch AML cases not used). Country from the Cardiff cohort (Wales Gene Park; the supplementary table prints 'Cardiff, England'). Brother's 'Leukemia (60)' type not given -> heme/other; his CRC histology not given -> colorectal/nos; brother not tested. Father's stomach cancer 'SC (>50)': age only '>50', entered as unknown. Proband's bilateral small renal cysts and liver cysts reported in Table 1; coded feature/renal_cysts as reported, although small renal cysts are common and not specific. Proband's current age not stated (diagnoses at 53)."
+  },
+  {
+   "id": "kit-eu1",
+   "gene": "KIT",
+   "variant": "p.(Asn655Lys) (N655K), KIT exon 13, T-to-G transversion at codon 655 (c. notation not given); germline, reported as causing familial GIST (no ACMG class given)",
+   "country": "Italy",
+   "citation": "Fornasarig M et al. J Pers Med 2020;10(4):234",
+   "pmid": "33212994",
+   "pmcid": "PMC7711910",
+   "doi": "10.3390/jpm10040234",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "sarcoma",
+       "hist": "gist",
+       "age": "52"
+      },
+      {
+       "site": "breast",
+       "hist": "dcis",
+       "age": "43",
+       "er": "pos"
+      },
+      {
+       "site": "thyroid",
+       "hist": "papillary",
+       "age": "53"
+      }
+     ],
+     {
+      "ageNow": "53"
+     }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "sarcoma",
+       "hist": "gist",
+       "age": "72"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "74"
+     }
+    ],
+    [
+     "m_other",
+     "M",
+     [
+      {
+       "site": "sarcoma",
+       "hist": "gist",
+       "age": "59"
+      }
+     ],
+     {}
+    ],
+    [
+     "father",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "62"
+     }
+    ],
+    [
+     "p_uncle",
+     "M",
+     [
+      {
+       "site": "lung",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "77"
+     }
+    ],
+    [
+     "p_cousin",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "50"
+      }
+     ],
+     {}
+    ],
+    [
+     "p_cousin_child",
+     "M",
+     [
+      {
+       "site": "testis",
+       "hist": "nos",
+       "age": "18"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'In March 2019, a 52-year-old woman was referred for genetic counseling after a diagnosis of multifocal GIST. She displayed diffuse freckles on her arms, legs, and trunk ... She had a history of estrogen-receptor-positive intraductal breast carcinoma diagnosed at the age of 43.' 'A papillary thyroid carcinoma, follicular variant, was diagnosed in January 2020.' 'Their mother died in 2012 at the age of 74 of metastatic GIST. She presented with multifocal intestinal GIST ... Sequencing of tumor DNA revealed the same KIT N655K mutation'. 'In 2000, the maternal second-degree cousin of the index case (II-1 at pedigree) was diagnosed at the age of 59 with multiple gastric and small-bowel mesenchymal malignant neoplasms compatible with GIST ... Molecular analysis revealed a KIT exon 13 N655K mutation'. 'The index case's uncle (mother's brother) and the maternal grandmother died of abdominal malignancy of unknown site and pathology (NOS). Colon cancer appeared as a recurrent event in the proband's paternal branch.' 'Analysis of peripheral blood DNA highlighted the presence of the same KIT N655K mutation'. Fig 1C pedigree: II-1 GIST (59y), son of I-1 (deceased 68y, abdominal cancer NOS), who is the sibling of the maternal grandmother I-2 (deceased 63y, abdominal cancer NOS); II-2 maternal uncle abdominal cancer NOS; mother II-4 GIST (72y); father II-5 colon, died 62y; paternal uncle II-7 lung, died 77y; his son colon (50y); that cousin's son testis (18y).",
+   "notes": "The GIST-affected relative II-1 is the mother's first cousin (son of the maternal grandmother's brother), called 'second-degree cousin' in the text; no code exists, so coded m_other. Maternal grandmother, maternal great-uncle (I-1) and maternal uncle had 'abdominal malignancy of unknown site and pathology' with no usable site code, so they are not entered. 'Intraductal breast carcinoma' read as DCIS (could be invasive ductal; paper does not say invasive). Thyroid cancer coded at 53 (diagnosed Jan 2020, ten months after she was 52). Paternal-side histologies not given: colon -> colorectal/nos, lung -> lung/nos, testis -> testis/gct (type not stated; the vocabulary has no testis 'unknown' code and germ cell tumour is the usual testicular cancer at 18). Father's and paternal uncle's ages are ages at death. Proband's diffuse freckling not coded (no matching code). [18 Oct 2026: testicular cancer recoded as the new 'type not known' option.]"
+  },
+  {
+   "id": "grem1-eu1",
+   "gene": "GREM1",
+   "variant": "16,229 bp tandem duplication upstream of GREM1 including the 3' part of SCG5 (chr15:32,986,220-33,002,449, GRCh37), heterozygous; disease-causing per authors (increased GREM1 expression in colon mucosa)",
+   "country": "Sweden",
+   "citation": "Rohlin A et al. Genes Chromosomes Cancer 2016;55(1):95-106",
+   "pmid": "26493165",
+   "pmcid": "PMC5057327",
+   "doi": "10.1002/gcc.22314",
+   "people": [
+    [
+     "proband",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "28",
+       "count": "7"
+      }
+     ],
+     {}
+    ],
+    [
+     "daughter",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "adenoma",
+       "age": "25"
+      }
+     ],
+     {}
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "52",
+       "count": "6"
+      },
+      {
+       "site": "polyps",
+       "hist": "serrated",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "33"
+      },
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "51"
+      },
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "51"
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_aunt",
+     "F",
+     [
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_gf",
+     "M",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": ""
+      },
+      {
+       "site": "heme",
+       "hist": "lymphoma",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_great",
+     "M",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": ""
+      },
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_ggp",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_other",
+     "F",
+     [
+      {
+       "site": "stomach",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
+    ],
+    [
+     "m_other",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "47"
+      },
+      {
+       "site": "breast",
+       "hist": "nos",
+       "age": "61"
+      }
+     ],
+     {}
+    ],
+    [
+     "m_other",
+     "F",
+     [
+      {
+       "site": "colorectal",
+       "hist": "nos",
+       "age": "66"
+      }
+     ],
+     {}
+    ],
+    [
+     "m_other",
+     "F",
+     [
+      {
+       "site": "polyps",
+       "hist": "nos",
+       "age": "26"
+      }
+     ],
+     {}
+    ]
+   ],
+   "evidence": "'we have identified a duplication in the regulatory region of the GREM1 gene in a family with an attenuated/atypical polyposis syndrome ... The duplication of 16 kb in the regulatory region of GREM1 was found to be disease-causing in the family.' 'Family member IV:2 had follow-ups since the age of 21 and due to polyps a prophylactic IRA (ileo-rectal anastomosis) was performed at age 28. The histological examination showed one polyp in the rectum and six in the transverse colon'. 'Family member V:2 ... At the age of 25 coloscopy showed tubular and tubulovillous adenomas'. 'Family member III:2 had a colectomy at the age of 52 where histological examinations detected five polyps in the colon and a 4 cm polyp ... Metaplastic polyps in the rectum were also found on multiple follow-ups. Family member III:3 was operated for cancer in the transverse colon at the age of 33 ... 18 years later polyps in the left flexure and in the rectum were found and she had CRC at age 51. ... The sister of the twin sisters (III:4) was afflicted with breast cancer, their father (II:2) with gastric cancer and lymphosarcoma, and a cousin (III:6) with gastric cancer. A grandchild (V:8) had polyps (colectomy at 26 years of age) as had her mother (IV:6) (colectomy at 47 years of age) who also developed breast cancer at 61 years of age. Her sister (IV:5) was afflicted with CRC at age 66 without polyps ... probably can be considered as sporadic.' Fig 1 pedigree: I:2 colorectal polyps (deceased); II:4 (brother of II:2) colorectal polyps + colorectal cancer, deceased; III:6 (daughter of II:4) gastric cancer, deceased; carriers (+) IV:2, V:2, IV:6, V:8; IV:5 (CRC) and IV:4, IV:7, V:1 non-carriers (-).",
+   "notes": "The paper names no proband; IV:2 (first family member described, duplication carrier, sequenced) taken as proband and all relationships coded from her: V:2 daughter, III:2 mother, III:3 and III:4 maternal aunts (III:2 and III:3 are twins), II:2 maternal grandfather, II:4 maternal great-uncle, I:2 maternal great-grandmother. III:6 (mother's first cousin), IV:5 and IV:6 (second cousins) and V:8 (second cousin's daughter) have no specific code -> m_other. IV:5's CRC at 66 is entered although she does NOT carry the duplication (authors consider it sporadic). Proband's 7 polyps (histology 'basophilic epithelium', type not stated) -> polyps/nos count 7 at 28. Mother: 5 polyps + one 4 cm polyp at colectomy (count 6, type not stated) plus rectal metaplastic (hyperplastic) polyps -> polyps/serrated, age unknown. Polyp types in the family are described as mixed (adenomatous, juvenile-like, metaplastic) but the paper does not give a histology per person, so polyps/nos used except where stated. Maternal grandfather's 'lymphosarcoma' coded heme/lymphoma. Deceased status from pedigree slashes; ages at death not given. Pedigree quadrants for I:2 and II:4 read from the figure."
+  },
+  {
+   "id": "nbn-eu1",
+   "gene": "NBN",
+   "variant": "c.657_661del5 (c.657del5) homozygous, Slavic founder truncating variant (Nijmegen breakage syndrome)",
+   "country": "Belarus",
+   "citation": "Sharapova SO et al. Cent Eur J Immunol 2020;45(4):507-510",
+   "pmid": "33658897",
+   "pmcid": "PMC7882413",
+   "doi": "10.5114/ceji.2020.103387",
+   "people": [
+    [
+     "proband",
+     "M",
+     [
+      {
+       "site": "feature",
+       "hist": "microcephaly",
+       "age": "0"
+      },
+      {
+       "site": "heme",
+       "hist": "all",
+       "age": "3"
+      }
+     ],
+     {
+      "ageNow": "5"
+     }
+    ],
+    [
+     "m_halfsib",
+     "M",
+     [
+      {
+       "site": "heme",
+       "hist": "lymphoma",
+       "age": "16"
+      }
+     ],
+     {
+      "deceased": true,
+      "ageDeath": "16"
+     }
+    ]
+   ],
+   "evidence": "'The third male was born at term after the fifth pregnancy in second marriage with microcephaly and typical craniofacial features ... mutational analysis of NBN gene revealed homozygous 5 base-pair deletion (del657A) after birth and resequencing of exon 5 of NBN gene in the second husband, confirmed the heterozygous carrier'. 'P2 developed cortical T-ALL at the age of 3 years ... treated with hematopoietic stem cell transplant (HSCT) at the age of 4 years. After 350 postransplant days, severe complications were not observed.' Patient 1: 'A 16-year-old male was admitted to the intensive care unit ... Peripheral T-cell lymphoma of grade III was established.' 'The patient died ... 5 months after the diagnosis.' 'The diagnosis of NBS was established after his death.' 'We present a repeated NBS in two sons from one woman after two marriages.' Fig 1A: P1 first son (first marriage) died of lymphoma; P2 proband third son with NBS (second marriage); healthy carrier brother C1; male fetus F3 with NBS (terminated).",
+   "notes": "Recessive condition: half-brother P1 shares only the mother; the paper calls him a son 'with NBS' (diagnosis made after death) but does not state how his genotype was confirmed. Microcephaly at birth coded feature/microcephaly with age 0. Proband's current age (~5) derived from HSCT at 4 plus 350 days. P1's age at death ~16-17 (died 5 months after diagnosis at 16) entered as 16. Healthy carrier brother and fetuses omitted (male fetus F3 had NBS on prenatal diagnosis; pregnancy terminated). Parents are heterozygous carriers (no cancer reported)."
+  }
+ ]
+}

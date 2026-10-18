@@ -127,11 +127,11 @@ const SITES = {
     ['adeno', 'Adenocarcinoma'], ['highrisk', 'Metastatic or high-grade (Gleason ≥8)'],
     ['ductal', 'Intraductal / ductal']] },
   testis: { label: 'Testis', hist: [
-    ['gct', 'Germ cell tumour'], ['lccsct', 'Large cell calcifying Sertoli cell tumour']] },
+    ['gct', 'Germ cell tumour'], ['lccsct', 'Large cell calcifying Sertoli cell tumour'], ['nos', 'Testicular cancer – type not known']] },
   thyroid: { label: 'Thyroid', hist: [
     ['medullary', 'Medullary'], ['papillary', 'Papillary'],
     ['cmv', 'Cribriform-morular variant papillary'], ['follicular', 'Follicular'],
-    ['mng', 'Multinodular goitre (benign)']] },
+    ['mng', 'Multinodular goitre (benign)'], ['nos', 'Thyroid cancer – type not known']] },
   parathyroid: { label: 'Parathyroid', hist: [
     ['adenoma', 'Adenoma / primary hyperparathyroidism'], ['carcinoma', 'Carcinoma']] },
   pituitary: { label: 'Pituitary', hist: [
@@ -145,7 +145,7 @@ const SITES = {
     ['gastric', 'Gastric NET'], ['duodenal_som', 'Duodenal / ampullary somatostatinoma'],
     ['nos', 'Other / unknown']] },
   cns: { label: 'Brain / CNS', hist: [
-    ['hgg', 'High-grade glioma / glioblastoma'], ['lgg', 'Low-grade glioma / pilocytic astrocytoma'],
+    ['hgg', 'High-grade glioma / glioblastoma'], ['lgg', 'Low-grade glioma / pilocytic astrocytoma'], ['glioma_nos', 'Glioma – grade not known'],
     ['optic', 'Optic pathway glioma'], ['medullo_shh', 'Medulloblastoma – SHH'],
     ['medullo_wnt', 'Medulloblastoma – WNT'], ['medullo_nos', 'Medulloblastoma – group 3/4 / unknown'],
     ['cpc', 'Choroid plexus carcinoma'], ['atrt', 'Atypical teratoid / rhabdoid tumour'],
@@ -153,7 +153,7 @@ const SITES = {
     ['vs', 'Vestibular schwannoma'], ['schwannoma', 'Non-vestibular schwannoma'],
     ['ependymoma', 'Ependymoma (spinal)'], ['hb', 'Haemangioblastoma (CNS / retinal)'],
     ['sega', 'Subependymal giant cell astrocytoma'], ['pineoblastoma', 'Pineoblastoma'],
-    ['germ', 'Germ cell tumour (intracranial)'], ['cribriform', 'Cribriform neuroepithelial tumour']] },
+    ['germ', 'Germ cell tumour (intracranial)'], ['cribriform', 'Cribriform neuroepithelial tumour'], ['nos', 'Brain tumour – type not known']] },
   eye: { label: 'Eye', hist: [['rb', 'Retinoblastoma'], ['uveal', 'Uveal melanoma']] },
   skin: { label: 'Skin', markers: MMR_MARKERS, hist: [
     ['melanoma', 'Cutaneous melanoma'], ['bcc', 'Basal cell carcinoma'],
@@ -253,7 +253,16 @@ const SIDE_LABELS = {
   nb: { '': 'Unknown', one: 'Single', both: 'Bilateral', multi: 'Multiple' },
   eye: { '': 'Unknown', one: 'One eye', both: 'Both eyes', multi: 'Multifocal (one eye)' }
 };
-const COUNTED = { skin: '*', sarcoma: '*', feature: 'bimt|cutleio|pilomatrixoma', cns: 'schwannoma|meningioma|meningioma_cc' };
+const COUNTED = { skin: '*', sarcoma: '*', feature: 'bimt|cutleio|pilomatrixoma', cns: 'schwannoma|meningioma|meningioma_cc|hb' };
+// "Type not known" options: they match the rules for the types they could be, at a lower strength – one step lower
+// (steps: 1), two steps, or no higher than a tier (cap) – and only from a minimum count where one is given.
+// Common types only: an unknown thyroid cancer is not counted as medullary, nor an unknown brain tumour as a rare type.
+const HIST_UNKNOWN = {
+  cns: { glioma_nos: { from: ['hgg', 'lgg'], steps: 1 }, nos: { from: ['hgg', 'lgg', 'medullo_nos'], steps: 2 } },
+  thyroid: { nos: { from: ['papillary', 'follicular'], steps: 1 } },
+  testis: { nos: { from: ['gct'], steps: 1 } },
+  polyps: { nos: { from: ['adenoma'], cap: 'M', minCount: 10 } }
+};
 const sideOptions = d => { const l = LATERALITY[d.site]; return l && (l[0] === '*' || l[0].split('|').includes(d.hist)) ? l[1] : null; };
 const MARKER_HISTS = { ovgrade: ['endometrioid', 'nos'] };
 const showMarker = (m, d) => !MARKER_HISTS[m] || MARKER_HISTS[m].includes(d.hist);

@@ -2817,7 +2817,7 @@
        "site": "cns",
        "hist": "hb",
        "age": "12",
-       "side": "both"
+       "count": "2"
       }
      ],
      {
@@ -2840,7 +2840,7 @@
     ]
    ],
    "evidence": "Results, Case II:1 (proband): 32-year-old female, 'had previously undergone the operation for cerebellar hemangioblastoma 3 years ago'; fundus showed several retinal hemangioblastomas in the left eye. Case III:1: asymptomatic 6-year-old son, very small retinal hemangioblastoma right eye. Case III:2: 12-year-old daughter, small hemangioblastoma right eye and sizeable hemangioblastoma left eye. Case I:2: mother 'had blindness in one eye and died of renal carcinoma' (not tested). Genotyping: W117R in all 3 living affected (II:1, III:1, III:2), absent in 4 unaffected relatives.",
-   "notes": "Proband's cerebellar haemangioblastoma age (29) is derived from '32-year-old ... 3 years ago'. Retinal haemangioblastomas coded as cns/hb (code covers CNS/retinal); proband's retinal lesions recorded at age 32 (presentation age; onset of blurred vision 2 years earlier). Daughter's lesions were in both eyes, so side 'both'. Mother's renal carcinoma subtype and age not stated; her unilateral blindness is not attributed to a tumour in the paper, so not coded. Unaffected tested relatives (I:1, II:2, II:3, II:5) omitted."
+   "notes": "Proband's cerebellar haemangioblastoma age (29) is derived from '32-year-old ... 3 years ago'. Retinal haemangioblastomas coded as cns/hb (code covers CNS/retinal); proband's retinal lesions recorded at age 32 (presentation age; onset of blurred vision 2 years earlier). Daughter's lesions were in both eyes, so side 'both'. Mother's renal carcinoma subtype and age not stated; her unilateral blindness is not attributed to a tumour in the paper, so not coded. Unaffected tested relatives (I:1, II:2, II:3, II:5) omitted. [18 Oct 2026: bilateral haemangioblastomas entered as count 2 – the form offers a number, not sides, for haemangioblastoma.]"
   },
   {
    "id": "vhl-2",
@@ -3027,14 +3027,13 @@
       {
        "site": "ppgl",
        "hist": "hn",
-       "age": "",
-       "side": "both"
+       "age": ""
       }
      ]
     ]
    ],
    "evidence": "Subjects and methods: 'The proband (II-4), a 31-year-old male, presented with a left-sided glomus jugulare tumor and a right carotid body paraganglioma. His father (I-1) and eldest sister (II-1) were diagnosed with right-sided carotid body tumors, while his third sister (II-3) had bilateral carotid body tumors.' Results: p.R22X identified in the patient and the three other affected family members; one third-generation child (III-4) carries it, inherited from II-3 (no tumour). I-2, II-2 and III-1 to III-5 had no tumours.",
-   "notes": "Proband's two head and neck PGLs: left jugular foramen (glomus jugulare) paraganglioma, resected; right carotid body PGL under observation. The abstract instead says 'left parotid gland tumor' - the main text and imaging describe a jugular foramen tumour, used here. Ages at diagnosis for father and sisters not stated. Eldest sister (II-1) right carotid body tumour; third sister (II-3) bilateral carotid body tumours. Mutation-carrying niece/nephew III-4 (sex not stated, unaffected) omitted."
+   "notes": "Proband's two head and neck PGLs: left jugular foramen (glomus jugulare) paraganglioma, resected; right carotid body PGL under observation. The abstract instead says 'left parotid gland tumor' - the main text and imaging describe a jugular foramen tumour, used here. Ages at diagnosis for father and sisters not stated. Eldest sister (II-1) right carotid body tumour; third sister (II-3) bilateral carotid body tumours. Mutation-carrying niece/nephew III-4 (sex not stated, unaffected) omitted. [18 Oct 2026: 'both sides' removed from the paraganglioma – the form offers no side for paraganglioma; it had no effect on the results.]"
   },
   {
    "id": "sdhd-2",
@@ -3052,8 +3051,7 @@
       {
        "site": "ppgl",
        "hist": "hn",
-       "age": "23",
-       "side": "both"
+       "age": "23"
       },
       {
        "site": "adrenal",
@@ -3073,8 +3071,7 @@
       {
        "site": "ppgl",
        "hist": "hn",
-       "age": "37",
-       "side": "both"
+       "age": "37"
       },
       {
        "site": "ppgl",
@@ -3106,14 +3103,13 @@
       {
        "site": "ppgl",
        "hist": "hn",
-       "age": "",
-       "side": "both"
+       "age": ""
       }
      ]
     ]
    ],
    "evidence": "Case presentations. Index subject (III-1): male, presented at 23 with bilateral Shamblin III carotid body tumours; multiple lung metastases at 31; at 33 a 3.8 cm right and 2.6 cm left phaeochromocytoma (bilateral adrenalectomy); pulmonary capillary haemangioma at 34; 'through the present (50-year-old)'. Subject III-4 (sister, carrier): at 37, right and left carotid body tumours and a left glomus vagal tumour. Subject IV-3 (son, carrier): 2 cm right phaeochromocytoma at 8; at 20 a 1.8 cm neck mass between left ICA and IJV, 'This is likely a paraganglioma.' Subject I-2 (paternal grandmother of index): known carrier; 'By history, she had bilateral paragangliomas and lived over 95 years.'",
-   "notes": "No PMID found (PMC idconv returns DOI/PMCID only). Proband's carotid body tumours had distant (lung) metastases from age 31; his pulmonary capillary haemangioma (age 34) and persistently raised calcitonin are not coded (no matching code / no tumour diagnosis). Sister: bilateral carotid body tumours plus a separate left vagal PGL, all at 37. Son's neck PGL at 20 is radiologically 'likely', not histologically confirmed. Paternal grandmother's 'bilateral paragangliomas' site not stated in text; coded head and neck (bilateral) as the most plausible reading - verify against the pedigree figure (filled upper half = head/neck PGL). Her vital status/age not coded ('lived over 95 years'). Eight carriers in four generations in total; other carriers not described clinically."
+   "notes": "No PMID found (PMC idconv returns DOI/PMCID only). Proband's carotid body tumours had distant (lung) metastases from age 31; his pulmonary capillary haemangioma (age 34) and persistently raised calcitonin are not coded (no matching code / no tumour diagnosis). Sister: bilateral carotid body tumours plus a separate left vagal PGL, all at 37. Son's neck PGL at 20 is radiologically 'likely', not histologically confirmed. Paternal grandmother's 'bilateral paragangliomas' site not stated in text; coded head and neck (bilateral) as the most plausible reading - verify against the pedigree figure (filled upper half = head/neck PGL). Her vital status/age not coded ('lived over 95 years'). Eight carriers in four generations in total; other carriers not described clinically. [18 Oct 2026: 'both sides' removed from the paragangliomas – the form offers no side for paraganglioma; it had no effect on the results.]"
   },
   {
    "id": "ret-1",
