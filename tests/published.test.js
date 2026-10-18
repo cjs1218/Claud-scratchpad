@@ -33,7 +33,7 @@ for (const c of cases) {
 if (bad.length) { console.log(bad.join('\n')); process.exit(1); }
 if (!cases.length) { console.log('Published cases: none yet'); process.exit(0); }
 
-let BASE = process.argv[2];
+let BASE = process.argv.slice(2).find(a => !a.startsWith('--'));
 (async () => {
   const server = BASE ? null : await require('./static-server.js')(ROOT);
   if (!BASE) BASE = server.url + NAV_PATH;
