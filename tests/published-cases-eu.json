@@ -311,8 +311,8 @@
      "M",
      [
       {
-       "site": "smallbowel",
-       "hist": "nos",
+       "site": "biliary",
+       "hist": "ampullary",
        "age": "53"
       },
       {
@@ -339,7 +339,7 @@
     ]
    ],
    "evidence": "'a Hispanic woman ... diagnosed in 2015 with 65 years old of localised CM in the right leg'. 'Her family history includes a mother who died probably due to a neoplasia in the head of the pancreas (without pathological confirmation), a son ... diagnosed in 2005, with 24 years old, and localised CM in the left arm ... One of his brothers was diagnosed with ampulloma when he was 53 years old and CM 10 years later, when he was 63 years old.' 'it was tested in the first-degree relatives, resulting positive for ATM c.3747-1G>C; his son was diagnosed with CM at the age of 24. The brother diagnosed with CM when he was 68 years old refused genetic testing.' Málaga, Spain centre.",
-   "notes": "'One of his brothers' read as the proband's brother (the next paragraph and discussion call him 'the patient's brother'). Brother's melanoma age given as 63 in one place and 68 in another; 63 used (stated with the 10-year interval). Ampulloma coded as small bowel/duodenum nos (ampullary tumour; malignancy/histology not specified). Mother's pancreatic cancer was 'probable' and unconfirmed by pathology; included with nos histology. Family described as 'Hispanic' but seen in Málaga, Spain; country recorded as Spain."
+   "notes": "'One of his brothers' read as the proband's brother (the next paragraph and discussion call him 'the patient's brother'). Brother's melanoma age given as 63 in one place and 68 in another; 63 used (stated with the 10-year interval). Ampulloma coded as small bowel/duodenum nos (ampullary tumour; malignancy/histology not specified). Mother's pancreatic cancer was 'probable' and unconfirmed by pathology; included with nos histology. Family described as 'Hispanic' but seen in Málaga, Spain; country recorded as Spain. [18 Oct 2026, new form options: brother's ampulloma recoded as ampullary carcinoma.]"
   },
   {
    "id": "rad51c-eu1",
@@ -521,7 +521,7 @@
      [
       {
        "site": "sarcoma",
-       "hist": "sts",
+       "hist": "nos",
        "age": "11"
       }
      ],
@@ -628,7 +628,7 @@
     ]
    ],
    "evidence": "'We describe the case of a 57-year-old woman with BC'. 'The patient was affected with left breast BC at 53 years ... infiltrating ductal carcinoma ... positive for the estrogen receptor (ER 60%), the progesterone receptor (PgR 60%) ... and Her2 (3+).' 'her brother was affected with sarcoma at 11 years of age and died a few months after the diagnosis. The father, who died at 78 years, was affected with CC, diagnosed at 63 years. Moreover, two paternal uncles, both dead, were affected by CC developed at 60 and 74 years respectively. In addition, a paternal aunt developed gastric cancer (GC) at 72 years, and a paternal cousin, 38 years old, was affected with BC diagnosed at 38 years. On the maternal side, two uncles, 78 and 85 years of age, were affected with BC diagnosed at 53 and 60 years, respectively.' 'the same BRIP1 mutation in the healthy mother of 83 years, and the same MUTYH mutation in the paternal cousin with BC.'",
-   "notes": "Dual finding: the authors attribute the paternal-side cancers (colorectal, gastric, cousin's breast) to the monoallelic MUTYH variant and the maternal-side cancers (two male breast cancers) to BRIP1; the brother's sarcoma side is uncertain. Gene recorded as BRIP1 per assignment, but the family is mixed. Brother's sarcoma type not stated – coded 'other soft tissue sarcoma' (could be bone). Maternal 'uncles' with breast cancer taken as male as written. Unaffected carrier mother omitted."
+   "notes": "Dual finding: the authors attribute the paternal-side cancers (colorectal, gastric, cousin's breast) to the monoallelic MUTYH variant and the maternal-side cancers (two male breast cancers) to BRIP1; the brother's sarcoma side is uncertain. Gene recorded as BRIP1 per assignment, but the family is mixed. Brother's sarcoma type not stated – coded 'other soft tissue sarcoma' (could be bone). Maternal 'uncles' with breast cancer taken as male as written. Unaffected carrier mother omitted. [18 Oct 2026, new form options: brother's sarcoma of unstated type recoded \"type not known\".]"
   },
   {
    "id": "bard1-eu1",
@@ -3207,7 +3207,7 @@
      [
       {
        "site": "headneck",
-       "hist": "scc",
+       "hist": "nos",
        "age": ""
       }
      ],
@@ -3239,7 +3239,7 @@
     ]
    ],
    "evidence": "Patient 1: 'referred to our cancer genetics clinic at the age of 54 ... The patient developed a hormone-positive, Her-2-negative breast cancer aged 47.' 'At age 48, she was diagnosed with an ovarian tumor, which proved to be a mucinous cystadenoma'. 'she had less than six café-au-lait spots. In addition, axillary freckling was observed. She had numerous cutaneous fibromas' later 'reclassified into neurofibromas'. 'her mother was said to have skin manifestations, similar to those seen in the daughter. The patient's sister ... had no signs of NF1. The patient's father developed an oropharyngeal carcinoma, her paternal grandmother had a uterine carcinoma, and her paternal uncle was diagnosed with lung cancer (see Figure 1A).'",
-   "notes": "Substitute gene: no UK/European case with a confirmed germline TSC1/TSC2 variant and a described family could be found, so NF1 was used. The paper describes two unrelated patients; only patient 1 (the one with cancer and a family cancer history) is entered. Breast histology not stated; 'hormone-positive' entered as ER positive (PR not separately stated). Father's oropharyngeal carcinoma coded headneck scc as a placeholder (histology not stated; headneck has only an scc code). Paternal grandmother's 'uterine carcinoma' coded uterus nos. No ages for relatives. Mother possibly affected with NF1 skin signs (not tested) – not coded. Benign mucinous cystadenoma not coded. ageNow 55 is the latest age mentioned (haemothorax at 55)."
+   "notes": "Substitute gene: no UK/European case with a confirmed germline TSC1/TSC2 variant and a described family could be found, so NF1 was used. The paper describes two unrelated patients; only patient 1 (the one with cancer and a family cancer history) is entered. Breast histology not stated; 'hormone-positive' entered as ER positive (PR not separately stated). Father's oropharyngeal carcinoma coded headneck scc as a placeholder (histology not stated; headneck has only an scc code). Paternal grandmother's 'uterine carcinoma' coded uterus nos. No ages for relatives. Mother possibly affected with NF1 skin signs (not tested) – not coded. Benign mucinous cystadenoma not coded. ageNow 55 is the latest age mentioned (haemothorax at 55). [18 Oct 2026, new form options: father's oropharyngeal cancer of unstated histology recoded \"type not known\".]"
   },
   {
    "id": "ptch1-eu1",
@@ -3509,7 +3509,7 @@
      [
       {
        "site": "heme",
-       "hist": "other",
+       "hist": "leuk_nos",
        "age": ""
       }
      ],
@@ -3539,7 +3539,7 @@
      [
       {
        "site": "prostate",
-       "hist": "adeno",
+       "hist": "nos",
        "age": ""
       }
      ],
@@ -3550,7 +3550,7 @@
     ]
    ],
    "evidence": "'A 43 years-old male was admitted ... in November 2022 because of leucocytosis and thrombocytopenia ... The final diagnosis was AML.' After MUD transplant May 2023, 'after three months, the BM was massively infiltrated by 97% of blasts positive for immature and T cell lineage antigens' -> T-ALL; 'The patient died at the end of August 2023.' 'the proband's mother, aged 72, was under treatment in another Centre because of refractory AML, and the grandfather from the maternal side had died at the age of 70 because of undefined leukemia.' 'Germline and somatic analysis in both the proband and his mother identified the same germline c.681dup, p.(Leu228ThrfsTer33), RUNX1 variant ... classification resulted as pathogenic'. 'typical FDP features, such as thrombocytopenia, bleeding, and/or bruising, did not emerge from our patient medical history.' Fig 1 pedigree: father (II) deceased 75 'CNS Ca.'; paternal uncle deceased 82 'Prostate Ca.'; maternal grandfather deceased 70 leukaemia; mother AML (72) RUNX1 +/-; proband AML -> T-ALL (43); healthy brother (47) RUNX1 wild-type.",
-   "notes": "Proband's T-ALL (post-transplant, host-derived) coded heme/all at 43 (diagnosed ~Aug 2023, age not restated; probably still 43) and ageDeath 43 is derived from the timeline. Maternal grandfather's 'undefined leukemia' coded heme/other with unknown age (only age at death 70 given). Father's 'CNS Ca.' (pedigree only, type unknown) is NOT coded because the vocabulary has no non-specific CNS code; he is listed with no diagnoses so his death is recorded. Paternal uncle's prostate cancer coded prostate/adeno as the usual type (paper says only 'Prostate Ca.'); age at diagnosis unknown. Mother and maternal siblings have Friedreich ataxia (FXN), not coded. Proband's thrombocytopenia at presentation was due to leukaemia; no FPD history, so feature/thrombocytopenia not coded. Healthy brother omitted. [18 Oct 2026: father's 'CNS Ca.' added with the new 'Brain tumour – type not known' option.]"
+   "notes": "Proband's T-ALL (post-transplant, host-derived) coded heme/all at 43 (diagnosed ~Aug 2023, age not restated; probably still 43) and ageDeath 43 is derived from the timeline. Maternal grandfather's 'undefined leukemia' coded heme/other with unknown age (only age at death 70 given). Father's 'CNS Ca.' (pedigree only, type unknown) is NOT coded because the vocabulary has no non-specific CNS code; he is listed with no diagnoses so his death is recorded. Paternal uncle's prostate cancer coded prostate/adeno as the usual type (paper says only 'Prostate Ca.'); age at diagnosis unknown. Mother and maternal siblings have Friedreich ataxia (FXN), not coded. Proband's thrombocytopenia at presentation was due to leukaemia; no FPD history, so feature/thrombocytopenia not coded. Healthy brother omitted. [18 Oct 2026: father's 'CNS Ca.' added with the new 'Brain tumour – type not known' option.] [18 Oct 2026, new form options: grandfather's undefined leukaemia recoded \"Leukaemia – type not known\"; uncle's prostate cancer recoded \"type not known\".] [18 Oct 2026, new form options: ]"
   },
   {
    "id": "ddx41-eu1",
@@ -3861,7 +3861,7 @@
       },
       {
        "site": "heme",
-       "hist": "other",
+       "hist": "leuk_nos",
        "age": "60"
       }
      ],
@@ -3885,7 +3885,7 @@
     ]
    ],
    "evidence": "'the other (CRDFF-292:II-3) was homozygous for an adenine duplication (GenBank: NM_003925.2: c.939dup [p.Glu314Argfs*13]; Figure S1B).' Table 1: 'CRDFF-292-1:II-3 c.939dup (homozygous) p.Glu314Argfs*13 M UVM (53) 33 A liver cysts (53), bilateral small renal cysts (53)'. Fig 1B legend: 'For colorectal adenomas, we show the total tumor numbers identified from panproctocolectomy at age 53'. Fig 1B pedigree Family CRDFF-292: I-1 father deceased 'SC (>50)'; II-1 brother deceased 'CRC (52) Leukemia (60)'; II-2 brother unaffected; II-3 proband M2/M2 '33 Ads (53) UVM (53)'; mother deceased, unaffected. Supplementary cohort table: Cardiff polyposis cohort, 'c.939dup; homozygous (n = 1)'; acknowledgements thank 'expert colonoscopists in Cardiff'.",
-   "notes": "Family chosen from four in the paper (others: Family D, CRDFF-336 and DB1; Australian/Dutch AML cases not used). Country from the Cardiff cohort (Wales Gene Park; the supplementary table prints 'Cardiff, England'). Brother's 'Leukemia (60)' type not given -> heme/other; his CRC histology not given -> colorectal/nos; brother not tested. Father's stomach cancer 'SC (>50)': age only '>50', entered as unknown. Proband's bilateral small renal cysts and liver cysts reported in Table 1; coded feature/renal_cysts as reported, although small renal cysts are common and not specific. Proband's current age not stated (diagnoses at 53)."
+   "notes": "Family chosen from four in the paper (others: Family D, CRDFF-336 and DB1; Australian/Dutch AML cases not used). Country from the Cardiff cohort (Wales Gene Park; the supplementary table prints 'Cardiff, England'). Brother's 'Leukemia (60)' type not given -> heme/other; his CRC histology not given -> colorectal/nos; brother not tested. Father's stomach cancer 'SC (>50)': age only '>50', entered as unknown. Proband's bilateral small renal cysts and liver cysts reported in Table 1; coded feature/renal_cysts as reported, although small renal cysts are common and not specific. Proband's current age not stated (diagnoses at 53). [18 Oct 2026, new form options: brother's leukaemia of unstated type recoded \"Leukaemia – type not known\".]"
   },
   {
    "id": "kit-eu1",

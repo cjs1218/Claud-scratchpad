@@ -113,8 +113,8 @@ const SITES = {
     ['nos', 'Other / unknown']] },
   liver: { label: 'Liver', hist: [
     ['hcc', 'Hepatocellular carcinoma'], ['hepatoblastoma', 'Hepatoblastoma']] },
-  biliary: { label: 'Biliary tract / gallbladder', markers: MMR_MARKERS, hist: [
-    ['cholangio', 'Cholangiocarcinoma'], ['gallbladder', 'Gallbladder carcinoma']] },
+  biliary: { label: 'Biliary tract / gallbladder / ampulla', markers: MMR_MARKERS, hist: [
+    ['cholangio', 'Cholangiocarcinoma'], ['gallbladder', 'Gallbladder carcinoma'], ['ampullary', 'Ampullary carcinoma (ampulla of Vater)']] },
   kidney: { label: 'Kidney', hist: [
     ['ccrcc', 'Clear cell RCC'], ['papillary1', 'Papillary RCC (type 1 / classic)'],
     ['fhrcc', 'FH-deficient / HLRCC RCC (type 2 papillary, tubulo-papillary)'],
@@ -125,7 +125,7 @@ const SITES = {
     ['upper', 'Upper tract (renal pelvis / ureter)'], ['bladder', 'Bladder']] },
   prostate: { label: 'Prostate', hist: [
     ['adeno', 'Adenocarcinoma'], ['highrisk', 'Metastatic or high-grade (Gleason ≥8)'],
-    ['ductal', 'Intraductal / ductal']] },
+    ['ductal', 'Intraductal / ductal'], ['nos', 'Prostate cancer – type not known']] },
   testis: { label: 'Testis', hist: [
     ['gct', 'Germ cell tumour'], ['lccsct', 'Large cell calcifying Sertoli cell tumour'], ['nos', 'Testicular cancer – type not known']] },
   thyroid: { label: 'Thyroid', hist: [
@@ -147,7 +147,7 @@ const SITES = {
   cns: { label: 'Brain / CNS', hist: [
     ['hgg', 'High-grade glioma / glioblastoma'], ['lgg', 'Low-grade glioma / pilocytic astrocytoma'], ['glioma_nos', 'Glioma – grade not known'],
     ['optic', 'Optic pathway glioma'], ['medullo_shh', 'Medulloblastoma – SHH'],
-    ['medullo_wnt', 'Medulloblastoma – WNT'], ['medullo_nos', 'Medulloblastoma – group 3/4 / unknown'],
+    ['medullo_wnt', 'Medulloblastoma – WNT'], ['medullo_g34', 'Medulloblastoma – group 3/4'], ['medullo_nos', 'Medulloblastoma – subgroup not known'],
     ['cpc', 'Choroid plexus carcinoma'], ['atrt', 'Atypical teratoid / rhabdoid tumour'],
     ['meningioma', 'Meningioma'], ['meningioma_cc', 'Clear cell meningioma'],
     ['vs', 'Vestibular schwannoma'], ['schwannoma', 'Non-vestibular schwannoma'],
@@ -164,7 +164,7 @@ const SITES = {
   sarcoma: { label: 'Sarcoma / soft tissue', hist: [
     ['chondrosarcoma', 'Chondrosarcoma'],
     ['mrt', 'Extracranial malignant rhabdoid tumour (soft tissue / liver)'],
-    ['rms', 'Rhabdomyosarcoma'], ['osteo', 'Osteosarcoma'], ['sts', 'Other soft tissue sarcoma'],
+    ['rms', 'Rhabdomyosarcoma'], ['osteo', 'Osteosarcoma'], ['sts', 'Other soft tissue sarcoma'], ['nos', 'Sarcoma – type not known'],
     ['lms', 'Leiomyosarcoma (non-uterine)'], ['mpnst', 'Malignant peripheral nerve sheath tumour'],
     ['gist', 'Gastrointestinal stromal tumour (GIST)'], ['desmoid', 'Desmoid fibromatosis'],
     ['angiosarcoma', 'Angiosarcoma'], ['chordoma', 'Chordoma']] },
@@ -172,9 +172,9 @@ const SITES = {
     ['aml', 'Acute myeloid leukaemia'], ['mds', 'Myelodysplastic syndrome'],
     ['all', 'Acute lymphoblastic leukaemia'], ['all_hypo', 'Low-hypodiploid ALL'],
     ['jmml', 'Juvenile myelomonocytic leukaemia'], ['lymphoma', 'Lymphoma'],
-    ['cll', 'Chronic lymphocytic leukaemia'], ['other', 'Other']] },
+    ['cll', 'Chronic lymphocytic leukaemia'], ['leuk_nos', 'Leukaemia – type not known'], ['other', 'Other']] },
   nb: { label: 'Neuroblastoma', hist: [['nb', 'Neuroblastoma / ganglioneuroblastoma']] },
-  headneck: { label: 'Head and neck', hist: [['scc', 'Squamous cell carcinoma']] },
+  headneck: { label: 'Head and neck', hist: [['scc', 'Squamous cell carcinoma'], ['nos', 'Head and neck cancer – type not known']] },
   polyps: { label: 'GI polyps', markers: ['count'], hist: [
     ['adenoma', 'Adenomas'], ['serrated', 'Serrated / hyperplastic polyps'], ['sps', 'Serrated polyposis (meets WHO criteria)'],
     ['pj', 'Peutz–Jeghers polyps (confirmed on histology)'], ['juvenile', 'Juvenile polyps'], ['ham_nos', 'Hamartomatous polyps – type not known'],
@@ -258,11 +258,19 @@ const COUNTED = { skin: '*', sarcoma: '*', feature: 'bimt|cutleio|pilomatrixoma'
 // (steps: 1), two steps, or no higher than a tier (cap) – and only from a minimum count where one is given.
 // Common types only: an unknown thyroid cancer is not counted as medullary, nor an unknown brain tumour as a rare type.
 const HIST_UNKNOWN = {
-  cns: { glioma_nos: { from: ['hgg', 'lgg'], steps: 1 }, nos: { from: ['hgg', 'lgg', 'medullo_nos'], steps: 2 } },
+  cns: { glioma_nos: { from: ['hgg', 'lgg'], steps: 1 }, medullo_nos: { from: ['medullo_shh', 'medullo_wnt', 'medullo_g34'], steps: 1 },
+    nos: { from: ['hgg', 'lgg', 'medullo_shh', 'medullo_wnt', 'medullo_g34'], steps: 2 } },
   thyroid: { nos: { from: ['papillary', 'follicular'], steps: 1 } },
   testis: { nos: { from: ['gct'], steps: 1 } },
+  sarcoma: { nos: { from: ['rms', 'osteo', 'sts', 'lms', 'chondrosarcoma'], steps: 1 } },
+  prostate: { nos: { from: ['adeno'], steps: 1 } },
+  heme: { leuk_nos: { from: ['aml', 'all', 'cll'], steps: 1 } },
+  headneck: { nos: { from: ['scc'], steps: 1 } },
   polyps: { nos: { from: ['adenoma'], cap: 'M', minCount: 10 } }
 };
+// Adenomas with no number entered could be a polyposis: they meet the lower count thresholds (≥5, ≥10 – not ≥20 or ≥100)
+// at no more than a moderate match, and the form asks for the number.
+const COUNT_UNKNOWN = { polyps: { adenoma: { preds: ['n5', 'n10'], cap: 'M' } } };
 const sideOptions = d => { const l = LATERALITY[d.site]; return l && (l[0] === '*' || l[0].split('|').includes(d.hist)) ? l[1] : null; };
 const MARKER_HISTS = { ovgrade: ['endometrioid', 'nos'] };
 const showMarker = (m, d) => !MARKER_HISTS[m] || MARKER_HISTS[m].includes(d.hist);
@@ -432,8 +440,9 @@ const CONDITIONS = [
       ['prostate', 'adeno|ductal', 'S', 60, null, null, ['ukcgg:brca2', 'li2022', 'gr:NBK1247', 'nccn_bop2021'], 'Prostate 27% by 80 (Li 2022); 41% by 85 screening-adjusted (Nyberg 2020) [UKCGG]; RR 3.10 below 65'],
       ['prostate', 'highrisk', 'S', 65, null, null, ['gr:NBK1247', 'ukcgg:brca2', 'li2022'], 'BRCA2 prostate cancer more often high grade/stage; annual PSA from 40 (UKCGG)'],
       ['ovary', 'endometrioid|clearcell|nos', 'M', null, null, null, ['ukcgg:brca2', 'gr:NBK1247'], 'Tubo-ovarian ~17% by 80, predominantly high-grade serous'],
-      ['cns', 'medullo_shh|medullo_nos', 'W', null, null, null, ['waszak2018', 'clingen:BRCA2', 'us:aacr_brain'], 'BRCA2 a consensus medulloblastoma predisposition gene (rare); biallelic = Fanconi anaemia D1'],
-      ['stomach', '*', 'W', null, null, null, ['li2022'], 'Stomach RR 3.69 (female 6.89, male 2.76) (Li 2022); UKCGG: no consistent association']
+      ['cns', 'medullo_shh|medullo_g34', 'W', null, null, null, ['waszak2018', 'clingen:BRCA2', 'us:aacr_brain'], 'BRCA2 a consensus medulloblastoma predisposition gene (rare); biallelic = Fanconi anaemia D1'],
+      ['stomach', '*', 'W', null, null, null, ['li2022'], 'Stomach RR 3.69 (female 6.89, male 2.76) (Li 2022); UKCGG: no consistent association'],
+      ['biliary', 'ampullary', 'W', null, null, null, ['pinto2016', 'wong2019'], 'Germline BRCA2 in 2/14 ampullary carcinomas (Portugal, founder variant) and 3/44 (MSK); small series – the largest risk study (Li 2022) found no raised biliary risk']
     ],
     mods: [['breast', 'her2pos', 0.6]] },
   { id: 'palb2', name: 'PALB2-related breast cancer predisposition', genes: ['PALB2'], inh: 'AD',
@@ -444,7 +453,7 @@ const CONDITIONS = [
       ['breast', '*', 'M', null, 'male', null, ['yang2020palb2'], 'Male breast ~1% by 80; RR 7.34 (Yang 2020)'],
       ['pancreas', 'pdac', 'M', 60, null, null, ['yang2020palb2', 'us:acmg_palb2'], 'Pancreatic 2-3% by 80; RR 2.37 (Yang 2020)'],
       ['ovary', 'hgsc', 'M', null, null, null, ['ukcgg:hanson', 'yang2020palb2', 'us:acmg_palb2'], 'Ovarian ~5% by 80 (3.2% in another study); RR 2.91 (Yang 2020; Hanson 2023)'],
-      ['cns', 'medullo_shh|medullo_nos', 'W', null, null, null, ['waszak2018', 'us:aacr_brain'], 'PALB2 a consensus (rare) medulloblastoma predisposition gene']
+      ['cns', 'medullo_shh|medullo_g34', 'W', null, null, null, ['waszak2018', 'us:aacr_brain'], 'PALB2 a consensus (rare) medulloblastoma predisposition gene']
     ] },
   { id: 'atm', name: 'ATM-related cancer predisposition (heterozygous)', genes: ['ATM'], inh: 'AD',
     tests: ['R208','R367','R430'],
@@ -453,6 +462,7 @@ const CONDITIONS = [
       ['pancreas', 'pdac|acinar', 'M', 60, null, null, ['ukcgg:atm', 'gr:NBK623002', 'us:acg_gi'], 'Pancreatic 9.5% by 80; OR 4.21 / RR 6.5; mean age 64 (Hsu 2021, via UKCGG/GeneReviews)'],
       ['prostate', '*', 'M', 60, null, null, ['ukcgg:atm', 'gr:NBK623002'], 'Prostate OR 2.58-4.4; higher risk of early-onset and aggressive disease (Karlsson 2021, Darst 2023 via GeneReviews)'],
       ['stomach', '*', 'W', null, null, null, ['ukcgg:atm', 'gr:NBK623002'], 'Gastric OR 2.97-5.5 in single studies; UKCGG: modest, needs confirmation'],
+      ['biliary', 'ampullary', 'W', null, null, null, ['wong2019'], 'Germline ATM in 3/44 ampullary carcinomas (MSK); small series'],
       ['breast', '*', 'W', null, 'male', null, ['ukcgg:atm', 'gr:NBK623002']]
     ],
     mods: [['breast', 'tnbc', 0.5]] },
@@ -560,7 +570,7 @@ const CONDITIONS = [
       ['polyps', 'adenoma', 'S', 20, 'n10', 30, ['eu:ern_cmmrd'], 'Adenomas or (oligo-)polyposis in most patients during the second decade (ERN 2024)'],
       ['feature', 'cal', 'S', null, null, null, ['eu:ern_cmmrd'], 'CALMs are the most prevalent non-neoplastic feature (ERN 2024)'],
       ['uterus', '*', 'M', 30, null, 35, ['eu:ern_cmmrd'], 'Incidence unknown; part of the LS spectrum (ERN 2024)'],
-      ['cns', 'lgg|medullo_nos|medullo_shh', 'M', 18, null, null, ['eu:ern_cmmrd', 'us:aacr_brain'], 'Low-grade glioma and medulloblastoma are addressed in the ERN treatment recommendations; no frequency is given'],
+      ['cns', 'lgg|medullo_g34|medullo_shh', 'M', 18, null, null, ['eu:ern_cmmrd', 'us:aacr_brain'], 'Low-grade glioma and medulloblastoma are addressed in the ERN treatment recommendations; no frequency is given'],
       ['sarcoma', '*', 'W', null, null, 18, ['eu:ern_cmmrd'], 'Less frequent CMMRD tumour (ERN 2024)'],
       ['nb', 'nb', 'W', null, null, 18, ['eu:ern_cmmrd'], 'Less frequent CMMRD tumour (ERN 2024)'],
       ['kidney', 'wilms', 'W', null, null, 18, ['eu:ern_cmmrd'], 'Less frequent CMMRD tumour (ERN 2024)'],
@@ -581,6 +591,7 @@ const CONDITIONS = [
       ['polyps', 'adenoma', 'M', 30, 'n10', null, ['ukcgg:bsg', 'gr:NBK1345', 'us:acg_gi'], 'APC or biallelic MUTYH variants in 9% of people with 10-19 adenomas (BSG)'],
       ['colorectal', '*', 'M', 40, null, null, ['ukcgg:apc', 'gr:NBK1345', 'eu:ehtg_fap', 'us:acg_gi'], 'Near 100% untreated in classical FAP, mean age 39; 3-10% under surveillance (UKCGG)'],
       ['smallbowel', 'adeno', 'S', null, null, null, ['ukcgg:apc', 'gr:NBK1345', 'eu:ehtg_fap', 'us:acg_gi'], 'Duodenal cancer 5-10% lifetime without surveillance (UKCGG); small bowel 4-12% (GeneReviews)'],
+      ['biliary', 'ampullary', 'S', null, null, null, ['offerhaus1992', 'ukcgg:apc', 'eu:ehtg_fap'], 'Ampullary adenocarcinoma RR 124 (Johns Hopkins registry); duodenal/periampullary cancer is the main cancer after colectomy'],
       ['stomach', 'intestinal|nos', 'M', null, null, null, ['ukcgg:apc', 'eu:ehtg_fap', 'gr:NBK1345', 'clingen:APC', 'us:acg_gi'], 'GAPPS (APC promoter 1B): gastric cancer 12-25% (EHTG 2024); classical FAP ~2% in Western cohorts, rising and ~10x in Japan/Korea', 'ACG 2015: gastric cancer lifetime risk ~0.6% in (western) FAP; gastric adenomas rare – lower than the M tier implies'],
       ['feature', 'pilomatrixoma', 'W', null, null, null, ['gr:NBK1345'], 'Multiple pilomatricomas rare but reported (GeneReviews)'],
       ['adrenal', 'acc', 'W', null, null, null, ['eu:ehtg_fap', 'gr:NBK1345'], 'Adrenal masses 7-26% (2-3x population); adrenal carcinoma rare (EHTG 2024)'],
@@ -593,6 +604,7 @@ const CONDITIONS = [
       ['polyps', 'adenoma', 'M', 50, 'n100', null, ['ukcgg:bsg', 'eu:ehtg_fap', 'us:acg_gi'], 'MAP accounts for up to 29% of classical (100-1000 adenoma) phenotypes (BSG)'],
       ['colorectal', '*', 'M', 50, null, null, ['ukcgg:bsg', 'gr:NBK107219', 'eu:ehtg_fap', 'us:acg_gi', 'us:aacr_gi'], 'CRC 63% by 60 (BSG); 80-90% lifetime without surveillance (GeneReviews); mean age at CRC ~48 (EHTG)'],
       ['smallbowel', 'adeno', 'M', null, null, null, ['ukcgg:bsg', 'gr:NBK107219', 'eu:ehtg_fap', 'us:acg_gi'], 'Duodenal adenomas 17-34%; duodenal cancer ~4% lifetime (BSG; EHTG estimate 1.5%)'],
+      ['biliary', 'ampullary', 'M', null, null, null, ['ukcgg:bsg', 'gr:NBK107219', 'eu:ehtg_fap'], 'Ampullary cancer counted with duodenal cancer (~4% lifetime); same upper GI surveillance'],
       ['ovary', '*', 'W', null, null, null, ['gr:NBK107219', 'clingen:MUTYH', 'us:acg_gi'], 'Ovarian cancer 6-14% lifetime, median 51 (GeneReviews); ClinGen: MUTYH-familial ovarian cancer Disputed, so capped at W', 'ACG 2015: ovarian cancer reported in MAP but increased risk unclear'],
       ['urothelial', 'bladder', 'W', null, null, null, ['gr:NBK107219', 'eu:ehtg_fap', 'us:acg_gi'], 'Bladder cancer 6-8% (F), 6-25% (M) lifetime, median 61 (GeneReviews)', 'ACG 2015: bladder cancer reported in MAP but increased risk unclear'],
       ['skin', 'sebaceous', 'W', null, null, null, ['gr:NBK107219', 'us:acg_gi'], 'Sebaceous adenomas/epitheliomas in 5/276 (Vogt 2009, via GeneReviews)'],
@@ -617,6 +629,7 @@ const CONDITIONS = [
       ['colorectal', '*', 'M', 50, null, null, ['palles2022ppap', 'ukcgg:bsg', 'clingen:POLE', 'us:acg_gi'], 'CRC in 74/105 POLE (median 44.5) and 12/27 POLD1 (median 41); earliest 14'],
       ['uterus', 'endometrioid|nos', 'M', 50, null, null, ['palles2022ppap', 'us:acg_gi'], 'Endometrial cancer in 9/17 POLD1 females (median 52) and 5/43 POLE females (median 53)'],
       ['smallbowel', 'adeno', 'M', null, null, null, ['palles2022ppap'], 'Duodenal cancer in 10/105 (9.5%) POLE carriers (median 55); duodenal adenomas 15%'],
+      ['biliary', 'ampullary', 'M', null, null, null, ['palles2022ppap'], 'Ampullary cancer counted with duodenal cancer (10/105 POLE carriers)'],
       ['cns', 'hgg', 'W', null, null, null, ['palles2022ppap', 'us:acg_gi', 'us:aacr_brain'], 'Brain tumours in 9/105 POLE carriers (glioblastomas at 30-52) and 1/27 POLD1'],
       ['ovary', '*', 'W', null, null, null, ['palles2022ppap'], 'Ovarian cancer in 5/43 POLE females (median 45), none in POLD1']
     ] },
@@ -1241,7 +1254,7 @@ const CONDITIONS = [
       ['feature', 'bmf', 'S', null, null, null, ['gr:NBK1401', 'us:aacr_gid'], 'Severe BMF ~70% by 50 (AACR 2024)'],
       ['heme', 'aml|mds', 'S', 20, null, null, ['gr:NBK1401', 'us:aacr_gid', 'who2022', 'us:aacr_heme'], 'MDS/AML cumulative incidence ~35% by 40; RR MDS ~6000x, AML ~700x (GeneReviews)'],
       ['oesophagus', 'scc', 'S', 40, null, 40, ['gr:NBK1401', 'alter2018']],
-      ['cns', 'medullo_nos|medullo_shh', 'M', 5, null, null, ['gr:NBK1401', 'us:aacr_gid', 'us:aacr_brain'], 'FA-D1/FA-N: embryonal tumours in 10-33%, usually before 5 y'],
+      ['cns', 'medullo_g34|medullo_shh', 'M', 5, null, null, ['gr:NBK1401', 'us:aacr_gid', 'us:aacr_brain'], 'FA-D1/FA-N: embryonal tumours in 10-33%, usually before 5 y'],
       ['kidney', 'wilms', 'M', 5, null, null, ['gr:NBK1401', 'us:aacr_gid']],
       ['liver', 'hcc', 'W', null, null, null, ['gr:NBK1401'], 'Mainly with androgen therapy'],
       ['nb', 'nb', 'W', 5, null, null, ['gr:NBK1401', 'us:aacr_gid']],
@@ -1272,7 +1285,7 @@ const CONDITIONS = [
       ['heme', 'lymphoma|all', 'S', 20, null, 25, ['gr:NBK1176', 'us:aacr_gid', 'us:aacr_heme'], 'Malignancy ~40-70% by 20 y, mostly B/T-NHL and T-ALL (AACR 2024); strong only up to 25'],
       ['heme', 'lymphoma|all', 'W', null, null, null, ['gr:NBK1176', 'us:aacr_gid'], 'After 25: a lymphoma or ALL alone is common and rarely NBS (microcephaly is evident from birth)'],
       ['feature', 'microcephaly', 'S', null, null, null, ['gr:NBK1176', 'us:aacr_gid']],
-      ['cns', 'medullo_nos', 'W', null, null, null, ['gr:NBK1176', 'us:aacr_gid']],
+      ['cns', 'medullo_g34', 'W', null, null, null, ['gr:NBK1176', 'us:aacr_gid']],
       ['sarcoma', 'rms', 'W', null, null, null, ['gr:NBK1176', 'us:aacr_gid']],
       ['cns', 'hgg|lgg', 'W', null, null, null, ['gr:NBK1176']]
     ] },
@@ -1380,7 +1393,9 @@ const TEST_POINTERS = [
     nhs: 'R414 (APC) lists classic medulloblastoma in children/young adults before colonoscopy; it does not specify WNT subgroup or CTNNB1 status.' },
   { site: 'cns', hist: 'medullo_shh', aacr: 'SHH medulloblastoma: up to 40% have a predisposition syndrome. Test PTCH1 and SUFU (Gorlin), GPR161 (infants), ELP1 (older children), TP53 (20% at age 5–16), MMR/POLE if the tumour is hypermutated, and consider BRCA2/PALB2 or Fanconi anaemia if there is an HRD signature or unexpected treatment toxicity. Include chromosomal microarray.',
     nhs: 'R456 covers SHH medulloblastoma <25 (panel includes PTCH1, SUFU, GPR161, ELP1, TP53); R214 if Gorlin features; R210 if CMMRD is suspected.' },
-  { site: 'cns', hist: 'medullo_nos', aacr: 'Group 3/4 medulloblastoma: no clear syndrome association – reserve germline testing for a family history of BRCA-associated cancers or an HRD signature on tumour sequencing.',
+  { site: 'cns', hist: 'medullo_nos', aacr: 'Medulloblastoma, subgroup not known: ask for the molecular subgroup – SHH (PTCH1, SUFU, GPR161, ELP1, TP53) and WNT (APC if CTNNB1 wild-type) change germline testing.',
+    nhs: 'R456 covers SHH medulloblastoma <25; R414 lists classic medulloblastoma in children/young adults.' },
+  { site: 'cns', hist: 'medullo_g34', aacr: 'Group 3/4 medulloblastoma: no clear syndrome association – reserve germline testing for a family history of BRCA-associated cancers or an HRD signature on tumour sequencing.',
     nhs: 'No specific route; use R208 if the family meets HBOC criteria.' },
   { site: 'cns', hist: 'atrt', aacr: 'AT/RT: test SMARCB1 (including copy number and distal 22q11.2 deletion) and SMARCA4. Gonadal mosaicism occurs, so test young at-risk siblings even if both parents test negative.',
     nhs: 'R456 (AT/RT at any age).' },
@@ -2794,6 +2809,9 @@ const REFS = {
  * EVIDENCE: key → [short label, full citation, DOI / PubMed URL]. Only sources read in full or as abstract.
  */
 const EVIDENCE = {
+  offerhaus1992: ['Offerhaus 1992', 'Offerhaus GJ et al. The risk of upper gastrointestinal cancer in familial adenomatous polyposis. Gastroenterology 1992', 'https://doi.org/10.1016/0016-5085(92)90322-p'],
+  pinto2016: ['Pinto 2016', 'Pinto P et al. Analysis of founder mutations in rare tumors associated with hereditary breast/ovarian cancer reveals a novel association of BRCA2 mutations with ampulla of Vater carcinomas. PLoS One 2016', 'https://doi.org/10.1371/journal.pone.0161438'],
+  wong2019: ['Wong 2019', 'Wong W et al. Ampullary cancer: evaluation of somatic and germline genetic alterations and association with clinical outcomes. Cancer 2019', 'https://doi.org/10.1002/cncr.31951'],
   aacr_vhl_ppgl2017: ['AACR VHL/PPGL 2017', 'Rednam SP, Erez A, Druker H, et al. Von Hippel-Lindau and Hereditary Pheochromocytoma/Paraganglioma Syndromes: Clinical Features, Genetics, and Surveillance Recommendations in Childhood. Clin Cancer Res 2017;23(12):e68-e75', 'https://pubmed.ncbi.nlm.nih.gov/28620007/'],
   acmg_chek2: ['ACMG CHEK2 2023', 'Hanson H et al. Management of individuals with germline pathogenic/likely pathogenic variants in CHEK2: a clinical practice resource of the ACMG. Genet Med 2023;25(10):100870', 'https://doi.org/10.1016/j.gim.2023.100870'],
   alter2018: ['Alter 2018', 'Alter BP et al. Cancer in the National Cancer Institute inherited bone marrow failure syndrome cohort after fifteen years of follow-up. Haematologica 2018', 'https://doi.org/10.3324/haematol.2017.178111'],

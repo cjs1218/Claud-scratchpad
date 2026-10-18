@@ -10,8 +10,8 @@ const fs = require('fs');
 const { chromium } = playwright();
 
 const D = load(path.join(ROOT, NAV_PATH, 'js/data.js'));
-// Two sets, each with its own floor: the first 50 (worldwide) and 54 UK/European families. PUBLISHED_FILE runs one file.
-const FILES = process.env.PUBLISHED_FILE ? [process.env.PUBLISHED_FILE] : ['published-cases.json', 'published-cases-eu.json'].map(f => path.join(__dirname, f));
+// Three sets, each with its own floor: the first 50 (worldwide), 54 UK/European families and a second 50 UK/European. PUBLISHED_FILE runs one file.
+const FILES = process.env.PUBLISHED_FILE ? [process.env.PUBLISHED_FILE] : ['published-cases.json', 'published-cases-eu.json', 'published-cases-eu2.json'].map(f => path.join(__dirname, f));
 const SETS = FILES.map(f => ({ name: path.basename(f), ...JSON.parse(fs.readFileSync(f, 'utf8')) }));
 const REL = new Set(D.RELATIONS.map(r => r[0]));
 

@@ -73,7 +73,14 @@
       tierUsed = u.cap ? order[Math.max(order.indexOf(tier), order.indexOf(u.cap))] : order[Math.min(order.indexOf(tier) + u.steps, 3)];
       unknownNote = 'type not known – counted lower';
       if (pred && !PRED[pred]({ ...dx, hist: hist.split('|').find(h => u.from.includes(h)) }, person)) return null;
-    } else if (pred && !PRED[pred](dx, person)) return null;
+    } else if (pred && !PRED[pred](dx, person)) {
+      // No number entered for a counted finding: it may meet the lower thresholds, at a capped strength (COUNT_UNKNOWN).
+      const c = (COUNT_UNKNOWN[site] || {})[dx.hist];
+      if (!c || dx.count !== '' || !c.preds.includes(pred)) return null;
+      const order = ['H', 'S', 'M', 'W'];
+      tierUsed = order[Math.max(order.indexOf(tier), order.indexOf(c.cap))];
+      unknownNote = 'number not entered – counted as possible polyposis';
+    }
     const age = dx.age === '' ? null : +dx.age;
     let factor = 1;
     const notes = [];
@@ -1282,7 +1289,7 @@
       if (d.side === 'both' && n(d.age2) !== null && a !== null && n(d.age2) < a) w.push(`${name}: second cancer (${d.age2}) is younger than the first (${a}) – swap them if so.`);
       if (p.sex === 'M' && ['ovary', 'uterus', 'cervix'].includes(d.site)) w.push(`${name} cancer entered for a male relative – check sex or site.`);
       if (p.sex === 'F' && ['prostate', 'testis'].includes(d.site)) w.push(`${name} cancer entered for a female relative – check sex or site.`);
-      if (d.site === 'polyps' && ['adenoma', 'pj', 'juvenile', 'ham_nos', 'serrated', 'mixed', 'ganglioneuroma'].includes(d.hist) && (d.count === '' || d.count == null)) w.push(`${name}: number of polyps not entered – polyposis criteria depend on it.`);
+      if (d.site === 'polyps' && ['adenoma', 'pj', 'juvenile', 'ham_nos', 'serrated', 'mixed', 'ganglioneuroma'].includes(d.hist) && (d.count === '' || d.count == null)) w.push(`${name}: number of polyps not entered – polyposis criteria depend on it${d.hist === 'adenoma' ? ' (until it is entered, adenomas count as possible polyposis: at most a moderate match)' : ''}.`);
       if (d.site === 'polyps' && d.hist === 'nos') w.push(`${name}: polyps of unknown type – ${+d.count >= 10 ? '10 or more count as a moderate match for the adenomatous polyposis syndromes at most' : 'fewer than 10 do not count towards any syndrome'}; check the histology report (the type changes the results and Test Directory eligibility).`);
       if (d.site === 'polyps' && d.hist === 'ham_nos') w.push(`${name}: hamartomatous type not known – confirming Peutz–Jeghers or juvenile histology changes the results.`);
     }

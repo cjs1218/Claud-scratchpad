@@ -142,7 +142,14 @@ histology report).
 "Type not known" options (`HIST_UNKNOWN` in `js/data.js`) match the rules for the common types they could be, at a lower
 strength: "Glioma – grade not known" (high- or low-grade glioma, one step lower), "Brain tumour – type not known" (glioma or
 medulloblastoma, two steps lower), thyroid cancer (papillary or follicular – never medullary – one step lower), testicular cancer
-(germ cell tumour, one step lower) and GI polyps (above). Haemangioblastomas take a number, like schwannomas and meningiomas.
+(germ cell tumour, one step lower), "Medulloblastoma – subgroup not known" (SHH, WNT or group 3/4, one step lower; R456/R216
+"may meet – qualifies if SHH"), sarcoma (common sarcoma types), prostate (adenocarcinoma), "Leukaemia – type not known" (AML,
+ALL or CLL; R347/R366 "may meet" when the family part is met) and head and neck cancer (squamous cell), each one step lower,
+and GI polyps (above). Adenomas with no number entered (`COUNT_UNKNOWN`) meet the ≥5 and ≥10 polyp thresholds at no more than a
+moderate match, with R211 "may meet" and a prompt to enter the number. Haemangioblastomas take a number, like schwannomas and
+meningiomas. Ampullary carcinoma is a biliary tract option: strong for FAP (ampullary adenocarcinoma RR 124, Offerhaus 1992),
+moderate for MAP, POLE/POLD1 and (via any biliary cancer) Lynch, weak for BRCA2 (Pinto 2016, Wong 2019 – small series; the largest
+BRCA2 risk study, Li 2022, found no raised biliary risk) and ATM (Wong 2019).
 R211 serrated polyposis: enter GI polyps as "Serrated polyposis (meets WHO criteria)" – met under 50 or with a first-degree
 relative with SPS, otherwise "may meet" (dysplasia); five or more serrated polyps without that are "may meet – check the WHO criteria"
 (size and site are not recorded).
@@ -229,7 +236,7 @@ npm run test:live           # browser tests against the published site
 - `tests/browser.test.js` – the app in Chromium (forms, results, pop-ups, printout, phone layout).
 - `tests/a11y.test.js` – axe accessibility check of the main views in light and dark mode (serious problems and heading order).
 - `tests/genes.test.js` – every gene page renders and its links are well formed.
-- `tests/published.test.js` – real families from open-access published case reports, in two sets with their own floors: 50 families across 27 genes (`tests/published-cases.json`) and 54 UK and European families across 54 genes (`tests/published-cases-eu.json`, collected 18 Oct 2026), each with citation, evidence quotes and notes: where the confirmed gene's syndrome ranks (top 1 / 3 / 5) and whether a matching Test Directory test is met. Fails if the top-5 rate falls below the recorded floor. First run (17 Oct 2026): top 1 76%, top 3 88%, top 5 92%; after the fixes below: top 1 80%, top 3 94%, top 5 94% (floor 94%); Test Directory route met 92%. UK/European set (18 Oct 2026): top 1 52%, top 3 72%, top 5 83% (floor 83%), route met 81% – syndromes with distinctive features rank well (endocrine/renal 13/13, other tumour and blood genes 17/17 in the top 5); moderate-penetrance breast/ovarian genes (CHEK2, ATM, RAD51C, RAD51D, BRIP1, BARD1) rank below BRCA1/2 or Lynch by design. The harness also rejects duplicate cases and values the form does not offer.
+- `tests/published.test.js` – real families from open-access published case reports, in three sets with their own floors: 50 families across 27 genes (`tests/published-cases.json`), 54 UK and European families across 54 genes (`tests/published-cases-eu.json`) and a second 50 UK and European families across 44 genes weighted towards BRCA1/2, Lynch and TP53 (`tests/published-cases-eu2.json`), both collected 18 Oct 2026, each with citation, evidence quotes and notes: where the confirmed gene's syndrome ranks (top 1 / 3 / 5) and whether a matching Test Directory test is met. Fails if the top-5 rate falls below the recorded floor. First run (17 Oct 2026): top 1 76%, top 3 88%, top 5 92%; after the fixes below: top 1 80%, top 3 94%, top 5 94% (floor 94%); Test Directory route met 92%. UK/European set (18 Oct 2026): top 1 52%, top 3 72%, top 5 83% (floor 83%), route met 81% – syndromes with distinctive features rank well (endocrine/renal 13/13, other tumour and blood genes 17/17 in the top 5); moderate-penetrance breast/ovarian genes (CHEK2, ATM, RAD51C, RAD51D, BRIP1, BARD1) rank below BRCA1/2 or Lynch by design. Second UK/European set: top 1 52%, top 3 72%, top 5 88% (floor 88%). After the type-not-known, unknown-count and ampullary changes (18 Oct 2026) the first set reached top 5 96% (floor 96%). The harness also rejects duplicate cases and values the form does not offer.
 - `tests/explorer.test.js` – Explorer data (every indication has tests, criteria, specialties) and the page in Chromium (`--no-browser` for the data checks only).
 
 GitHub runs the same checks on every push (`.github/workflows/test.yml`).

@@ -2,7 +2,7 @@
  "about": "Real families from open-access published case reports, each with a confirmed germline variant (pathogenic or likely pathogenic as reported by the authors), transcribed as reported by AI research agents from the full text (and pedigree figures where available) with quotes in 'evidence' and judgement calls in 'notes'. Citations checked against PubMed on 17 Oct 2026. Used to measure where the confirmed gene's syndrome ranks; do not tune scoring to individual cases without a source.",
  "collected": "2026-10-17",
  "floor": {
-  "top5": 94
+  "top5": 96
  },
  "cases": [
   {
@@ -190,7 +190,7 @@
      [
       {
        "site": "prostate",
-       "hist": "adeno",
+       "hist": "nos",
        "age": "83"
       }
      ],
@@ -205,7 +205,7 @@
      [
       {
        "site": "prostate",
-       "hist": "adeno",
+       "hist": "nos",
        "age": "63"
       }
      ],
@@ -213,7 +213,7 @@
     ]
    ],
    "evidence": "Case: 'diagnosed with multifocal right breast cancer at the age of 51'; Lesion B IDC ER 95%, PgR 80%, HER2 2+ without DISH amplification; Lesion C IDC ER 15%, PgR 0%, HER2 0. 'her paternal grandfather suffered from male breast cancer (diagnosed at age 70, I-1), while both her father (diagnosed at age 83, II-1) and her older brother (diagnosed at age 63, III-1) had prostate cancer.' Fig 1: grandfather d.70y; father d.85y; proband 53y. Reclassified LP (PS3, PM1, PM4, PP4, PP3).",
-   "notes": "Two synchronous ipsilateral IDC foci recorded as one diagnosis: both ER-positive and HER2-negative, but PR differed (80% vs 0%) so PR left out. Prostate histology not stated; 'adeno' is used only because the prostate site has no 'nos' code. Initially reported as a VUS by Myriad; reclassified LP by the authors from RT-PCR evidence."
+   "notes": "Two synchronous ipsilateral IDC foci recorded as one diagnosis: both ER-positive and HER2-negative, but PR differed (80% vs 0%) so PR left out. Prostate histology not stated; 'adeno' is used only because the prostate site has no 'nos' code. Initially reported as a VUS by Myriad; reclassified LP by the authors from RT-PCR evidence. [18 Oct 2026, new form options: prostate cancer of unstated type recoded \"type not known\".]"
   },
   {
    "id": "brca2-2",
@@ -470,7 +470,7 @@
      [
       {
        "site": "thyroid",
-       "hist": "papillary",
+       "hist": "nos",
        "age": ""
       }
      ],
@@ -484,7 +484,7 @@
      [
       {
        "site": "prostate",
-       "hist": "adeno",
+       "hist": "nos",
        "age": ""
       }
      ],
@@ -535,7 +535,7 @@
     ]
    ],
    "evidence": "Case #3: 49-year-old with left breast 'grade 2 invasive ductal carcinoma that was ER positive, PR negative, and HER2 negative'. 'Her family history is positive for breast cancer in her mother diagnosed at age 65 years, two maternal aunts, and paternal grandmother, unknown cancer in her sister, thyroid cancer in her maternal aunt, prostate cancer in her maternal uncle, and colon cancer in her paternal grandfather (Figure 6)'. Fig 6 legend: 'paternal grandmother with bilateral breast cancer'. Table 1: case 3 PALB2 c.3113G>A (p.Trp1038*), pathogenic. Fig 6 pedigree image: mother 72 y; maternal grandmother shown with breast cancer (deceased); two deceased maternal aunts breast; a separate deceased maternal aunt thyroid; maternal uncle prostate.",
-   "notes": "Case series of 5 PALB2 patients; only Case #3 is used (one family per paper). Maternal grandmother's breast cancer comes only from the Fig 6 pedigree symbols (not in the text). The thyroid-cancer maternal aunt is a different person from the two breast-cancer aunts (per Fig 6). Thyroid histology not stated ('papillary' used only because the thyroid site has no 'nos' code). Prostate histology not stated ('adeno' used for the same reason). Sister with 'unknown cancer' (deceased) left out because no site is given. Which side carries PALB2 is not stated."
+   "notes": "Case series of 5 PALB2 patients; only Case #3 is used (one family per paper). Maternal grandmother's breast cancer comes only from the Fig 6 pedigree symbols (not in the text). The thyroid-cancer maternal aunt is a different person from the two breast-cancer aunts (per Fig 6). Thyroid histology not stated ('papillary' used only because the thyroid site has no 'nos' code). Prostate histology not stated ('adeno' used for the same reason). Sister with 'unknown cancer' (deceased) left out because no site is given. Which side carries PALB2 is not stated. [18 Oct 2026, new form options: thyroid and prostate cancers of unstated type recoded \"type not known\".] [18 Oct 2026, new form options: ]"
   },
   {
    "id": "tp53-1",
@@ -886,7 +886,7 @@
      [
       {
        "site": "cns",
-       "hist": "lgg",
+       "hist": "glioma_nos",
        "age": "22"
       }
      ],
@@ -894,7 +894,7 @@
     ]
    ],
    "evidence": "Case: '9-year-old female was clinically diagnosed with osteosarcoma in September 2022' (conventional osteosarcoma, left distal femur). 'a brother who died from medulloblastoma at the age of 7, a mother with breast cancer at 34'. WGS: TP53 c.733G>A (p.Gly245Ser) in proband and mother (pathogenic/likely pathogenic in ClinVar). Fig 2 pedigree ('Disease names are followed by age at diagnosis'): I-1 LC 47 (deceased; maternal grandfather); II-4 OS 12 (deceased); II-6 mother BC 34; II-7 BC 29; II-8 AC (astrocytoma) 22; III-10 MB 7 (deceased); III-12 proband OS 9. Discussion: 'two patients were diagnosed with [breast cancer at] ages 29 and 34 ... astrocytoma at 22 years'.",
-   "notes": "Medulloblastoma subgroup not stated (medullo_nos). Astrocytoma grade not stated; coded lgg as a placeholder because the cns site has no 'nos' code (it may not be low grade). Maternal uncle II-5 had a cerebrovascular malformation at 40 (not a cancer; omitted). Relationships of the aunts and grandfather are read from the pedigree (siblings of the mother II-6; I-1 is her father). Proband also carries a translocation of unknown significance involving ATMIN."
+   "notes": "Medulloblastoma subgroup not stated (medullo_nos). Astrocytoma grade not stated; coded lgg as a placeholder because the cns site has no 'nos' code (it may not be low grade). Maternal uncle II-5 had a cerebrovascular malformation at 40 (not a cancer; omitted). Relationships of the aunts and grandfather are read from the pedigree (siblings of the mother II-6; I-1 is her father). Proband also carries a translocation of unknown significance involving ATMIN. [18 Oct 2026, new form options: astrocytoma of unstated grade recoded \"Glioma – grade not known\"; the medulloblastoma stays \"subgroup not known\".]"
   },
   {
    "id": "pten-1",
@@ -1072,7 +1072,7 @@
      [
       {
        "site": "thyroid",
-       "hist": "papillary",
+       "hist": "nos",
        "age": "35"
       },
       {
@@ -1140,7 +1140,7 @@
     ]
    ],
    "evidence": "Case: 50-year-old woman with a large head since childhood; 'At the age of 39 ... bilateral invasive ductal carcinoma of the breast'; cerebellar tumours / Lhermitte-Duclos disease, resected at 40 (hamartomas); multiple polyps of stomach and large intestine; dural AV fistula at 43; right thyroid lobectomy at 46, 'adenomatous goiter'; recurrent breast cancer at 46; multifocal oral mucosal papillomatosis. Family history: older sister clinically diagnosed with Cowden syndrome; father 'had macrocephaly, hydrocephalus, and multifocal oral mucosal papillomatosis'. Fig 3 pedigree: proband 50y (38y multiple intestinal polyps, 39y bilateral breast cancer, 40y LDD, 43y dAVF, 46y adenomatoid goiter, 46y relapse); sister 54y (30s hydrocephalus, 35y thyroid cancer, 40y breast cancer); father 80y (70y macrocephaly, hydrocephalus, oral mucosal papillomatosis; 40s multiple polyps of intestine); paternal aunt pancreatic cancer, d.72y; maternal uncle 70y (50y gastric cancer, 60y colorectal cancer).",
-   "notes": "Taken only from the Fig 3 pedigree: the sister's thyroid and breast cancers, the paternal aunt's pancreatic cancer and the maternal uncle's cancers. Sister's thyroid cancer type not stated ('papillary' is a placeholder; the thyroid site has no 'nos' code). Oral mucosal papillomatosis is coded as the trichilemmoma/oral papilloma feature. The father's age at onset of 70 comes from the figure's '70 y' annotation, which may mean when the features were noted. Intestinal/gastric polyps (proband at 38, father in his 40s) are left out because the polyp type is not stated and there is no 'nos' polyp code. Dural AV fistula and hydrocephalus are not coded. Sister and father were not genetically tested."
+   "notes": "Taken only from the Fig 3 pedigree: the sister's thyroid and breast cancers, the paternal aunt's pancreatic cancer and the maternal uncle's cancers. Sister's thyroid cancer type not stated ('papillary' is a placeholder; the thyroid site has no 'nos' code). Oral mucosal papillomatosis is coded as the trichilemmoma/oral papilloma feature. The father's age at onset of 70 comes from the figure's '70 y' annotation, which may mean when the features were noted. Intestinal/gastric polyps (proband at 38, father in his 40s) are left out because the polyp type is not stated and there is no 'nos' polyp code. Dural AV fistula and hydrocephalus are not coded. Sister and father were not genetically tested. [18 Oct 2026, new form options: sister's thyroid cancer of unstated type recoded \"type not known\".]"
   },
   {
    "id": "mlh1-1",
@@ -1548,7 +1548,7 @@
      [
       {
        "site": "prostate",
-       "hist": "adeno",
+       "hist": "nos",
        "age": "80"
       }
      ],
@@ -1559,7 +1559,7 @@
     ]
    ],
    "evidence": "Case: 58-year-old woman with uterine endometrioid carcinoma at 56, MSI-H with loss of MSH6 expression. Fig 1 legend: 'diagnosed with endometrial and ovarian cancers at age 56. Her brother who also carries the variant... colon cancer at age 45 and her mother was diagnosed with endometrial cancer at her 60s.' Pedigree: mother Endometrial/Uterine 60, deceased 77; maternal grandfather Prostate 80, deceased 82; maternal grandmother 'CSU' (cancer site unknown), deceased 55; brother 54 now.",
-   "notes": "Discussion states the tumour showed loss of MSH2 and MSH6 with a somatic MSH6 second hit (c.3646+1G>A); case description says loss of MSH6 - recorded as 'msh6'. Variant was VUS/LP (conflicting) in ClinVar; authors classify LP after RNA studies and segregation. Prostate histology not stated; recorded as 'adeno' because the prostate site has no 'nos' code. Maternal grandmother with cancer of unknown site (deceased at 55) omitted. Ovarian histology not stated."
+   "notes": "Discussion states the tumour showed loss of MSH2 and MSH6 with a somatic MSH6 second hit (c.3646+1G>A); case description says loss of MSH6 - recorded as 'msh6'. Variant was VUS/LP (conflicting) in ClinVar; authors classify LP after RNA studies and segregation. Prostate histology not stated; recorded as 'adeno' because the prostate site has no 'nos' code. Maternal grandmother with cancer of unknown site (deceased at 55) omitted. Ovarian histology not stated. [18 Oct 2026, new form options: prostate cancer of unstated type recoded \"type not known\".]"
   },
   {
    "id": "msh6-2",
@@ -2659,8 +2659,8 @@
        "age": "80"
       },
       {
-       "site": "smallbowel",
-       "hist": "nos",
+       "site": "biliary",
+       "hist": "ampullary",
        "age": "80"
       },
       {
@@ -2765,7 +2765,7 @@
     ]
    ],
    "evidence": "Case report, Family A: 'index case ... colon adenocarcinoma at age 43, followed by another colon adenocarcinoma at age 69 ... endometrial adenocarcinoma at age 54, and ... bifocal hormone receptor-positive invasive ductal carcinoma of the breast at age 60. ... At least 40 polyps were resected since age of 41, with predominance of either adenomas with low grade dysplasia, or serrated polyps.' 'Her maternal half-brother died from complications of colon adenocarcinoma diagnosed at the age of 32. The son of this half-brother, also deceased, ... at age 52 ... infiltrating duodenal adenocarcinoma ... (deficient-MMR: isolated loss of PMS2) and a colonic adenocarcinoma, in the context of polyposis. He himself had a daughter who developed 4 duodenal and colonic polyps at the age of 23: two duodenal tubular adenomas ..., a 1 cm tubulovillous adenoma with high-grade dysplasia (pMMR), and a tubular adenoma near anal margin. Another maternal half-brother died after being diagnosed with colon adenocarcinoma at 60, followed by bladder cancer, a malignant tumor of the ampulla of Vater, and pulmonary squamous cell carcinoma ... around the age of 80. Finally, another maternal half-sister, also deceased, developed colonic polyps, endometrial adenocarcinoma at 66, rectal adenocarcinoma at 67, and a second rectal adenocarcinoma at 83. The daughter of this half-sister was diagnosed with colon adenocarcinoma (pMMR) at 53. Their mother developed rectal cancer at the age of 51 and died at 66. ... Their maternal aunt and uncle both apparently had colon cancer as well.'",
-   "notes": "The breast cancer was 'hormone receptor-positive', with ER/PR not given separately, so the markers are left blank. The 40 polyps were mostly adenomas or serrated polyps; the split is not given, so the full count is put on the adenoma entry. Two polyps were MSS. The 'niece' entries are half-nephew/half-niece (children of maternal half-siblings), and 'gniece' is a half-great-niece. For the half-brother with the duodenal cancer, 'polyposis' is mentioned without histology or count, so it is left out. The 4 polyps of the great-niece include 2 duodenal adenomas. 'Around the age of 80' could apply to all three later cancers (bladder, ampulla, lung SCC) and is used for each. The ampulla of Vater tumour is coded smallbowel nos, and lung SCC is coded lung nos (no lung scc code). The half-sister's colonic polyps have no histology and are left out. The 'maternal aunt and uncle' are the mother's siblings ('Their maternal aunt and uncle'), coded m_aunt/m_uncle, though relative to the index they are aunt/uncle on the mother's side. Endometrial adenocarcinoma subtype not stated, so uterus nos. Family B in the paper was not used."
+   "notes": "The breast cancer was 'hormone receptor-positive', with ER/PR not given separately, so the markers are left blank. The 40 polyps were mostly adenomas or serrated polyps; the split is not given, so the full count is put on the adenoma entry. Two polyps were MSS. The 'niece' entries are half-nephew/half-niece (children of maternal half-siblings), and 'gniece' is a half-great-niece. For the half-brother with the duodenal cancer, 'polyposis' is mentioned without histology or count, so it is left out. The 4 polyps of the great-niece include 2 duodenal adenomas. 'Around the age of 80' could apply to all three later cancers (bladder, ampulla, lung SCC) and is used for each. The ampulla of Vater tumour is coded smallbowel nos, and lung SCC is coded lung nos (no lung scc code). The half-sister's colonic polyps have no histology and are left out. The 'maternal aunt and uncle' are the mother's siblings ('Their maternal aunt and uncle'), coded m_aunt/m_uncle, though relative to the index they are aunt/uncle on the mother's side. Endometrial adenocarcinoma subtype not stated, so uterus nos. Family B in the paper was not used. [18 Oct 2026, new form options: ampulla of Vater tumour recoded as ampullary carcinoma (biliary tract / ampulla).]"
   },
   {
    "id": "vhl-1",
@@ -2870,10 +2870,24 @@
      {
       "deceased": true
      }
+    ],
+    [
+     "mother",
+     "F",
+     [
+      {
+       "site": "cns",
+       "hist": "nos",
+       "age": ""
+      }
+     ],
+     {
+      "deceased": true
+     }
     ]
    ],
    "evidence": "Case 2 (one of three unrelated families in the paper; only this family used): 41-year-old man admitted Sept-Oct 2014; 'In September 2010, the patient underwent resection of the lesions in the right cerebellar hemisphere ... hemangioblastoma.' CT: masses in left (~72x54 mm) and right (~92x73 mm) adrenals; left adrenal resected = pheochromocytoma; right adrenal resected 2 June 2015, with multiple pulmonary metastases ('malignant pheochromocytoma'); 'The patient succumbed following 6 months.' Same p.Arg167Trp found in sister II-2 and brother II-3. 'The mother of the patient was deceased, and the cause was unknown. The mother exhibited a brain tumor and coronary heart disease whilst alive.' Brother II-3: MRI nodule in left cerebellar tonsil (~9.0x10.5 mm) 'indicated the presence of a hemangioblastoma, astrocytoma or ependymoma. However, the diagnosis could not be confirmed.' Sister II-2: carrier, no VHL lesions. Eldest sister II-1: multiple calcified thyroid nodules (not tested).",
-   "notes": "Haemangioblastoma age 37 is derived (resected Sept 2010; aged 41 in Sept 2014). Bilateral phaeochromocytoma identified at 41 on CT; right side removed June 2015 (age 41-42) and was metastatic. Mother's 'brain tumor' (type unspecified, age unknown, deceased) is NOT coded because the vocabulary has no non-specific CNS code; she would otherwise be listed as mother, deceased, with brain tumour NOS. Brother II-3 (carrier, unconfirmed cerebellar tonsil nodule) and sister II-2 (unaffected carrier) omitted as they have no confirmed diagnosis. Eldest sister II-1's thyroid nodules omitted (not reported as VHL-related, no histology). Proband's age at death not stated (~6 months after June 2015). The paper describes Case 1 and Case 3 as separate families; they are not included."
+   "notes": "Haemangioblastoma age 37 is derived (resected Sept 2010; aged 41 in Sept 2014). Bilateral phaeochromocytoma identified at 41 on CT; right side removed June 2015 (age 41-42) and was metastatic. Mother's 'brain tumor' (type unspecified, age unknown, deceased) is NOT coded because the vocabulary has no non-specific CNS code; she would otherwise be listed as mother, deceased, with brain tumour NOS. Brother II-3 (carrier, unconfirmed cerebellar tonsil nodule) and sister II-2 (unaffected carrier) omitted as they have no confirmed diagnosis. Eldest sister II-1's thyroid nodules omitted (not reported as VHL-related, no histology). Proband's age at death not stated (~6 months after June 2015). The paper describes Case 1 and Case 3 as separate families; they are not included. [18 Oct 2026, new form options: mother's brain tumour of unspecified type added as \"Brain tumour – type not known\".]"
   },
   {
    "id": "sdhb-1",
@@ -2948,7 +2962,7 @@
      [
       {
        "site": "headneck",
-       "hist": "scc",
+       "hist": "nos",
        "age": ""
       },
       {
@@ -2971,7 +2985,7 @@
     ]
    ],
    "evidence": "Case presentation, RCC 1: 'A 29-year-old male ... underwent a radical right nephrectomy in 2006 for clear cell RCC (eosinophilic variant) ... There was a family history of cancer, including larynx carcinoma and carotid body paraganglioma in his mother, and clear cell RCC in his maternal aunt.' RCC 2: 'At age 35, the same patient underwent partial left nephrectomy ... initially diagnosed as a hybrid oncocytic tumor' ; genetic analysis disclosed SDHB c.166_170del (p.Pro56Tyrfs*5). Both tumours had morphology of SDH-deficient RCC but retained (positive) SDHB immunostaining.",
-   "notes": "Kidney histology is coded as originally reported (right: clear cell RCC, eosinophilic variant -> ccrcc; left: hybrid oncocytic tumour -> chromophobe/oncocytic code). The authors state both tumours have the characteristic morphology of SDH-deficient RCC but SDHB IHC was positive, so they do not meet the WHO definition; an alternative coding is kidney/sdhrcc for both (right 29, left 35). Mother's 'larynx carcinoma' histology not stated; coded headneck/scc as the only head-and-neck code. Mother's and aunt's ages and carrier status not stated."
+   "notes": "Kidney histology is coded as originally reported (right: clear cell RCC, eosinophilic variant -> ccrcc; left: hybrid oncocytic tumour -> chromophobe/oncocytic code). The authors state both tumours have the characteristic morphology of SDH-deficient RCC but SDHB IHC was positive, so they do not meet the WHO definition; an alternative coding is kidney/sdhrcc for both (right 29, left 35). Mother's 'larynx carcinoma' histology not stated; coded headneck/scc as the only head-and-neck code. Mother's and aunt's ages and carrier status not stated. [18 Oct 2026, new form options: mother's laryngeal cancer of unstated histology recoded \"type not known\".]"
   },
   {
    "id": "sdhd-1",

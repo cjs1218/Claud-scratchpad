@@ -230,10 +230,10 @@
   /* ---- Criteria ---- */
   const LYNCH_SITES = d => is(d, 'colorectal') || is(d, 'uterus', 'endometrioid|serous|clearcell|carcinosarcoma|nos') ||
     (is(d, 'ovary') && !['mucinous', 'germ', 'fibroma', 'granulosa_a', 'granulosa_j', 'sertoli', 'sctat', 'sccoht'].includes(d.hist)) ||
-    is(d, 'urothelial') || is(d, 'biliary', 'cholangio') || is(d, 'smallbowel') || is(d, 'stomach') || is(d, 'oesophagus') ||
+    is(d, 'urothelial') || is(d, 'biliary', 'cholangio|ampullary') || is(d, 'smallbowel') || is(d, 'stomach') || is(d, 'oesophagus') ||
     is(d, 'cns', 'hgg') || is(d, 'cervix', 'adeno|gastric') || is(d, 'skin', 'sebaceous') || is(d, 'prostate') || is(d, 'pancreas');
   const CRC_EC = d => is(d, 'colorectal') || is(d, 'uterus', 'endometrioid|serous|clearcell|carcinosarcoma|nos');
-  const LFS = d => is(d, 'sarcoma', 'rms|osteo|sts|lms|angiosarcoma|mpnst|chondrosarcoma') || is(d, 'adrenal', 'acc') || is(d, 'cns') || isBreast(d);
+  const LFS = d => is(d, 'sarcoma', 'rms|osteo|sts|lms|angiosarcoma|mpnst|chondrosarcoma|nos') || is(d, 'adrenal', 'acc') || is(d, 'cns') || isBreast(d);
   const POT1 = d => is(d, 'skin', 'melanoma') || is(d, 'heme', 'cll') || is(d, 'sarcoma', 'angiosarcoma') || is(d, 'cns', 'hgg|lgg');
   const MEN1E = d => is(d, 'parathyroid') || is(d, 'pituitary') || is(d, 'pancreas', 'pnet') || is(d, 'net') || is(d, 'adrenal', 'acc');
   const MEN2 = d => is(d, 'thyroid', 'medullary') || is(d, 'adrenal', 'phaeo') || is(d, 'ppgl') || is(d, 'parathyroid', 'adenoma') || is(d, 'feature', 'cchs');
@@ -331,6 +331,7 @@
           if (n >= 5 && a !== null && a < 60 && (relDx(p, x => is(x, 'polyps', 'adenoma') && +x.count >= 5, 1).length || relDx(p, x => is(x, 'colorectal') && lt(x, 60), 1).length)) why.push('≥5 adenomas under 60 with a first-degree relative with ≥5 adenomas or colorectal cancer under 60');
           return why; };
         if (is(d, 'polyps', 'adenoma')) r211.push(...adenomaWhy(d));
+        if (is(d, 'polyps', 'adenoma') && (d.count === '' || d.count == null)) { const w = adenomaWhy({ ...d, count: '20' }); if (w.length) r211maybe.push(`adenomas, number not entered – qualifies with enough adenomas (e.g. ${w[w.length - 1].replace(/ \(.*\)$/, '')}); enter the number`); }
         if (is(d, 'polyps', 'nos')) { const w = adenomaWhy({ ...d, hist: 'adenoma' }); if (w.length) r211maybe.push(`${d.count} polyps of unknown type – qualifies if they are adenomas (${w[0]}); check the histology report`); }
         // Serrated polyposis syndrome (WHO clinical criteria) – qualifies if under 50, an FDR has SPS, or dysplasia in any polyp.
         if (is(d, 'polyps', 'sps')) {
@@ -414,6 +415,7 @@
         D.forEach(d => {
           if (is(d, 'sarcoma', 'osteo') && lt(d, 18)) q.push(`osteosarcoma under 18 – qualifies if jaw osteosarcoma (${histText(d)})`);
           if ((is(d, 'sarcoma', 'rms') || is(d, 'cervix', 'erms')) && !le(d, 5)) q.push(`rhabdomyosarcoma – qualifies if embryonal anaplastic subtype (${histText(d)})`);
+          if (is(d, 'cns', 'medullo_nos') && lt(d, 18)) q.push(`medulloblastoma under 18, subgroup not known – qualifies if SHH (${histText(d)})`);
         });
         if (q.length) add(p, 'R216', q, { possible: true });
       }
@@ -527,7 +529,7 @@
           if (is(d, 'liver', 'hepatoblastoma')) met.push(`hepatoblastoma (${histText(d)})`);
           if (is(d, 'feature', 'osteomas')) met.push('multiple osteomas of the skull and mandible or dental abnormalities');
           if (is(d, 'feature', 'gapps')) met.push('gastric polyposis – qualifies if GAPPS criteria met (any age)');
-          if (is(d, 'cns', 'medullo_wnt|medullo_nos')) maybe.push(`medulloblastoma – qualifies if classic type (${histText(d)})`);
+          if (is(d, 'cns', 'medullo_wnt|medullo_g34|medullo_nos')) maybe.push(`medulloblastoma – qualifies if classic type (${histText(d)})`);
         });
         const pilo = D.filter(d => is(d, 'feature', 'pilomatrixoma'));
         if (pilo.length) {
@@ -667,12 +669,13 @@
         });
         D.forEach(d => {
           if (is(d, 'cns', 'medullo_shh') && lt(d, 25)) met.push(`SHH medulloblastoma under 25 (${histText(d)})`);
+          if (is(d, 'cns', 'medullo_nos') && lt(d, 25)) maybe.push(`medulloblastoma under 25, subgroup not known – qualifies if SHH (${histText(d)})`);
           if (is(d, 'cns', 'atrt') || is(d, 'ovary', 'sccoht')) met.push(`${is(d, 'cns', 'atrt') ? 'atypical teratoid/rhabdoid tumour' : 'small cell carcinoma of the ovary, hypercalcaemic type'} (${histText(d)})`);
         });
         crit('R456', met, maybe);
 
         const m7 = [], q7 = [];
-        const sarc = d => is(d, 'sarcoma', 'rms|osteo|sts|lms|mpnst|chondrosarcoma|angiosarcoma|mrt') || is(d, 'uterus', 'lms') || is(d, 'cervix', 'erms');
+        const sarc = d => is(d, 'sarcoma', 'rms|osteo|sts|lms|mpnst|chondrosarcoma|angiosarcoma|mrt|nos') || is(d, 'uterus', 'lms') || is(d, 'cervix', 'erms');
         const chord = d => is(d, 'sarcoma', 'chordoma');
         D.forEach(d => {
           if (is(d, 'sarcoma', 'osteo|lms|chondrosarcoma|angiosarcoma') && lt(d, 25)) m7.push(`translocation-negative sarcoma under 25 (${histText(d)})`);
@@ -701,6 +704,13 @@
           if (relDx(p, x => is(x, 'heme', 'all|all_hypo'), 3).length) met.push('ALL with a relative (up to third-degree) with ALL');
           if (people1(x => is(x, 'heme') || is(x, 'feature', 'thrombocytopenia|bmf'), 3).size >= 2) met.push('ALL with two relatives (up to third-degree) with a myeloid, lymphoid or platelet disorder');
           crit('R366', met, []);
+        }
+        // Leukaemia of unknown type: may meet R347 (if AML) or R366 (if ALL) when the family part of the criterion is met.
+        if (D.some(d => is(d, 'heme', 'leuk_nos')) && !D.some(myel) && !D.some(d => is(d, 'heme', 'all|all_hypo'))) {
+          if (D.some(d => is(d, 'feature', 'thrombocytopenia')) || relDx(p, x => myel(x) || is(x, 'heme', 'leuk_nos') || is(x, 'feature', 'bmf'), 3).length)
+            crit('R347', [], ['leukaemia of unknown type – qualifies if AML, with a pre-existing platelet disorder or a relative with AML/MDS, unexplained cytopenia or aplastic anaemia']);
+          if (relDx(p, x => is(x, 'heme', 'all|all_hypo|leuk_nos'), 3).length || people1(x => is(x, 'heme') || is(x, 'feature', 'thrombocytopenia|bmf'), 3).size >= 2)
+            crit('R366', [], ['leukaemia of unknown type – qualifies if ALL, with a relative with ALL or two relatives with a myeloid, lymphoid or platelet disorder']);
         }
       }
     }
@@ -816,7 +826,7 @@
         if (is(d, 'skin', 'melanoma') && by(d, 18, 21)) near(p, 'R254', `melanoma ${at} – the criterion is under 18`, '≥1 melanoma < 18');
         if (is(d, 'sarcoma', 'gist') && by(d, 50, 54)) near(p, 'R363', `GIST ${at} – the criterion is under 50`, 'Diagnosed age before age 50');
         if (is(d, 'eye', 'uveal') && by(d, 40, 44)) near(p, 'R422', `uveal melanoma ${at} – the criterion is under 40`, 'Individual with uveal melanoma');
-        if (is(d, 'sarcoma', 'rms|osteo|sts|lms|mpnst|chondrosarcoma|angiosarcoma|chordoma') && by(d, 25, 29)) near(p, 'R457', `${SITES[d.site].hist.find(h => h[0] === d.hist)[1].toLowerCase()} ${at} – the criterion is under 25`, is(d, 'sarcoma', 'chordoma') ? 'Chordoma <25' : 'Translocation negative sarcoma');
+        if (is(d, 'sarcoma', 'rms|osteo|sts|lms|mpnst|chondrosarcoma|angiosarcoma|chordoma|nos') && by(d, 25, 29)) near(p, 'R457', `${SITES[d.site].hist.find(h => h[0] === d.hist)[1].toLowerCase()} ${at} – the criterion is under 25`, is(d, 'sarcoma', 'chordoma') ? 'Chordoma <25' : 'Translocation negative sarcoma');
         if (is(d, 'polyps', 'adenoma')) {
           const n = +d.count || 0, a = age(d);
           if (a !== null && a < 60 && n >= 7 && n < 10) near(p, 'R211', `${n} adenomas at ${a} – the criterion is ≥10 under 60`, '≥10 adenomatous polyps');

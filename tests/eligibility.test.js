@@ -178,6 +178,12 @@ t('2 hamartomatous polyps of unknown type: meets', [P('proband','F',[{site:'poly
 t('1 hamartomatous polyp of unknown type with a mother with a juvenile polyp: meets', [P('proband','F',[{site:'polyps',hist:'ham_nos',age:'30',count:'1'}]), P('mother','F',[{site:'polyps',hist:'juvenile',age:'40'}])], [['proband','R211','met']]);
 t('30 polyps of unknown type at 40: may meet (if adenomas)', [P('proband','F',[{site:'polyps',hist:'nos',age:'40',count:'30'}])], [['proband','R211','maybe']]);
 t('3 polyps of unknown type at 40: not counted', [P('proband','F',[{site:'polyps',hist:'nos',age:'40',count:'3'}])], [['proband','R211','none']]);
+t('adenomas at 45, number not entered: may meet', [P('proband','F',[{site:'polyps',hist:'adenoma',age:'45'}])], [['proband','R211','maybe']]);
+t('medulloblastoma at 7, subgroup not known: may meet R456 and R216', [P('proband','M',[{site:'cns',hist:'medullo_nos',age:'7'}])], [['proband','R456','maybe'],['proband','R216','maybe']]);
+t('group 3/4 medulloblastoma at 7: R456 not met', [P('proband','M',[{site:'cns',hist:'medullo_g34',age:'7'}])], [['proband','R456','none']]);
+t('leukaemia of unknown type with a mother with AML: may meet R347', [P('proband','M',[{site:'heme',hist:'leuk_nos',age:'30'}]), P('mother','F',[{site:'heme',hist:'aml',age:'55'}])], [['proband','R347','maybe']]);
+t('leukaemia of unknown type, no family history: R347 not shown', [P('proband','M',[{site:'heme',hist:'leuk_nos',age:'30'}])], [['proband','R347','none']]);
+t('sarcoma of unknown type at 20: may meet R457', [P('proband','M',[{site:'sarcoma',hist:'nos',age:'20'}])], [['proband','R457','maybe']]);
 t('endometrioid ovary unknown grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50'}])], [['proband','R207','maybe']]);
 t('endometrioid ovary high grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50',ovgrade:'high'}])], [['proband','R207','met'],['proband','R208','none']]);
 t('endometrioid ovary low grade', [P('proband','F',[{site:'ovary',hist:'endometrioid',age:'50',ovgrade:'low'}])], [['proband','R207','none']]);
