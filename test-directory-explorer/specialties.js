@@ -69,3 +69,10 @@ const TDX_SPECIALTIES = {
   'surgical dentistry': ['Surgical Dentistry'],
   'urology': ['Urology'],
 };
+/* Where an indication's footnote says which specialists a footnoted entry covers, that indication's entry files under
+ * those groups too (the page still shows the PDF wording and footnote). Keyed by indication, then the wording as above.
+ * tests/explorer.test.js checks each entry against the indication's specialties and footnote. */
+const TDX_SPECIALTY_FOOTNOTES = {
+  // "* Surgery to cover colorectal and gynecological surgeons"
+  R210: { 'surgery*': ['Surgery', 'Gynaecology'] }
+};

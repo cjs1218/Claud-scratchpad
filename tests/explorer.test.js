@@ -124,6 +124,12 @@ check(TDX_PANELS.panels[635] && ['BRCA1', 'BRCA2', 'PALB2'].every(g => TDX_PANEL
   const wording = I.flatMap(e => [...(e.specialties || []), ...Object.values(e.variants || {}).flatMap(v => v['Requesting Specialties'] || [])]);
   const unmapped = [...new Set(wording.filter(w => !TDX_SPECIALTIES[w.toLowerCase()]))];
   check(!unmapped.length, `every requesting specialty is mapped to a filter group${unmapped.length ? ' – add to specialties.js: ' + unmapped.join('; ') : ''}`);
+  const { TDX_SPECIALTY_FOOTNOTES } = load(path.join(__dirname, '../test-directory-explorer/specialties.js'));
+  for (const [code, map] of Object.entries(TDX_SPECIALTY_FOOTNOTES)) {
+    const e = I.find(x => x.code === code);
+    check(e && Object.keys(map).every(w => (e.specialties || []).some(s => s.toLowerCase() === w)) && (e.specialtyNotes || []).length > 0,
+      `${code}: footnoted specialty ${Object.keys(map).join(', ')} is in its requesting specialties, with a footnote`);
+  }
   const groups = new Set(Object.values(TDX_SPECIALTIES).flat());
   check(groups.size >= 35 && groups.size <= 50 && groups.has(TDX_SPECIALTY_ANY), `${new Set(wording.map(w => w.toLowerCase())).size} PDF wordings become ${groups.size} filter groups`);
   const unused = Object.keys(TDX_SPECIALTIES).filter(k => !wording.some(w => w.toLowerCase() === k));
@@ -199,10 +205,14 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(neo.includes('R135'), 'semi-rapid routes count (Neonatology can request R135 semi-rapid testing)');
   const gyn = await specCodes('Gynaecology'), uro = await specCodes('Urology');
   check(gyn.includes('R411') && uro.includes('R411'), '“Urology / gynaecology” is under both');
+  check(gyn.includes('R210') && surg.includes('R210'), 'R210 is under Gynaecology and Surgery (its footnote: surgery covers colorectal and gynaecological surgeons)');
   const path_ = await specCodes('Pathology and histopathology'), any = await specCodes('Any appropriate specialist');
   check(path_.includes('R210') && path_.includes('R22') && any.includes('R65') && any.includes('R412') && !any.includes('R27'), 'merged groups (pathology, any appropriate specialist) work');
   await page.goto(BASE + '#R210'); await page.waitForSelector('#detail .s-who');
   check(/Surgery\*/.test(await page.locator('#detail .s-who').innerText()), 'the indication page keeps the PDF wording (Surgery*)');
+  check(/also lists it under Gynaecology\./.test(await page.locator('#detail .s-who').innerText()), 'R210 page says the specialty filter also lists it under Gynaecology, following its footnote');
+  await page.goto(BASE + '#R211'); await page.waitForSelector('#detail .s-who');
+  check(!(await page.locator('#detail .spec-footnote').count()), 'R211 (surgery covers colorectal surgeons only) has no extra filter note');
   await page.goto(BASE); await page.waitForSelector('#results a.row');
   check(await rows() === I.length, 'clear resets the list');
   check(await page.locator('#results .group-head').count() >= 15, 'with no search the list is grouped by clinical area');

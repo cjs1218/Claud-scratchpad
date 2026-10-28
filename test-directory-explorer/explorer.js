@@ -77,7 +77,8 @@
   const SPEC_MAP = typeof TDX_SPECIALTIES !== 'undefined' ? TDX_SPECIALTIES : {};
   const SPEC_ANY = typeof TDX_SPECIALTY_ANY !== 'undefined' ? TDX_SPECIALTY_ANY : '';
   const specWording = e => [...(e.specialties || []), ...Object.values(e.variants || {}).flatMap(v => v['Requesting Specialties'] || [])];
-  const specGroups = e => [...new Set(specWording(e).flatMap(s => SPEC_MAP[s.toLowerCase()] || [s]))];
+  const SPEC_NOTES = typeof TDX_SPECIALTY_FOOTNOTES !== 'undefined' ? TDX_SPECIALTY_FOOTNOTES : {};
+  const specGroups = e => [...new Set(specWording(e).flatMap(s => (SPEC_NOTES[e.code] || {})[s.toLowerCase()] || SPEC_MAP[s.toLowerCase()] || [s]))];
   const SPEC_VALUES = uniq(IND.flatMap(specGroups)).sort((a, b) => (a === SPEC_ANY) - (b === SPEC_ANY) || cmp(a, b));
   const FILTERS = {
     part: { label: 'Clinical area', values: [...new Set(IND.map(e => e.part))].sort((a, b) => partSort(a) - partSort(b)), of: e => [e.part], show: partName },
@@ -457,6 +458,7 @@
             <p><strong>Where in pathway:</strong> ${e.pathway ? verbatim(e.code, e.pathway) : '<span class="muted">Not stated</span>'}</p>
             <p><strong>Requesting specialties</strong></p>${bulletList(e.specialties)}
             ${e.specialtyNotes ? `<p class="small">${e.specialtyNotes.map(esc).join('<br>')}</p>` : ''}
+            ${SPEC_NOTES[e.code] ? `<p class="small muted spec-footnote">Following this footnote, the requesting-specialty filter also lists it under ${esc([...new Set(Object.values(SPEC_NOTES[e.code]).flat())].filter(g => !specWording(e).some(s => (SPEC_MAP[s.toLowerCase()] || []).includes(g))).join(', '))}.</p>` : ''}
             <p><strong>Specialist service group:</strong> ${esc((e.serviceGroup || []).join(', ')) || '<span class="muted">Not stated</span>'}</p>
           </section>
           ${FORMS ? requestForms(e) : ''}
