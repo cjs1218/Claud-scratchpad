@@ -74,5 +74,8 @@ const TDX_SPECIALTIES = {
  * tests/explorer.test.js checks each entry against the indication's specialties and footnote. */
 const TDX_SPECIALTY_FOOTNOTES = {
   // "* Surgery to cover colorectal and gynecological surgeons"
-  R210: { 'surgery*': ['Surgery', 'Gynaecology'] }
+  R210: { 'surgery*': ['Surgery', 'Gynaecology'] },
+  // "*including paediatrics"
+  R216: { 'oncology*': ['Oncology', 'Paediatrics'] },
+  R414: { 'oncology*': ['Oncology', 'Paediatrics'] }
 };

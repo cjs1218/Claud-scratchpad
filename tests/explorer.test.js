@@ -205,12 +205,16 @@ check(/^v\d/.test(TDX.meta.directory) && /^v\d/.test(TDX.meta.criteria), `versio
   check(neo.includes('R135'), 'semi-rapid routes count (Neonatology can request R135 semi-rapid testing)');
   const gyn = await specCodes('Gynaecology'), uro = await specCodes('Urology');
   check(gyn.includes('R411') && uro.includes('R411'), '“Urology / gynaecology” is under both');
+  const onc = await specCodes('Oncology');
+  check(['R216', 'R414'].every(c => paeds.includes(c) && onc.includes(c)), 'R216 and R414 are under Paediatrics and Oncology (their footnote: oncology including paediatrics)');
   check(gyn.includes('R210') && surg.includes('R210'), 'R210 is under Gynaecology and Surgery (its footnote: surgery covers colorectal and gynaecological surgeons)');
   const path_ = await specCodes('Pathology and histopathology'), any = await specCodes('Any appropriate specialist');
   check(path_.includes('R210') && path_.includes('R22') && any.includes('R65') && any.includes('R412') && !any.includes('R27'), 'merged groups (pathology, any appropriate specialist) work');
   await page.goto(BASE + '#R210'); await page.waitForSelector('#detail .s-who');
   check(/Surgery\*/.test(await page.locator('#detail .s-who').innerText()), 'the indication page keeps the PDF wording (Surgery*)');
   check(/also lists it under Gynaecology\./.test(await page.locator('#detail .s-who').innerText()), 'R210 page says the specialty filter also lists it under Gynaecology, following its footnote');
+  await page.goto(BASE + '#R216'); await page.waitForSelector('#detail .s-who');
+  check(/also lists it under Paediatrics\./.test(await page.locator('#detail .s-who').innerText()), 'R216 page says the specialty filter also lists it under Paediatrics, following its footnote');
   await page.goto(BASE + '#R211'); await page.waitForSelector('#detail .s-who');
   check(!(await page.locator('#detail .spec-footnote').count()), 'R211 (surgery covers colorectal surgeons only) has no extra filter note');
   await page.goto(BASE); await page.waitForSelector('#results a.row');
