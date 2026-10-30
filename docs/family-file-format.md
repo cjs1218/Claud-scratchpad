@@ -3,7 +3,7 @@
 A specification for exchanging anonymised family histories between a pedigree system (for example an electronic health
 record) and the GeneRoute Cancer Family History Navigator at <https://generoute.co.uk/cancer-family-history-navigator/>.
 
-- **Into the Navigator:** your system writes a file; the user opens it with **Open family from file**.
+- **Into the Navigator:** your system writes a file; the user opens it with **Open family file**.
 - **Out of the Navigator:** **Save family to file** downloads a file in the same format; your system reads it.
 
 The format is the Navigator's own: each person is described by their **relationship to the proband**, and cancers by the
