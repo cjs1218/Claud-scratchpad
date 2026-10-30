@@ -96,7 +96,7 @@ The results open with a **What to do** card (`whatToDoHtml` in `js/app.js`): who
 
 - **Results**: top three in full; lower-ranked results as compact rows (Show details). Each shows its score, % of the
   top score and a one-line "why here". Strength is shown as coloured pills with a legend.
-- **Save family to file / Open family file** (JSON, stays on the user's computer) and an opt-in
+- **Save family to file / Open family file** (JSON, stays on the user's computer; the format is specified for pedigree/EHR systems in `docs/family-file-format.md`) and an opt-in
   **Remember on this device** (browser storage only).
 - **Find a cancer type** box on each cancer (searches histologies, sites and spelled-out abbreviations).
 - **Undo** after removing a cancer, a relative or clearing the family.
@@ -268,6 +268,7 @@ test-directory-explorer/abbreviations.js   Meanings shown on hover/tap; per-indi
 test-directory-explorer/criteria-format.js Clearer layout of the verbatim criteria (formatting only; the words never change)
 test-directory-explorer/corrections.js     Obvious typos and punctuation corrected in the formatted layout (each marked; PDF layout unchanged)
 test-directory-explorer/search-terms.js    Search synonyms (deafness ↔ hearing loss …) and US → UK spellings
+tools/family-format-tables.js             Code tables in docs/family-file-format.md (npm run docs:format; tests fail if out of date)
 test-directory-explorer/specialties.js     Requesting specialties (PDF wording) → filter groups (e.g. Surgery* → Surgery); footnotes that widen an entry (R210: surgery covers gynaecological surgeons → also Gynaecology; R216, R414: oncology including paediatrics → also Paediatrics)
 test-directory-explorer/forms.js          Request forms: national WGS forms; each Genomic Laboratory Hub's forms for other tests (user picks the hub); rapid, prenatal, pharmacogenomic and carrier routes
 test-directory-explorer/data/directory.js  Generated: indications, tests, verbatim criteria (do not edit)

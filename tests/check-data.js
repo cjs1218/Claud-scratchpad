@@ -121,6 +121,11 @@ for (const [site, opts] of Object.entries(d.HIST_UNKNOWN)) for (const [h, u] of 
   for (const f of u.from) if (!S.hist.some(([k]) => k === f)) e(`HIST_UNKNOWN ${site}/${h}: unknown histology ${f}`);
   if (!(u.steps >= 1) && !(u.cap in d.TIER)) e(`HIST_UNKNOWN ${site}/${h}: needs steps or cap`);
 }
+// The family file format spec's code tables (docs/family-file-format.md) match the data.
+{
+  const ff = require('../tools/family-format-tables.js');
+  if (ff.current(require('fs').readFileSync(ff.DOC, 'utf8')) !== ff.render()) e('docs/family-file-format.md code tables are out of date: run node tools/family-format-tables.js');
+}
 // Every syndrome whose gene is on a test's PanelApp panel lists that test, unless marked in PANEL_NOT_ROUTE.
 {
   const src = require('fs').readFileSync(require('path').join(__dirname, '../cancer-family-history-navigator/js/panels.js'), 'utf8');

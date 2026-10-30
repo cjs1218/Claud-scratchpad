@@ -852,6 +852,18 @@ const topNames = page => page.locator('#results .result h3').allTextContents();
     { id: 1, rel: 'proband', sex: 'F', dx: [{ id: 1, site: 'breast', hist: 'idc', age: '40', side: 'left', er: 'positive', grade: '3' }] }] })) });
   await page.waitForFunction(() => /Opened odd-values\.json/.test(document.getElementById('toast').textContent));
   check(await page.locator('#results .result').count() > 0, 'a file with values the form does not offer (side "left", ER "positive") still opens; those values are dropped');
+  // The examples in the family file format spec open cleanly.
+  {
+    const spec = require('fs').readFileSync(require('path').join(__dirname, '../docs/family-file-format.md'), 'utf8');
+    const blocks = [...spec.matchAll(/```json\n([\s\S]*?)```/g)].map(m => JSON.parse(m[1]));
+    check(blocks.length === 3, `the spec has 3 JSON examples (got ${blocks.length})`);
+    for (const [i, fam] of blocks.entries()) {
+      await page.setInputFiles('#open-family', { name: `spec-${i + 1}.json`, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(fam)) });
+      await page.waitForFunction(n => new RegExp(`Opened ${n}\\.json|could not be opened`).test(document.getElementById('toast').textContent), `spec-${i + 1}`);
+      const n = await page.locator('#family .person').count(), warn = await page.locator('#family .person-warn li').allTextContents();
+      check(n === fam.people.length && !warn.length, `spec example ${i + 1} opens with all ${fam.people.length} people and no warnings${warn.length ? ' (got: ' + warn.join('; ') + ')' : ''}`);
+    }
+  }
 
   console.log('Ancestry criteria');
   await page.goto(BASE); await page.click('#clear');
